@@ -1195,8 +1195,6 @@ Wire Notes Line
 Wire Notes Line
 	11150 6500 7500 6500
 Wire Notes Line
-	7300 6500 7300 2150
-Wire Notes Line
 	7500 2150 11150 2150
 Text Notes 7500 2150 0    50   ~ 0
 VPS
@@ -1577,4 +1575,14 @@ Wire Wire Line
 Connection ~ 7700 3700
 Wire Wire Line
 	7700 3700 7850 3700
+Text Label 7950 750  0    50   ~ 0
+24V_PERM
+Text Label 7550 1050 0    50   ~ 0
+Q2_D
+Text Label 6300 950  0    50   ~ 0
+Q1_D
+Text Label 6800 750  0    50   ~ 0
+R8_D4
+Wire Notes Line
+	7300 6500 7300 2150
 $EndSCHEMATC

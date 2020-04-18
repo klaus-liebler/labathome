@@ -1460,7 +1460,7 @@ F 1 "R_POT" H 881 3655 50  0000 R CNN
 F 2 "Potentiometer_THT:Potentiometer_Alpha_RD901F-40-00D_Single_Vertical" H 950 3700 50  0001 C CNN
 F 3 "~" H 950 3700 50  0001 C CNN
 	1    950  3700
-	1    0    0    -1  
+	1    0    0    1   
 $EndComp
 $Comp
 L power:+3V3 #PWR0101
@@ -1577,4 +1577,55 @@ Wire Wire Line
 Connection ~ 7700 3700
 Wire Wire Line
 	7700 3700 7850 3700
+$Comp
+L Connector_Generic:Conn_01x08 J12
+U 1 1 5EA19D19
+P 7750 5200
+F 0 "J12" H 7700 5600 50  0000 L CNN
+F 1 "3V3" V 7830 5101 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical" H 7750 5200 50  0001 C CNN
+F 3 "~" H 7750 5200 50  0001 C CNN
+	1    7750 5200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7550 4900 7550 5000
+Connection ~ 7550 5000
+Wire Wire Line
+	7550 5000 7550 5100
+Connection ~ 7550 5100
+Wire Wire Line
+	7550 5100 7550 5200
+Connection ~ 7550 5200
+Wire Wire Line
+	7550 5200 7550 5300
+Connection ~ 7550 5300
+Wire Wire Line
+	7550 5300 7550 5400
+Connection ~ 7550 5400
+Wire Wire Line
+	7550 5400 7550 5500
+Connection ~ 7550 5500
+Wire Wire Line
+	7550 5500 7550 5600
+$Comp
+L power:+3V3 #PWR044
+U 1 1 5EA1D6BE
+P 7550 4900
+F 0 "#PWR044" H 7550 4750 50  0001 C CNN
+F 1 "+3V3" V 7565 5028 50  0000 L CNN
+F 2 "" H 7550 4900 50  0001 C CNN
+F 3 "" H 7550 4900 50  0001 C CNN
+	1    7550 4900
+	0    -1   -1   0   
+$EndComp
+Connection ~ 7550 4900
+Text Label 7950 750  0    50   ~ 0
+24V_PERM
+Text Label 7550 1050 0    50   ~ 0
+Q2_D
+Text Label 6300 950  0    50   ~ 0
+Q1_D
+Text Label 6800 750  0    50   ~ 0
+R8_D4
 $EndSCHEMATC
