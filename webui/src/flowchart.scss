@@ -1,0 +1,63 @@
+svg.flowchart-container {
+  .operator-box {
+    stroke: #ccc;
+    stroke-width: 1;
+    fill: #fafafa;
+    &:hover {
+      stroke: red;
+    }
+    &.selected{
+      stroke: green;
+    }
+  }
+  .tools-container
+  {
+    fill: #ccc;
+    stroke: #ccc;
+    stroke-width: 1;
+  }
+  .tool-box{
+    stroke-width: 1;
+    stroke: black;
+    fill:white;
+  }
+  .tool-caption{
+    font: 12px sans-serif;
+  }
+  
+  .operator-title {
+    font: italic 16px sans-serif;
+    cursor: move;
+  }
+  .operator-input-caption {
+    font: 12px sans-serif;
+  }
+  .operator-input-connector,.operator-output-connector {
+    stroke: black;
+     &.BOOLEAN{
+      fill: red;
+    }
+    &.FLOAT{
+      fill: blue;
+    }
+    &.INTEGER{
+      fill: yellow;
+    }
+        
+  }
+ 
+  .operator-input-snapper,.operator-output-snapper {
+    stroke: black;
+    fill: white;
+    opacity: 0;
+    cursor: crosshair;
+  }
+  .operator-output-caption {
+    font: 12px sans-serif;
+    text-anchor: end;
+  }
+    .unselectable {
+    user-select: none;
+ }
+ 
+}

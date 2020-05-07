@@ -1,0 +1,101 @@
+@import "./chartist.scss";
+
+body {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    background-color: grey;
+    display: grid;
+    grid-template-columns: 200px 1fr; 
+    grid-template-rows: 150px 1fr 100px;
+    min-height: 100vh;
+    max-height: 100vh;
+    grid-gap: 10px;
+    margin: 0px;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+  }
+  
+  tr:nth-child(even) {
+    background-color: #dddddd;
+  }
+
+  nav li{
+    list-style: none;
+    padding-bottom: .25em;
+    
+  }
+
+  header{
+    grid-column: 1 / span 2;
+    grid-row: 1;
+    background-color: #DDD;
+    padding: 10px;
+  }
+
+  nav{
+    grid-column: 1;
+    grid-row:2;
+    background-color: #DDD;
+    ul{
+      padding: 10px;
+    }
+  }
+
+  main{
+    grid-column: 2;
+    grid-row:2;
+    background-color: white
+  }
+
+  footer {
+    grid-column: 1 / span 2;
+    grid-row:    3;
+    background-color: #DDD;					
+  }
+
+  *, ::before, ::after{
+    box-sizing: border-box;
+  }
+
+.flowchart-example-container {
+
+    height: 100%;
+    width: 100%;
+    border: 0px solid #BBB; /*Problem: Wenn Bordergrößer null, dann ragt der Border über die 100%-Größe hinweg und macht damit die Gesamtseite größer*/
+    /*TODO: Suche eine Anweisung, die dafür sorgt, dass der Border innerhalb der 100% liegt*/
+  }
+
+  .icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    stroke-width: 0;
+    stroke: currentColor;
+    fill: currentColor;
+  }
+
+  .icon-connection {
+    width: 1.25em;
+  }
+
+  .clearfix:before, .clearfix:after {
+    content: " ";
+    display: table;
+  }
+  .clearfix:after {
+    clear: both;
+  }  
+
+  .pbs, .pvs {
+    padding-bottom: .25em;
+  }
