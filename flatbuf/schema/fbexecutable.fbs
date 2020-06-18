@@ -1,0 +1,60 @@
+/*
+- Variablen mit Index 0 werden nirgends angeschlossen
+- Variablen mit Index 1...1023 werden an Inputs angeschlossen
+- Variable mit Index 1024...2047 werden an Outputs angeschlossen
+- Variablen mit Index 2048..32767 sind "Zwischenvariablen"
+- Variablen mit Index >=32768 sind reserviert (ggf für Retained?)
+*/
+
+namespace labathome;
+
+union FbConfiguration { FbAnd2Configuration, FbOr2Configuration, FbAnd3Configuration, FbNotConfiguration, FbTonConfiguration, FbRSConfiguration} // Optionally add more tables.
+
+table FbExecutable
+{
+    id:ulong;
+    timestamp:ulong;
+    fbConfig:[FbConfiguration];
+    maxBinaryIndex:ushort;
+    maxIntegerIndex:ushort;
+    maxDoubleIndex:ushort;
+}
+
+table FbAnd2Configuration{
+  inputA:ushort ;
+  inputB:ushort ;
+  output:ushort ;
+}
+
+table FbOr2Configuration{
+  inputA:ushort ;
+  inputB:ushort ;
+  output:ushort ;
+}
+
+table FbAnd3Configuration{
+  inputA:ushort ;
+  inputB:ushort ;
+  inputC:ushort ;
+  output:ushort ;
+}
+
+table FbNotConfiguration{
+  input:ushort ;
+  output:ushort ;
+}
+
+table FbTonConfiguration{
+  input:ushort;
+  output:ushort;
+  presetTime_secs:uint;
+  elapsedTime_secs:uint;
+}
+
+table FbRSConfiguration{
+  inputR:ushort;
+  inputS:ushort;
+  output:ushort;
+}
+
+root_type FbExecutable;

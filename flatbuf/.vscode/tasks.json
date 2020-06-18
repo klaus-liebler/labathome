@@ -1,0 +1,22 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Gen Flatbuf",
+            "type": "shell",
+            "command": "C:/opt/flatc/flatc.exe",
+            "args": [
+                "-o", "gen/",
+                "--ts", "--no-fb-import",
+                "schema/fbexecutable.fbs",
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        }
+    ]
+  }
