@@ -1670,34 +1670,10 @@ F 3 "~" H 1800 3100 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	1400 3250 1800 3250
-$Comp
-L Connector:Conn_01x01_Female J4
-U 1 1 5EE6991E
-P 3500 1500
-F 0 "J4" H 3528 1526 50  0000 L CNN
-F 1 "+" H 3700 1500 50  0000 L CNN
-F 2 "smopla:Banana_Jack_2mm" H 3500 1500 50  0001 C CNN
-F 3 "~" H 3500 1500 50  0001 C CNN
-	1    3500 1500
-	1    0    0    -1  
-$EndComp
-$Comp
-L Connector:Conn_01x01_Female J11
-U 1 1 5EE6A720
-P 3500 1600
-F 0 "J11" H 3528 1626 50  0000 L CNN
-F 1 "-" H 3700 1600 50  0000 L CNN
-F 2 "smopla:Banana_Jack_2mm" H 3500 1600 50  0001 C CNN
-F 3 "~" H 3500 1600 50  0001 C CNN
-	1    3500 1600
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	3050 1500 3300 1500
-Connection ~ 3300 1500
 Wire Wire Line
 	3300 1600 3050 1600
-Connection ~ 3300 1600
 $Comp
 L Connector_Generic:Conn_01x03 J12
 U 1 1 5EEDAEDE
@@ -1798,4 +1774,29 @@ Wire Notes Line
 	2600 4350 6900 4350
 Wire Notes Line
 	2600 2100 6900 2100
+$Comp
+L Connector_Generic:Conn_01x03 J14
+U 1 1 5EECC273
+P 8350 3650
+F 0 "J14" H 8430 3692 50  0000 L CNN
+F 1 "FA3" H 8430 3601 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 8350 3650 50  0001 C CNN
+F 3 "~" H 8350 3650 50  0001 C CNN
+	1    8350 3650
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR026
+U 1 1 5EECC287
+P 8150 3550
+F 0 "#PWR026" H 8150 3300 50  0001 C CNN
+F 1 "GND" V 8155 3422 50  0000 R CNN
+F 2 "" H 8150 3550 50  0001 C CNN
+F 3 "" H 8150 3550 50  0001 C CNN
+	1    8150 3550
+	0    1    1    0   
+$EndComp
+NoConn ~ 8150 3750
+Text GLabel 8150 3650 0    50   BiDi ~ 0
+R3_22
 $EndSCHEMATC
