@@ -40,7 +40,7 @@ L Switch:SW_Push SW3
 U 1 1 5E96C3E1
 P 1200 1800
 F 0 "SW3" H 1200 2085 50  0000 C CNN
-F 1 "BLACK" H 1200 1994 50  0000 C CNN
+F 1 "YELLOW" H 1200 1994 50  0000 C CNN
 F 2 "Button_Switch_THT:SW_PUSH-12mm" H 1200 2000 50  0001 C CNN
 F 3 "~" H 1200 2000 50  0001 C CNN
 	1    1200 1800
@@ -165,7 +165,7 @@ F 1 "22R, 100W" H 7600 950 50  0000 R CNN
 F 2 "smopla:Resistor_100W" V 7580 900 50  0001 C CNN
 F 3 "~" H 7650 900 50  0001 C CNN
 	1    7650 900 
-	1    0    0    -1  
+	-1   0    0    1   
 $EndComp
 $Comp
 L Relay:G5V-2 K1
@@ -511,69 +511,36 @@ Text GLabel 10650 4350 3    50   BiDi ~ 0
 R3_11
 Text GLabel 10250 4350 3    50   BiDi ~ 0
 R3_21
-$Comp
-L Connector_Generic:Conn_01x07 J6
-U 1 1 5EA090F1
-P 9100 5200
-F 0 "J6" H 9050 5600 50  0000 L CNN
-F 1 "R1_CONN" V 9180 5151 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical" H 9100 5200 50  0001 C CNN
-F 3 "~" H 9100 5200 50  0001 C CNN
-	1    9100 5200
-	1    0    0    -1  
-$EndComp
-Text GLabel 8900 4900 0    50   Output ~ 0
+Text GLabel 5850 6200 0    50   Output ~ 0
 R1_A1
 Text GLabel 8900 2500 1    50   BiDi ~ 0
 R1_12
-Text GLabel 8900 5200 0    50   BiDi ~ 0
+Text GLabel 5850 6300 0    50   BiDi ~ 0
 R1_11
-Text GLabel 8900 5100 0    50   BiDi ~ 0
+Text GLabel 5850 6400 0    50   BiDi ~ 0
 R1_12
-Text GLabel 8900 5000 0    50   BiDi ~ 0
+Text GLabel 5850 6500 0    50   BiDi ~ 0
 R1_14
-Text GLabel 8900 5300 0    50   BiDi ~ 0
+Text GLabel 5850 6600 0    50   BiDi ~ 0
 R1_21
-Text GLabel 8900 5400 0    50   BiDi ~ 0
+Text GLabel 5850 6700 0    50   BiDi ~ 0
 R1_22
-Text GLabel 8900 5500 0    50   BiDi ~ 0
+Text GLabel 5850 6800 0    50   BiDi ~ 0
 R1_24
-$Comp
-L Connector_Generic:Conn_01x07 J7
-U 1 1 5EA0CA1B
-P 9750 5200
-F 0 "J7" H 9700 5600 50  0000 L CNN
-F 1 "R2_CONN" V 9830 5151 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical" H 9750 5200 50  0001 C CNN
-F 3 "~" H 9750 5200 50  0001 C CNN
-	1    9750 5200
-	1    0    0    -1  
-$EndComp
-Text GLabel 9550 4900 0    50   Output ~ 0
+Text GLabel 5850 5500 0    50   Output ~ 0
 R2_A1
-Text GLabel 9550 5200 0    50   BiDi ~ 0
+Text GLabel 5850 5600 0    50   BiDi ~ 0
 R2_11
-Text GLabel 9550 5100 0    50   BiDi ~ 0
+Text GLabel 5850 5700 0    50   BiDi ~ 0
 R2_12
-Text GLabel 9550 5000 0    50   BiDi ~ 0
+Text GLabel 5850 5800 0    50   BiDi ~ 0
 R2_14
-Text GLabel 9550 5300 0    50   BiDi ~ 0
+Text GLabel 5850 5900 0    50   BiDi ~ 0
 R2_21
-Text GLabel 9550 5400 0    50   BiDi ~ 0
+Text GLabel 5850 6000 0    50   BiDi ~ 0
 R2_22
-Text GLabel 9550 5500 0    50   BiDi ~ 0
+Text GLabel 5850 6100 0    50   BiDi ~ 0
 R2_24
-$Comp
-L Connector_Generic:Conn_01x08 J3
-U 1 1 5EA315A2
-P 8400 5200
-F 0 "J3" H 8350 5600 50  0000 L CNN
-F 1 "5V" V 8480 5101 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical" H 8400 5200 50  0001 C CNN
-F 3 "~" H 8400 5200 50  0001 C CNN
-	1    8400 5200
-	1    0    0    -1  
-$EndComp
 $Comp
 L power:+5V #PWR023
 U 1 1 5EA32827
@@ -585,51 +552,19 @@ F 3 "" H 8200 4900 50  0001 C CNN
 	1    8200 4900
 	0    -1   -1   0   
 $EndComp
-Wire Wire Line
-	8200 4900 8200 5000
-Connection ~ 8200 4900
-Connection ~ 8200 5000
-Wire Wire Line
-	8200 5000 8200 5100
-Connection ~ 8200 5100
-Wire Wire Line
-	8200 5100 8200 5200
-Connection ~ 8200 5200
-Wire Wire Line
-	8200 5200 8200 5300
-Connection ~ 8200 5300
-Wire Wire Line
-	8200 5300 8200 5400
-Connection ~ 8200 5400
-Wire Wire Line
-	8200 5400 8200 5500
-Connection ~ 8200 5500
-Wire Wire Line
-	8200 5500 8200 5600
-$Comp
-L Connector_Generic:Conn_01x07 J8
-U 1 1 5EA33B8C
-P 11000 5200
-F 0 "J8" H 10950 5600 50  0000 L CNN
-F 1 "R3_CONN" V 11080 5151 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical" H 11000 5200 50  0001 C CNN
-F 3 "~" H 11000 5200 50  0001 C CNN
-	1    11000 5200
-	1    0    0    -1  
-$EndComp
-Text GLabel 10250 5200 0    50   Output ~ 0
+Text GLabel 5300 5100 0    50   Output ~ 0
 R3_A1
-Text GLabel 10800 5200 0    50   BiDi ~ 0
+Text GLabel 5850 4900 0    50   BiDi ~ 0
 R3_11
-Text GLabel 10800 5100 0    50   BiDi ~ 0
+Text GLabel 5850 5000 0    50   BiDi ~ 0
 R3_12
-Text GLabel 10800 5000 0    50   BiDi ~ 0
+Text GLabel 5850 5100 0    50   BiDi ~ 0
 R3_14
-Text GLabel 10800 5300 0    50   BiDi ~ 0
+Text GLabel 5850 5200 0    50   BiDi ~ 0
 R3_21
-Text GLabel 10800 5400 0    50   BiDi ~ 0
+Text GLabel 5850 5300 0    50   BiDi ~ 0
 R3_22
-Text GLabel 10800 5500 0    50   BiDi ~ 0
+Text GLabel 5850 5400 0    50   BiDi ~ 0
 R3_24
 Text GLabel 1000 1000 0    50   Output ~ 0
 SW_RED
@@ -669,7 +604,7 @@ $EndComp
 Text GLabel 1000 1400 0    50   Output ~ 0
 SW_GREEN
 Text GLabel 1000 1800 0    50   Output ~ 0
-SW_BLACK
+SW_YELLOW
 $Comp
 L power:+3V3 #PWR012
 U 1 1 5EA3DBA5
@@ -771,7 +706,7 @@ U 1 1 5EA4C966
 P 9750 900
 F 0 "J9" H 9830 942 50  0000 L CNN
 F 1 "FA1" H 9830 851 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 9750 900 50  0001 C CNN
+F 2 "Connector:FanPinHeader_1x03_P2.54mm_Vertical" H 9750 900 50  0001 C CNN
 F 3 "~" H 9750 900 50  0001 C CNN
 	1    9750 900 
 	1    0    0    -1  
@@ -832,7 +767,7 @@ Wire Wire Line
 	8600 1250 8650 1250
 Connection ~ 8650 1250
 Text GLabel 8300 1250 3    50   Input ~ 0
-FAN
+FAN_DRIVE
 Wire Wire Line
 	9000 1450 9000 1550
 Connection ~ 9000 1550
@@ -847,8 +782,8 @@ F 3 "" H 5350 1250 50  0001 C CNN
 	1    5350 1250
 	1    0    0    -1  
 $EndComp
-Text GLabel 5350 1150 0    50   Input ~ 0
-POWER_LED
+Text GLabel 4900 1050 3    50   Input ~ 0
+LED_POWER_WHITE
 Wire Wire Line
 	9550 800  9000 800 
 Wire Notes Line
@@ -863,24 +798,13 @@ Text Notes 4800 600  0    50   ~ 0
 PowerStage
 Text Notes 550  600  0    50   ~ 0
 HMI
-$Comp
-L Connector_Generic:Conn_01x04 J5
-U 1 1 5EAC4E92
-P 8250 6050
-F 0 "J5" H 8330 6042 50  0000 L CNN
-F 1 "SW&LED" H 8330 5951 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 8250 6050 50  0001 C CNN
-F 3 "~" H 8250 6050 50  0001 C CNN
-	1    8250 6050
-	1    0    0    -1  
-$EndComp
-Text GLabel 8050 5950 0    50   Input ~ 0
+Text GLabel 5850 6900 0    50   Input ~ 0
 SW_BLUE
-Text GLabel 8050 6150 0    50   Input ~ 0
+Text GLabel 5850 7100 0    50   Input ~ 0
 SW_WHITE
-Text GLabel 8050 6250 0    50   Output ~ 0
+Text GLabel 5850 7200 0    50   Output ~ 0
 LED_WHITE
-Text GLabel 8050 6050 0    50   Output ~ 0
+Text GLabel 5850 7000 0    50   Output ~ 0
 LED_BLUE
 Wire Notes Line
 	11150 2150 11150 6500
@@ -943,11 +867,11 @@ Wire Notes Line
 Text Notes 550  4050 0    50   ~ 0
 Sensors & Actors
 Text GLabel 3850 3500 0    50   Output ~ 0
-POWER_LED
+LED_POWER_WHITE
 Text GLabel 6350 3450 2    50   Output ~ 0
 HEATER
 Text GLabel 3850 3600 0    50   Output ~ 0
-FAN
+FAN_DRIVE
 Text GLabel 3850 2700 0    50   Input ~ 0
 MOVEMENT
 $Comp
@@ -988,7 +912,7 @@ SW_RED
 Text GLabel 5650 3700 2    50   Input ~ 0
 SW_GREEN
 Text GLabel 5650 3900 2    50   Input ~ 0
-SW_BLACK
+SW_YELLOW
 Text GLabel 3850 3300 0    50   Output ~ 0
 LED_RED
 Text GLabel 3850 3400 0    50   Output ~ 0
@@ -1104,7 +1028,7 @@ $EndComp
 NoConn ~ 3350 1200
 Text Notes 2600 2100 0    50   ~ 0
 CPU
-Text Label 7750 1100 0    50   ~ 0
+Text Label 7650 1050 0    50   ~ 0
 Q2_D
 Wire Notes Line
 	7300 6500 7300 2150
@@ -1349,12 +1273,12 @@ $EndComp
 $Comp
 L power:GND #PWR028
 U 1 1 5EADFC97
-P 10300 5500
-F 0 "#PWR028" H 10300 5250 50  0001 C CNN
-F 1 "GND" V 10305 5372 50  0000 R CNN
-F 2 "" H 10300 5500 50  0001 C CNN
-F 3 "" H 10300 5500 50  0001 C CNN
-	1    10300 5500
+P 5350 5400
+F 0 "#PWR028" H 5350 5150 50  0001 C CNN
+F 1 "GND" V 5355 5272 50  0000 R CNN
+F 2 "" H 5350 5400 50  0001 C CNN
+F 3 "" H 5350 5400 50  0001 C CNN
+	1    5350 5400
 	1    0    0    -1  
 $EndComp
 Text GLabel 3850 2600 0    50   Input ~ 0
@@ -1362,23 +1286,23 @@ R3_A1
 $Comp
 L Device:R R1
 U 1 1 5EADFA6D
-P 10300 5050
-F 0 "R1" V 10200 5050 50  0000 C CNN
-F 1 "2k2" V 10300 5050 50  0000 C CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 10230 5050 50  0001 C CNN
-F 3 "~" H 10300 5050 50  0001 C CNN
-	1    10300 5050
+P 5350 4950
+F 0 "R1" V 5250 4950 50  0000 C CNN
+F 1 "2k2" V 5350 4950 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 5280 4950 50  0001 C CNN
+F 3 "~" H 5350 4950 50  0001 C CNN
+	1    5350 4950
 	-1   0    0    1   
 $EndComp
 $Comp
 L Device:R R2
 U 1 1 5EADEC2C
-P 10300 5350
-F 0 "R2" V 10200 5350 50  0000 C CNN
-F 1 "3k3" V 10300 5350 50  0000 C CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 10230 5350 50  0001 C CNN
-F 3 "~" H 10300 5350 50  0001 C CNN
-	1    10300 5350
+P 5350 5250
+F 0 "R2" V 5250 5250 50  0000 C CNN
+F 1 "3k3" V 5350 5250 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 5280 5250 50  0001 C CNN
+F 3 "~" H 5350 5250 50  0001 C CNN
+	1    5350 5250
 	-1   0    0    1   
 $EndComp
 Text Notes 4150 2950 0    50   ~ 0
@@ -1404,11 +1328,10 @@ Wire Notes Line
 Wire Wire Line
 	11050 4900 10800 4900
 Wire Wire Line
-	10300 5200 10250 5200
-Connection ~ 10300 5200
+	5350 5100 5300 5100
+Connection ~ 5350 5100
 Wire Wire Line
-	10800 4900 10300 4900
-Connection ~ 10800 4900
+	5850 4800 5350 4800
 NoConn ~ 3850 3900
 $Comp
 L power:GND #PWR039
@@ -1680,7 +1603,7 @@ U 1 1 5EEDAEDE
 P 10600 1500
 F 0 "J12" H 10680 1542 50  0000 L CNN
 F 1 "FA2" H 10680 1451 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 10600 1500 50  0001 C CNN
+F 2 "Connector:FanPinHeader_1x03_P2.54mm_Vertical" H 10600 1500 50  0001 C CNN
 F 3 "~" H 10600 1500 50  0001 C CNN
 	1    10600 1500
 	1    0    0    -1  
@@ -1780,7 +1703,7 @@ U 1 1 5EECC273
 P 8350 3650
 F 0 "J14" H 8430 3692 50  0000 L CNN
 F 1 "FA3" H 8430 3601 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 8350 3650 50  0001 C CNN
+F 2 "Connector:FanPinHeader_1x03_P2.54mm_Vertical" H 8350 3650 50  0001 C CNN
 F 3 "~" H 8350 3650 50  0001 C CNN
 	1    8350 3650
 	1    0    0    -1  
@@ -1847,4 +1770,97 @@ F 3 "" H 1600 4700 50  0001 C CNN
 	1    1600 4700
 	0    -1   -1   0   
 $EndComp
+Wire Wire Line
+	4900 1050 5050 1050
+Wire Wire Line
+	5050 1050 5050 1150
+Wire Wire Line
+	5050 1150 5350 1150
+$Comp
+L Connector_Generic:Conn_02x25_Odd_Even J5
+U 1 1 5EF5C444
+P 6050 6000
+F 0 "J5" H 6100 7417 50  0000 C CNN
+F 1 "VPS" H 6100 7326 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_2x25_P2.54mm_Vertical" H 6050 6000 50  0001 C CNN
+F 3 "~" H 6050 6000 50  0001 C CNN
+	1    6050 6000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5850 4800 6350 4800
+Wire Wire Line
+	5850 4900 6350 4900
+Wire Wire Line
+	5850 5000 6350 5000
+Wire Wire Line
+	5850 5100 6350 5100
+Wire Wire Line
+	5850 5200 6350 5200
+Wire Wire Line
+	5850 5300 6350 5300
+Wire Wire Line
+	5850 5400 6350 5400
+Wire Wire Line
+	5850 5500 6350 5500
+Wire Wire Line
+	5850 5600 6350 5600
+Wire Wire Line
+	5850 5700 6350 5700
+Wire Wire Line
+	5850 5800 6350 5800
+Wire Wire Line
+	5850 5900 6350 5900
+Wire Wire Line
+	5850 6000 6350 6000
+Wire Wire Line
+	5850 6100 6350 6100
+Wire Wire Line
+	5850 6200 6350 6200
+Wire Wire Line
+	5850 6300 6350 6300
+Wire Wire Line
+	5850 6400 6350 6400
+Wire Wire Line
+	5850 6500 6350 6500
+Wire Wire Line
+	5850 6600 6350 6600
+Wire Wire Line
+	5850 6700 6350 6700
+Wire Wire Line
+	5850 6800 6350 6800
+Wire Wire Line
+	5850 6900 6350 6900
+Wire Wire Line
+	5850 7000 6350 7000
+Wire Wire Line
+	5850 7100 6350 7100
+Wire Wire Line
+	5850 7200 6350 7200
+Connection ~ 5850 4800
+$Comp
+L Connector_Generic:Conn_01x05 J3
+U 1 1 5EFDF44A
+P 8400 5100
+F 0 "J3" H 8480 5142 50  0000 L CNN
+F 1 "5V" H 8480 5051 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical" H 8400 5100 50  0001 C CNN
+F 3 "~" H 8400 5100 50  0001 C CNN
+	1    8400 5100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8200 4900 8200 5000
+Connection ~ 8200 4900
+Connection ~ 8200 5000
+Wire Wire Line
+	8200 5000 8200 5100
+Connection ~ 8200 5100
+Wire Wire Line
+	8200 5100 8200 5200
+Connection ~ 8200 5200
+Wire Wire Line
+	8200 5200 8200 5300
+Wire Wire Line
+	8750 5150 8700 5150
 $EndSCHEMATC
