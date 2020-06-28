@@ -1,2 +1,3 @@
-idf_component_register(SRCS "main.cpp" "functionblocks.cpp" "fbexecutable.pb.cc"
-                    INCLUDE_DIRS "" "C:/opt/protobuf-3.12.3/src")
+idf_component_register(
+    SRCS "main.cc" "functionblocks.cc" "plcmanager.cc"
+    EMBED_FILES "../../devtools/fbexec.data")

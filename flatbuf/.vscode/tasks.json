@@ -10,6 +10,7 @@
             "args": [
                 "-o", "gen/",
                 "--ts", "--no-fb-import",
+                "--cpp",
                 "schema/fbexecutable.fbs",
             ],
             "presentation": {
