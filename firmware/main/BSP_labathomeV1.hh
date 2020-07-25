@@ -5,6 +5,7 @@
 #include "esp_system.h"
 #include "esp_log.h"
 #include "BSP.hh"
+#include "labathomeerror.hh"
 
 
 const gpio_num_t BRIGHTNESS = GPIO_NUM_34;
@@ -51,7 +52,7 @@ class BSP_labathomeV1:public BSP
         
     
     public:
-        esp_err_t init()
+        LabAtHomeErrorCode init()
         {
             //Boolean Inputs in right sequence
             gpio_pad_select_gpio((uint8_t)SW_RED);
@@ -108,17 +109,17 @@ class BSP_labathomeV1:public BSP
             gpio_set_direction(FAN_DRIVE, GPIO_MODE_OUTPUT);
             //Für V2 ff.: Buzzer_FREQ, Buzzer_TIMEMS (Beide Werte können gesetzt werden; Time zählt selbständig zurück. Wenn TIME also 0 ist, dann wird kein Ton mehr gespiel)
             //Hier ggf auch einige "Melodien" vordefinieren Buzzer_MELODY, die sich dann nach deauch selbst nach dem Abspielen auf 0 zurücksetzen. Melody hat Priorität und setzt selbständig Buzzer Freq und Buzzer TIMEMS auf die korrekten Werte
-            return ESP_OK;
+            return LabAtHomeErrorCode::OK;
 
         }
 
-        esp_err_t getBinaryInput(size_t index, bool *value)
+        LabAtHomeErrorCode getBinaryInput(size_t index, bool *value)
         {
             *value = inputs & (1<<index);
-            return ESP_OK;
+            return LabAtHomeErrorCode::OK;
         }
 
-        esp_err_t setBinaryOutput(size_t index, bool value)
+        LabAtHomeErrorCode setBinaryOutput(size_t index, bool value)
         {
             if(value)
             {
@@ -130,24 +131,24 @@ class BSP_labathomeV1:public BSP
             }
             
             
-            return ESP_OK;
+            return LabAtHomeErrorCode::OK;
         }
 
-        esp_err_t fetchInputs()
+        LabAtHomeErrorCode fetchInputs()
         {
             this->inputs =  ((gpio_get_level(SW_RED)  ==0)<<SW_RED_INDEX) | 
                             ((gpio_get_level(SW_BLACK)==0)<<SW_BLACK_INDEX) |
                             ((gpio_get_level(SW_GREEN)==0)<<SW_GREEN_INDEX) |
                             ((gpio_get_level(MOVEMENT)==0)<<MOVEMENT_INDEX);
-            return ESP_OK;
+            return LabAtHomeErrorCode::OK;
         }
 
-        esp_err_t flushOutputs()
+        LabAtHomeErrorCode flushOutputs()
         {
                 gpio_set_level(LED_RED,    !(outputs & (1<<LED_RED_INDEX)));
                 gpio_set_level(LED_YELLOW, !(outputs & (1<<LED_YELLOW_INDEX)));
                 gpio_set_level(LED_GREEN,  !(outputs & (1<<LED_GREEN_INDEX)));
-                return ESP_OK;
+                return LabAtHomeErrorCode::OK;
         }
 
 

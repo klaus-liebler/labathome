@@ -5,27 +5,12 @@
 #include "driver/gpio.h"
 #include "esp_system.h"
 #include "esp_spi_flash.h"
-include "FastLED.h" CRGBPalette16 currentPalette;
-TBlendType currentBlending;
-
-extern CRGBPalette16 myRedWhiteBluePalette;
-extern const TProgmemPalette16 IRAM_ATTR myRedWhiteBluePalette_p;
-
-#include "palettes.h"
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
 
 #include "BSP.hh"
 #include "BSP_wroverkit.hh"
 #include "functionblocks.hh"
-
-#define NUM_LEDS 30
-#define DATA_PIN 13
-#define BRIGHTNESS 80
-#define LED_TYPE WS2812B
-#define COLOR_ORDER RGB
-CRGB leds[NUM_LEDS];
-
 #include "esp_log.h"
 static const char *TAG = "main";
 
@@ -140,6 +125,7 @@ void testModelCreatorTask(void *pvParameters)
     ESP_LOGI(TAG, "testModelCreatorTask started");
     vTaskDelay(1000 / portTICK_PERIOD_MS);
     manager->CompileProtobufConfig2ExecutableAndEnqueue(NULL, 0);
+    while(true);
 }
 
 // Main PLC Task
@@ -154,56 +140,16 @@ void plcTask(void *pvParameters)
     {
         // Wait for the next cycle.
         vTaskDelayUntil(&xLastWakeTime, xFrequency);
-        ESP_LOGI(TAG, "CheckForNewExecutable");
+        ESP_LOGD(TAG, "CheckForNewExecutable");
         manager->CheckForNewExecutable();
-        ESP_LOGI(TAG, "fetchInputs");
+        ESP_LOGD(TAG, "fetchInputs");
         bsp->fetchInputs();
-        ESP_LOGI(TAG, "Loop");
+        ESP_LOGD(TAG, "Loop");
         manager->Loop();
-        ESP_LOGI(TAG, "flushOutputs");
+        ESP_LOGD(TAG, "flushOutputs");
         bsp->flushOutputs();
     }
 }
-
-#define N_COLORS 17
-CRGB colors[N_COLORS] = {
-    CRGB::AliceBlue,
-    CRGB::ForestGreen,
-    CRGB::Lavender,
-    CRGB::MistyRose,
-    CRGB::DarkOrchid,
-    CRGB::DarkOrange,
-    CRGB::Black,
-    CRGB::Red,
-    CRGB::Green,
-    CRGB::Blue,
-    CRGB::White,
-    CRGB::Teal,
-    CRGB::Violet,
-    CRGB::Lime,
-    CRGB::Chartreuse,
-    CRGB::BlueViolet,
-    CRGB::Aqua};
-
-void blinkLeds_simple(void *pvParameters)
-{
-
-    while (1)
-    {
-
-        for (int j = 0; j < N_COLORS; j++)
-        {
-            printf("blink leds\n");
-
-            for (int i = 0; i < NUM_LEDS; i++)
-            {
-                leds[i] = colors[j];
-            }
-            FastLED.show();
-            delay(1000);
-        };
-    }
-};
 
 void app_main(void)
 {
@@ -224,20 +170,6 @@ void app_main(void)
     printf("Free heap: %d\n", esp_get_free_heap_size());
     printf("=======================================================\n");
 
-    printf(" entering app main, call add leds\n");
-    FastLED.addLeds<LED_TYPE, DATA_PIN>(leds, NUM_LEDS);
-
-    printf(" set max power\n");
-    FastLED.setMaxPowerInVoltsAndMilliamps(5, 1000);
-
-    // change the task below to one of the functions above to try different patterns
-    printf("create task for led blinking\n");
-    xTaskCreatePinnedToCore(&blinkLeds_simple, "blinkLeds", 4000, NULL, 5, NULL, 0);
-    while (true)
-    {
-        vTaskDelay(5000 / portTICK_PERIOD_MS);
-    }
-
     check_efuse();
 
     adc1_config_width(width);
@@ -251,7 +183,7 @@ void app_main(void)
     bsp->init();
     esp_log_level_set(TAG, ESP_LOG_INFO);
     //xTaskCreate(managementTask, "managementTask", 1024 * 2, NULL, 5, NULL);
-    xTaskCreate(plcTask, "plcTask", 4096 * 2, NULL, 6, NULL);
+    xTaskCreate(plcTask, "plcTask", 4096 * 4, NULL, 6, NULL);
     xTaskCreate(testModelCreatorTask, "testModelCreatorTask", 4096 * 2, NULL, 6, NULL);
     int i = 0;
 

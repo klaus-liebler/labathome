@@ -4,27 +4,62 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "echo",
+            "label": "openocd flash",
             "type": "shell",
-            "command": "echo Hello",
+            "command": "C:/opt/esp-idf/export.ps1;openocd",
+            "args": [
+                "-f",
+                "board/esp32-wrover-kit-3.3v.cfg",
+                "-c",
+                "program_esp c:/repos/labathome/firmware/build/labathome_firmware.bin 0x10000 verify exit"
+            ],
             "problemMatcher": []
         },
         {
             "label": "idf build",
             "type": "shell",
             "command": "C:/opt/esp-idf/export.ps1;idf",
-            "args": ["build"],
+            "args": [
+                "build"
+            ],
             "problemMatcher": {
                 "base": "$gcc",
                 "applyTo": "allDocuments",
-                "fileLocation": ["relative", "${workspaceFolder}/build"]
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}/build"
+                ]
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "idf flash monitor",
+            "type": "shell",
+            "command": "C:/opt/esp-idf/export.ps1;idf",
+            "args": [
+                "flash",
+                "monitor"
+            ],
+            "problemMatcher": {
+                "base": "$gcc",
+                "applyTo": "allDocuments",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}/build"
+                ]
             },
             "group": "build",
             "presentation": {
                 "reveal": "always",
                 "panel": "new"
             }
-            
         }
     ]
 }

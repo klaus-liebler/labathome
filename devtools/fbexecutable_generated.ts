@@ -70,44 +70,19 @@ timestamp():flatbuffers.Long {
 
 /**
  * @param number index
- * @returns labathome.FbConfiguration
+ * @param labathome.ConfigurationWrapper= obj
+ * @returns labathome.ConfigurationWrapper
  */
-fbConfigType(index: number):labathome.FbConfiguration|null {
+fbConfig(index: number, obj?:labathome.ConfigurationWrapper):labathome.ConfigurationWrapper|null {
   var offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? /**  */ (this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index)) : /**  */ (0);
-};
-
-/**
- * @returns number
- */
-fbConfigTypeLength():number {
-  var offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns Uint8Array
- */
-fbConfigTypeArray():Uint8Array|null {
-  var offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? new Uint8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
-};
-
-/**
- * @param number index
- * @param flatbuffers.Table= obj
- * @returns ?flatbuffers.Table
- */
-fbConfig<T extends flatbuffers.Table>(index: number, obj:T):T|null {
-  var offset = this.bb!.__offset(this.bb_pos, 10);
-  return offset ? this.bb!.__union(obj, this.bb!.__vector(this.bb_pos + offset) + index * 4) : null;
+  return offset ? (obj || new labathome.ConfigurationWrapper()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 };
 
 /**
  * @returns number
  */
 fbConfigLength():number {
-  var offset = this.bb!.__offset(this.bb_pos, 10);
+  var offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -115,7 +90,7 @@ fbConfigLength():number {
  * @returns number
  */
 maxBinaryIndex():number {
-  var offset = this.bb!.__offset(this.bb_pos, 12);
+  var offset = this.bb!.__offset(this.bb_pos, 10);
   return offset ? this.bb!.readUint16(this.bb_pos + offset) : 0;
 };
 
@@ -123,7 +98,7 @@ maxBinaryIndex():number {
  * @returns number
  */
 maxIntegerIndex():number {
-  var offset = this.bb!.__offset(this.bb_pos, 14);
+  var offset = this.bb!.__offset(this.bb_pos, 12);
   return offset ? this.bb!.readUint16(this.bb_pos + offset) : 0;
 };
 
@@ -131,7 +106,7 @@ maxIntegerIndex():number {
  * @returns number
  */
 maxDoubleIndex():number {
-  var offset = this.bb!.__offset(this.bb_pos, 16);
+  var offset = this.bb!.__offset(this.bb_pos, 14);
   return offset ? this.bb!.readUint16(this.bb_pos + offset) : 0;
 };
 
@@ -139,7 +114,7 @@ maxDoubleIndex():number {
  * @param flatbuffers.Builder builder
  */
 static startFbExecutable(builder:flatbuffers.Builder) {
-  builder.startObject(7);
+  builder.startObject(6);
 };
 
 /**
@@ -160,39 +135,10 @@ static addTimestamp(builder:flatbuffers.Builder, timestamp:flatbuffers.Long) {
 
 /**
  * @param flatbuffers.Builder builder
- * @param flatbuffers.Offset fbConfigTypeOffset
- */
-static addFbConfigType(builder:flatbuffers.Builder, fbConfigTypeOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(2, fbConfigTypeOffset, 0);
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param Array.<labathome.FbConfiguration> data
- * @returns flatbuffers.Offset
- */
-static createFbConfigTypeVector(builder:flatbuffers.Builder, data:labathome.FbConfiguration[]):flatbuffers.Offset {
-  builder.startVector(1, data.length, 1);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addInt8(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param flatbuffers.Builder builder
- * @param number numElems
- */
-static startFbConfigTypeVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(1, numElems, 1);
-};
-
-/**
- * @param flatbuffers.Builder builder
  * @param flatbuffers.Offset fbConfigOffset
  */
 static addFbConfig(builder:flatbuffers.Builder, fbConfigOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(3, fbConfigOffset, 0);
+  builder.addFieldOffset(2, fbConfigOffset, 0);
 };
 
 /**
@@ -221,7 +167,7 @@ static startFbConfigVector(builder:flatbuffers.Builder, numElems:number) {
  * @param number maxBinaryIndex
  */
 static addMaxBinaryIndex(builder:flatbuffers.Builder, maxBinaryIndex:number) {
-  builder.addFieldInt16(4, maxBinaryIndex, 0);
+  builder.addFieldInt16(3, maxBinaryIndex, 0);
 };
 
 /**
@@ -229,7 +175,7 @@ static addMaxBinaryIndex(builder:flatbuffers.Builder, maxBinaryIndex:number) {
  * @param number maxIntegerIndex
  */
 static addMaxIntegerIndex(builder:flatbuffers.Builder, maxIntegerIndex:number) {
-  builder.addFieldInt16(5, maxIntegerIndex, 0);
+  builder.addFieldInt16(4, maxIntegerIndex, 0);
 };
 
 /**
@@ -237,7 +183,7 @@ static addMaxIntegerIndex(builder:flatbuffers.Builder, maxIntegerIndex:number) {
  * @param number maxDoubleIndex
  */
 static addMaxDoubleIndex(builder:flatbuffers.Builder, maxDoubleIndex:number) {
-  builder.addFieldInt16(6, maxDoubleIndex, 0);
+  builder.addFieldInt16(5, maxDoubleIndex, 0);
 };
 
 /**
@@ -265,16 +211,110 @@ static finishSizePrefixedFbExecutableBuffer(builder:flatbuffers.Builder, offset:
   builder.finish(offset, undefined, true);
 };
 
-static createFbExecutable(builder:flatbuffers.Builder, id:flatbuffers.Long, timestamp:flatbuffers.Long, fbConfigTypeOffset:flatbuffers.Offset, fbConfigOffset:flatbuffers.Offset, maxBinaryIndex:number, maxIntegerIndex:number, maxDoubleIndex:number):flatbuffers.Offset {
+static createFbExecutable(builder:flatbuffers.Builder, id:flatbuffers.Long, timestamp:flatbuffers.Long, fbConfigOffset:flatbuffers.Offset, maxBinaryIndex:number, maxIntegerIndex:number, maxDoubleIndex:number):flatbuffers.Offset {
   FbExecutable.startFbExecutable(builder);
   FbExecutable.addId(builder, id);
   FbExecutable.addTimestamp(builder, timestamp);
-  FbExecutable.addFbConfigType(builder, fbConfigTypeOffset);
   FbExecutable.addFbConfig(builder, fbConfigOffset);
   FbExecutable.addMaxBinaryIndex(builder, maxBinaryIndex);
   FbExecutable.addMaxIntegerIndex(builder, maxIntegerIndex);
   FbExecutable.addMaxDoubleIndex(builder, maxDoubleIndex);
   return FbExecutable.endFbExecutable(builder);
+}
+}
+}
+/**
+ * @constructor
+ */
+export namespace labathome{
+export class ConfigurationWrapper {
+  bb: flatbuffers.ByteBuffer|null = null;
+
+  bb_pos:number = 0;
+/**
+ * @param number i
+ * @param flatbuffers.ByteBuffer bb
+ * @returns ConfigurationWrapper
+ */
+__init(i:number, bb:flatbuffers.ByteBuffer):ConfigurationWrapper {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param ConfigurationWrapper= obj
+ * @returns ConfigurationWrapper
+ */
+static getRootAsConfigurationWrapper(bb:flatbuffers.ByteBuffer, obj?:ConfigurationWrapper):ConfigurationWrapper {
+  return (obj || new ConfigurationWrapper()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param flatbuffers.ByteBuffer bb
+ * @param ConfigurationWrapper= obj
+ * @returns ConfigurationWrapper
+ */
+static getSizePrefixedRootAsConfigurationWrapper(bb:flatbuffers.ByteBuffer, obj?:ConfigurationWrapper):ConfigurationWrapper {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new ConfigurationWrapper()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns labathome.FbConfiguration
+ */
+itemType():labathome.FbConfiguration {
+  var offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? /**  */ (this.bb!.readUint8(this.bb_pos + offset)) : labathome.FbConfiguration.NONE;
+};
+
+/**
+ * @param flatbuffers.Table obj
+ * @returns ?flatbuffers.Table
+ */
+item<T extends flatbuffers.Table>(obj:T):T|null {
+  var offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.__union(obj, this.bb_pos + offset) : null;
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ */
+static startConfigurationWrapper(builder:flatbuffers.Builder) {
+  builder.startObject(2);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param labathome.FbConfiguration itemType
+ */
+static addItemType(builder:flatbuffers.Builder, itemType:labathome.FbConfiguration) {
+  builder.addFieldInt8(0, itemType, labathome.FbConfiguration.NONE);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @param flatbuffers.Offset itemOffset
+ */
+static addItem(builder:flatbuffers.Builder, itemOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(1, itemOffset, 0);
+};
+
+/**
+ * @param flatbuffers.Builder builder
+ * @returns flatbuffers.Offset
+ */
+static endConfigurationWrapper(builder:flatbuffers.Builder):flatbuffers.Offset {
+  var offset = builder.endObject();
+  return offset;
+};
+
+static createConfigurationWrapper(builder:flatbuffers.Builder, itemType:labathome.FbConfiguration, itemOffset:flatbuffers.Offset):flatbuffers.Offset {
+  ConfigurationWrapper.startConfigurationWrapper(builder);
+  ConfigurationWrapper.addItemType(builder, itemType);
+  ConfigurationWrapper.addItem(builder, itemOffset);
+  return ConfigurationWrapper.endConfigurationWrapper(builder);
 }
 }
 }

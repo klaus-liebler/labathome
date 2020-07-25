@@ -14,10 +14,14 @@ table FbExecutable
 {
     id:ulong;
     timestamp:ulong;
-    fbConfig:[FbConfiguration];
+    fbConfig:[ConfigurationWrapper];
     maxBinaryIndex:ushort;
     maxIntegerIndex:ushort;
     maxDoubleIndex:ushort;
+}
+table ConfigurationWrapper
+{
+  item:FbConfiguration;
 }
 
 table FbAnd2Configuration{

@@ -5,6 +5,7 @@
 #include "esp_system.h"
 #include "esp_log.h"
 #include "BSP.hh"
+#include "labathomeerror.hh"
 
 const gpio_num_t LED_RED = GPIO_NUM_0;
 const gpio_num_t LED_GREEN = GPIO_NUM_2;
@@ -43,7 +44,7 @@ class BSP_wroverkit:public BSP
         {
             
         }
-        esp_err_t init()
+        LabAtHomeErrorCode init()
         {
             //Boolean Inputs in right sequence
             gpio_pad_select_gpio((uint8_t)SW_RED);
@@ -70,17 +71,17 @@ class BSP_wroverkit:public BSP
             gpio_set_level(LED_GREEN, 0);
             gpio_pad_select_gpio((uint8_t)LED_GREEN);
             gpio_set_direction(LED_GREEN, GPIO_MODE_OUTPUT);
-            return ESP_OK;
+            return LabAtHomeErrorCode::OK;
 
         }
 
-        esp_err_t getBinaryInput(size_t index, bool *value)
+        LabAtHomeErrorCode getBinaryInput(size_t index, bool *value)
         {
             *value = inputs & (1<<index);
-            return ESP_OK;
+            return LabAtHomeErrorCode::OK;
         }
 
-        esp_err_t setBinaryOutput(size_t index, bool value)
+        LabAtHomeErrorCode setBinaryOutput(size_t index, bool value)
         {
             if(value)
             {
@@ -90,25 +91,23 @@ class BSP_wroverkit:public BSP
             {
                 outputs = outputs & ~(1<<index);
             }
-            
-            
-            return ESP_OK;
+            return LabAtHomeErrorCode::OK;
         }
 
-        esp_err_t fetchInputs()
+        LabAtHomeErrorCode fetchInputs()
         {
-            this->inputs =  ((gpio_get_level(SW_RED)  ==0)<<SW_RED_INDEX) | 
+            this->inputs =  ((gpio_get_level(SW_RED)   ==0)<<SW_RED_INDEX) | 
                             ((gpio_get_level(SW_YELLOW)==0)<<SW_YELLOW_INDEX) |
-                            ((gpio_get_level(SW_GREEN)==0)<<SW_GREEN_INDEX);
-            return ESP_OK;
+                            ((gpio_get_level(SW_GREEN) ==0)<<SW_GREEN_INDEX);
+            return LabAtHomeErrorCode::OK;
         }
 
-        esp_err_t flushOutputs()
+        LabAtHomeErrorCode flushOutputs()
         {
-                gpio_set_level(LED_RED,    !(outputs & (1<<LED_RED_INDEX)));
-                gpio_set_level(LED_YELLOW, !(outputs & (1<<LED_YELLOW_INDEX)));
-                gpio_set_level(LED_GREEN,  !(outputs & (1<<LED_GREEN_INDEX)));
-                return ESP_OK;
+                gpio_set_level(LED_RED,    (outputs & (1<<LED_RED_INDEX)));
+                gpio_set_level(LED_YELLOW, (outputs & (1<<LED_YELLOW_INDEX)));
+                gpio_set_level(LED_GREEN,  (outputs & (1<<LED_GREEN_INDEX)));
+                return LabAtHomeErrorCode::OK;
         }
 
 

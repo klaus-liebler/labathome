@@ -11,6 +11,9 @@ namespace labathome {
 struct FbExecutable;
 struct FbExecutableBuilder;
 
+struct ConfigurationWrapper;
+struct ConfigurationWrapperBuilder;
+
 struct FbAnd2Configuration;
 struct FbAnd2ConfigurationBuilder;
 
@@ -110,11 +113,10 @@ struct FbExecutable FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_ID = 4,
     VT_TIMESTAMP = 6,
-    VT_FBCONFIG_TYPE = 8,
-    VT_FBCONFIG = 10,
-    VT_MAXBINARYINDEX = 12,
-    VT_MAXINTEGERINDEX = 14,
-    VT_MAXDOUBLEINDEX = 16
+    VT_FBCONFIG = 8,
+    VT_MAXBINARYINDEX = 10,
+    VT_MAXINTEGERINDEX = 12,
+    VT_MAXDOUBLEINDEX = 14
   };
   uint64_t id() const {
     return GetField<uint64_t>(VT_ID, 0);
@@ -122,11 +124,8 @@ struct FbExecutable FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint64_t timestamp() const {
     return GetField<uint64_t>(VT_TIMESTAMP, 0);
   }
-  const flatbuffers::Vector<uint8_t> *fbConfig_type() const {
-    return GetPointer<const flatbuffers::Vector<uint8_t> *>(VT_FBCONFIG_TYPE);
-  }
-  const flatbuffers::Vector<flatbuffers::Offset<void>> *fbConfig() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<void>> *>(VT_FBCONFIG);
+  const flatbuffers::Vector<flatbuffers::Offset<labathome::ConfigurationWrapper>> *fbConfig() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<labathome::ConfigurationWrapper>> *>(VT_FBCONFIG);
   }
   uint16_t maxBinaryIndex() const {
     return GetField<uint16_t>(VT_MAXBINARYINDEX, 0);
@@ -141,11 +140,9 @@ struct FbExecutable FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_ID) &&
            VerifyField<uint64_t>(verifier, VT_TIMESTAMP) &&
-           VerifyOffset(verifier, VT_FBCONFIG_TYPE) &&
-           verifier.VerifyVector(fbConfig_type()) &&
            VerifyOffset(verifier, VT_FBCONFIG) &&
            verifier.VerifyVector(fbConfig()) &&
-           VerifyFbConfigurationVector(verifier, fbConfig(), fbConfig_type()) &&
+           verifier.VerifyVectorOfTables(fbConfig()) &&
            VerifyField<uint16_t>(verifier, VT_MAXBINARYINDEX) &&
            VerifyField<uint16_t>(verifier, VT_MAXINTEGERINDEX) &&
            VerifyField<uint16_t>(verifier, VT_MAXDOUBLEINDEX) &&
@@ -163,10 +160,7 @@ struct FbExecutableBuilder {
   void add_timestamp(uint64_t timestamp) {
     fbb_.AddElement<uint64_t>(FbExecutable::VT_TIMESTAMP, timestamp, 0);
   }
-  void add_fbConfig_type(flatbuffers::Offset<flatbuffers::Vector<uint8_t>> fbConfig_type) {
-    fbb_.AddOffset(FbExecutable::VT_FBCONFIG_TYPE, fbConfig_type);
-  }
-  void add_fbConfig(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<void>>> fbConfig) {
+  void add_fbConfig(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<labathome::ConfigurationWrapper>>> fbConfig) {
     fbb_.AddOffset(FbExecutable::VT_FBCONFIG, fbConfig);
   }
   void add_maxBinaryIndex(uint16_t maxBinaryIndex) {
@@ -194,8 +188,7 @@ inline flatbuffers::Offset<FbExecutable> CreateFbExecutable(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t id = 0,
     uint64_t timestamp = 0,
-    flatbuffers::Offset<flatbuffers::Vector<uint8_t>> fbConfig_type = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<void>>> fbConfig = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<labathome::ConfigurationWrapper>>> fbConfig = 0,
     uint16_t maxBinaryIndex = 0,
     uint16_t maxIntegerIndex = 0,
     uint16_t maxDoubleIndex = 0) {
@@ -203,7 +196,6 @@ inline flatbuffers::Offset<FbExecutable> CreateFbExecutable(
   builder_.add_timestamp(timestamp);
   builder_.add_id(id);
   builder_.add_fbConfig(fbConfig);
-  builder_.add_fbConfig_type(fbConfig_type);
   builder_.add_maxDoubleIndex(maxDoubleIndex);
   builder_.add_maxIntegerIndex(maxIntegerIndex);
   builder_.add_maxBinaryIndex(maxBinaryIndex);
@@ -214,22 +206,115 @@ inline flatbuffers::Offset<FbExecutable> CreateFbExecutableDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t id = 0,
     uint64_t timestamp = 0,
-    const std::vector<uint8_t> *fbConfig_type = nullptr,
-    const std::vector<flatbuffers::Offset<void>> *fbConfig = nullptr,
+    const std::vector<flatbuffers::Offset<labathome::ConfigurationWrapper>> *fbConfig = nullptr,
     uint16_t maxBinaryIndex = 0,
     uint16_t maxIntegerIndex = 0,
     uint16_t maxDoubleIndex = 0) {
-  auto fbConfig_type__ = fbConfig_type ? _fbb.CreateVector<uint8_t>(*fbConfig_type) : 0;
-  auto fbConfig__ = fbConfig ? _fbb.CreateVector<flatbuffers::Offset<void>>(*fbConfig) : 0;
+  auto fbConfig__ = fbConfig ? _fbb.CreateVector<flatbuffers::Offset<labathome::ConfigurationWrapper>>(*fbConfig) : 0;
   return labathome::CreateFbExecutable(
       _fbb,
       id,
       timestamp,
-      fbConfig_type__,
       fbConfig__,
       maxBinaryIndex,
       maxIntegerIndex,
       maxDoubleIndex);
+}
+
+struct ConfigurationWrapper FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef ConfigurationWrapperBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ITEM_TYPE = 4,
+    VT_ITEM = 6
+  };
+  labathome::FbConfiguration item_type() const {
+    return static_cast<labathome::FbConfiguration>(GetField<uint8_t>(VT_ITEM_TYPE, 0));
+  }
+  const void *item() const {
+    return GetPointer<const void *>(VT_ITEM);
+  }
+  template<typename T> const T *item_as() const;
+  const labathome::FbAnd2Configuration *item_as_FbAnd2Configuration() const {
+    return item_type() == labathome::FbConfiguration_FbAnd2Configuration ? static_cast<const labathome::FbAnd2Configuration *>(item()) : nullptr;
+  }
+  const labathome::FbOr2Configuration *item_as_FbOr2Configuration() const {
+    return item_type() == labathome::FbConfiguration_FbOr2Configuration ? static_cast<const labathome::FbOr2Configuration *>(item()) : nullptr;
+  }
+  const labathome::FbAnd3Configuration *item_as_FbAnd3Configuration() const {
+    return item_type() == labathome::FbConfiguration_FbAnd3Configuration ? static_cast<const labathome::FbAnd3Configuration *>(item()) : nullptr;
+  }
+  const labathome::FbNotConfiguration *item_as_FbNotConfiguration() const {
+    return item_type() == labathome::FbConfiguration_FbNotConfiguration ? static_cast<const labathome::FbNotConfiguration *>(item()) : nullptr;
+  }
+  const labathome::FbTonConfiguration *item_as_FbTonConfiguration() const {
+    return item_type() == labathome::FbConfiguration_FbTonConfiguration ? static_cast<const labathome::FbTonConfiguration *>(item()) : nullptr;
+  }
+  const labathome::FbRSConfiguration *item_as_FbRSConfiguration() const {
+    return item_type() == labathome::FbConfiguration_FbRSConfiguration ? static_cast<const labathome::FbRSConfiguration *>(item()) : nullptr;
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint8_t>(verifier, VT_ITEM_TYPE) &&
+           VerifyOffset(verifier, VT_ITEM) &&
+           VerifyFbConfiguration(verifier, item(), item_type()) &&
+           verifier.EndTable();
+  }
+};
+
+template<> inline const labathome::FbAnd2Configuration *ConfigurationWrapper::item_as<labathome::FbAnd2Configuration>() const {
+  return item_as_FbAnd2Configuration();
+}
+
+template<> inline const labathome::FbOr2Configuration *ConfigurationWrapper::item_as<labathome::FbOr2Configuration>() const {
+  return item_as_FbOr2Configuration();
+}
+
+template<> inline const labathome::FbAnd3Configuration *ConfigurationWrapper::item_as<labathome::FbAnd3Configuration>() const {
+  return item_as_FbAnd3Configuration();
+}
+
+template<> inline const labathome::FbNotConfiguration *ConfigurationWrapper::item_as<labathome::FbNotConfiguration>() const {
+  return item_as_FbNotConfiguration();
+}
+
+template<> inline const labathome::FbTonConfiguration *ConfigurationWrapper::item_as<labathome::FbTonConfiguration>() const {
+  return item_as_FbTonConfiguration();
+}
+
+template<> inline const labathome::FbRSConfiguration *ConfigurationWrapper::item_as<labathome::FbRSConfiguration>() const {
+  return item_as_FbRSConfiguration();
+}
+
+struct ConfigurationWrapperBuilder {
+  typedef ConfigurationWrapper Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_item_type(labathome::FbConfiguration item_type) {
+    fbb_.AddElement<uint8_t>(ConfigurationWrapper::VT_ITEM_TYPE, static_cast<uint8_t>(item_type), 0);
+  }
+  void add_item(flatbuffers::Offset<void> item) {
+    fbb_.AddOffset(ConfigurationWrapper::VT_ITEM, item);
+  }
+  explicit ConfigurationWrapperBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ConfigurationWrapperBuilder &operator=(const ConfigurationWrapperBuilder &);
+  flatbuffers::Offset<ConfigurationWrapper> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<ConfigurationWrapper>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<ConfigurationWrapper> CreateConfigurationWrapper(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    labathome::FbConfiguration item_type = labathome::FbConfiguration_NONE,
+    flatbuffers::Offset<void> item = 0) {
+  ConfigurationWrapperBuilder builder_(_fbb);
+  builder_.add_item(item);
+  builder_.add_item_type(item_type);
+  return builder_.Finish();
 }
 
 struct FbAnd2Configuration FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
