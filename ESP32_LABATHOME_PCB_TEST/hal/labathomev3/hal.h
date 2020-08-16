@@ -1,3 +1,4 @@
+#pragma once
 #include <inttypes.h>
 #include <FastLED.h>
 #include <Wire.h>
@@ -9,8 +10,8 @@
 #include <driver/ledc.h>
 #include <esp32-hal-ledc.h>
 
-typedef uint8_t Pintype;
 
+typedef uint8_t Pintype;
 const Pintype PIN_R3_1 = 36;
 const Pintype PIN_MOVEMENT = 39;
 const Pintype PIN_POTI_T = 34;
@@ -21,7 +22,7 @@ const Pintype PIN_SERVO1 = 25;
 const Pintype PIN_LED_STRIP = 26;
 const Pintype PIN_SERVO2 = 27;
 const Pintype PIN_ONEWIRE = 27;
-const Pintype PIN_I2S_SCK = 14;
+const Pintype PIN_MULTI_I2S_SCK = 14;
 const Pintype PIN_FAN_DRIVE = 12;
 const Pintype PIN_LED_POWER_WHITE = 13;
 const Pintype PIN_LCD_MOSI = 23;
@@ -32,8 +33,8 @@ const Pintype PIN_LCD_CLK = 18;
 const Pintype PIN_LCD_DC = 5;
 const Pintype PIN_BUZZER = 17;
 const Pintype PIN_R3_ON = 17;
-const Pintype PIN_I2S_SD = 16;
-const Pintype PIN_I2S_WS = 4;
+const Pintype PIN_MULTI_I2S_SD = 16;
+const Pintype PIN_MULTI_I2S_WS = 4;
 const Pintype PIN_SW_GREEN = 0;
 const Pintype PIN_HEATER = 2;
 const Pintype PIN_SW_YELLOW = 15;
@@ -43,10 +44,16 @@ const Pintype PIN_SW_YELLOW = 15;
 #define SERVO_MAX_PULSEWIDTH 2400 //Maximum pulse width in microsecond
 #define SERVO_MAX_DEGREE 180 //Maximum angle in degree upto which servo can rotate
 
-enum IO17_MODE
+enum class IO17_MODE
 {
     RELAY,
     BUZZER,
+};
+
+enum class IO4_MODE{
+    I2S_WS,
+    RS485_RO,
+    SPECIAL_SPECIAL_RELAY3,
 };
 
 enum class LED:uint8_t{
@@ -74,12 +81,13 @@ enum class Servo:uint8_t
     Servo2=1,
 };
 
-class BSP
+class HAL
 {    
     private:
         IO17_MODE io17;
+        IO4_MODE io4;
     public:
-        BSP(IO17_MODE io17):io17(io17)
+        HAL(IO17_MODE io17, IO4_MODE io4):io17(io17), io4(io4)
         {
 
         }
@@ -132,10 +140,7 @@ class BSP
             }
             
             
-            if(io17==IO17_MODE::RELAY)
-            {
-                pinMode(PIN_R3_ON, OUTPUT);
-            }
+            
             
             pinMode(PIN_SW_GREEN, INPUT_PULLUP);
             pinMode(PIN_HEATER, OUTPUT);
@@ -167,26 +172,67 @@ class BSP
             ledc_channel.speed_mode = LEDC_HIGH_SPEED_MODE;
             ledc_channel.hpoint     = 0;
             ledc_channel.timer_sel  = LEDC_TIMER_0;
-
             ledc_channel_config(&ledc_channel);
+            
 
-            if(io17==IO17_MODE::BUZZER)
+           
+
+
+            switch (io17)
             {
-                ledcSetup(2, 2000, 8);
-                ledcAttachPin(PIN_BUZZER, 2);
+            case IO17_MODE::RELAY:
+                pinMode(PIN_R3_ON, OUTPUT);
+                break;
+            case IO17_MODE::BUZZER:
+                 //BUZZER
+                ledc_timer_config_t buzzer_timer;
+                buzzer_timer.duty_resolution = LEDC_TIMER_10_BIT; // resolution of PWM duty
+                buzzer_timer.freq_hz = 440;                      // frequency of PWM signal
+                buzzer_timer.speed_mode = LEDC_HIGH_SPEED_MODE;           // timer mode
+                buzzer_timer.timer_num = LEDC_TIMER_2;            // timer index
+                ledc_timer_config(&buzzer_timer);
+
+                ledc_channel_config_t buzzer_channel;
+                buzzer_channel.channel    = LEDC_CHANNEL_2;
+                buzzer_channel.duty       = 0;
+                buzzer_channel.gpio_num   = PIN_BUZZER;
+                buzzer_channel.speed_mode = LEDC_HIGH_SPEED_MODE;
+                buzzer_channel.hpoint     = 0;
+                buzzer_channel.timer_sel  = LEDC_TIMER_2;
+                ledc_channel_config(&buzzer_channel);
+                break;
+            default:
+                break;
             }
-        
+
+            switch (io4)
+            {
+            case IO4_MODE::SPECIAL_SPECIAL_RELAY3:
+                pinMode(PIN_MULTI_I2S_WS, OUTPUT);
+                break;
+            default:
+                Serial.println("IO4_MODE not yet supported");
+            }
         }
 
         void startBuzzer(double freq)
         {
             if(io17!=IO17_MODE::BUZZER) return;
-            ledcWriteTone(2, freq);
+            ledc_timer_config_t buzzer_timer;
+            buzzer_timer.duty_resolution = LEDC_TIMER_10_BIT; // resolution of PWM duty
+            buzzer_timer.freq_hz = freq;                      // frequency of PWM signal
+            buzzer_timer.speed_mode = LEDC_HIGH_SPEED_MODE;           // timer mode
+            buzzer_timer.timer_num = LEDC_TIMER_2;            // timer index
+            ledc_timer_config(&buzzer_timer);
+            ledc_set_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_2, 512);
+            ledc_update_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_2);
         }
 
         void endBuzzer()
         {
-            ledcWrite(2, 0);
+            //ledcWrite(2, 0);
+            ledc_set_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_2, 0);
+            ledc_update_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_2);
         }
         
         void setLEDState(LED led, CRGB state)
@@ -197,8 +243,14 @@ class BSP
 
         void setRELAYState(bool state)
         {
-            if(io17!=IO17_MODE::RELAY) return;
-            digitalWrite(PIN_R3_ON, state);
+            if(io17==IO17_MODE::RELAY)
+            {
+                digitalWrite(PIN_R3_ON, state);
+            }
+            if(io4==IO4_MODE::SPECIAL_SPECIAL_RELAY3)
+            {
+                digitalWrite(PIN_MULTI_I2S_WS, state);
+            }
         }
 
         void setLED_POWER_WHITE_DUTY(uint8_t percent)

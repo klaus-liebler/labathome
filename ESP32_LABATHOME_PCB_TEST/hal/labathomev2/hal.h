@@ -43,7 +43,7 @@ enum class Switch:uint8_t{
     SW_GREEN=PIN_SW_GREEN,
 };
 
-class BSP
+class HAL
 {
     public:
 
