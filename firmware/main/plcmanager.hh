@@ -6,30 +6,29 @@
 #include "freertos/queue.h"
 #include "BSP.hh"
 #include "labathomeerror.hh"
+#include "vector"
 
 class FunctionBlock;
 
 class Executable
 {
     public:
-        FunctionBlock **functionBlocks;
-        size_t functionBlocksSize;
-        uint32_t *binaries; //beyond inpuits/outputs
-        size_t binariesSize; //beyond inpuits/outputs
-        int *integers;
-        size_t integersSize; //beyond inpuits/outputs
-        Executable(FunctionBlock **functionBlocks, size_t functionBlocksSize, uint32_t *binaries, size_t binariesSize, int *integers, size_t integersSize):
-            functionBlocks(functionBlocks), functionBlocksSize(functionBlocksSize), 
-            binaries(binaries),binariesSize(binariesSize),
-            integers(integers), integersSize(integersSize)
+        std::vector<FunctionBlock*> functionBlocks;
+        std::vector<bool> binaries;
+        std::vector<int> integers;
+        Executable(std::vector<FunctionBlock*> functionBlocks, std::vector<bool> binaries, std::vector<int> integers):
+            functionBlocks(functionBlocks), binaries(binaries), integers(integers)
         {
 
         }
         ~Executable()
         {
-            delete[] functionBlocks;
-            delete[] binaries;
-            delete[] integers;
+            functionBlocks.clear();
+            functionBlocks.shrink_to_fit();
+            binaries.clear();
+            binaries.shrink_to_fit();
+            integers.clear();
+            integers.shrink_to_fit();
         }
 };
 
@@ -42,6 +41,7 @@ class FBContext{
         virtual LabAtHomeErrorCode  GetBinaryAsPointer(size_t index, bool *value)=0;
         virtual bool  GetBinary(size_t index)=0;
         virtual LabAtHomeErrorCode  SetBinary(size_t index, bool value)=0;
+        virtual int64_t GetMicroseconds()=0;
 };
 
 class FunctionBlock {
@@ -57,9 +57,9 @@ class FunctionBlock {
 class PLCManager:public FBContext
 {
  private:
-        QueueHandle_t execQueue;
-        Executable *currentExecutable;
         BSP *bsp;
+        Executable *currentExecutable;
+        Executable *nextExecutable;
         Executable* createInitialExecutable();
     public:
         bool IsBinaryAvailable(size_t index);
@@ -68,14 +68,14 @@ class PLCManager:public FBContext
         LabAtHomeErrorCode  GetBinaryAsPointer(size_t index, bool *value);
         bool  GetBinary(size_t index);
         LabAtHomeErrorCode  SetBinary(size_t index, bool value);
-
+        int64_t GetMicroseconds();
         LabAtHomeErrorCode CompileProtobufConfig2ExecutableAndEnqueue(char* pb, size_t length);
 
         
         PLCManager(BSP *bsp): bsp(bsp)
         {
-            execQueue=xQueueCreate( 2, sizeof(Executable*) );
             currentExecutable = this->createInitialExecutable();
+            nextExecutable = nullptr;
         }
         LabAtHomeErrorCode CheckForNewExecutable();
         LabAtHomeErrorCode Loop();

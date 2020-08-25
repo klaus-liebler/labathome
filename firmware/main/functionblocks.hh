@@ -53,16 +53,44 @@ class FB_RS: public FunctionBlock{
 };
 
 class FB_TON: public FunctionBlock{
+    //TODO: Elapsed Output!
     size_t input;
     size_t output;
-    uint32_t presetTime;
-    bool state;
+    uint32_t presetTime_secs;
+    int64_t switchOnAtMicrosecond = INT64_MAX;
+    bool lastInputValue;
     
     public:
         LabAtHomeErrorCode execute(FBContext *ctx)
         {
+            bool currentInputValue = ctx->GetBinary(this->input);
+            auto time = ctx->GetMicroseconds();
+            if(lastInputValue==false && currentInputValue==true)
+            {
+                switchOnAtMicrosecond = time + 1000000*this->presetTime_secs;
+            }
+            else if(currentInputValue==false)
+            {
+                switchOnAtMicrosecond = INT64_MAX;
+            }
+            lastInputValue=currentInputValue;
+            ctx->SetBinary(output, time>=switchOnAtMicrosecond);
             return LabAtHomeErrorCode::OK;
         }
-        FB_TON(size_t input, size_t output, uint32_t presetTime):input(input), output(output), presetTime(presetTime), state(false){}
+        FB_TON(size_t input, size_t output, uint32_t presetTime_secs):input(input), output(output), presetTime_secs(presetTime_secs){}
         ~FB_TON(){}
+};
+
+class FB_NOT: public FunctionBlock{
+    size_t input;
+    size_t output;
+    
+    public:
+        LabAtHomeErrorCode execute(FBContext *ctx)
+        {
+            ctx->SetBinary(this->output, !ctx->GetBinary(input));
+            return LabAtHomeErrorCode::OK;
+        }
+        FB_NOT(size_t input, size_t output):input(input), output(output){}
+        ~FB_NOT(){}
 };

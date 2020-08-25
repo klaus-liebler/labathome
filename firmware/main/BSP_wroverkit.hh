@@ -6,6 +6,7 @@
 #include "esp_log.h"
 #include "BSP.hh"
 #include "labathomeerror.hh"
+#include "input_output_id.hh"
 
 const gpio_num_t LED_RED = GPIO_NUM_0;
 const gpio_num_t LED_GREEN = GPIO_NUM_2;
@@ -26,19 +27,19 @@ const size_t SW_RED_INDEX = 1;
 const size_t SW_YELLOW_INDEX = 2;
 const size_t SW_GREEN_INDEX = 3;
 const size_t MOVEMENT_INDEX = 4;
+const size_t BINARY_INPUT_SIZE = 5;
 
 const size_t NULLOUTPUT_INDEX = 0;
 const size_t LED_RED_INDEX = 1;
 const size_t LED_YELLOW_INDEX = 2;
 const size_t LED_GREEN_INDEX = 3;
+const size_t BINARY_OUTPUT_SIZE = 5;
 
 class BSP_wroverkit:public BSP
 {
     private:
         uint32_t inputs  = 0;
         uint32_t outputs = 0;
-        
-    
     public:
         BSP_wroverkit()
         {
@@ -75,6 +76,16 @@ class BSP_wroverkit:public BSP
 
         }
 
+        bool IsBinaryAvailable(size_t index)
+        {
+            if((index>=BINARY_HW_INP_MIN && index < BINARY_HW_INP_MIN+BINARY_INPUT_SIZE)
+            || (index>=BINARY_HW_OUT_MIN && index < BINARY_HW_OUT_MIN+BINARY_OUTPUT_SIZE))
+            {
+                return true;
+            }
+           return false;
+        }
+        
         LabAtHomeErrorCode getBinaryInput(size_t index, bool *value)
         {
             *value = inputs & (1<<index);
@@ -108,6 +119,11 @@ class BSP_wroverkit:public BSP
                 gpio_set_level(LED_YELLOW, (outputs & (1<<LED_YELLOW_INDEX)));
                 gpio_set_level(LED_GREEN,  (outputs & (1<<LED_GREEN_INDEX)));
                 return LabAtHomeErrorCode::OK;
+        }
+
+        int64_t GetMicroseconds()
+        {
+            return  esp_timer_get_time();
         }
 
 

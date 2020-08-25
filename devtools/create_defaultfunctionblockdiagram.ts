@@ -42,9 +42,9 @@ labathome.FbExecutable.startFbExecutable(builder);
 labathome.FbExecutable.addId(builder, builder.createLong(42,0));
 labathome.FbExecutable.addTimestamp(builder, builder.createLong(1,0));
 labathome.FbExecutable.addFbConfig(builder, configs);
-labathome.FbExecutable.addMaxBinaryIndex(builder, 2049);
-labathome.FbExecutable.addMaxIntegerIndex(builder, 2048);
-labathome.FbExecutable.addMaxDoubleIndex(builder, 2048);
+labathome.FbExecutable.addMaxBinaryIndex(builder, 2048);
+labathome.FbExecutable.addMaxIntegerIndex(builder, 2047);
+labathome.FbExecutable.addMaxDoubleIndex(builder, 2047);
 
 let fbExecutable = labathome.FbExecutable.endFbExecutable(builder);
 builder.finish(fbExecutable);

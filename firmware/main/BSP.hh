@@ -14,4 +14,6 @@ class BSP
         virtual LabAtHomeErrorCode setBinaryOutput(size_t index, bool value)=0;
         virtual LabAtHomeErrorCode fetchInputs()=0;
         virtual LabAtHomeErrorCode flushOutputs()=0;
+        virtual bool IsBinaryAvailable(size_t index)=0;
+        virtual int64_t GetMicroseconds()=0; 
 };

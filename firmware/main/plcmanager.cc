@@ -3,6 +3,8 @@
 #include "esp_log.h"
 #include "labathomeerror.hh"
 #include "fbexecutable_generated.h"
+#include <vector>
+#include "input_output_id.hh"
 
 static const char* TAG = "plcmanager";
 
@@ -15,7 +17,19 @@ extern const uint8_t defaultfunctionblockdiagram_end[]   asm("_binary_defaultfun
 
 bool PLCManager::IsBinaryAvailable(size_t index)
 {
-    return (index-1024)<this->currentExecutable->binariesSize;
+    if(index>=BINARY_INT_MIN && index < BINARY_INT_MAX)
+    {
+        index-=BINARY_INT_MIN;
+        return index<this->currentExecutable->binaries.size();
+    }
+    else if(index >= BINARY_HW_MAX && index < BINARY_HW_MAX)
+    {
+        return this->bsp->IsBinaryAvailable(index);
+    }
+    else
+    {
+        return false;
+    }
 }
 
 bool PLCManager::IsDoubleAvailable(size_t index)
@@ -30,23 +44,20 @@ bool PLCManager::IsIntegerAvailable(size_t index)
 
 LabAtHomeErrorCode PLCManager::SetBinary(size_t index, bool value)
 {
-    if(index<1024)
+    if(index>=BINARY_INT_MIN && index < BINARY_INT_MAX)
+    {
+        index-=BINARY_INT_MIN;
+        if(index<this->currentExecutable->binaries.size())
+        {
+            this->currentExecutable->binaries[index]=value;
+            return LabAtHomeErrorCode::OK;
+        }
+    }
+    else if(index >= BINARY_HW_MAX && index < BINARY_HW_MAX)
     {
         return this->bsp->setBinaryOutput(index, value);
     }
-    index-=1024;
-    if(index>=this->currentExecutable->binariesSize)
-        return LabAtHomeErrorCode::INDEX_OUT_OF_BOUNDS;
-    
-    if(value)
-    {
-        SetBit(this->currentExecutable->binaries, index);
-    }
-    else
-    {
-        ClearBit(this->currentExecutable->binaries, index);
-    }
-    return LabAtHomeErrorCode::OK;
+    return LabAtHomeErrorCode::INDEX_OUT_OF_BOUNDS;
 }
 
 bool  PLCManager::GetBinary(size_t index)
@@ -57,18 +68,27 @@ bool  PLCManager::GetBinary(size_t index)
 }
 LabAtHomeErrorCode  PLCManager::GetBinaryAsPointer(size_t index, bool *value)
 {
-    if(index<1024)
+    if(index>=BINARY_INT_MIN && index < BINARY_INT_MAX)
+    {
+        index-=BINARY_INT_MIN;
+        if(index<this->currentExecutable->binaries.size())
+        {
+            *value = this->currentExecutable->binaries[index];
+            return LabAtHomeErrorCode::OK;
+        }
+    }
+    else if(index >= BINARY_HW_MAX && index < BINARY_HW_MAX)
     {
         return this->bsp->getBinaryInput(index, value);
     }
-    index-=1024;
-    if(index>=this->currentExecutable->binariesSize)
-        return LabAtHomeErrorCode::INDEX_OUT_OF_BOUNDS;
-    *value = TestBit(this->currentExecutable->binaries, index);
-    
-    return LabAtHomeErrorCode::OK;
+    return LabAtHomeErrorCode::INDEX_OUT_OF_BOUNDS;
 }
-        
+
+int64_t PLCManager::GetMicroseconds()
+{
+    return bsp->GetMicroseconds();
+}
+
 LabAtHomeErrorCode PLCManager::CompileProtobufConfig2ExecutableAndEnqueue(char* pb, size_t length)
 {
     auto fbExec = labathome::GetFbExecutable(defaultfunctionblockdiagram_start);
@@ -76,97 +96,99 @@ LabAtHomeErrorCode PLCManager::CompileProtobufConfig2ExecutableAndEnqueue(char* 
 
     auto configs = fbExec->fbConfig();
     size_t configs_len = configs->size();
-    ESP_LOGI(TAG, "Size of Configs is %d", configs_len);
-    for(size_t cfgIndex=0;cfgIndex<configs->size();cfgIndex++)
+    std::vector<FunctionBlock*> functionBlocks(configs_len);
+    for(size_t cfgIndex=0;cfgIndex<configs_len;cfgIndex++)
     {
         auto cfg_wrapper = configs->Get(cfgIndex);
-        const labathome::FbAnd2Configuration *cfg=nullptr;
-        uint16_t inputA=0;
+    
         switch (cfg_wrapper->item_type())
         {
         case labathome::FbConfiguration_FbAnd2Configuration:
-            ESP_LOGI(TAG, "FOUND FbConfiguration_FbAnd2Configuration");
-            cfg = cfg_wrapper->item_as_FbAnd2Configuration();
-            inputA = cfg->inputA();
-            ESP_LOGI(TAG, "inputA of And2 is %d",inputA);
+            {
+                ESP_LOGI(TAG, "FOUND FbConfiguration_FbAnd2Configuration");
+                auto *cfg = cfg_wrapper->item_as_FbAnd2Configuration();
+                functionBlocks[cfgIndex]=new FB_AND2(cfg->inputA(), cfg->inputB(), cfg->output());
+            }
             break;
         case labathome::FbConfiguration_FbNotConfiguration:
-            ESP_LOGI(TAG, "FOUND FbConfiguration_FbNotConfiguration");
+            {
+                ESP_LOGI(TAG, "FOUND FbConfiguration_FbNotConfiguration");
+                auto *cfg = cfg_wrapper->item_as_FbNotConfiguration();
+                functionBlocks[cfgIndex]=new FB_NOT(cfg->input(), cfg->output());
+            }
             break;
         case labathome::FbConfiguration_FbRSConfiguration:
-            ESP_LOGI(TAG, "FOUND FbConfiguration_FbRSConfiguration");
+            {
+                ESP_LOGI(TAG, "FOUND FbConfiguration_FbRSConfiguration");
+                auto *cfg = cfg_wrapper->item_as_FbRSConfiguration();
+                functionBlocks[cfgIndex]=new FB_RS(cfg->inputR(), cfg->inputS(), cfg->output());
+            }
+            break;
+        case labathome::FbConfiguration_FbTonConfiguration:
+            {
+                ESP_LOGI(TAG, "FOUND FbConfiguration_FbTonConfiguration");
+                auto *cfg = cfg_wrapper->item_as_FbTonConfiguration();
+                functionBlocks[cfgIndex]=new FB_TON(cfg->input(), cfg->output(), cfg->presetTime_secs());
+            }
             break;
         default:
             ESP_LOGE(TAG, "No known configuration found");
             break;
         }
     }
- 
-    FB_AND2 *fbAnd = new FB_AND2(1, 3, 1);
-    FunctionBlock** functionBlocks = new FunctionBlock*[1];
-    functionBlocks[0]=fbAnd;
-    size_t functionBlocksSize=1;
-    uint32_t *binaries = new uint32_t[1];
-    size_t binariesSize=1;
-    int *integers = new int[1];
-    size_t integersSize=1;
-    Executable *e = new Executable(functionBlocks, functionBlocksSize, binaries, binariesSize, integers, integersSize);
-    ESP_LOGI(TAG, "Created new executable an trying to send to queue");
-
-    if(xQueueSend(this->execQueue, &e, (TickType_t) 10) != pdTRUE)
+    if(this->nextExecutable!=nullptr)
     {
-        ESP_LOGE(TAG, "xQueueSend returned error");
         return LabAtHomeErrorCode::QUEUE_OVERLOAD;
     }
+
+
+    std::vector<bool> binaries(fbExec->maxBinaryIndex()-(BINARY_INT_MIN-1));
+    std::vector<int> integers(100); //TODO
+    this->nextExecutable = new Executable(functionBlocks, binaries, integers);
+    ESP_LOGI(TAG, "Created new executable and enqueued it");
     return LabAtHomeErrorCode::OK;
 }
 
 Executable* PLCManager::createInitialExecutable()
 {
     FB_RS *fb = new FB_RS(1, 3, 1);
-    FunctionBlock** functionBlocks = new FunctionBlock*[1];
+    std::vector<FunctionBlock*> functionBlocks(1);
+    std::vector<bool> binaries(1);
+    std::vector<int> integers(1);
     functionBlocks[0]=fb;
-    size_t functionBlocksSize=1;
-    uint32_t *binaries = new uint32_t[1];
-    size_t binariesSize=1;
-    int *integers = new int[1];
-    size_t integersSize=1;
-    Executable *e = new Executable(functionBlocks, functionBlocksSize, binaries, binariesSize, integers, integersSize);
+    Executable *e = new Executable(functionBlocks, binaries, integers);
     return e;
 }
 
 LabAtHomeErrorCode PLCManager::CheckForNewExecutable()
 {
-    Executable *e;
-    if(xQueueReceive(this->execQueue, &e, 0)==pdFALSE){
+    if(this->nextExecutable==nullptr){
         //no new executable available
         return LabAtHomeErrorCode::OK;
     }
     ESP_LOGI(TAG, "New executable available");       
     //new Executable available --> delete all elements of old Executable
-    for (size_t i = 0; i < this->currentExecutable->functionBlocksSize; i++)
+    for (const auto& i:this->currentExecutable->functionBlocks)
     {
-        this->currentExecutable->functionBlocks[i]->deinit(this);
+        i->deinit(this);
     }
-    delete[] this->currentExecutable->functionBlocks;
-    delete[] this->currentExecutable->binaries;
-    delete[] this->currentExecutable->integers;
-    delete this->currentExecutable;
+    delete this->currentExecutable; //Destructor takes care for all internal data structures
     ESP_LOGI(TAG, "Removed old executable completely --> CHECK THIS AGAIN!!");
-    this->currentExecutable = e;
-    for (size_t i = 0; i < this->currentExecutable->functionBlocksSize; i++)
+    this->currentExecutable = this->nextExecutable;
+    this->nextExecutable=nullptr;
+    for (const auto& i:this->currentExecutable->functionBlocks)
     {
-        this->currentExecutable->functionBlocks[i]->initPhase1(this);
+        i->initPhase1(this);
     }
     ESP_LOGI(TAG, "New executable Init Phase 1");  
-    for (size_t i = 0; i < this->currentExecutable->functionBlocksSize; i++)
+    for (const auto& i:this->currentExecutable->functionBlocks)
     {
-        this->currentExecutable->functionBlocks[i]->initPhase2(this);
+        i->initPhase2(this);
     }
     ESP_LOGI(TAG, "New executable Init Phase 2");  
-    for (size_t i = 0; i < this->currentExecutable->functionBlocksSize; i++)
+    for (const auto& i:this->currentExecutable->functionBlocks)
     {
-        this->currentExecutable->functionBlocks[i]->initPhase2(this);
+        i->initPhase3(this);
     }
     ESP_LOGI(TAG, "New executable Init Phase 3");  
     return LabAtHomeErrorCode::OK;
@@ -180,9 +202,9 @@ LabAtHomeErrorCode PLCManager::Loop()
     //Contract: Alle Eingänge sind gesetzt
 
     
-    for (size_t i = 0; i < this->currentExecutable->functionBlocksSize; i++)
+    for (const auto& i:this->currentExecutable->functionBlocks)
     {
-        this->currentExecutable->functionBlocks[i]->execute(this);
+        i->execute(this);
     }
     return LabAtHomeErrorCode::OK;
 }
