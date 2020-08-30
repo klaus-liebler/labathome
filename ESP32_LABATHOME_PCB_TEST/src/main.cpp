@@ -1,6 +1,9 @@
+//Einbindung der Deklarationen, damit die Funktionalität hier zur Verfügung steht
 #include <Arduino.h>
+#include <SPI.h>
+#include <TFT_eSPI.h> // Hardware-specific library
 
-
+// Bedingter Code
 //Bitte hier die richtige Board-Version einbinden
 #include <hal.h>
 #if hal == labathomev4
@@ -11,23 +14,24 @@ HAL hal(IO17_MODE::BUZZER, IO4_MODE::SPECIAL_SPECIAL_RELAY3);
   #error "Define a hal in platformio.ini"
 #endif
 
-
-#include <SPI.h>
-#include <TFT_eSPI.h> // Hardware-specific library
-
-
-
+//Definition einer Preprozessor-Konstante (in C++ eigentlich nicht mehr notwendig, wird aber in der Praxis noch oft gemacht)
 #define TFT_GREY 0x5AEB
 
-
-TFT_eSPI tft = TFT_eSPI();                                                           // Invoke custom library
+//Deklaration von verschiedenen Variablen: Diese hier sind alle global und statisch (überall vorhanden und ändern ihre Größe nicht)
+//Bemerkung: Speicherverwaltung ist ein riesen Thema in C++. 
+//Ich rate Ihnen, da nicht zu tief einzusteigen und entweder globale statische oder lokale(kommt gleich) Variablen zu verwenden
+TFT_eSPI tft = TFT_eSPI();                                                           
 //TFT_ST7789 tft(HSPI_HOST, 2, 240, 240, DisplayRotation::ROT0, GPIO_NUM_MAX, GPIO_NUM_23, GPIO_NUM_18, GPIO_NUM_MAX, GPIO_NUM_5, GPIO_NUM_MAX, GPIO_NUM_0);
-uint32_t targetTime = 0;                                                             // for next 1 second timeout
-static uint8_t conv2d(const char *p);                                                // Forward declaration needed for IDE 1.6.x
-uint8_t hh = conv2d(__TIME__), mm = conv2d(__TIME__ + 3), ss = conv2d(__TIME__ + 6); // Get H, M, S from compile time
+uint32_t targetTime = 0;
 byte omm = 99, oss = 99;
 byte xcolon = 0, xsecs = 0;
 unsigned int colour = 0;
+uint8_t testarray[100];
+
+//Deklaration einer (kleinen dreckigen) Hilfsfunktion, die weiter unten ausprogrammiert ist.
+static uint8_t conv2d(const char *p);
+//Nutzung dieser Funktion                                               
+uint8_t hh = conv2d(__TIME__), mm = conv2d(__TIME__ + 3), ss = conv2d(__TIME__ + 6); // Get H, M, S from compile time
 
 void updateDisplay()
 {
