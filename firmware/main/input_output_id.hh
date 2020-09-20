@@ -3,20 +3,8 @@
 #include <stdio.h>
 #include <inttypes.h>
 /*
-Variablen werden FÜR JEDEN DATENTYP UNABHÄNGIG mit einer 16bit ID identifiziert
-Für Bool gilt
-- Index 0 liefert immer False (dies ist auch der Standardwert für "nicht angeschlossen)
-- Index 1 liefert immer True
-- Index 2...1023 ist Hardware-Input
-- Index 1024...2047 ist Hardware-Output
-- Index 2048...3071 ist Kommunikations-Input
-- Index 3072...4095 ist Kommunikations-Output
-- Variablen mit Index 16384..32767 sind "Zwischenvariablen"
-- Variablen mit Index >=32768 sind reserviert (ggf für Retained?)
-Für Integer gilt
-- Index 0 liefert immer 0
-- Index 1 liefert immer 1
-- tbc
+
+
 */
 
 const uint16_t BINARY_ALWAYS_FALSE = 0;

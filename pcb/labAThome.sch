@@ -2037,17 +2037,6 @@ F 3 "~" H 2100 4350 50  0001 C CNN
 	1    2100 4350
 	-1   0    0    -1  
 $EndComp
-$Comp
-L Connector:Conn_01x05_Male J4
-U 1 1 5F35411A
-P 6500 4850
-F 0 "J4" H 6472 4874 50  0000 R CNN
-F 1 "EXT" H 6472 4783 50  0000 R CNN
-F 2 "Connector_JST:JST_XH_B5B-XH-AM_1x05_P2.50mm_Vertical" H 6500 4850 50  0001 C CNN
-F 3 "~" H 6500 4850 50  0001 C CNN
-	1    6500 4850
-	-1   0    0    -1  
-$EndComp
 Text GLabel 6300 4650 0    50   BiDi ~ 0
 EXT1
 Text GLabel 6300 4750 0    50   BiDi ~ 0
@@ -2265,7 +2254,7 @@ U 1 1 5F35FCD9
 P 4950 6350
 F 0 "J14" H 5050 6325 50  0000 L CNN
 F 1 "Conn_Coaxial" H 5050 6234 50  0000 L CNN
-F 2 "Connector_Coaxial:SMA_Amphenol_132289_EdgeMount" H 4950 6350 50  0001 C CNN
+F 2 "Connector_Coaxial:SMA_Samtec_SMA-J-P-X-ST-EM1_EdgeMount" H 4950 6350 50  0001 C CNN
 F 3 " ~" H 4950 6350 50  0001 C CNN
 	1    4950 6350
 	1    0    0    -1  
@@ -2566,5 +2555,27 @@ F 2 "Symbol:Symbol_CC-Attribution_CopperTop_Small" H 3000 2150 50  0001 C CNN
 F 3 "~" H 3000 2150 50  0001 C CNN
 	1    3000 2150
 	1    0    0    -1  
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x06 J4
+U 1 1 5F503E4B
+P 6500 4850
+F 0 "J4" H 6580 4842 50  0000 L CNN
+F 1 "EXT" H 6580 4751 50  0000 L CNN
+F 2 "Connector_JST:JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical" H 6500 4850 50  0001 C CNN
+F 3 "~" H 6500 4850 50  0001 C CNN
+	1    6500 4850
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR0136
+U 1 1 5F5053D4
+P 6300 5150
+F 0 "#PWR0136" H 6300 5000 50  0001 C CNN
+F 1 "+5V" V 6315 5278 50  0000 L CNN
+F 2 "" H 6300 5150 50  0001 C CNN
+F 3 "" H 6300 5150 50  0001 C CNN
+	1    6300 5150
+	0    -1   -1   0   
 $EndComp
 $EndSCHEMATC

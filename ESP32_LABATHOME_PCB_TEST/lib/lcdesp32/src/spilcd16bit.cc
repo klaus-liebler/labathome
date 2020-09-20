@@ -10,8 +10,8 @@ static const char* TAG = "LCD";
 
 const uint16_t PARALLEL_LINES = 16;
 
-SPILCD16bit::SPILCD16bit(spi_host_device_t spi_host, const uint32_t dmaChannel, const int16_t physicalWidth, const int16_t physicalHeigth, const DisplayRotation rotation, const gpio_num_t misopin, const gpio_num_t mosipin, const gpio_num_t clkpin, const gpio_num_t cspin, const gpio_num_t dcpin, const gpio_num_t backlightPin, const gpio_num_t rstpin) :
-		_physicalwidth(physicalWidth), _physicalheight(physicalHeigth), spi_host(spi_host), dmaChannel(dmaChannel), rotation(rotation), _miso(misopin), _mosi(mosipin), _clk(clkpin), _cs(cspin), _dc(dcpin), _backlight(backlightPin), _rst(rstpin)
+SPILCD16bit::SPILCD16bit(spi_host_device_t spi_host, uint8_t spi_mode, const uint32_t dmaChannel, const int16_t physicalWidth, const int16_t physicalHeigth, const DisplayRotation rotation, const gpio_num_t misopin, const gpio_num_t mosipin, const gpio_num_t clkpin, const gpio_num_t cspin, const gpio_num_t dcpin, const gpio_num_t backlightPin, const gpio_num_t rstpin) :
+		_physicalwidth(physicalWidth), _physicalheight(physicalHeigth), spi_host(spi_host), spi_mode(spi_mode), dmaChannel(dmaChannel), rotation(rotation), _miso(misopin), _mosi(mosipin), _clk(clkpin), _cs(cspin), _dc(dcpin), _backlight(backlightPin), _rst(rstpin)
 {
 	buffer[0] = (uint16_t*)heap_caps_malloc(sizeof(uint16_t)*physicalWidth*PARALLEL_LINES, MALLOC_CAP_DMA);
 	assert(buffer[0]!=NULL);
@@ -41,7 +41,7 @@ SPILCD16bit::~SPILCD16bit()
 
 
 
-void SPILCD16bit::backlight(bool on) {
+void SPILCD16bit::backlightOn(bool on) {
 	gpio_set_level(_backlight, on);
 }
 
@@ -80,7 +80,7 @@ void SPILCD16bit::begin(void) {
     ESP_LOGD(TAG, "Attach the LCD to the SPI bus");
     spi_device_interface_config_t devcfg={};
 	devcfg.clock_speed_hz=SPI_MASTER_FREQ_10M;    //Clock out at 10 MHz
-	devcfg.mode=0;                                //SPI mode 0
+	devcfg.mode=_spimode;                                //SPI mode 0
     devcfg.spics_io_num=(_cs< GPIO_NUM_0 || _cs>=GPIO_NUM_MAX)?-1:_cs;               //CS pin
     devcfg.queue_size=7;                          //We want to be able to queue 7 transactions at a time
     devcfg.pre_cb=lcd_spi_pre_transfer_callback;  //Specify pre-transfer callback to handle D/C line
@@ -99,7 +99,7 @@ void SPILCD16bit::begin(void) {
 		ESP_LOGD(TAG, "Set _backlight pin to %d", _backlight);
 		Serial.printf("Set _backlight pin to %d\n", _backlight);
 		ESP_ERROR_CHECK(gpio_set_direction(_backlight, GPIO_MODE_OUTPUT)); //not always necessary
-		backlight(true);
+		backlightOn(true);
 	}
 	
 	if(_rst>= GPIO_NUM_0 && _rst<GPIO_NUM_MAX)
@@ -113,7 +113,7 @@ void SPILCD16bit::begin(void) {
     	vTaskDelay(100 / portTICK_RATE_MS);
 	}
 	
-	chipInit();
+	initDisplay();
 }
 
 /* Send a command to the LCD. Uses spi_device_polling_transmit, which waits

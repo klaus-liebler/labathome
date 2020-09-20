@@ -217,10 +217,15 @@ constexpr uint8_t init_cmds[] = {
 	0
 };
 
-
-
-TFT_ST7789::TFT_ST7789(spi_host_device_t spi_host, const uint32_t dmaChannel, const int16_t physicalWidth, const int16_t physicalHeigth, const DisplayRotation rotation, const gpio_num_t miso, const gpio_num_t mosi, const gpio_num_t clk, const gpio_num_t cspin, const gpio_num_t dcpin, const gpio_num_t backlightPin, const gpio_num_t rstpin)
-:SPILCD16bit(spi_host, dmaChannel, physicalWidth, physicalHeigth, rotation, miso, mosi, clk, cspin, dcpin, backlightPin, rstpin)
+/*
+ * Creates a lcd display object tailored for an ST7789 controller 
+ *
+ * @param spi_host Defines whether to use HSPI or VSPI
+ * @param spi_mode Defines the SPI mode to use (basically idle levels of signal lines). This is either "0" (if display has a CS line) or "3" (if display does not have a CS line)
+ * @param spi_dma_channel Defines which DMA channel (1 or 2) to use. We always test with 2...
+ */
+TFT_ST7789::TFT_ST7789(const spi_host_device_t spi_host, const uint8_t spi_mode, const uint32_t spi_dma_channel, const int16_t physicalWidth, const int16_t physicalHeigth, const DisplayRotation rotation, const gpio_num_t miso, const gpio_num_t mosi, const gpio_num_t clk, const gpio_num_t cspin, const gpio_num_t dcpin, const gpio_num_t backlightPin, const gpio_num_t rstpin)
+:SPILCD16bit(spi_host, spi_mode, spi_dma_channel, physicalWidth, physicalHeigth, rotation, miso, mosi, clk, cspin, dcpin, backlightPin, rstpin)
 {
 
 	switch (rotation) {
@@ -251,7 +256,7 @@ TFT_ST7789::~TFT_ST7789()
 	//TODO: Wird hier eigentlich auch der Destruktor der Superklasse aufgerufen?
 }
 
-void TFT_ST7789::chipInit() {
+void TFT_ST7789::initDisplay() {
 	writecommand(ST77XX_SLPOUT);   // Sleep out
   	vTaskDelay(120/portTICK_RATE_MS);
 
@@ -377,16 +382,16 @@ void TFT_ST7789::setAddr(uint16_t x_min_incl, uint16_t y_min_incl, uint16_t x_ma
 	writecommand(ST77XX_RAMWR); //Into RAM
 }
 
-void TFT_ST7789::display(bool on) {
+void TFT_ST7789::displayOn(bool on) {
 	writecommand(on ? ST77XX_DISPON : ST77XX_DISPOFF);
 }
 
-void TFT_ST7789::idleMode(bool on) {
+void TFT_ST7789::idleModeOn(bool on) {
 
 	writecommand(on ? ST7789_IDMON : ST7789_IDMOFF);
 }
 
-void TFT_ST7789::sleepMode(bool sleepIn) {
+void TFT_ST7789::sleepModeOn(bool sleepIn) {
 	if (sleepIn) {
 		if (sleep == 1)
 			return; //already sleeping

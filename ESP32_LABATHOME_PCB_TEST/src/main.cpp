@@ -22,10 +22,10 @@ HAL hal(IO17_MODE::BUZZER, IO4_MODE::SPECIAL_SPECIAL_RELAY3);
 //Ich rate Ihnen, da nicht zu tief einzusteigen und entweder globale statische oder lokale(kommt gleich) Variablen zu verwenden
 TFT_eSPI tft = TFT_eSPI();                                                           
 //TFT_ST7789 tft(HSPI_HOST, 2, 240, 240, DisplayRotation::ROT0, GPIO_NUM_MAX, GPIO_NUM_23, GPIO_NUM_18, GPIO_NUM_MAX, GPIO_NUM_5, GPIO_NUM_MAX, GPIO_NUM_0);
-uint32_t targetTime = 0;
-byte omm = 99, oss = 99;
-byte xcolon = 0, xsecs = 0;
-unsigned int colour = 0;
+uint32_t targetTime = 0; //unsigned ganzzahl 32bit
+uint8_t omm = 99, oss = 99;
+uint8_t xcolon = 0, xsecs = 0;
+uint32_t colour = 0;
 uint8_t testarray[100];
 
 //Deklaration einer (kleinen dreckigen) Hilfsfunktion, die weiter unten ausprogrammiert ist.
@@ -145,6 +145,20 @@ void loop()
   hal.setLEDState(LED::LED_YELLOW, hal.getButtonIsPressed(Switch::SW_YELLOW) ? CRGB::Yellow : CRGB::Black);
   hal.setLEDState(LED::LED_GREEN, hal.getButtonIsPressed(Switch::SW_GREEN) ? CRGB::Green : CRGB::Black);
   hal.setLEDState(LED::LED_3, hal.isMovementDetected() ? CRGB::White : CRGB::Black);
+  
+  
+  bool redButton = hal.getButtonIsPressed(Switch::SW_RED);
+  if(redButton)
+  {
+    hal.setLEDState(LED::LED_7, CRGB::DeepPink);
+  }
+  else
+  {
+    hal.setLEDState(LED::LED_7, CRGB::ForestGreen);
+  }
+  
+
+  
   hal.setRELAYState(hal.getButtonIsPressed(Switch::SW_GREEN));
   if (hal.getButtonIsPressed(Switch::SW_YELLOW))
   {

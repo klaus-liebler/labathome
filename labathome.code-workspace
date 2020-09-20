@@ -7,7 +7,10 @@
 			"path": "devtools"
 		},
 		{
-			"path": "flatbuf"
+			"path": "webui2"
+		},
+		{
+			"path": "doc"
 		}
 	],
 	"settings": {
@@ -31,7 +34,8 @@
 			"xstddef": "cpp",
 			"xtr1common": "cpp",
 			"xutility": "cpp"
-		}
+		},
+		"liveServer.settings.multiRootWorkspaceName": "webui2"
 	},
 	
 }

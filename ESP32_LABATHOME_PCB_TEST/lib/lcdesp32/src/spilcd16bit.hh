@@ -22,29 +22,33 @@ constexpr uint8_t DELAY_150ms = 0x80;
 constexpr uint8_t DELAY_500ms = 0xC0;
 
 #define Swap2Bytes(val) ( (((val) >> 8) & 0x00FF) | (((val) << 8) & 0xFF00) )
+#define RgbTo16bit(r, g, b) ( (((r)<<11)&0xF800) | (((g)<<5)&0x07E0) | ((b)&0x001F))
+#define PrepareColorESP32(r,g,b) RgbTo16bit((r),(g),(b))
+#define PrepareColor PrepareColorESP32
 
 #include "spilcd16bit_settings.hh"
 
+constexpr uint_fast16_t TEST = ( (((1)<<11)&0xF800) | (((1)<<5)&0x07E0) | ((1)&0x001F));
 
-constexpr uint16_t	BLACK =  	 0x0000;
-constexpr uint16_t	NAVY  =      0x000F ;     /*   0,   0, 128 */
-constexpr uint16_t	DARKGREEN =  0x03E0  ;    /*   0, 128,   0 */
-constexpr uint16_t	DARKCYAN =   0x03EF ;     /*   0, 128, 128 */
-constexpr uint16_t	MAROON =     0x7800;      /* 128,   0,   0 */
-constexpr uint16_t	PURPLE =     0x780F  ;    /* 128,   0, 128 */
-constexpr uint16_t	OLIVE   =    0x7BE0 ;     /* 128, 128,   0 */
-constexpr uint16_t	LIGHTGREY =  0xC618 ;     /* 192, 192, 192 */
-constexpr uint16_t	DARKGREY=    0x7BEF ;     /* 128, 128, 128 */
-constexpr uint16_t	BLUE    =    0x001F ;     /*   0,   0, 255 */
-constexpr uint16_t	GREEN   =    0x07E0 ;     /*   0, 255,   0 */
-constexpr uint16_t	CYAN    =    0x07FF ;     /*   0, 255, 255 */
-constexpr uint16_t	RED     =    0xF800 ;     /* 255,   0,   0 */
-constexpr uint16_t	MAGENTA  =   0xF81F   ;   /* 255,   0, 255 */
-constexpr uint16_t	YELLOW  =    0xFFE0 ;     /* 255, 255,   0 */
-constexpr uint16_t	WHITE  =     0xFFFF;      /* 255, 255, 255 */
-constexpr uint16_t	ORANGE  =    0xFD20 ;     /* 255, 165,   0 */
-constexpr uint16_t	GREENYELLOW= 0xAFE5 ;     /* 173, 255,  47 */
-constexpr uint16_t	PINK  =      0xF81F;
+constexpr uint16_t	BLACK =  	 PrepareColor(0,0,0);
+constexpr uint16_t	NAVY  =      PrepareColor(0,0,128);     /*   0,   0, 128 */
+constexpr uint16_t	DARKGREEN =  PrepareColor(0,128,0)  ;    /*   0, 128,   0 */
+constexpr uint16_t	DARKCYAN =   PrepareColor(0,128,128) ;     /*   0, 128, 128 */
+constexpr uint16_t	MAROON =     PrepareColor(128,0,0);      /* 128,   0,   0 */
+constexpr uint16_t	PURPLE =     PrepareColor(128,0,128)  ;    /* 128,   0, 128 */
+constexpr uint16_t	OLIVE   =    PrepareColor(128,128,0) ;     /* 128, 128,   0 */
+constexpr uint16_t	LIGHTGREY =  PrepareColor(192,192,192) ;     /* 192, 192, 192 */
+constexpr uint16_t	DARKGREY=    PrepareColor(128,128,128) ;     /* 128, 128, 128 */
+constexpr uint16_t	BLUE    =    PrepareColor(0,0,255) ;     /*   0,   0, 255 */
+constexpr uint16_t	GREEN   =    PrepareColor(0,255,0) ;     /*   0, 255,   0 */
+constexpr uint16_t	CYAN    =    PrepareColor(0,255,255) ;     /*   0, 255, 255 */
+constexpr uint16_t	RED     =    PrepareColor(255,0,0) ;     /* 255,   0,   0 */
+constexpr uint16_t	MAGENTA  =   PrepareColor(255,0,255)   ;   /* 255,   0, 255 */
+constexpr uint16_t	YELLOW  =    PrepareColor(255,255,0) ;     /* 255, 255,   0 */
+constexpr uint16_t	WHITE  =     PrepareColor(255,255,255);      /* 255, 255, 255 */
+constexpr uint16_t	ORANGE  =    PrepareColor(255,165,0) ;     /* 255, 165,   0 */
+constexpr uint16_t	GREENYELLOW= PrepareColor(173,255,47) ;     /* 173, 255,  47 */
+
 
 
 enum class DisplayRotation:uint8_t {
@@ -87,7 +91,7 @@ enum class PrintStringError
 class SPILCD16bit{
 
  public:
-	SPILCD16bit(spi_host_device_t spi_host, const uint32_t dmaChannel, const int16_t physicalWidth, const int16_t physicalHeigth, const DisplayRotation rotation, const gpio_num_t miso, const gpio_num_t mosi, const gpio_num_t clk, const gpio_num_t cspin, const gpio_num_t dcpin, const gpio_num_t backlightPin, const gpio_num_t rstpin);
+	SPILCD16bit(const spi_host_device_t spi_host, const uint8_t spi_mode, const uint32_t dmaChannel, const int16_t physicalWidth, const int16_t physicalHeigth, const DisplayRotation rotation, const gpio_num_t miso, const gpio_num_t mosi, const gpio_num_t clk, const gpio_num_t cspin, const gpio_num_t dcpin, const gpio_num_t backlightPin, const gpio_num_t rstpin);
 	~SPILCD16bit();
 	PrintStringError printString(int16_t cursor_x, int16_t cursor_y, int16_t xWindowStart, int16_t xWindowEnd, int16_t yWindowStart, int16_t yWindowEnd, Anchor anchorType, const char *format, ...);
 	void			begin(void),
@@ -105,11 +109,11 @@ class SPILCD16bit{
 					spiTxCompleteCallback(),
 					setColors(uint16_t foregroundColor, uint16_t backgroundColor),
 					setFont(const GFXfont *font),
-					backlight(bool on);
+					backlightOn(bool on);
 	bool			DMAIdle();
-	virtual void	idleMode(bool onOff)=0;
-	virtual void 	display(bool onOff)=0;
-	virtual void 	sleepMode(bool mode)=0;
+	virtual void	idleModeOn(bool onOff)=0;
+	virtual void 	displayOn(bool onOff)=0;
+	virtual void 	sleepModeOn(bool mode)=0;
  protected:
 	void			processInitCommands(const uint8_t* cmdStructure);
 	void			processInitCommandsCompact(const uint8_t* startAddr);
@@ -118,7 +122,7 @@ class SPILCD16bit{
 	void 			writecommand(const uint8_t cmd);
 	void			writedata(const uint8_t data);
 	void			writedata16(const uint16_t data);
-	virtual void 	chipInit()=0;
+	virtual void 	initDisplay()=0;
 	virtual void 	setAddr(uint16_t x_min_incl, uint16_t y_min_incl, uint16_t x_max_incl, uint16_t y_max_incl)=0;
 	uint16_t		_width=0, _height=0;
 	uint16_t		_physicalwidth, _physicalheight;
@@ -129,7 +133,8 @@ class SPILCD16bit{
 	int16_t 		getTextPixelLength(const char *str);
 	void 			getTextBounds(const char *str, int16_t x, int16_t y, Anchor anchorType, int16_t *x1, int16_t *y1, int16_t *x2, int16_t *y2);
 	bool 			boundaryCheck(int16_t x,int16_t y);
-	spi_host_device_t spi_host;
+	const spi_host_device_t spi_host;
+	const uint8_t spi_mode;
 	const uint32_t 	dmaChannel;
 	const DisplayRotation rotation;
 	const gpio_num_t	_miso, _mosi, _clk, _cs, _dc, _backlight, _rst;//dc HIGH -->DATA

@@ -2037,17 +2037,6 @@ F 3 "~" H 2100 4350 50  0001 C CNN
 	1    2100 4350
 	-1   0    0    -1  
 $EndComp
-$Comp
-L Connector:Conn_01x05_Male J4
-U 1 1 5F35411A
-P 6500 4850
-F 0 "J4" H 6472 4874 50  0000 R CNN
-F 1 "EXT" H 6472 4783 50  0000 R CNN
-F 2 "Connector_JST:JST_XH_B5B-XH-AM_1x05_P2.50mm_Vertical" H 6500 4850 50  0001 C CNN
-F 3 "~" H 6500 4850 50  0001 C CNN
-	1    6500 4850
-	-1   0    0    -1  
-$EndComp
 Text GLabel 6300 4650 0    50   BiDi ~ 0
 EXT1
 Text GLabel 6300 4750 0    50   BiDi ~ 0
@@ -2265,7 +2254,7 @@ U 1 1 5F35FCD9
 P 4950 6350
 F 0 "J14" H 5050 6325 50  0000 L CNN
 F 1 "Conn_Coaxial" H 5050 6234 50  0000 L CNN
-F 2 "Connector_Coaxial:SMA_Amphenol_132289_EdgeMount" H 4950 6350 50  0001 C CNN
+F 2 "Connector_Coaxial:SMA_Samtec_SMA-J-P-X-ST-EM1_EdgeMount" H 4950 6350 50  0001 C CNN
 F 3 " ~" H 4950 6350 50  0001 C CNN
 	1    4950 6350
 	1    0    0    -1  
@@ -2333,9 +2322,9 @@ F 3 "" H 3800 6150 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	4250 6150 3800 6150
-Text GLabel 4750 7050 2    50   Input ~ 0
-SPI_IO2
 Text GLabel 4750 6950 2    50   Input ~ 0
+SPI_IO2
+Text GLabel 4750 7050 2    50   Input ~ 0
 SPI_IO1
 Text GLabel 2950 3400 0    50   BiDi ~ 0
 MULTI1
@@ -2546,17 +2535,6 @@ F 3 "~" H 2550 2150 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Mechanical:Fiducial FID2
-U 1 1 5F6113E7
-P 2550 2350
-F 0 "FID2" H 2635 2396 50  0000 L CNN
-F 1 "KiCad" H 2635 2305 50  0000 L CNN
-F 2 "Symbol:KiCad-Logo2_5mm_SilkScreen" H 2550 2350 50  0001 C CNN
-F 3 "~" H 2550 2350 50  0001 C CNN
-	1    2550 2350
-	1    0    0    -1  
-$EndComp
-$Comp
 L Mechanical:Fiducial FID3
 U 1 1 5F61BEBC
 P 2550 2550
@@ -2568,14 +2546,36 @@ F 3 "~" H 2550 2550 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Mechanical:Fiducial FID4
+L Mechanical:Fiducial m1
 U 1 1 5F6258F8
 P 3000 2150
-F 0 "FID4" H 3085 2196 50  0000 L CNN
+F 0 "m1" H 3085 2196 50  0000 L CNN
 F 1 "Attribution" H 3085 2105 50  0000 L CNN
 F 2 "Symbol:Symbol_CC-Attribution_CopperTop_Small" H 3000 2150 50  0001 C CNN
 F 3 "~" H 3000 2150 50  0001 C CNN
 	1    3000 2150
 	1    0    0    -1  
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x06 J4
+U 1 1 5F503E4B
+P 6500 4850
+F 0 "J4" H 6580 4842 50  0000 L CNN
+F 1 "EXT" H 6580 4751 50  0000 L CNN
+F 2 "Connector_JST:JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical" H 6500 4850 50  0001 C CNN
+F 3 "~" H 6500 4850 50  0001 C CNN
+	1    6500 4850
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR0136
+U 1 1 5F5053D4
+P 6300 5150
+F 0 "#PWR0136" H 6300 5000 50  0001 C CNN
+F 1 "+5V" V 6315 5278 50  0000 L CNN
+F 2 "" H 6300 5150 50  0001 C CNN
+F 3 "" H 6300 5150 50  0001 C CNN
+	1    6300 5150
+	0    -1   -1   0   
 $EndComp
 $EndSCHEMATC

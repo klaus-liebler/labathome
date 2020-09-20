@@ -3,6 +3,77 @@
 #include <stdio.h>
 #include "plcmanager.hh"
 
+class FB_GreenButton: public FunctionBlock{
+    size_t output;
+    public:
+        LabAtHomeErrorCode execute(FBContext *ctx){
+            bool value=false;
+            ctx->GetHAL()->GetButtonGreen(&value);
+            ctx->SetBinary(output, value);
+            return LabAtHomeErrorCode::OK;;
+        }
+        FB_GreenButton(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
+        ~FB_GreenButton(){}
+};
+
+class FB_EncoderButton: public FunctionBlock{
+    size_t output;
+    public:
+        LabAtHomeErrorCode execute(FBContext *ctx){
+            bool value=false;
+            ctx->GetHAL()->GetButtonEncoder(&value);
+            ctx->SetBinary(output, value);
+            return LabAtHomeErrorCode::OK;;
+        }
+        FB_EncoderButton(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
+        ~FB_EncoderButton(){}
+};
+
+class FB_RedButton: public FunctionBlock{
+    size_t output;
+    public:
+        LabAtHomeErrorCode execute(FBContext *ctx){
+            bool value=false;
+            ctx->GetHAL()->GetButtonRed(&value);
+            ctx->SetBinary(output, value);
+            return LabAtHomeErrorCode::OK;;
+        }
+        FB_RedButton(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
+        ~FB_RedButton(){}
+};
+
+class FB_GreenLED: public FunctionBlock{
+    size_t input;
+    public:
+        LabAtHomeErrorCode execute(FBContext *ctx){
+            ctx->GetHAL()->SetLedGreen(ctx->GetBinary(input));
+            return LabAtHomeErrorCode::OK;;
+        }
+        FB_GreenLED(uint32_t IdOnWebApp, size_t input):FunctionBlock(IdOnWebApp), input(input){}
+        ~FB_GreenLED(){}
+};
+
+class FB_YellowLED: public FunctionBlock{
+    size_t input;
+    public:
+        LabAtHomeErrorCode execute(FBContext *ctx){
+            ctx->GetHAL()->SetLedYellow(ctx->GetBinary(input));
+            return LabAtHomeErrorCode::OK;;
+        }
+        FB_YellowLED(uint32_t IdOnWebApp, size_t input):FunctionBlock(IdOnWebApp), input(input){}
+        ~FB_YellowLED(){}
+};
+
+class FB_RedLED: public FunctionBlock{
+    size_t input;
+    public:
+        LabAtHomeErrorCode execute(FBContext *ctx){
+            ctx->GetHAL()->SetLedRed(ctx->GetBinary(input));
+            return LabAtHomeErrorCode::OK;;
+        }
+        FB_RedLED(uint32_t IdOnWebApp, size_t input):FunctionBlock(IdOnWebApp), input(input){}
+        ~FB_RedLED(){}
+};
 
 class FB_AND2: public FunctionBlock{
     size_t inputA;
@@ -15,7 +86,7 @@ class FB_AND2: public FunctionBlock{
             ctx->SetBinary(this->output, ctx->GetBinary(inputA) & ctx->GetBinary(inputB));
             return LabAtHomeErrorCode::OK;;
         }
-        FB_AND2(size_t inputA, size_t inputB, size_t output):inputA(inputA), inputB(inputB), output(output){}
+        FB_AND2(uint32_t IdOnWebApp, size_t inputA, size_t inputB, size_t output):FunctionBlock(IdOnWebApp), inputA(inputA), inputB(inputB), output(output){}
         ~FB_AND2(){}
 };
 
@@ -30,7 +101,7 @@ class FB_OR2: public FunctionBlock{
             ctx->SetBinary(this->output, ctx->GetBinary(inputA) | ctx->GetBinary(inputB));
             return LabAtHomeErrorCode::OK;;
         }
-        FB_OR2(size_t inputA, size_t inputB, size_t output):inputA(inputA), inputB(inputB), output(output){}
+        FB_OR2(uint32_t IdOnWebApp, size_t inputA, size_t inputB, size_t output):FunctionBlock(IdOnWebApp), inputA(inputA), inputB(inputB), output(output){}
         ~FB_OR2(){}
 };
 
@@ -48,7 +119,7 @@ class FB_RS: public FunctionBlock{
             ctx->SetBinary(this->output, state);
             return LabAtHomeErrorCode::OK;
         }
-        FB_RS(size_t inputR, size_t inputS, size_t output):inputR(inputR), inputS(inputS), output(output), state(false){}
+        FB_RS(uint32_t IdOnWebApp, size_t inputR, size_t inputS, size_t output):FunctionBlock(IdOnWebApp), inputR(inputR), inputS(inputS), output(output), state(false){}
         ~FB_RS(){}
 };
 
@@ -77,7 +148,7 @@ class FB_TON: public FunctionBlock{
             ctx->SetBinary(output, time>=switchOnAtMicrosecond);
             return LabAtHomeErrorCode::OK;
         }
-        FB_TON(size_t input, size_t output, uint32_t presetTime_secs):input(input), output(output), presetTime_secs(presetTime_secs){}
+        FB_TON(uint32_t IdOnWebApp, size_t input, size_t output, uint32_t presetTime_secs):FunctionBlock(IdOnWebApp), input(input), output(output), presetTime_secs(presetTime_secs){}
         ~FB_TON(){}
 };
 
@@ -91,6 +162,6 @@ class FB_NOT: public FunctionBlock{
             ctx->SetBinary(this->output, !ctx->GetBinary(input));
             return LabAtHomeErrorCode::OK;
         }
-        FB_NOT(size_t input, size_t output):input(input), output(output){}
+        FB_NOT(uint32_t IdOnWebApp, size_t input, size_t output):FunctionBlock(IdOnWebApp), input(input), output(output){}
         ~FB_NOT(){}
 };

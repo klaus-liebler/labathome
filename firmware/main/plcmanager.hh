@@ -4,7 +4,7 @@
 #include "sdkconfig.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
-#include "BSP.hh"
+#include "HAL.hh"
 #include "labathomeerror.hh"
 #include "vector"
 
@@ -42,6 +42,7 @@ class FBContext{
         virtual bool  GetBinary(size_t index)=0;
         virtual LabAtHomeErrorCode  SetBinary(size_t index, bool value)=0;
         virtual int64_t GetMicroseconds()=0;
+        virtual HAL *GetHAL()=0;
 };
 
 class FunctionBlock {
@@ -51,13 +52,15 @@ class FunctionBlock {
       virtual LabAtHomeErrorCode initPhase3(FBContext *ctx){return LabAtHomeErrorCode::OK;};
       virtual LabAtHomeErrorCode execute(FBContext *ctx)=0;
       virtual LabAtHomeErrorCode deinit(FBContext *ctx){return LabAtHomeErrorCode::OK;}
+      const uint32_t IdOnWebApp;
+      FunctionBlock(uint32_t IdOnWebApp):IdOnWebApp(IdOnWebApp){}
       virtual ~FunctionBlock(){};
 };
 
 class PLCManager:public FBContext
 {
  private:
-        BSP *bsp;
+        HAL *hal;
         Executable *currentExecutable;
         Executable *nextExecutable;
         Executable* createInitialExecutable();
@@ -69,10 +72,10 @@ class PLCManager:public FBContext
         bool  GetBinary(size_t index);
         LabAtHomeErrorCode  SetBinary(size_t index, bool value);
         int64_t GetMicroseconds();
-        LabAtHomeErrorCode CompileProtobufConfig2ExecutableAndEnqueue(char* pb, size_t length);
-
+        LabAtHomeErrorCode CompileExampleConfig2ExecutableAndEnqueue(char* pb, size_t length);
+        HAL *GetHAL();
         
-        PLCManager(BSP *bsp): bsp(bsp)
+        PLCManager(HAL *hal): hal(hal)
         {
             currentExecutable = this->createInitialExecutable();
             nextExecutable = nullptr;
