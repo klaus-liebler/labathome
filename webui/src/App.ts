@@ -36,55 +36,59 @@ export class DevelopCFCController extends ScreenController {
         let data: FlowchartData = {
             operators: [
                 {
+                    index:0,
                     caption: "RedButton_1",
-                    type: "RedButton",
-                    id: "RedButton_1",
+                    typeName: "RedButton",
                     posX: 10,
                     posY: 10,
+                    configurationData:null,
                 },
                 {
+                    index:1,
                     caption: "GreenButton_1",
-                    type: "GreenButton",
-                    id: "GreenButton_1",
+                    typeName: "GreenButton",
                     posX: 10,
                     posY: 150,
+                    configurationData:null,
                 },
                 {
+                    index:2,
                     caption: "AND_1",
-                    type: "AND",
-                    id: "AND_1",
+                    typeName: "AND",
                     posX: 250,
                     posY: 10,
+                    configurationData:null,
                 },
                 {
+                    index:3,
                     caption: "RedLed_1",
-                    type: "RedLed",
-                    id: "RedLed_1",
+                    typeName: "RedLed",
                     posX: 500,
                     posY: 10,
+                    configurationData:null,
                 },
                
             ],
             links: [
                 {
                     color: "black",
-                    fromId: "RedButton_1",
+                    fromOperatorIndex: 0,
                     fromOutput: 0,
-                    toId: "AND_1",
+                    toOperatorIndex: 2,
                     toInput: 0
                 },
                 {
                     color: "black",
-                    fromId: "GreenButton_1",
+                    fromOperatorIndex: 1,
                     fromOutput: 0,
-                    toId: "AND_1",
+                    toOperatorIndex: 2,
                     toInput: 1
                 },
                 {
                     color: "black",
-                    fromId: "AND_1",
+                    fromOperatorIndex: 2,
                     fromOutput: 0,
-                    toId: "RedLed_1",
+                    toOperatorIndex: 3,
                     toInput: 0
                 },
             ]
@@ -226,15 +230,12 @@ class AppController {
 
 
         this.SetApplicationState("WebSocket is not connected");
+        /*
         let websocket = new WebSocket('ws://' + location.hostname + '/w');
-        
-
-
         websocket.onopen = e => {
             this.SetApplicationState('WebSocket connection opened');
             document.getElementById("test")!.innerHTML = "WebSocket is connected!";
         }
-
         websocket.onmessage = (evt) => {
             var msg = evt.data;
             let value: string;
@@ -276,7 +277,7 @@ class AppController {
                 websocket.send("L" + b.dataset.rel);
             };
         });
-
+*/
     }
 }
 

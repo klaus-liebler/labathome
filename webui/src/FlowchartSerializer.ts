@@ -1,8 +1,5 @@
 import { FlowchartOperator } from "./FlowchartOperator";
-import { FlowchartLink } from "./FlowchartLink";
-import { FlowchartInputConnector, FlowchartOutputConnector, ConnectorType } from "./FlowchartConnector";
-import * as operatorimpl from "./FlowchartOperatorImpl";
-import { Location2D, Utils } from "./Utils"
+import {ConnectorType } from "./FlowchartConnector";
 
 export interface SerializeContext {
     typeIndex2globalConnectorIndex2adressOffset: Map<number, Map<number, number>>;
@@ -15,7 +12,7 @@ declare const msCrypto: Crypto;
 
 
 
-export class FlowchartExporter {
+export class FlowchartSerializer {
 
     private static getRandomValuesWithMathRandom(bytes: Uint8Array): void {
         const max = Math.pow(2, 8 * bytes.byteLength / bytes.length);
@@ -32,12 +29,12 @@ export class FlowchartExporter {
         } else if (typeof msCrypto !== 'undefined') {
             msCrypto.getRandomValues(bytes);
         } else {
-            FlowchartExporter.getRandomValuesWithMathRandom(bytes);
+            FlowchartSerializer.getRandomValuesWithMathRandom(bytes);
         }
         return bytes;
     };
 
-    public static Export(operators: FlowchartOperator[]) {
+    public static Serialize(operators: FlowchartOperator[]):ArrayBuffer {
         let typeIndex2globalConnectorIndex2adressOffset = new Map<number, Map<number, number>>(); //globalConnectorIndex_Outputs 2 variableAdress
         let typeIndex2maxOffset = new Map<number, number>()
         for (let type in ConnectorType) {
@@ -80,7 +77,7 @@ export class FlowchartExporter {
         ctx.buffer.setUint32(ctx.bufferOffset, 0xAFFECAFE, true); //Version 0xAFFECAFE means: Development
         ctx.bufferOffset += 4;
         //GUID
-        let guid=FlowchartExporter.getRandomBytes(16)
+        let guid=FlowchartSerializer.getRandomBytes(16)
         guid.forEach((v,i)=>{ctx.buffer.setUint8(ctx.bufferOffset+i, v)}); //guid of the model
         ctx.bufferOffset += 16;
 
@@ -105,9 +102,8 @@ export class FlowchartExporter {
         }
         code += "};";
         window.alert(code);
-        //var file = new Blob([buffer.slice(0,ctx.bufferOffset)], {type: "application/octet-stream"});
-        //URL.createObjectURL(file)
-        return guid;
+        return buffer.slice(0, ctx.bufferOffset)
+        
     }
 
 }

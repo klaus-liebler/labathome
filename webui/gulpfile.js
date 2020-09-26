@@ -19,7 +19,7 @@ var paths = {
   
 function clean(cb)
 {
-    return gulp.src('{dist,inlined}', {read: false, allowEmpty:true}).pipe(gulp_clean());
+    return gulp.src('{dist,dist_compressed}', {read: false, allowEmpty:true}).pipe(gulp_clean());
 }
 
 
@@ -63,7 +63,7 @@ function htmlInline(cb)
     return gulp.src('./dist/index.html')
     .pipe(inlinesource())
     .pipe(gzip())
-    .pipe(gulp.dest('./inlined'));
+    .pipe(gulp.dest('./dist_compressed'));
 }
 
 

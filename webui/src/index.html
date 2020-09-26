@@ -4,6 +4,10 @@
 <head>
   <meta charset="utf-8">
   <title>lab@home WebUI Dashboard</title>
+  <link rel="stylesheet" href="app.css" inline>
+
+  <script src="bundle.js" inline></script>
+  <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAACXBIWXMAAAsTAAALEwEAmpwYAAABrklEQVQokWP8//8/AymACVPoPwM+I1A0/Pn3a+2l5kfvLhPW8P///zuvT776fP/og+WiPHIENPz7/3f/nTmLzha///aUj12Ei40fjwaWrdf6uFj5X325//XX+5df7onxKDEwMOKz4fzT7W++Pnz//QUDA+P9d+fEeJTxqGZgYGCS4ld/++3p++/PxXgU7r87J86rCJH4+efrlqu9+27P+fvvN6oGPvV335/++PVJglf12+9P4jxKEIm7b86cerx+y/W+/kPhj95dQtHw9ttjTjY+AU5xBgaG////zz+Ve/bxJk0JuwK7FTxsws8+3Zh0NHr95dYff74wMDAwvvnyqHWvu6qIub6k+88/X5kZWbbdnPTr73cVYbM3Xx99+PFCjl/n+58vr78+EOCUCNKpZhHikuJg5lEQNLBSDIOEsrak09pLTTdeH2VgYFAUNMywmsvAwLDn1syzT7b8/vud8f//f08/XJcW0EQOzf8M/88/3rLxatfnX2+leNXD9BvlhPT+///HyMjEiCfxffv1ftPV3vffngbqVkvwqUAE8WmA28aIZDmW1IoGGFEjHgAjJ8Q1cSweSAAAAABJRU5ErkJggg==">
 </head>
 
 <body>
@@ -80,30 +84,9 @@
     <i class="fa fa-warehouse"></i>
   </header>
 
-  <nav>
-    <ul>
-      <li><svg class="icon icon-home">
-          <use xlink:href="#icon-home"></use>
-        </svg><a id="show_screen_dashboard" href="javascript:void(0)">Dashboard</a></li>
-      <li><svg class="icon icon-calendar">
-          <use xlink:href="#icon-calendar"></use>
-        </svg><a href="javascript:void(0)">Create Schedule</a></li>
-      <li><svg class="icon icon-wrench">
-          <use xlink:href="#icon-wrench"></use>
-        </svg><a href="javascript:void(0)">Calibrate</a></li>
-      <li><svg class="icon icon-wrench">
-          <use xlink:href="#icon-make-group"></use>
-        </svg><a id="show_screen_develop" href="javascript:void(0)">Develop</a></li>
-      <li><svg class="icon icon-enter">
-          <use xlink:href="#icon-enter"></use>
-        </svg><a href="javascript:void(0)">Blinds</a></li>
-      <li><svg class="icon icon-sun">
-          <use xlink:href="#icon-sun"></use>
-        </svg><a href="javascript:void(0)">Lightening</a></li>
-      <li><svg class="icon icon-stats-dots">
-          <use xlink:href="#icon-stats-dots"></use>
-        </svg><a id="show_screen_reports" href="javascript:void(0)">Reports</a></li>
-    </ul>
+  <nav id="navigation">
+      <a id="show_screen_dashboard" href="javascript:void(0)"><svg class="icon icon-home"><use xlink:href="#icon-home"></use></svg>&nbsp;Dashboard</a>
+      <a id="show_screen_develop" href="javascript:void(0)"><svg class="icon icon-wrench"><use xlink:href="#icon-make-group"></use></svg>&nbsp;Develop</a></li>
   </nav>
 
   <main>
@@ -147,12 +130,12 @@
         </p>
       </div>
     </div>
-    <div id="screen_develop" class="flowchart-example-container"></div>
+    <div id="screen_develop"></div>
     <div id="screen_reports" style="background-color:beige; height:100%; width:100%;">
       <div class="ct-chart"></div>
     </div>
   </main>
-  <footer>Klaus Liebler, Westfälische Hochschule &copy;2019</footer>
+  <footer>Klaus Liebler, Westfälische Hochschule &copy;2020</footer>
 
 
 </body>

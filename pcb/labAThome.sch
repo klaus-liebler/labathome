@@ -2142,7 +2142,7 @@ U 1 1 5F3048D3
 P 1300 5050
 F 0 "RV1" H 1231 5004 50  0000 R CNN
 F 1 "10k" H 1231 5095 50  0000 R CNN
-F 2 "Potentiometer_THT:Potentiometer_Runtron_RM-065_Vertical" H 1300 5050 50  0001 C CNN
+F 2 "Potentiometer_THT:Potentiometer_Alps_RK09K_Single_Vertical" H 1300 5050 50  0001 C CNN
 F 3 "~" H 1300 5050 50  0001 C CNN
 	1    1300 5050
 	1    0    0    1   

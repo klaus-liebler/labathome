@@ -1,14 +1,22 @@
-import { FlowchartOperator } from "./flowchartOperator";
-import { Flowchart, ConnectorType } from "./flowchart";
-import { FlowchartLink } from "./flowchartLink";
-import {Location2D} from "./utils"
+import { FlowchartOperator } from "./FlowchartOperator";
+import { Flowchart } from "./Flowchart";
+import { FlowchartLink } from "./FlowchartLink";
+import {Location2D} from "./Utils"
 
 const TRANSLATEY = 20;
 
+export enum ConnectorType{
+    BOOLEAN=0,
+    INTEGER=1,
+    FLOAT=2,
+    COLOR=3,
+}
+
 export abstract class FlowchartConnector {
     private static INDEX: number = 0;
-    private index: number;
-    get Index() { return this.index; }
+    private globalConnectorIndex: number;
+    get GlobalConnectorIndex() { return this.globalConnectorIndex; }
+    get LocalConnectorIndex(){return this.localIndex;}
 
     protected element: SVGGElement;
     get Element() { return this.element; }
@@ -17,17 +25,13 @@ export abstract class FlowchartConnector {
     protected connector:SVGElement;
     protected connectorGroup:SVGGElement;
 
-    private links: FlowchartLink[] = [];
-    public HasLink = (globalLinkIndex: number) => { return this.links[globalLinkIndex] !== undefined && this.links[globalLinkIndex] != null };
-    public AddLink = (link: FlowchartLink) => {
-        this.links[link.GlobalLinkIndex] = link;
-    }
-    public RemoveLink = (link: FlowchartLink) => {
-        delete this.links[link.GlobalLinkIndex];
-    }
-    get LinksLength() { return this.links.reduce((sum, item): number => sum + (item != null ? 1 : 0), 0) };
+    private links = new Map<number, FlowchartLink>();
+    public HasLink = (globalLinkIndex: number) => this.links.has(globalLinkIndex);
+    public AddLink = (link: FlowchartLink) => this.links.set(link.GlobalLinkIndex, link);
+    public RemoveLink = (link: FlowchartLink) => this.links.delete(link.GlobalLinkIndex);
+    get LinksLength() { return this.links.size};
     public GetLinksCopy(): FlowchartLink[] {
-        return this.links.map(x => x);
+        return Array.from(this.links.values());
     }
 
     get LinksKVIt(){return this.links.entries()}
@@ -41,9 +45,9 @@ export abstract class FlowchartConnector {
         
     }
 
-    constructor(private parent: FlowchartOperator, private caption: string, private type:ConnectorType) {
+    constructor(private parent: FlowchartOperator, private caption: string, private localIndex:number, private type:ConnectorType) {
 
-        this.index = FlowchartConnector.INDEX++;
+        this.globalConnectorIndex = FlowchartConnector.INDEX++;
         let spec = this.getIOSpecifics();
         let translateY = TRANSLATEY*spec.parent.childElementCount;
         this.element = <SVGGElement>Flowchart.Svg(spec.parent, "g", ["transform", `translate(0 ${translateY})`], [`operator-${spec.inputOrOutput}`]);
@@ -56,7 +60,7 @@ export abstract class FlowchartConnector {
         this.snapper= <SVGCircleElement>Flowchart.Svg(this.connectorGroup, "circle", ["r","10"], [`operator-${spec.inputOrOutput}-snapper`]);
         
         this.element.onmouseover = (e) => {
-            for (const link of this.links) {
+            for (const link of this.links.values()) {
                 if (link && link != this.parent.Parent.SelectedLink) {
                     link.ColorizeLink(Flowchart._shadeColor(this.parent.Parent.Options.defaultLinkColor, -0.4));
                 }
@@ -64,7 +68,7 @@ export abstract class FlowchartConnector {
         }
 
         this.element.onmouseout = (e) => {
-            for (const link of this.links) {
+            for (const link of this.links.values()) {
                 if (link && link != this.parent.Parent.SelectedLink) {
                     link.UncolorizeLink();
                 }
@@ -87,40 +91,30 @@ export abstract class FlowchartConnector {
     }
 }
 
-
-
 export class FlowchartInputConnector extends FlowchartConnector {
-    constructor (parent: FlowchartOperator, caption: string, type:ConnectorType) {
-        super(parent, caption, type);
+    constructor (parent: FlowchartOperator, caption: string, localIndex:number, type:ConnectorType) {
+        super(parent, caption, localIndex, type);
         
         this.connectorGroup.onmouseup = (e) => {
-           parent.Parent._notifyInputConnectorMouseupWithLink(this, e);
+           parent.Parent._notifyInputConnectorMouseup(this, e);
         }
         this.connectorGroup.onmouseenter=(e)=>
         {
-            parent.Parent._notifySnapStart(this, e);
+            parent.Parent._notifyInputConnectorMouseenter(this, e);
         }
         this.connectorGroup.onmouseleave=(e)=>
         {
-            parent.Parent._notifySnapEnd(this, e);
+            parent.Parent._notifyInputConnectorMouseleave(this, e);
         }
     }
     protected GetLinkpointXOffset(width:number): number{return 0;}  
     protected  getIOSpecifics(){return {inputOrOutput:"input", parent:this.Parent.InputSvgG, translateY:0, dx:8};}
 }
 export class FlowchartOutputConnector extends FlowchartConnector {
-    constructor (parent: FlowchartOperator, caption: string, type:ConnectorType) {
-        super(parent, caption, type)
+    constructor (parent: FlowchartOperator, caption: string, localIndex:number, type:ConnectorType) {
+        super(parent, caption, localIndex, type)
         this.element.onmousedown = (e) => {
             parent.Parent._notifyOutputConnectorMousedown(this, e);
-            document.onmouseup = (e) => {
-                document.onmouseup = null;
-                document.onmousemove = null;
-                parent.Parent._notifyDocumentMouseupWithLink(e);
-            };
-            document.onmousemove = (e) => {
-                parent.Parent._notifyMouseMovedWithLink(e);
-            };
         }
     }
     protected GetLinkpointXOffset(width:number): number{return width;}

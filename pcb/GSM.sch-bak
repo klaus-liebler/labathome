@@ -93,7 +93,7 @@ NoConn ~ 4100 4250
 Text GLabel 4100 4550 0    50   Output ~ 0
 SPI_MISO
 Text GLabel 6450 4450 2    50   Output ~ 0
-SPI_IO1
+SPI_IO2
 Text GLabel 4100 4650 0    50   Input ~ 0
 SPI_MOSIx
 $Comp

@@ -1,12 +1,12 @@
-import { FlowchartInputConnector, FlowchartOutputConnector } from "./flowchartConnector";
-import { Flowchart } from "./flowchart";
+import { FlowchartInputConnector, FlowchartOutputConnector } from "./FlowchartConnector";
+import { Flowchart } from "./Flowchart";
 export class FlowchartLink {
-    private static INDEX: number = 0;
+    private static MAX_INDEX: number = 0;
     private index: number;
     private element: SVGPathElement;
     private captionElement: SVGTextElement;
     constructor(private parent: Flowchart, private caption: string, private color: string, private from: FlowchartOutputConnector, private to: FlowchartInputConnector) {
-        this.index = FlowchartLink.INDEX++;
+        this.index = FlowchartLink.MAX_INDEX++;
         this.element = <SVGPathElement>Flowchart.Svg(parent.LinkLayer, "path", ["stroke-width", "" + this.parent.Options.linkWidth, "fill", "none", "id", "LINK" + this.index]);
         this.RefreshPosition();
         this.UncolorizeLink();
@@ -24,7 +24,7 @@ export class FlowchartLink {
     get To() { return this.to; }
     set Color(color: string) { this.color = color; }
 
-    public Dispose() {
+    public RemoveFromDOM() {
         this.element.remove();
         this.captionElement.remove();
     }
