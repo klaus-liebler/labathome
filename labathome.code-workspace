@@ -89,7 +89,8 @@
 			"xlocnum": "cpp",
 			"xloctime": "cpp",
 			"xstring": "cpp",
-			"xtree": "cpp"
+			"xtree": "cpp",
+			"*.ipp": "cpp"
 		},
 		"liveServer.settings.multiRootWorkspaceName": "webui"
 	},

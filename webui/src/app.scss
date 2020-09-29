@@ -70,16 +70,55 @@ body {
     }
   }
 
-  #screen_develop
-  {
-    height: 100%;
-  }
-
 
   main{
     grid-column: 2;
     grid-row:2;
-    background-color: white
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+  }
+
+  main>div{
+    flex-grow: 1;
+    background: red;
+
+  }
+
+  .container {
+    background: #3F51B5;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .section {
+    margin: 10px;
+    background: #2196F3;
+    flex-grow: 1;
+    
+    display: flex;
+    flex-direction: column;
+    
+    /* for Firefox */
+    min-height: 0;
+  }
+  
+  .content {
+    margin: 10px;
+    background: #BBDEFB;
+  }
+  
+  .scrollable-content {
+    background: white;
+    flex-grow: 1;
+    
+    overflow: auto;
+    
+    /* for Firefox */
+    min-height: 0;
   }
 
   footer {
@@ -90,14 +129,6 @@ body {
 
   *, ::before, ::after{
     box-sizing: border-box;
-  }
-
-.flowchart-example-container {
-
-    height: 100%;
-    width: 100%;
-    border: 0px solid #BBB; /*Problem: Wenn Bordergrößer null, dann ragt der Border über die 100%-Größe hinweg und macht damit die Gesamtseite größer*/
-    /*TODO: Suche eine Anweisung, die dafür sorgt, dass der Border innerhalb der 100% liegt*/
   }
 
   .icon {

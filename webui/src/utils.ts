@@ -10,3 +10,44 @@ export interface Location2D {
     x: number;
     y: number;
 }
+
+
+export class $
+{
+    public static readonly SVGNS = "http://www.w3.org/2000/svg";
+    public static readonly XLINKNS = "http://www.w3.org/1999/xlink";
+    public static readonly HTMLNS = "http://www.w3.org/1999/xhtml";
+
+    public static Svg(parent: Element, type:string,  attributes:string[], classes?: string[]):SVGElement {
+        return  parent.appendChild(<SVGElement>$.Elem($.SVGNS, type, attributes, classes));
+    }
+
+    public static Html(parent: Element, type:string,  attributes:string[], classes?: string[], textContent?:string):HTMLElement {
+        return parent.appendChild(<HTMLElement>$.Elem($.HTMLNS, type, attributes, classes, textContent));
+    }
+
+    public static HtmlAsFirstChild(parent: Element, type:string,  attributes:string[], classes?: string[], textContent?:string):HTMLElement {
+        return parent.insertBefore(<HTMLElement>$.Elem($.HTMLNS, type, attributes, classes, textContent), parent.firstChild);
+    }
+
+    private static Elem(ns:string, type:string, attributes:string[], classes?: string[], textContent?:string):Element
+    {
+        let element = document.createElementNS(ns, type);
+        if(classes)
+        {
+            for (const clazz of classes) {
+                element.classList.add(clazz);
+            }
+        }
+        let i:number;
+        for(i=0;i<attributes.length;i+=2)
+        {
+            element.setAttribute(attributes[i], attributes[i+1]);
+        }
+        if(textContent)
+        {
+            element.textContent=textContent;
+        }
+        return element;
+    }
+}

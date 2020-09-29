@@ -6,21 +6,23 @@
 // Bedingter Code
 //Bitte hier die richtige Board-Version einbinden
 #include <hal.h>
-#if hal == labathomev4
+#if (hal == labathomev5)
+HAL hal(MODE_IO33::SERVO2, MODE_MULTI1_PIN::EXT, MODE_MULTI_2_3_PINS::EXT);
+#elif (hal == labathomev4)
 HAL hal(MODE_IO33::SERVO2, MODE_MULTI_PINS::UNDEFINED, MODE_SPEAKER::TRANSISTOR);
-#elif hal == labathomev3
+#elif (hal == labathomev3)
 HAL hal(IO17_MODE::BUZZER, IO4_MODE::SPECIAL_SPECIAL_RELAY3);
 #else
-  #error "Define a hal in platformio.ini"
+#error "Define a hal in platformio.ini"
 #endif
 
 //Definition einer Preprozessor-Konstante (in C++ eigentlich nicht mehr notwendig, wird aber in der Praxis noch oft gemacht)
 #define TFT_GREY 0x5AEB
 
 //Deklaration von verschiedenen Variablen: Diese hier sind alle global und statisch (überall vorhanden und ändern ihre Größe nicht)
-//Bemerkung: Speicherverwaltung ist ein riesen Thema in C++. 
+//Bemerkung: Speicherverwaltung ist ein riesen Thema in C++.
 //Ich rate Ihnen, da nicht zu tief einzusteigen und entweder globale statische oder lokale(kommt gleich) Variablen zu verwenden
-TFT_eSPI tft = TFT_eSPI();                                                           
+TFT_eSPI tft = TFT_eSPI();
 //TFT_ST7789 tft(HSPI_HOST, 2, 240, 240, DisplayRotation::ROT0, GPIO_NUM_MAX, GPIO_NUM_23, GPIO_NUM_18, GPIO_NUM_MAX, GPIO_NUM_5, GPIO_NUM_MAX, GPIO_NUM_0);
 uint32_t targetTime = 0; //unsigned ganzzahl 32bit
 uint8_t omm = 99, oss = 99;
@@ -30,12 +32,12 @@ uint8_t testarray[100];
 
 //Deklaration einer (kleinen dreckigen) Hilfsfunktion, die weiter unten ausprogrammiert ist.
 static uint8_t conv2d(const char *p);
-//Nutzung dieser Funktion                                               
+//Nutzung dieser Funktion
 uint8_t hh = conv2d(__TIME__), mm = conv2d(__TIME__ + 3), ss = conv2d(__TIME__ + 6); // Get H, M, S from compile time
 
 void updateDisplay()
 {
-  
+
   if (targetTime < millis())
   {
     // Set next update for 1 second later
@@ -102,7 +104,6 @@ void updateDisplay()
       tft.drawNumber(ss, xpos, ysecs, 6);          // Draw seconds
     }
   }
-  
 }
 
 static uint8_t conv2d(const char *p)
@@ -119,7 +120,6 @@ void setup()
   Serial.begin(115200);
   Serial.println("Board Test");
   hal.initBoard();
- 
 
   tft.init();
   tft.setRotation(1);
@@ -140,15 +140,45 @@ uint32_t lastSensorReadout = 0;
 
 void loop()
 {
+  hal.readInputs();
+  uint32_t ms = millis();
+  bool redButton = hal.getButtonIsPressed(Switch::SW_RED);
+  bool greenButton = hal.getButtonIsPressed(Switch::SW_GREEN);
+  hal.setLEDState(LED::LED_RED, redButton?CRGB::DarkRed:CRGB::Black);
+  float temp = hal.getCurrentTemperature();
+  hal.setFan1State(greenButton?100.0:0.0);
+  hal.setFan2State(greenButton?100.0:0.0);
+  hal.setHeaterState(redButton?80.0:0.0);
+  hal.writeOutputs();
+  Serial.printf("%d;%d;%d;%f;\n", ms, redButton, greenButton, temp);
+  delay(500);
+}
+
+void loopFull()
+{
+
+  hal.readInputs();
   updateDisplay();
+  hal.readInputs();
+  if (hal.getButtonIsPressed(Switch::SW_RED))
+  {
+    Serial.println("RED!");
+  }
+  if (hal.getButtonIsPressed(Switch::SW_ROTARY))
+  {
+    Serial.println("ROTARY!");
+  }
+  if (hal.getButtonIsPressed(Switch::SW_GREEN))
+  {
+    Serial.println("GREEN!");
+  }
   hal.setLEDState(LED::LED_RED, hal.getButtonIsPressed(Switch::SW_RED) ? CRGB::Red : CRGB::Black);
-  hal.setLEDState(LED::LED_YELLOW, hal.getButtonIsPressed(Switch::SW_YELLOW) ? CRGB::Yellow : CRGB::Black);
+  hal.setLEDState(LED::LED_YELLOW, hal.getButtonIsPressed(Switch::SW_ROTARY) ? CRGB::Yellow : CRGB::Black);
   hal.setLEDState(LED::LED_GREEN, hal.getButtonIsPressed(Switch::SW_GREEN) ? CRGB::Green : CRGB::Black);
   hal.setLEDState(LED::LED_3, hal.isMovementDetected() ? CRGB::White : CRGB::Black);
-  
-  
+
   bool redButton = hal.getButtonIsPressed(Switch::SW_RED);
-  if(redButton)
+  if (redButton)
   {
     hal.setLEDState(LED::LED_7, CRGB::DeepPink);
   }
@@ -156,11 +186,9 @@ void loop()
   {
     hal.setLEDState(LED::LED_7, CRGB::ForestGreen);
   }
-  
 
-  
   hal.setRELAYState(hal.getButtonIsPressed(Switch::SW_GREEN));
-  if (hal.getButtonIsPressed(Switch::SW_YELLOW))
+  if (hal.getButtonIsPressed(Switch::SW_ROTARY))
   {
     hal.startBuzzer(440 + 2.0 * angle_s1);
   }
@@ -213,6 +241,6 @@ void loop()
     Serial.println(" lx");
     lastSensorReadout = now;
   }
-
-  delay(50);
+  hal.writeOutputs();
+  delay(500);
 }

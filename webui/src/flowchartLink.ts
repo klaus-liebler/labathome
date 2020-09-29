@@ -1,5 +1,6 @@
 import { FlowchartInputConnector, FlowchartOutputConnector } from "./FlowchartConnector";
 import { Flowchart } from "./Flowchart";
+import {$, Location2D} from "./Utils"
 export class FlowchartLink {
     private static MAX_INDEX: number = 0;
     private index: number;
@@ -7,13 +8,13 @@ export class FlowchartLink {
     private captionElement: SVGTextElement;
     constructor(private parent: Flowchart, private caption: string, private color: string, private from: FlowchartOutputConnector, private to: FlowchartInputConnector) {
         this.index = FlowchartLink.MAX_INDEX++;
-        this.element = <SVGPathElement>Flowchart.Svg(parent.LinkLayer, "path", ["stroke-width", "" + this.parent.Options.linkWidth, "fill", "none", "id", "LINK" + this.index]);
+        this.element = <SVGPathElement>$.Svg(parent.LinkLayer, "path", ["stroke-width", "" + this.parent.Options.linkWidth, "fill", "none", "id", "LINK" + this.index]);
         this.RefreshPosition();
         this.UncolorizeLink();
         this.parent.LinkLayer.appendChild(this.element);
-        this.captionElement =<SVGTextElement>Flowchart.Svg(parent.LinkLayer, "text",[]);
-        let captionPath = <SVGTextPathElement>Flowchart.Svg(this.captionElement, "textPath",["startOffset", "50%","text-anchor", "middle"]);
-        captionPath.setAttributeNS(Flowchart.XLINKNS, "href", '#' + "LINK" + this.index);
+        this.captionElement =<SVGTextElement>$.Svg(parent.LinkLayer, "text",[]);
+        let captionPath = <SVGTextPathElement>$.Svg(this.captionElement, "textPath",["startOffset", "50%","text-anchor", "middle"]);
+        captionPath.setAttributeNS($.XLINKNS, "href", '#' + "LINK" + this.index);
         captionPath.innerHTML = caption;
         this.element.onclick = (e) => {
             this.parent._notifyLinkClicked(this, e);

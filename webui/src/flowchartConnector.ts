@@ -1,7 +1,7 @@
 import { FlowchartOperator } from "./FlowchartOperator";
 import { Flowchart } from "./Flowchart";
 import { FlowchartLink } from "./FlowchartLink";
-import {Location2D} from "./Utils"
+import {$, Location2D} from "./Utils"
 
 const TRANSLATEY = 20;
 
@@ -50,14 +50,14 @@ export abstract class FlowchartConnector {
         this.globalConnectorIndex = FlowchartConnector.INDEX++;
         let spec = this.getIOSpecifics();
         let translateY = TRANSLATEY*spec.parent.childElementCount;
-        this.element = <SVGGElement>Flowchart.Svg(spec.parent, "g", ["transform", `translate(0 ${translateY})`], [`operator-${spec.inputOrOutput}`]);
+        this.element = <SVGGElement>$.Svg(spec.parent, "g", ["transform", `translate(0 ${translateY})`], [`operator-${spec.inputOrOutput}`]);
         this.element.setAttribute("data-connector-datatype", ConnectorType[type]);
 
-        let text =  <SVGTextElement>Flowchart.Svg(this.element, "text", ["dx",""+spec.dx, "dy", "4"], [`operator-${spec.inputOrOutput}-caption`]);
+        let text =  <SVGTextElement>$.Svg(this.element, "text", ["dx",""+spec.dx, "dy", "4"], [`operator-${spec.inputOrOutput}-caption`]);
         text.textContent=caption;
-        this.connectorGroup = <SVGGElement>Flowchart.Svg(this.element, "g", []);
-        this.connector = <SVGCircleElement>Flowchart.Svg(this.connectorGroup, "circle", ["r","4"], [`operator-${spec.inputOrOutput}-connector`, ConnectorType[type]]);
-        this.snapper= <SVGCircleElement>Flowchart.Svg(this.connectorGroup, "circle", ["r","10"], [`operator-${spec.inputOrOutput}-snapper`]);
+        this.connectorGroup = <SVGGElement>$.Svg(this.element, "g", []);
+        this.connector = <SVGCircleElement>$.Svg(this.connectorGroup, "circle", ["r","4"], [`operator-${spec.inputOrOutput}-connector`, ConnectorType[type]]);
+        this.snapper= <SVGCircleElement>$.Svg(this.connectorGroup, "circle", ["r","10"], [`operator-${spec.inputOrOutput}-snapper`]);
         
         this.element.onmouseover = (e) => {
             for (const link of this.links.values()) {

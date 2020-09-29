@@ -16,19 +16,17 @@
 #include <protocol_examples_common.h>
 #include <esp_http_server.h>
 
-#include "HAL.hh"
-#include "HAL_wroverkit.hh"
-#include "functionblocks.hh"
-#include "esp_log.h"
 static const char *TAG = "main";
+#include "HAL.hh"
+#include "functionblocks.hh"
+#include "WS2812.hh"
+#include "esp_log.h"
 
-const uint32_t DEFAULT_VREF = 1100; //Use adc2_vref_to_gpio() to obtain a better estimate
-static esp_adc_cal_characteristics_t *adc_chars;
-const adc1_channel_t channel = ADC1_CHANNEL_6; //GPIO34 if ADC1
-const adc_bits_width_t width = ADC_WIDTH_BIT_12;
-const adc_atten_t atten = ADC_ATTEN_DB_11;
+#include "HAL_labathomeV5.hh"
+HAL *hal = new HAL_labathomeV5(MODE_IO33::SERVO2, MODE_MULTI1_PIN::EXT, MODE_MULTI_2_3_PINS::EXT);
+//#include "HAL_wroverkit.hh"
+//HAL *hal = new HAL_wroverkit();
 
-HAL *hal = new HAL_wroverkit();
 PLCManager *manager = new PLCManager(hal);
 
 extern "C"
@@ -36,51 +34,13 @@ extern "C"
     void app_main();
     void managementTask(void *);
     void plcTask(void *);
-    void testModelCreatorTask(void *);
 }
 
-static void check_efuse(void)
-{
-    //Check TP is burned into eFuse
-    if (esp_adc_cal_check_efuse(ESP_ADC_CAL_VAL_EFUSE_TP) == ESP_OK)
-    {
-        printf("eFuse Two Point: Supported\n");
-    }
-    else
-    {
-        printf("eFuse Two Point: NOT supported\n");
-    }
-
-    //Check Vref is burned into eFuse
-    if (esp_adc_cal_check_efuse(ESP_ADC_CAL_VAL_EFUSE_VREF) == ESP_OK)
-    {
-        printf("eFuse Vref: Supported\n");
-    }
-    else
-    {
-        printf("eFuse Vref: NOT supported\n");
-    }
-}
-
-static void print_char_val_type(esp_adc_cal_value_t val_type)
-{
-    if (val_type == ESP_ADC_CAL_VAL_EFUSE_TP)
-    {
-        printf("Characterized using Two Point Value\n");
-    }
-    else if (val_type == ESP_ADC_CAL_VAL_EFUSE_VREF)
-    {
-        printf("Characterized using eFuse Vref\n");
-    }
-    else
-    {
-        printf("Characterized using Default Vref\n");
-    }
-}
 
 // Perform an action every 10 ticks.
 void managementTask(void *pvParameters)
 {
+    /*
     TickType_t xLastWakeTime;
     const TickType_t xFrequency = 10;
 
@@ -126,6 +86,7 @@ void managementTask(void *pvParameters)
         }
         last_button_state = current_button_state;
     }
+    */
 }
 
 // Main PLC Task
@@ -142,12 +103,12 @@ void plcTask(void *pvParameters)
         vTaskDelayUntil(&xLastWakeTime, xFrequency);
         ESP_LOGD(TAG, "CheckForNewExecutable");
         manager->CheckForNewExecutable();
-        ESP_LOGD(TAG, "fetchInputs");
-        hal->FetchInputs();
+        ESP_LOGD(TAG, "BeforeLoop");
+        hal->BeforeLoop();
         ESP_LOGD(TAG, "Loop");
         manager->Loop();
-        ESP_LOGD(TAG, "flushOutputs");
-        hal->FlushOutputs();
+        ESP_LOGD(TAG, "AfterLoop");
+        hal->AfterLoop();
     }
 }
 
@@ -226,6 +187,51 @@ static esp_err_t fbd_put_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
+static esp_err_t experiment_get_handler(httpd_req_t *req)
+{    
+    httpd_resp_set_type(req, "application/octet-stream");
+    uint32_t bufU32[4];
+    float *bufF32 = (float *)bufU32;
+    bufU32[0]=(uint32_t)(hal->GetMicros()/1000ULL);
+    bufF32[1]=hal->GetHeaterState();
+    bufF32[2]=hal->GetFan1State();
+    float degrees=0.0;
+    hal->GetHeaterTemperature(&degrees);
+    bufF32[3]=degrees;
+    httpd_resp_send(req, (const char*)bufU32, 16);
+    return ESP_OK;
+}
+
+static esp_err_t experiment_put_handler(httpd_req_t *req)
+{    
+    int ret=0;
+    int remaining = req->content_len;
+    if(remaining>=MAX_FDB_BUFFER)
+        return ESP_FAIL;
+    ESP_LOGI(TAG, "fbd_put_handler, expecting %d bytes of data", remaining);
+    uint8_t buf[remaining];
+    while (remaining > 0) {
+        /* Read the data for the request */
+        if ((ret = httpd_req_recv(req, (char*)buf,  MIN(remaining, sizeof(buf)))) <= 0) {
+            if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
+                /* Retry receiving if timeout occurred */
+                continue;
+            }
+            return ESP_FAIL;
+        }
+        remaining -= ret;
+    }
+    // End response
+    float *bufF32 = (float*)buf;
+    float heater = bufF32[0];
+    float fan = bufF32[1];
+    ESP_LOGI(TAG, "Set heater to %F and fan to %F", heater, fan);
+    hal->SetFan1State(fan);
+    hal->SetFan2State(fan);
+    hal->SetHeaterState(heater);
+    httpd_resp_send_chunk(req, NULL, 0);
+    return ESP_OK;
+}
 
 static const httpd_uri_t root = {
     .uri       = "/",
@@ -241,6 +247,20 @@ static const httpd_uri_t fbd = {
     .user_ctx = 0
 };
 
+static const httpd_uri_t experiment_get = {
+    .uri       = "/experiment",
+    .method    = HTTP_GET,
+    .handler   = experiment_get_handler,
+    .user_ctx = 0
+};
+
+static const httpd_uri_t experiment_put = {
+    .uri       = "/experiment",
+    .method    = HTTP_PUT,
+    .handler   = experiment_put_handler,
+    .user_ctx = 0
+};
+
 static httpd_handle_t start_webserver(void)
 {
     httpd_handle_t server = NULL;
@@ -253,6 +273,8 @@ static httpd_handle_t start_webserver(void)
         ESP_LOGI(TAG, "Registering URI handlers");
         httpd_register_uri_handler(server, &root);
         httpd_register_uri_handler(server, &fbd);
+        httpd_register_uri_handler(server, &experiment_get);
+        httpd_register_uri_handler(server, &experiment_put);
         return server;
     }
 
@@ -287,6 +309,33 @@ static void connect_handler(void* arg, esp_event_base_t event_base,
     }
 }
 
+void _lab_error_check_failed(LabAtHomeErrorCode rc, const char *file, int line, const char *function, const char *expression)
+{
+    printf("Error %d occured in File %s in line %d in expression %s", (int)rc, file, line, expression);
+}
+
+#ifdef NDEBUG
+#define LAB_ERROR_CHECK(x) do {                                         \
+        esp_err_t __err_rc = (x);                                       \
+        (void) sizeof(__err_rc);                                        \
+    } while(0)
+#elif defined(CONFIG_COMPILER_OPTIMIZATION_ASSERTIONS_SILENT)
+#define LAB_ERROR_CHECK(x) do {                                         \
+        esp_err_t __err_rc = (x);                                       \
+        if (__err_rc != ESP_OK) {                                       \
+            abort();                                                    \
+        }                                                               \
+    } while(0)
+#else
+#define LAB_ERROR_CHECK(x) do {                                         \
+        LabAtHomeErrorCode __err_rc = (x);                                       \
+        if (__err_rc != LabAtHomeErrorCode::OK) {                                       \
+            _lab_error_check_failed(__err_rc, __FILE__, __LINE__,       \
+                                    __ASSERT_FUNC, #x);                 \
+        }                                                               \
+    } while(0)
+#endif
+
 void app_main(void)
 {
     /* Print chip information */
@@ -306,42 +355,23 @@ void app_main(void)
     
     printf("=======================================================\n");
 
-    static httpd_handle_t server = NULL;
+    esp_log_level_set(TAG, ESP_LOG_INFO);
 
+    LAB_ERROR_CHECK(hal->Init());
+
+
+    static httpd_handle_t server;
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     ESP_ERROR_CHECK(example_connect());
-
-    /* Register event handlers to stop the server when Wi-Fi or Ethernet is disconnected,
-     * and re-start it upon connection.
-     */
-#ifdef CONFIG_EXAMPLE_CONNECT_WIFI
     ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &connect_handler, &server));
     ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &disconnect_handler, &server));
-#endif // CONFIG_EXAMPLE_CONNECT_WIFI
-#ifdef CONFIG_EXAMPLE_CONNECT_ETHERNET
-    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_ETH_GOT_IP, &connect_handler, &server));
-    ESP_ERROR_CHECK(esp_event_handler_register(ETH_EVENT, ETHERNET_EVENT_DISCONNECTED, &disconnect_handler, &server));
-#endif // CONFIG_EXAMPLE_CONNECT_ETHERNET
 
-    /* Start the server for the first time */
+
+
     server = start_webserver(); 
-    
 
-
-    check_efuse();
-
-    adc1_config_width(width);
-    adc1_config_channel_atten(channel, atten);
-
-    //Characterize ADC1 (ADC2 used by Wifi)
-    adc_chars = (esp_adc_cal_characteristics_t *)calloc(1, sizeof(esp_adc_cal_characteristics_t));
-    esp_adc_cal_value_t val_type = esp_adc_cal_characterize(ADC_UNIT_1, atten, width, DEFAULT_VREF, adc_chars);
-    print_char_val_type(val_type);
-
-    hal->Init();
-    esp_log_level_set(TAG, ESP_LOG_INFO);
     //xTaskCreate(managementTask, "managementTask", 1024 * 2, NULL, 5, NULL);
     xTaskCreate(plcTask, "plcTask", 4096 * 4, NULL, 6, NULL);
     int i = 0;

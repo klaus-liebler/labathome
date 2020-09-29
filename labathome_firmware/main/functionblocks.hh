@@ -7,10 +7,9 @@ class FB_GreenButton: public FunctionBlock{
     size_t output;
     public:
         LabAtHomeErrorCode execute(FBContext *ctx){
-            bool value=false;
-            ctx->GetHAL()->GetButtonGreen(&value);
+            bool value=ctx->GetHAL()->GetButtonGreenIsPressed();
             ctx->SetBinary(output, value);
-            return LabAtHomeErrorCode::OK;;
+            return LabAtHomeErrorCode::OK;
         }
         FB_GreenButton(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
         ~FB_GreenButton(){}
@@ -20,10 +19,9 @@ class FB_EncoderButton: public FunctionBlock{
     size_t output;
     public:
         LabAtHomeErrorCode execute(FBContext *ctx){
-            bool value=false;
-            ctx->GetHAL()->GetButtonEncoder(&value);
+            bool value=ctx->GetHAL()->GetButtonEncoderIsPressed();
             ctx->SetBinary(output, value);
-            return LabAtHomeErrorCode::OK;;
+            return LabAtHomeErrorCode::OK;
         }
         FB_EncoderButton(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
         ~FB_EncoderButton(){}
@@ -33,10 +31,9 @@ class FB_RedButton: public FunctionBlock{
     size_t output;
     public:
         LabAtHomeErrorCode execute(FBContext *ctx){
-            bool value=false;
-            ctx->GetHAL()->GetButtonRed(&value);
+            bool value=ctx->GetHAL()->GetButtonRedIsPressed();
             ctx->SetBinary(output, value);
-            return LabAtHomeErrorCode::OK;;
+            return LabAtHomeErrorCode::OK;
         }
         FB_RedButton(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
         ~FB_RedButton(){}
@@ -46,7 +43,7 @@ class FB_GreenLED: public FunctionBlock{
     size_t input;
     public:
         LabAtHomeErrorCode execute(FBContext *ctx){
-            ctx->GetHAL()->SetLedGreen(ctx->GetBinary(input));
+            ctx->GetHAL()->ColorizeLed(LED::LED_GREEN, ctx->GetBinary(input)?CRGB::DarkGreen:CRGB::Black);
             return LabAtHomeErrorCode::OK;;
         }
         FB_GreenLED(uint32_t IdOnWebApp, size_t input):FunctionBlock(IdOnWebApp), input(input){}
@@ -57,7 +54,7 @@ class FB_YellowLED: public FunctionBlock{
     size_t input;
     public:
         LabAtHomeErrorCode execute(FBContext *ctx){
-            ctx->GetHAL()->SetLedYellow(ctx->GetBinary(input));
+            ctx->GetHAL()->ColorizeLed(LED::LED_YELLOW, ctx->GetBinary(input)?CRGB::Yellow:CRGB::Black);
             return LabAtHomeErrorCode::OK;;
         }
         FB_YellowLED(uint32_t IdOnWebApp, size_t input):FunctionBlock(IdOnWebApp), input(input){}
@@ -68,7 +65,7 @@ class FB_RedLED: public FunctionBlock{
     size_t input;
     public:
         LabAtHomeErrorCode execute(FBContext *ctx){
-            ctx->GetHAL()->SetLedRed(ctx->GetBinary(input));
+            ctx->GetHAL()->ColorizeLed(LED::LED_RED, ctx->GetBinary(input)?CRGB::DarkRed:CRGB::Black);
             return LabAtHomeErrorCode::OK;;
         }
         FB_RedLED(uint32_t IdOnWebApp, size_t input):FunctionBlock(IdOnWebApp), input(input){}

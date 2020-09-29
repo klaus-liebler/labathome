@@ -2,7 +2,7 @@ import {FlowchartOperator, TypeInfo, PositionType, SingletonType} from "./Flowch
 import {Flowchart, KeyValueTuple} from "./Flowchart";
 import {FlowchartInputConnector, FlowchartOutputConnector, ConnectorType} from "./FlowchartConnector";
 import { SerializeContext } from "./FlowchartSerializer";
-
+import {$} from "./Utils"
 
 export class ANDOperator extends FlowchartOperator {
   
@@ -222,9 +222,9 @@ class PropertyGridHelpers
 {
     public static Number(table:HTMLTableElement, key:string, min:number, max:number)
     {
-        let tr=Flowchart.Html(table, "tr", [],["develop-propertygrid-tr"]);
-        Flowchart.Html(tr, "td", [],["develop-propertygrid-td"], key);
-        let inputContainer = Flowchart.Html(tr, "td", [],["develop-propertygrid-td"]);
-        Flowchart.Html(inputContainer, "input", ["type", "number", "min", ""+Math.round(min), "max", ""+Math.round(max)])
+        let tr=$.Html(table, "tr", [],["develop-propertygrid-tr"]);
+        $.Html(tr, "td", [],["develop-propertygrid-td"], key);
+        let inputContainer = $.Html(tr, "td", [],["develop-propertygrid-td"]);
+        $.Html(inputContainer, "input", ["type", "number", "min", ""+Math.round(min), "max", ""+Math.round(max)])
     }
 }

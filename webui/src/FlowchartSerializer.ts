@@ -5,7 +5,6 @@ export interface SerializeContext {
     typeIndex2globalConnectorIndex2adressOffset: Map<number, Map<number, number>>;
     buffer: DataView;
     bufferOffset: number;
-
 }
 
 declare const msCrypto: Crypto;

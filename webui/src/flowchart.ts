@@ -4,7 +4,7 @@ import { FlowchartLink } from "./FlowchartLink";
 import { FlowchartOperator, PositionType, TypeInfo } from "./FlowchartOperator";
 import * as operatorimpl from "./FlowchartOperatorImpl";
 import { NodeWrapper, TopologicalSortDFS } from "./TopologicalSorfDFS";
-import { Utils } from "./Utils";
+import { Utils,$ } from "./Utils";
 /*
 In einem Ressources-Toolbar befinden sich alle Ressourcen (Input und Output), die ein Board anbietet. Diese können genau einmal auf das Board gezogen werden
 Problem: OneWire-Ressourcen!: 
@@ -296,8 +296,8 @@ export class FlowchartOptions {
             {
                 throw new Error("container is null");
             }
-            let subcontainer = <HTMLDivElement>Flowchart.Html(this.container, "div", [], ["develop-ui"]);
-            let fileInput = <HTMLInputElement>Flowchart.Html(subcontainer, "input", ["type", "file", "id", "fileInput", "accept", ".json"]);
+            let subcontainer = <HTMLDivElement>$.Html(this.container, "div", [], ["develop-ui"]);
+            let fileInput = <HTMLInputElement>$.Html(subcontainer, "input", ["type", "file", "id", "fileInput", "accept", ".json"]);
             fileInput.style.display="none";
             fileInput.onchange=(e)=>{  
                 this.openFromFile(fileInput.files);
@@ -309,71 +309,71 @@ export class FlowchartOptions {
                 Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem:HTMLDivElement)=>{elem.classList.remove("show");});
             }
 
-            let toolbar = Flowchart.Html(subcontainer, "div", [], ["develop-toolbar"]);
-            let menuFile = Flowchart.Html(toolbar, "div", [], ["dropdown"]);
-            let menuFileDropBtn = <HTMLButtonElement>Flowchart.Html(menuFile, "button", [], ["dropbtn"], "File ▼");
-            let menuFileDropContent = Flowchart.Html(menuFile, "div", [], ["dropdown-content"]);
+            let toolbar = $.Html(subcontainer, "div", [], ["develop-toolbar"]);
+            let menuFile = $.Html(toolbar, "div", [], ["dropdown"]);
+            let menuFileDropBtn = <HTMLButtonElement>$.Html(menuFile, "button", [], ["dropbtn"], "File ▼");
+            let menuFileDropContent = $.Html(menuFile, "div", [], ["dropdown-content"]);
             menuFileDropBtn.onclick=(e)=>{menuFileDropContent.classList.toggle("show");};
-            Flowchart.Html(menuFileDropContent, "a", ["href", "#"], [], "📂 Open").onclick=(e)=>
+            $.Html(menuFileDropContent, "a", ["href", "#"], [], "📂 Open").onclick=(e)=>
             {
                 Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem:HTMLDivElement)=>{elem.classList.remove("show");});
                 fileInput.click();
                 e.preventDefault();
             }
-            Flowchart.Html(menuFileDropContent, "a", ["href", "#"], [], "💾 Save").onclick=(e)=>
+            $.Html(menuFileDropContent, "a", ["href", "#"], [], "💾 Save").onclick=(e)=>
             {
                 Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem:HTMLDivElement)=>{elem.classList.remove("show");});
                 this.saveToFile();
                 e.preventDefault();
             }
-            let runbutton = Flowchart.Html(toolbar, "a", ["href", "#"], ["develop-toolbar"], "Run");
+            let runbutton = $.Html(toolbar, "a", ["href", "#"], ["develop-toolbar"], "Run");
             
-            let menuDebug= Flowchart.Html(toolbar, "div", [], ["dropdown"]);
-            let menuDebugDropBtn = <HTMLButtonElement>Flowchart.Html(menuDebug, "button", [], ["dropbtn"], "Debug ▼");
+            let menuDebug= $.Html(toolbar, "div", [], ["dropdown"]);
+            let menuDebugDropBtn = <HTMLButtonElement>$.Html(menuDebug, "button", [], ["dropbtn"], "Debug ▼");
             
-            let menuDebugDropContent = Flowchart.Html(menuDebug, "div", [], ["dropdown-content"]);
+            let menuDebugDropContent = $.Html(menuDebug, "div", [], ["dropdown-content"]);
             menuDebugDropBtn.onclick=(e)=>{
                 menuDebugDropContent.classList.toggle("show");
             };
-            Flowchart.Html(menuDebugDropContent, "a", ["href", "#"], [], "☭ Compile and Run").onclick=(e)=>
+            $.Html(menuDebugDropContent, "a", ["href", "#"], [], "☭ Compile and Run").onclick=(e)=>
             {
                 Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem:HTMLDivElement)=>{elem.classList.remove("show");});
                 this.compile();
                 e.preventDefault();
             }
-            Flowchart.Html(menuDebugDropContent, "a", ["href", "#"], [], "👣 Run on device").onclick=(e)=>
+            $.Html(menuDebugDropContent, "a", ["href", "#"], [], "👣 Run on device").onclick=(e)=>
             {
 
             }
-            let menuDebugLink2 = Flowchart.Html(menuDebugDropContent, "a", ["href", "#"], [], "◉ Stop");
-            let menuDebugLink3 = Flowchart.Html(menuDebugDropContent, "a", ["href", "#"], [], "◯ Erase");
+            let menuDebugLink2 = $.Html(menuDebugDropContent, "a", ["href", "#"], [], "◉ Stop");
+            let menuDebugLink3 = $.Html(menuDebugDropContent, "a", ["href", "#"], [], "◯ Erase");
             
             
-            let workspace = <HTMLDivElement>Flowchart.Html(subcontainer, "div", ["tabindex", "0"], ["develop-workspace"]);//tabindex, damit keypress-Events abgefangen werden können
-            this.propertyGridHtmlDiv = <HTMLDivElement>Flowchart.Html(subcontainer, "div", [], ["develop-properties"]);
+            let workspace = <HTMLDivElement>$.Html(subcontainer, "div", ["tabindex", "0"], ["develop-workspace"]);//tabindex, damit keypress-Events abgefangen werden können
+            this.propertyGridHtmlDiv = <HTMLDivElement>$.Html(subcontainer, "div", [], ["develop-properties"]);
 
             
 
-            this.flowchartContainerSvgSvg = <SVGSVGElement>Flowchart.Svg(workspace, "svg", ["width", "100%", "height", "100%"], ["flowchart-container"]);
+            this.flowchartContainerSvgSvg = <SVGSVGElement>$.Svg(workspace, "svg", ["width", "100%", "height", "100%"], ["flowchart-container"]);
             
             
-            this.linksLayer = <SVGGElement>Flowchart.Svg(this.flowchartContainerSvgSvg, "g", [], ["flowchart-links-layer"]);
-            this.operatorsLayer=<SVGGElement>Flowchart.Svg(this.flowchartContainerSvgSvg, "g", [], ["flowchart-operators-layer", "unselectable"]);
-            this.tempLayer = <SVGSVGElement>Flowchart.Svg(this.flowchartContainerSvgSvg, "g", [], ["flowchart-temporary-link-layer"]);
+            this.linksLayer = <SVGGElement>$.Svg(this.flowchartContainerSvgSvg, "g", [], ["flowchart-links-layer"]);
+            this.operatorsLayer=<SVGGElement>$.Svg(this.flowchartContainerSvgSvg, "g", [], ["flowchart-operators-layer", "unselectable"]);
+            this.tempLayer = <SVGSVGElement>$.Svg(this.flowchartContainerSvgSvg, "g", [], ["flowchart-temporary-link-layer"]);
             this.tempLayer.style.visibility="hidden";//visible
-            let defs = Flowchart.Svg(this.tempLayer, "defs", []);
-            let markerArrow = Flowchart.Svg(defs, "marker", ["id", "marker-arrow","markerWidth","4", "markerHeight", "4", "refX", "1", "refY", "2", "orient", "0"]);
-            this.markerArrow=<SVGPathElement>Flowchart.Svg(markerArrow, "path", ["d", "M0,0 L0,4 L2,2 z", "fill", "red", "stroke", "black", "stroke-width", "0.5"]);
-            let markerCircle = Flowchart.Svg(defs, "marker", ["id", "marker-circle","markerWidth","4", "markerHeight", "4", "refX", "2", "refY", "2", "orient", "0"]);
-            this.markerCircle=<SVGCircleElement>Flowchart.Svg(markerCircle, "circle", ["cx", "2", "cy", "2", "r", "2", "fill", "red", "stroke-width", "1px","stroke", "black"]);
-            this.temporaryLink = <SVGLineElement>Flowchart.Svg(this.tempLayer, "line", ["x1", "0","y1", "0","x2", "0","y2", "0","stroke-dasharray", "6,6","stroke-width", "4","stroke", "black","fill", "none", "marker-end", "url(#marker-arrow)"]);
+            let defs = $.Svg(this.tempLayer, "defs", []);
+            let markerArrow = $.Svg(defs, "marker", ["id", "marker-arrow","markerWidth","4", "markerHeight", "4", "refX", "1", "refY", "2", "orient", "0"]);
+            this.markerArrow=<SVGPathElement>$.Svg(markerArrow, "path", ["d", "M0,0 L0,4 L2,2 z", "fill", "red", "stroke", "black", "stroke-width", "0.5"]);
+            let markerCircle = $.Svg(defs, "marker", ["id", "marker-circle","markerWidth","4", "markerHeight", "4", "refX", "2", "refY", "2", "orient", "0"]);
+            this.markerCircle=<SVGCircleElement>$.Svg(markerCircle, "circle", ["cx", "2", "cy", "2", "r", "2", "fill", "red", "stroke-width", "1px","stroke", "black"]);
+            this.temporaryLink = <SVGLineElement>$.Svg(this.tempLayer, "line", ["x1", "0","y1", "0","x2", "0","y2", "0","stroke-dasharray", "6,6","stroke-width", "4","stroke", "black","fill", "none", "marker-end", "url(#marker-arrow)"]);
             
-            let toolsActivator = <SVGRectElement>Flowchart.Svg(this.flowchartContainerSvgSvg, "rect", ["width","40", "height", "100%", "fill", "white", "fill-opacity", "0"]);
+            let toolsActivator = <SVGRectElement>$.Svg(this.flowchartContainerSvgSvg, "rect", ["width","40", "height", "100%", "fill", "white", "fill-opacity", "0"]);
 
-            this.toolsLayer  = <SVGSVGElement>Flowchart.Svg(this.flowchartContainerSvgSvg, "g", [], ["flowchart-tools-layer", "unselectable"]);
+            this.toolsLayer  = <SVGSVGElement>$.Svg(this.flowchartContainerSvgSvg, "g", [], ["flowchart-tools-layer", "unselectable"]);
             this.toolsLayer.style.display="none";//visible
             
-            let toolsRect= <SVGRectElement>Flowchart.Svg(this.toolsLayer, "rect", ["width","140", "height", "100%", "rx", "10", "ry", "10"], ["tools-container"]);
+            let toolsRect= <SVGRectElement>$.Svg(this.toolsLayer, "rect", ["width","140", "height", "100%", "rx", "10", "ry", "10"], ["tools-container"]);
             
             //The onmousemove event occurs every time the mouse pointer is moved over the div element.
             //The mouseenter event only occurs when the mouse pointer enters the div element.
@@ -432,9 +432,9 @@ export class FlowchartOptions {
             let y=10;
             for(let clazz in operatorimpl)
             {
-                let toolGroup = <SVGGElement>Flowchart.Svg(this.toolsLayer, "g", ["transform", `translate(5 ${y})`]);
-                let box = <SVGRectElement>Flowchart.Svg(toolGroup, "rect", ["width","130", "height", "20", "rx", "5", "ry", "5"], ["tool-box"]);
-                let title = Flowchart.Svg(toolGroup,"text", ["x", "5", "y", "15"],["tool-caption"]);
+                let toolGroup = <SVGGElement>$.Svg(this.toolsLayer, "g", ["transform", `translate(5 ${y})`]);
+                let box = <SVGRectElement>$.Svg(toolGroup, "rect", ["width","130", "height", "20", "rx", "5", "ry", "5"], ["tool-box"]);
+                let title = $.Svg(toolGroup,"text", ["x", "5", "y", "15"],["tool-caption"]);
             
                 toolGroup.onmousedown=(e)=>
                 {
@@ -573,18 +573,18 @@ export class FlowchartOptions {
             operator.ShowAsSelected(true);
             this.selectedOperator = operator;
             this.propertyGridHtmlDiv.innerText=""; //clear
-            Flowchart.Html(this.propertyGridHtmlDiv, "p", [],["develop-propertygrid-head"], `Properties for ${this.selectedOperator.Caption}`);
-            let table=<HTMLTableElement>Flowchart.Html(this.propertyGridHtmlDiv, "table", [],["develop-propertygrid-table"]);
-            let tr=Flowchart.Html(table, "tr", [],["develop-propertygrid-tr"]);
-            Flowchart.Html(tr, "th", [],["develop-propertygrid-th"], "Key");
-            Flowchart.Html(tr, "th", [],["develop-propertygrid-th"], "Value");
+            $.Html(this.propertyGridHtmlDiv, "p", [],["develop-propertygrid-head"], `Properties for ${this.selectedOperator.Caption}`);
+            let table=<HTMLTableElement>$.Html(this.propertyGridHtmlDiv, "table", [],["develop-propertygrid-table"]);
+            let tr=$.Html(table, "tr", [],["develop-propertygrid-tr"]);
+            $.Html(tr, "th", [],["develop-propertygrid-th"], "Key");
+            $.Html(tr, "th", [],["develop-propertygrid-th"], "Value");
             if(this.selectedOperator!.PopulateProperyGrid(table))
             {
-                Flowchart.Html(this.propertyGridHtmlDiv, "button", [],["develop-propertygrid-button"], `Save`);
+                $.Html(this.propertyGridHtmlDiv, "button", [],["develop-propertygrid-button"], `Save`);
             }
             else{
                 this.propertyGridHtmlDiv.innerText=""; //clear
-                Flowchart.Html(this.propertyGridHtmlDiv, "p", [],["develop-propertygrid-head"], `No Properties for ${this.selectedOperator.Caption}`);
+                $.Html(this.propertyGridHtmlDiv, "p", [],["develop-propertygrid-head"], `No Properties for ${this.selectedOperator.Caption}`);
             } 
         }
 
@@ -594,33 +594,5 @@ export class FlowchartOptions {
             return "#" + (0x1000000 + (Math.round((t - R) * p) + R) * 0x10000 + (Math.round((t - G) * p) + G) * 0x100 + (Math.round((t - B) * p) + B)).toString(16).slice(1);
         }
 
-        public static Svg(parent: Element, type:string,  attributes:string[], classes?: string[]):SVGElement {
-            return <SVGElement>Flowchart.Elem(Flowchart.SVGNS, parent, type, attributes, classes);
-        }
-
-        public static Html(parent: Element, type:string,  attributes:string[], classes?: string[], textContent?:string):HTMLElement {
-            return <HTMLElement>Flowchart.Elem(Flowchart.HTMLNS, parent, type, attributes, classes, textContent);
-        }
-
-        private static Elem(ns:string, parent:Element, type:string, attributes:string[], classes?: string[], textContent?:string)
-        {
-            let element = document.createElementNS(ns, type);
-            if(classes)
-            {
-                for (const clazz of classes) {
-                    element.classList.add(clazz);
-                }
-            }
-            let i:number;
-            for(i=0;i<attributes.length;i+=2)
-            {
-                element.setAttribute(attributes[i], attributes[i+1]);
-            }
-            if(textContent)
-            {
-                element.textContent=textContent;
-            }
-            parent.appendChild(element);
-            return element;
-        }
+        
     }

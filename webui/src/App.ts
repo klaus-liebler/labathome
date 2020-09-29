@@ -1,6 +1,6 @@
-
 import {Flowchart, FlowchartData, FlowchartOptions} from "./Flowchart";
-declare let Chartist: any;
+import {$} from "./Utils"
+import * as chrtst from "chartist";
 
 export abstract class ScreenController {
     private state:ControllerState;
@@ -20,6 +20,170 @@ export abstract class ScreenController {
     }
     public hideDIV() {
         this.div.style.display = "none";
+    }
+}
+
+class SerializeContext {
+    private bufferDV:DataView;
+    constructor(private buffer: ArrayBuffer, private bufferOffset: number=0)
+    {
+        this.bufferDV=new DataView(buffer);
+    }
+    public writeS32(theNumber:number):void
+    {
+        this.bufferDV.setInt32(this.bufferOffset, theNumber, true);
+        this.bufferOffset+=4;
+    }
+
+    public writeU32(theNumber:number):void
+    {
+        this.bufferDV.setUint32(this.bufferOffset, theNumber, true);
+        this.bufferOffset+=4;
+    }
+
+    public writeF32(theNumber:number):void
+    {
+        this.bufferDV.setFloat32(this.bufferOffset, theNumber, true);
+        this.bufferOffset+=4;
+    }
+
+    public readF32():number
+    {
+        let val = this.bufferDV.getFloat32(this.bufferOffset, true);
+        this.bufferOffset+=4;
+        return val;
+    }
+
+    public readU32():number
+    {
+        let val = this.bufferDV.getUint32(this.bufferOffset, true);
+        this.bufferOffset+=4;
+        return val;
+    }
+
+    public getResult():ArrayBuffer{
+        return this.buffer.slice(0, this.bufferOffset)
+    }
+}
+
+class ExperimentController extends ScreenController {
+    private butSet:HTMLButtonElement;
+    private butRecord:HTMLButtonElement;
+    private butStop:HTMLButtonElement;
+    
+    private tbody:HTMLTableSectionElement;
+    private inputHeater:HTMLInputElement;
+    private inputFan:HTMLInputElement;
+    private timer:number|undefined;
+    private chart:chrtst.IChartistLineChart|undefined;
+    private chartData:chrtst.IChartistData;
+    private chartOptions:chrtst.ILineChartOptions;
+
+    public onFirstStart(): void {
+        
+    }
+    public onRestart(): void {
+       
+    }
+    public onStop(): void {
+        window.clearInterval(this.timer);
+        this.butStop.hidden=true;
+        this.butRecord.hidden=false;
+    }
+    public onCreate() {
+        
+
+        let currVal = 20;
+
+        for (let i = 0; i < 100; i++) {
+            (<string[]>this.chartData.labels).push(""+ (100 - i));
+            (<number[][]>this.chartData.series)[0][i] = currVal;
+        }
+        // Create a new line chart object where as first parameter we pass in a selector
+        // that is resolving to our chart container element. The Second parameter
+        // is the actual data object.
+        this.chart= new chrtst.Line('#experiment_chart', this.chartData, this.chartOptions);
+    }
+    constructor(public div: HTMLDivElement) {
+        super(div);
+        this.butSet=<HTMLButtonElement>document.getElementById("experiment_butSet")!;
+        this.butRecord=<HTMLButtonElement>document.getElementById("experiment_butRecord")!;
+        this.butStop=<HTMLButtonElement>document.getElementById("experiment_butStop")!;
+        this.butStop.hidden=true;
+        this.tbody=<HTMLTableSectionElement>document.getElementById("experiment_tabBody")!;
+        this.inputHeater=<HTMLInputElement>document.getElementById("experiment_inpHeater");
+        this.inputFan=<HTMLInputElement>document.getElementById("experiment_inpFan")!;
+        this.chartData = {
+            // A labels array that can contain any sort of values
+            labels:[],
+            // Our series array that contains series objects or in this case series data arrays
+            series: [[]],
+        };
+        this.chartOptions = {
+            width: 800,
+            height: 300
+        };
+        
+        this.butSet.onclick=(e)=>{
+            let buffer = new ArrayBuffer(256);
+            let ctx=new SerializeContext(buffer);
+            ctx.writeF32(this.inputHeater.valueAsNumber);
+            ctx.writeF32(this.inputFan.valueAsNumber);
+            var xhr = new XMLHttpRequest;
+            xhr.open("PUT", "/experiment", true);
+            xhr.onloadend=(e)=>{console.log("Erfolgreich hochgeladen")}
+            xhr.onerror=(e)=>{window.alert("Fehler: "+e);}
+            xhr.send(ctx.getResult());
+        }
+
+        this.butStop.onclick=(e)=>{
+            this.butStop.hidden=true;
+            this.butRecord.hidden=false;
+            window.clearInterval(this.timer);
+        }
+
+        this.butRecord.onclick=(e)=>
+        {
+            this.butRecord.hidden=true;
+            this.butStop.hidden=false;
+            this.timer = window.setInterval(() => {
+                var xhr = new XMLHttpRequest;
+                xhr.open("GET", "/experiment", true);
+                xhr.responseType = "arraybuffer";
+                xhr.onload=(e)=>{
+                    let time:number, heater:number, fan:number, temp:number;
+                    let arrayBuffer = xhr.response; // Note: not oReq.responseText
+                    if (!arrayBuffer || arrayBuffer.byteLength!=4+4+4+4) {
+                        console.error("! arrayBuffer || arrayBuffer.byteLength!=4+4+4+4");
+                        time=Date.now();
+                        heater=0;
+                        fan=0;
+                        temp=99;
+                    }
+                    else{
+                        let ctx=new SerializeContext(arrayBuffer);
+                        time = ctx.readU32();
+                        heater = ctx.readF32();
+                        fan = ctx.readF32();
+                        temp = ctx.readF32();
+                    }
+                    
+    
+                    let tr = $.HtmlAsFirstChild(this.tbody, "tr", []);
+                    $.Html(tr, "td", [], [], `${time}`);
+                    $.Html(tr, "td", [], [], `${heater}`);
+                    $.Html(tr, "td", [], [], `${fan}`);
+                    $.Html(tr, "td", [], [], `${temp}`);
+                    let foo = (<number[][]>this.chartData.series)[0].slice(1);
+                    foo.push(temp);
+                    (<number[][]>this.chartData.series)[0] = foo;
+                    this.chart!.update(this.chartData, this.chartOptions, false);
+                }
+                xhr.send(null);
+    
+            }, 1000);
+
+        }
     }
 }
 
@@ -112,14 +276,6 @@ class DashboardController extends ScreenController {
 
 }
 
-interface ChartistData
-{
-    labels:string[];
-    series:number[][];
-    low:number;
-    high:number;
-}
-
 class ReportsController extends ScreenController {
     public onFirstStart(): void {}
     public onRestart(): void {}
@@ -129,36 +285,7 @@ class ReportsController extends ScreenController {
     }
     public onCreate() {
         return;
-        let data:ChartistData = {
-            // A labels array that can contain any sort of values
-            labels: [],
-            // Our series array that contains series objects or in this case series data arrays
-            series: [[]],
-            low: 0,
-            high: 40
-        };
-        let options = {
-            width: 600,
-            height: 400
-        };
-        let currVal = 20;
 
-        for (let i = 0; i < 10; i++) {
-            data.labels.push(""+ (10 - i));
-            data.series[0][i] = currVal;
-        }
-        // Create a new line chart object where as first parameter we pass in a selector
-        // that is resolving to our chart container element. The Second parameter
-        // is the actual data object.
-        let chart = new Chartist.Line('.ct-chart', data, options);
-        let timer = window.setInterval(() => {
-            let foo = data.series[0].slice(1);
-            foo.push(20 + 3 * Math.random())
-            data.series[0] = foo;
-            chart.update(data, options, false);
-
-        }, 500);
-        window.setTimeout(() => { window.clearInterval(timer) }, 10000);
     }
 }
 
@@ -217,6 +344,7 @@ class AppController {
         this.screenControllers.push(new DashboardController(<HTMLDivElement>document.getElementById("screen_dashboard")));
         this.screenControllers.push(new DevelopCFCController(<HTMLDivElement>document.getElementById("screen_develop")));
         this.screenControllers.push(new ReportsController(<HTMLDivElement>document.getElementById("screen_reports")));
+        this.screenControllers.push(new ExperimentController(<HTMLDivElement>document.getElementById("screen_experiment")));
         this.screenControllers.forEach((sc)=>sc.onCreate());
         
         this.setActiveScreen(0);

@@ -1,108 +1,309 @@
 #pragma once
-#include <stdio.h>
-#include "sdkconfig.h"
-#include "driver/gpio.h"
-#include "esp_system.h"
-#include "esp_log.h"
 #include "HAL.hh"
+
+#include <inttypes.h>
+#include <owb.h>
+#include <owb_rmt.h>
+#include <ds18b20.h>
+
+#include <driver/mcpwm.h>
+#include <driver/ledc.h>
+#include <driver/adc.h>
+#include <driver/i2c.h>
+#include <driver/rmt.h>
+
+#include "WS2812.hh"
 #include "labathomeerror.hh"
-#include "input_output_id.hh"
 
-const gpio_num_t LED_RED = GPIO_NUM_0;
-const gpio_num_t LED_GREEN = GPIO_NUM_2;
-const gpio_num_t LED_YELLOW = GPIO_NUM_4; //IS BLUE!!!
-const gpio_num_t SW_GREEN = GPIO_NUM_25;
-const gpio_num_t SW_ENCODER = GPIO_NUM_23;
-const gpio_num_t SW_RED = GPIO_NUM_27;
+#define CHECK_BIT(var, pos) ((var) & (1 << (pos)))
+//Predefined on Board
+constexpr gpio_num_t PIN_LCD_RST = GPIO_NUM_18;
+constexpr gpio_num_t PIN_LCD_CLK = GPIO_NUM_19;
+constexpr gpio_num_t PIN_LCD_DC = GPIO_NUM_21;
+constexpr gpio_num_t PIN_LCD_CS = GPIO_NUM_22;
+constexpr gpio_num_t PIN_LCD_MOSI = GPIO_NUM_23;
+constexpr gpio_num_t PIN_LCD_MISO = GPIO_NUM_25;
+constexpr gpio_num_t PIN_LED_RED = GPIO_NUM_0;
+constexpr gpio_num_t PIN_LED_GREEN = GPIO_NUM_2;
+constexpr gpio_num_t PIN_LED_YELLOW = GPIO_NUM_4; //IS BLUE!!!
+constexpr gpio_num_t PIN_SD_HOST_D2_PULLED_UP = GPIO_NUM_12;
+constexpr gpio_num_t PIN_SD_HOST_D3_PULLED_UP = GPIO_NUM_13;
+constexpr gpio_num_t PIN_SD_HOST_CMD_PULLED_UP = GPIO_NUM_15;
+constexpr gpio_num_t PIN_SD_HOST_CLK_PULLED_UP = GPIO_NUM_14;
+constexpr gpio_num_t PIN_SD_HOST_D0_PULLED_UP = GPIO_NUM_2;
+constexpr gpio_num_t PIN_SD_HOST_D1_PULLED_UP = GPIO_NUM_4;
+constexpr gpio_num_t PIN_SD_HOST_DETECT_PULLED_UP = GPIO_NUM_21;
+constexpr gpio_num_t PIN_JTAG_MTMS = GPIO_NUM_14;
+constexpr gpio_num_t PIN_JTAG_MTDO = GPIO_NUM_15;
+constexpr gpio_num_t PIN_JTAG_MTDI = GPIO_NUM_12;
+constexpr gpio_num_t PIN_JTAG_MTCK = GPIO_NUM_13;
 
+//Available 5, 
+constexpr gpio_num_t available[] = {GPIO_NUM_5,
+                                    GPIO_NUM_16, GPIO_NUM_17, /*Maybe used internally for PSRAM*/
+                                    GPIO_NUM_19, GPIO_NUM_21, GPIO_NUM_22, GPIO_NUM_23, /*all in this line: if  LCD not in use*/
+                                    GPIO_NUM_26, GPIO_NUM_27, GPIO_NUM_32, GPIO_NUM_33, 
+                                    GPIO_NUM_34,GPIO_NUM_35,GPIO_NUM_36, GPIO_NUM_39/*all in this line: input only, no pullup/pulldowns*/};
 
+constexpr gpio_num_t PIN_SW_ENCODER = GPIO_NUM_22;
+constexpr gpio_num_t PIN_SW_GREEN = GPIO_NUM_19;
+constexpr gpio_num_t PIN_SW_RED = GPIO_NUM_21;
+constexpr gpio_num_t PIN_ONEWIRE = GPIO_NUM_5;
+constexpr gpio_num_t PIN_MOVEMENT = PIN_SW_GREEN;
+constexpr gpio_num_t PIN_LED_STRIP = GPIO_NUM_26;
 
-class HAL_wroverkit:public HAL
+constexpr size_t LED_NUMBER = 8;
+constexpr rmt_channel_t CHANNEL_WS2812 = RMT_CHANNEL_0;
+constexpr rmt_channel_t CHANNEL_ONEWIRE_TX = RMT_CHANNEL_1;
+constexpr rmt_channel_t CHANNEL_ONEWIRE_RX = RMT_CHANNEL_2;
+
+constexpr uint32_t DEFAULT_VREF = 1100; //Use adc2_vref_to_gpio() to obtain a better estimate
+
+class HAL_wroverkit : public HAL
 {
-    private:
-        bool sw_green_is_pressed  = false;
-        bool sw_red_is_pressed  = false;
-        bool sw_encoder_is_pressed  = false;
+private:
+    bool sw_green_is_pressed = false;
+    bool sw_red_is_pressed = false;
+    bool sw_encoder_is_pressed = false;
+    bool movementIsDetected = false;
 
-        bool led_red_on = false;
-        bool led_yellow_on = false;
-        bool led_green_on = false;
-        
-    public:
-        HAL_wroverkit(){}
-        LabAtHomeErrorCode Init()
+    bool led_red_on = false;
+    bool led_yellow_on = false;
+    bool led_green_on = false;
+
+    float heaterState=0.0;
+    float fan1State=0.0;
+    float fan2State=0.0;
+
+    const int SERVO_MIN_PULSEWIDTH = 500;  //Minimum pulse width in microsecond
+    const int SERVO_MAX_PULSEWIDTH = 2400; //Maximum pulse width in microsecond
+    const int SERVO_MAX_DEGREE = 180;      //Maximum angle in degree upto which servo can rotate
+    bool needLedStripUpdate = false;
+    int buttonState = 0;
+
+    int64_t nextOneWireReadout = INT64_MAX;
+    float lastTemperature = 0.0;
+
+    WS2812_Strip<LED_NUMBER> *strip = NULL;
+
+    owb_rmt_driver_info rmt_driver_info;
+    OneWireBus *owb = NULL;
+    DS18B20_Info *ds18b20_info = NULL;
+
+public:
+    HAL_wroverkit() {}
+
+    int64_t IRAM_ATTR GetMicros()
+    {
+        return esp_timer_get_time();
+    }
+
+    uint32_t GetMillis()
+    {
+        return (uint32_t)(esp_timer_get_time() / 1000ULL);
+    }
+
+    LabAtHomeErrorCode GetHeaterTemperature(float * degrees)
+    {
+        *degrees= this->lastTemperature;
+        return LabAtHomeErrorCode::OK;
+    }
+
+    LabAtHomeErrorCode Init()
+    {
+        //Boolean Inputs in right sequence
+        gpio_set_level(PIN_LCD_RST, 0);
+        gpio_pad_select_gpio((uint8_t)PIN_LCD_RST);
+        gpio_set_direction(PIN_LCD_RST, GPIO_MODE_OUTPUT);
+
+
+
+        gpio_pad_select_gpio((uint8_t)PIN_SW_RED);
+        gpio_set_direction(PIN_SW_RED, GPIO_MODE_INPUT);
+        gpio_set_pull_mode(PIN_SW_RED, GPIO_PULLUP_ONLY);
+
+        gpio_pad_select_gpio((uint8_t)PIN_SW_ENCODER);
+        gpio_set_direction(PIN_SW_ENCODER, GPIO_MODE_INPUT);
+        gpio_set_pull_mode(PIN_SW_ENCODER, GPIO_PULLUP_ONLY);
+
+        gpio_pad_select_gpio((uint8_t)PIN_SW_GREEN);
+        gpio_set_direction(PIN_SW_GREEN, GPIO_MODE_INPUT);
+        gpio_set_pull_mode(PIN_SW_GREEN, GPIO_PULLUP_ONLY);
+
+        //Boolean Outputs in right sequence
+        gpio_set_level(PIN_LED_RED, 0);
+        gpio_pad_select_gpio((uint8_t)PIN_LED_RED);
+        gpio_set_direction(PIN_LED_RED, GPIO_MODE_OUTPUT);
+
+        gpio_set_level(PIN_LED_YELLOW, 0);
+        gpio_pad_select_gpio((uint8_t)PIN_LED_YELLOW);
+        gpio_set_direction(PIN_LED_YELLOW, GPIO_MODE_OUTPUT);
+
+        gpio_set_level(PIN_LED_GREEN, 0);
+        gpio_pad_select_gpio((uint8_t)PIN_LED_GREEN);
+        gpio_set_direction(PIN_LED_GREEN, GPIO_MODE_OUTPUT);
+
+        //OneWire
+        owb = owb_rmt_initialize(&rmt_driver_info, PIN_ONEWIRE, CHANNEL_ONEWIRE_TX, CHANNEL_ONEWIRE_RX);
+        owb_use_crc(owb, true);  // enable CRC check for ROM code
+        // Find all connected devices
+        OneWireBus_ROMCode rom_code;
+        owb_status status = owb_read_rom(owb, &rom_code);
+        if (status == OWB_STATUS_OK)
         {
-            //Boolean Inputs in right sequence
-            gpio_pad_select_gpio((uint8_t)SW_RED);
-            gpio_set_direction(SW_RED, GPIO_MODE_INPUT);
-            gpio_set_pull_mode(SW_RED, GPIO_PULLUP_ONLY);
-            
-            gpio_pad_select_gpio((uint8_t)SW_ENCODER);
-            gpio_set_direction(SW_ENCODER, GPIO_MODE_INPUT);
-            gpio_set_pull_mode(SW_ENCODER, GPIO_PULLUP_ONLY);
-
-            gpio_pad_select_gpio((uint8_t)SW_GREEN);
-            gpio_set_direction(SW_GREEN, GPIO_MODE_INPUT);
-            gpio_set_pull_mode(SW_GREEN, GPIO_PULLUP_ONLY);
-
-            //Boolean Outputs in right sequence
-            gpio_set_level(LED_RED, 0);
-            gpio_pad_select_gpio((uint8_t)LED_RED);
-            gpio_set_direction(LED_RED, GPIO_MODE_OUTPUT);
-
-            gpio_set_level(LED_YELLOW, 0);
-            gpio_pad_select_gpio((uint8_t)LED_YELLOW);
-            gpio_set_direction(LED_YELLOW, GPIO_MODE_OUTPUT);
-            
-            gpio_set_level(LED_GREEN, 0);
-            gpio_pad_select_gpio((uint8_t)LED_GREEN);
-            gpio_set_direction(LED_GREEN, GPIO_MODE_OUTPUT);
-            return LabAtHomeErrorCode::OK;
-
+            ESP_LOGI(TAG, "Single device  present");
+            this->ds18b20_info=ds18b20_malloc();  // heap allocation
+            ds18b20_init_solo(ds18b20_info, owb);          // only one device on bus
+            ds18b20_use_crc(ds18b20_info, true);           // enable CRC check on all reads
+            ds18b20_set_resolution(ds18b20_info, DS18B20_RESOLUTION_12_BIT);
+            ds18b20_convert_all(owb);
+            nextOneWireReadout=GetMillis()+1000;
         }
-
-        LabAtHomeErrorCode SetLedRed(bool value){
-            this->led_red_on=value;
-            return LabAtHomeErrorCode::OK;
-        }
-        LabAtHomeErrorCode SetLedYellow(bool value){
-            this->led_yellow_on=value;
-            return LabAtHomeErrorCode::OK;
-        }
-        LabAtHomeErrorCode SetLedGreen(bool value){
-            this->led_green_on=value;
-            return LabAtHomeErrorCode::OK;
-        }
-        LabAtHomeErrorCode GetButtonRed(bool *value){
-            *value=this->sw_red_is_pressed;
-            return LabAtHomeErrorCode::OK;
-        }
-        LabAtHomeErrorCode GetButtonEncoder(bool *value){
-            *value=this->sw_encoder_is_pressed;
-            return LabAtHomeErrorCode::OK;
-        }
-        LabAtHomeErrorCode GetButtonGreen(bool *value){
-            *value=this->sw_green_is_pressed;
-            return LabAtHomeErrorCode::OK;
-        }
-        LabAtHomeErrorCode FetchInputs(){
-            this->sw_red_is_pressed= !gpio_get_level(SW_RED);
-            this->sw_encoder_is_pressed = !gpio_get_level(SW_ENCODER);
-            this->sw_green_is_pressed=!gpio_get_level(SW_GREEN);
-            return LabAtHomeErrorCode::OK;
-        }
-
-        LabAtHomeErrorCode FlushOutputs(){
-            gpio_set_level(LED_RED, this->led_red_on);
-            gpio_set_level(LED_YELLOW, this->led_yellow_on);
-            gpio_set_level(LED_GREEN,  this->led_green_on);
-            return LabAtHomeErrorCode::OK;
-        }
-
-        int64_t GetMicroseconds()
+        else
         {
-            return  esp_timer_get_time();
+            ESP_LOGE(TAG, "An error occurred reading ROM code: %d", status);
         }
 
+        //LED Strip
+        strip = new WS2812_Strip<LED_NUMBER>(CHANNEL_WS2812);
+        ESP_ERROR_CHECK(strip->Init(PIN_LED_STRIP));
+        ESP_ERROR_CHECK(strip->Clear(100));
 
+        return LabAtHomeErrorCode::OK;
+    }
+
+    LabAtHomeErrorCode BeforeLoop()
+    {
+        this->movementIsDetected= gpio_get_level(PIN_MOVEMENT);
+        this->sw_red_is_pressed = !gpio_get_level(PIN_SW_RED);
+        this->sw_encoder_is_pressed = !gpio_get_level(PIN_SW_ENCODER);
+        this->sw_green_is_pressed = !gpio_get_level(PIN_SW_GREEN);
+        ESP_LOGI(TAG, "Before int32_t ms = GetMillis();");
+        int32_t ms = GetMillis();
+        if (ms > nextOneWireReadout)
+        {
+            float temp=0.0;
+            ESP_LOGI(TAG, "ds18b20_read_temp(this->ds18b20_info, &(this->lastTemperature));");
+            ds18b20_read_temp(ds18b20_info, &temp);
+            ESP_LOGI(TAG, "Before ds18b20_convert_all(owb);");
+            ds18b20_convert_all(owb);
+            ESP_LOGI(TAG, "Temperatur gemessen %.1f", temp);
+            nextOneWireReadout = GetMillis()+1000;
+        }
+        return LabAtHomeErrorCode::OK;
+    }
+
+    LabAtHomeErrorCode AfterLoop()
+    {
+        gpio_set_level(PIN_LED_RED, this->led_red_on);
+        gpio_set_level(PIN_LED_YELLOW, this->led_yellow_on);
+        gpio_set_level(PIN_LED_GREEN, this->led_green_on);
+        return LabAtHomeErrorCode::OK;
+        if (needLedStripUpdate)
+        {
+            strip->Refresh(100);
+            needLedStripUpdate = false;
+        }
+        return LabAtHomeErrorCode::OK;
+    }
+
+    LabAtHomeErrorCode StartBuzzer(double freqHz)
+    {
+        return LabAtHomeErrorCode::OK;
+    }
+
+    LabAtHomeErrorCode EndBuzzer()
+    {
+
+        return LabAtHomeErrorCode::OK;
+    }
+
+    LabAtHomeErrorCode ColorizeLed(LED led, CRGB color)
+    {
+        strip->SetPixel((uint8_t)led, color);
+        this->needLedStripUpdate = true;
+        switch (led)
+        {
+        case LED::LED_RED:
+             this->led_red_on = color!=CRGB::Black;
+            break;
+        case LED::LED_YELLOW:
+             this->led_yellow_on = color!=CRGB::Black;
+            break;
+        case LED::LED_GREEN:
+             this->led_green_on = color!=CRGB::Black;
+            break;        
+        default:
+            break;
+        }
+        return LabAtHomeErrorCode::OK;
+    }
+
+    LabAtHomeErrorCode SetRelayState(bool state)
+    { 
+        return LabAtHomeErrorCode::OK;
+    }
+
+    LabAtHomeErrorCode SetHeaterState(float dutyInPercent)
+    {
+        heaterState=dutyInPercent;
+        return LabAtHomeErrorCode::OK;
+    }
+
+    float GetHeaterState(){
+        return heaterState;
+    }
+
+    LabAtHomeErrorCode SetFan1State(float dutyInPercent)
+    {
+        fan1State=dutyInPercent;
+        return LabAtHomeErrorCode::OK;
+    }
+
+    float GetFan1State(){
+        return fan1State;
+    }
+
+    LabAtHomeErrorCode SetFan2State(float dutyInPercent)
+    {
+        fan2State=dutyInPercent;
+        return LabAtHomeErrorCode::OK;
+    }
+
+    float GetFan2State(){
+        return fan2State;
+    }
+
+    LabAtHomeErrorCode SetLedPowerWhiteState(uint8_t dutyInpercent)
+    {
+        return LabAtHomeErrorCode::OK;
+    }
+
+    bool GetButtonRedIsPressed()
+    {
+        return sw_red_is_pressed;
+    }
+
+    bool GetButtonEncoderIsPressed()
+    {
+        return sw_encoder_is_pressed;
+    }
+
+    bool GetButtonGreenIsPressed()
+    {
+        return sw_green_is_pressed;
+    }
+
+
+    bool IsMovementDetected()
+    {
+        return this->movementIsDetected;
+    }
+
+    LabAtHomeErrorCode SetServoPosition(Servo servo, uint32_t angle_0_to_180)
+    {
+       
+        return LabAtHomeErrorCode::OK;
+    }
+ 
 };
