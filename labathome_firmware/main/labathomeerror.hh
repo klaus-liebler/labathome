@@ -9,4 +9,5 @@ enum class LabAtHomeErrorCode:int
     INDEX_OUT_OF_BOUNDS=4,
     INVALID_NEW_FBD=5,
     NOT_YET_IMPLEMENTED = 6,
+    TEMPORARYLY_NOT_AVAILABLE = 7,
 };

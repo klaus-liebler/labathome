@@ -230,7 +230,7 @@ public:
         //Fans
         mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM1A, PIN_FAN1_DRIVE);
         mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM1B, PIN_FAN2_DRIVE);
-        pwm_config.frequency = 1000;
+        pwm_config.frequency = 50;
         pwm_config.cmpr_a = 0;     //duty cycle of PWMxA = 0
         pwm_config.cmpr_b = 0;     //duty cycle of PWMxb = 0
         pwm_config.counter_mode = MCPWM_UP_COUNTER;
@@ -350,6 +350,7 @@ public:
         return LabAtHomeErrorCode::OK;
     }
 
+
     LabAtHomeErrorCode SetHeaterState(float dutyInPercent)
     {
         mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_2, MCPWM_OPR_A, dutyInPercent);
@@ -360,6 +361,7 @@ public:
         return mcpwm_get_duty(MCPWM_UNIT_0, MCPWM_TIMER_2, MCPWM_OPR_A);
     }
 
+
     LabAtHomeErrorCode SetFan1State(float dutyInPercent)
     {
         mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_1, MCPWM_OPR_A, dutyInPercent);
@@ -369,6 +371,7 @@ public:
     float GetFan1State(){
         return mcpwm_get_duty(MCPWM_UNIT_0, MCPWM_TIMER_1, MCPWM_OPR_A);
     }
+
 
     LabAtHomeErrorCode SetFan2State(float dutyInPercent)
     {

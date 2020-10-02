@@ -109,6 +109,11 @@ public:
         return LabAtHomeErrorCode::OK;
     }
 
+    LabAtHomeErrorCode FreeFanAndHeater(bool free)
+    {
+        return LabAtHomeErrorCode::OK;
+    }
+
     LabAtHomeErrorCode Init()
     {
         //Boolean Inputs in right sequence

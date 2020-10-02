@@ -8,7 +8,9 @@
 #include "labathomeerror.hh"
 #include "vector"
 
+
 class FunctionBlock;
+class PID;
 
 class Executable
 {
@@ -63,13 +65,38 @@ class FunctionBlock {
       virtual ~FunctionBlock(){};
 };
 
+struct ExperimentData{
+    float Heater;
+    float Fan;
+    float ActualTemperature;
+    float SetpointTemperature;
+};
+
+
+enum class ExperimentMode
+{
+    functionblock,
+    openloop,
+    closedloop,
+};
+
 class PLCManager:public FBContext
 {
  private:
         HAL *hal;
+        PID *pid;
         Executable *currentExecutable;
         Executable *nextExecutable;
         Executable* createInitialExecutable();
+        int64_t lastExperimentTrigger=0;
+        ExperimentMode experimentMode;
+        double KP=0; double KI=0; double KD=0;
+        double actualTemperature=0;
+        double setpointTemperature=0;
+        double setpointFan=0;
+        double setpointHeaterOpenloop=0;
+        double setpointHeaterClosedLoop=0;
+        
     public:
         bool IsBinaryAvailable(size_t index);
         bool IsIntegerAvailable(size_t index);
@@ -81,11 +108,10 @@ class PLCManager:public FBContext
         LabAtHomeErrorCode ParseNewExecutableAndEnqueue(const uint8_t  *buffer, size_t length);
         HAL *GetHAL();
         
-        PLCManager(HAL *hal): hal(hal)
-        {
-            currentExecutable = this->createInitialExecutable();
-            nextExecutable = nullptr;
-        }
+        PLCManager(HAL *hal);
         LabAtHomeErrorCode CheckForNewExecutable();
         LabAtHomeErrorCode Loop();
+        LabAtHomeErrorCode TriggerHeaterExperimentClosedLoop(double setpointTemperature, double setpointFan, double KP, double KI, double KD, ExperimentData *data);
+        LabAtHomeErrorCode TriggerHeaterExperimentOpenLoop(double setpointHeater, double setpointFan, ExperimentData *data);
+        LabAtHomeErrorCode TriggerHeaterExperimentFunctionblock(ExperimentData *data);
 };

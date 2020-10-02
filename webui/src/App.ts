@@ -2,6 +2,8 @@ import {Flowchart, FlowchartData, FlowchartOptions} from "./Flowchart";
 import {$} from "./Utils"
 import * as chrtst from "chartist";
 
+let DE_de = new Intl.NumberFormat('de-DE');
+
 export abstract class ScreenController {
     private state:ControllerState;
     constructor(protected div: HTMLDivElement) {
@@ -67,122 +69,272 @@ class SerializeContext {
 }
 
 class ExperimentController extends ScreenController {
-    private butSet:HTMLButtonElement;
     private butRecord:HTMLButtonElement;
     private butStop:HTMLButtonElement;
+    private butDelete:HTMLButtonElement;
     
     private tbody:HTMLTableSectionElement;
-    private inputHeater:HTMLInputElement;
-    private inputFan:HTMLInputElement;
+    private tfirstRow:HTMLTableRowElement;
+    
+    private inputSetpointHeater:HTMLInputElement;
+    private inputSetpointTemperature:HTMLInputElement;
+    private inputFanCL:HTMLInputElement;
+    private inputFanOL:HTMLInputElement;
+    private inputKP:HTMLInputElement;
+    private inputKI:HTMLInputElement;
+    private inputKD:HTMLInputElement;
     private timer:number|undefined;
-    private chart:chrtst.IChartistLineChart|undefined;
+    private chart:chrtst.IChartistLineChart;
     private chartData:chrtst.IChartistData;
-    private chartOptions:chrtst.ILineChartOptions;
+    private counter=10^6;
+    private dateValues:string[]=[]
+    private actualTemperatureValues:number[] =[];
+    private setpointTemperatureValues:number[] =[];
+    private heaterValues:number[]=[];
+    private fanValues:number[]=[];
+    private mode:number=0;
+    private seconds=0;
+
+    private recording=false;
 
     public onFirstStart(): void {
-        
+        this.chart.update(this.chartData);
+        this.timer = window.setInterval(() => {this.sendAndReceive();}, 1000);
     }
     public onRestart(): void {
-       
+        this.chart.update(this.chartData);
+        this.timer = window.setInterval(() => {this.sendAndReceive();}, 1000);
     }
     public onStop(): void {
         window.clearInterval(this.timer);
         this.butStop.hidden=true;
         this.butRecord.hidden=false;
+        this.counter=10^6;
     }
     public onCreate() {
+        this.resetData();
         
-
-        let currVal = 20;
-
-        for (let i = 0; i < 100; i++) {
-            (<string[]>this.chartData.labels).push(""+ (100 - i));
-            (<number[][]>this.chartData.series)[0][i] = currVal;
-        }
-        // Create a new line chart object where as first parameter we pass in a selector
-        // that is resolving to our chart container element. The Second parameter
-        // is the actual data object.
-        this.chart= new chrtst.Line('#experiment_chart', this.chartData, this.chartOptions);
     }
+
+    private resetData(){
+        this.dateValues=[];
+        this.setpointTemperatureValues=[];
+        this.actualTemperatureValues=[]
+        this.fanValues=[];
+        this.heaterValues=[];
+        this.tbody.innerText="";
+        this.seconds=0;
+    }
+
+
+    private onModeChange(newMode:number){
+        switch(newMode){
+            case 0:
+                document.querySelectorAll('.experiment_closedloopctrl').forEach((v,k)=>{
+                    (<HTMLElement>v).style.display = "none";
+                });
+                document.querySelectorAll('.experiment_openloopctrl').forEach((v,k)=>{
+                    (<HTMLElement>v).style.display = "none";
+                });
+                break;
+            case 1:
+                document.querySelectorAll('.experiment_closedloopctrl').forEach((v,k)=>{
+                    (<HTMLElement>v).style.display = "none";
+                });
+                document.querySelectorAll('.experiment_openloopctrl').forEach((v,k)=>{
+                    (<HTMLElement>v).style.display = "inline-block";
+                });
+                break;
+            case 2:
+                document.querySelectorAll('.experiment_closedloopctrl').forEach((v,k)=>{
+                    (<HTMLElement>v).style.display = "inline-block";
+                });
+                document.querySelectorAll('.experiment_openloopctrl').forEach((v,k)=>{
+                    (<HTMLElement>v).style.display = "none";
+                });
+            break;
+        }
+        this.mode=newMode;
+    }
+
+    private sendAndReceive()
+    {
+        let buffer = new ArrayBuffer(256);
+        let ctx=new SerializeContext(buffer);
+        //uint32_t modeU32 = bufU32[0];
+        //float setpointTempOrHeater = bufF32[1];
+        //float setpointFan = bufF32[2];
+        //uint32_t KP = bufU32[3];
+        //uint32_t KI = bufU32[4];
+        //uint32_t KD = bufU32[5];
+
+        ctx.writeU32(this.mode);
+        if(this.mode==0){
+            ctx.writeF32(0);
+            ctx.writeF32(0);
+        }else if(this.mode==1)
+        {
+            ctx.writeF32(this.inputSetpointHeater.valueAsNumber)
+            ctx.writeF32(this.inputFanOL.valueAsNumber);
+        }
+        else{
+            ctx.writeF32(this.inputSetpointTemperature.valueAsNumber);
+            ctx.writeF32(this.inputFanCL.valueAsNumber);
+        }
+        ctx.writeF32(this.inputKP.valueAsNumber);
+        ctx.writeF32(this.inputKI.valueAsNumber);
+        ctx.writeF32(this.inputKD.valueAsNumber);
+    
+        let xhr = new XMLHttpRequest;
+        xhr.onerror=(e)=>{console.log("Fehler beim XMLHttpRequest!")}
+        xhr.open("PUT", "/experiment", true);
+        xhr.responseType = "arraybuffer";
+        xhr.onload=(e)=>{
+            let SetpointTemperature:number, Heater:number, Fan:number, ActualTemperature:number;
+            let arrayBuffer = xhr.response; // Note: not oReq.responseText
+            if (!arrayBuffer || arrayBuffer.byteLength!=4+4+4+4) {
+                console.error("! arrayBuffer || arrayBuffer.byteLength!=4+4+4+4");
+                SetpointTemperature=0;
+                Heater=0;
+                Fan=0;
+                ActualTemperature=0;
+            }
+            else{
+                let ctx=new SerializeContext(arrayBuffer);
+                //float retbuf[4];
+                //retbuf[0]=returnData.SetpointTemperature;
+                //retbuf[1]=returnData.Heater;
+                //retbuf[2]=returnData.Fan;
+                //retbuf[3]=returnData.ActualTemperature;
+                SetpointTemperature = ctx.readF32();
+                Heater = ctx.readF32();
+                Fan = ctx.readF32();
+                ActualTemperature = ctx.readF32();
+            }
+            let now = new Date(Date.now());
+            
+            if(this.recording)
+            {
+                let tr = $.HtmlAsFirstChild(this.tbody, "tr", []);
+                $.Html(tr, "td", [], [], this.tfirstRow.children[0].textContent!);
+                $.Html(tr, "td", [], [], this.tfirstRow.children[1].textContent!);
+                $.Html(tr, "td", [], [], this.tfirstRow.children[2].textContent!);
+                $.Html(tr, "td", [], [], this.tfirstRow.children[3].textContent!);
+                $.Html(tr, "td", [], [], this.tfirstRow.children[4].textContent!);
+                $.Html(tr, "td", [], [], this.tfirstRow.children[5].textContent!);
+                if(this.counter>=5)
+                {
+                    if(this.dateValues.length>100)
+                    {
+                        this.dateValues=this.dateValues.slice(1);
+                        this.setpointTemperatureValues.slice(1);
+                        this.heaterValues.slice(1);
+                        this.fanValues.slice(1);
+                        this.actualTemperatureValues.slice(1);
+                    }
+                    this.dateValues.push(now.toLocaleTimeString("de-DE"));
+                    this.setpointTemperatureValues.push(SetpointTemperature)
+                    this.heaterValues.push(Heater);
+                    this.fanValues.push(Fan);
+                    this.actualTemperatureValues.push(ActualTemperature);
+                    this.chartData = {
+                        labels:this.dateValues,
+                        series: [this.setpointTemperatureValues, this.actualTemperatureValues, this.heaterValues, this.fanValues,],
+                    };
+                    this.chart.update(this.chartData);
+                    this.counter=0;
+                }
+                this.counter++;
+                this.seconds++;
+            }
+
+            
+            this.tfirstRow.children[0].textContent=now.toLocaleTimeString("de-DE");
+            this.tfirstRow.children[1].textContent=DE_de.format(this.seconds);
+            this.tfirstRow.children[2].textContent=DE_de.format(SetpointTemperature);
+            this.tfirstRow.children[3].textContent=DE_de.format(Heater);
+            this.tfirstRow.children[4].textContent=DE_de.format(Fan);
+            this.tfirstRow.children[5].textContent=DE_de.format(ActualTemperature);
+            
+            
+        }
+        xhr.send(ctx.getResult());
+    }
+
     constructor(public div: HTMLDivElement) {
         super(div);
-        this.butSet=<HTMLButtonElement>document.getElementById("experiment_butSet")!;
         this.butRecord=<HTMLButtonElement>document.getElementById("experiment_butRecord")!;
         this.butStop=<HTMLButtonElement>document.getElementById("experiment_butStop")!;
         this.butStop.hidden=true;
+        this.butDelete=<HTMLButtonElement>document.getElementById("experiment_butDelete")!;
         this.tbody=<HTMLTableSectionElement>document.getElementById("experiment_tabBody")!;
-        this.inputHeater=<HTMLInputElement>document.getElementById("experiment_inpHeater");
-        this.inputFan=<HTMLInputElement>document.getElementById("experiment_inpFan")!;
+        this.tfirstRow=<HTMLTableRowElement>document.getElementById("experiment_tabFirstRow")!;
+        this.inputSetpointHeater=<HTMLInputElement>document.getElementById("experiment_inpSetpointHeater");
+        this.inputFanOL=<HTMLInputElement>document.getElementById("experiment_inpFanOL")!;
+        this.inputSetpointTemperature=<HTMLInputElement>document.getElementById("experiment_inpSetpointTemperature");
+        this.inputFanCL=<HTMLInputElement>document.getElementById("experiment_inpFanCL")!;
+
+        this.inputKP=<HTMLInputElement>document.getElementById("experiment_inpKP")!;
+        this.inputKI=<HTMLInputElement>document.getElementById("experiment_inpKI")!;
+        this.inputKD=<HTMLInputElement>document.getElementById("experiment_inpKD")!;
+
+        this.onModeChange(0);
+
+
         this.chartData = {
-            // A labels array that can contain any sort of values
-            labels:[],
-            // Our series array that contains series objects or in this case series data arrays
-            series: [[]],
+            labels:this.dateValues,
+            series: [this.setpointTemperatureValues, this.actualTemperatureValues, this.heaterValues, this.fanValues,],
         };
-        this.chartOptions = {
-            width: 800,
-            height: 300
+        let options:chrtst.ILineChartOptions={
+            axisX:{
+                labelInterpolationFnc:(value:any, index:number)=>{return index % 5 === 0 ? value : null;}
+            }
         };
-        
-        this.butSet.onclick=(e)=>{
-            let buffer = new ArrayBuffer(256);
-            let ctx=new SerializeContext(buffer);
-            ctx.writeF32(this.inputHeater.valueAsNumber);
-            ctx.writeF32(this.inputFan.valueAsNumber);
-            var xhr = new XMLHttpRequest;
-            xhr.open("PUT", "/experiment", true);
-            xhr.onloadend=(e)=>{console.log("Erfolgreich hochgeladen")}
-            xhr.onerror=(e)=>{window.alert("Fehler: "+e);}
-            xhr.send(ctx.getResult());
+        this.chart= new chrtst.Line('#experiment_chart', this.chartData, options);
+
+        document.querySelectorAll('input[name="experiment_mode"]').forEach((v,k)=>{
+            let inp =<HTMLInputElement>v;
+            inp.onclick=(e)=>{
+                let num = parseInt(inp.value)
+                if(this.mode!=num) this.onModeChange(num);
+            }
+        });
+
+        let setBubble = (range:HTMLInputElement, bubble:HTMLOutputElement)=> {
+            let val = range.valueAsNumber;
+            let min = range.min ? parseInt(range.min) : 0;
+            let max = range.max ? parseInt(range.max) : 100;
+            let newVal = ((val - min) * 100) / (max - min);
+            bubble.innerHTML = ""+val;
+          
+            // Sorta magic numbers based on size of the native UI thumb
+            bubble.style.left = `calc(${newVal}% + (${8 - newVal * 0.15}px))`;
         }
+
+        document.querySelectorAll(".range-wrap").forEach(wrap => {
+            let range = <HTMLInputElement>wrap.querySelector("input[type='range']")!;
+            let bubble = <HTMLOutputElement>wrap.querySelector("output.bubble")!;
+            range.oninput=(e)=>setBubble(range, bubble);
+            setBubble(range, bubble);
+        });
+        
 
         this.butStop.onclick=(e)=>{
             this.butStop.hidden=true;
             this.butRecord.hidden=false;
-            window.clearInterval(this.timer);
+            this.recording=false;    
         }
 
         this.butRecord.onclick=(e)=>
         {
             this.butRecord.hidden=true;
             this.butStop.hidden=false;
-            this.timer = window.setInterval(() => {
-                var xhr = new XMLHttpRequest;
-                xhr.open("GET", "/experiment", true);
-                xhr.responseType = "arraybuffer";
-                xhr.onload=(e)=>{
-                    let time:number, heater:number, fan:number, temp:number;
-                    let arrayBuffer = xhr.response; // Note: not oReq.responseText
-                    if (!arrayBuffer || arrayBuffer.byteLength!=4+4+4+4) {
-                        console.error("! arrayBuffer || arrayBuffer.byteLength!=4+4+4+4");
-                        time=Date.now();
-                        heater=0;
-                        fan=0;
-                        temp=99;
-                    }
-                    else{
-                        let ctx=new SerializeContext(arrayBuffer);
-                        time = ctx.readU32();
-                        heater = ctx.readF32();
-                        fan = ctx.readF32();
-                        temp = ctx.readF32();
-                    }
-                    
-    
-                    let tr = $.HtmlAsFirstChild(this.tbody, "tr", []);
-                    $.Html(tr, "td", [], [], `${time}`);
-                    $.Html(tr, "td", [], [], `${heater}`);
-                    $.Html(tr, "td", [], [], `${fan}`);
-                    $.Html(tr, "td", [], [], `${temp}`);
-                    let foo = (<number[][]>this.chartData.series)[0].slice(1);
-                    foo.push(temp);
-                    (<number[][]>this.chartData.series)[0] = foo;
-                    this.chart!.update(this.chartData, this.chartOptions, false);
-                }
-                xhr.send(null);
-    
-            }, 1000);
+            this.recording=true;
+        }
 
+        this.butDelete.onclick=(e)=>
+        {
+            this.resetData();
         }
     }
 }
@@ -357,8 +509,9 @@ class AppController {
         });
 
 
-        this.SetApplicationState("WebSocket is not connected");
+        
         /*
+        this.SetApplicationState("WebSocket is not connected");
         let websocket = new WebSocket('ws://' + location.hostname + '/w');
         websocket.onopen = e => {
             this.SetApplicationState('WebSocket connection opened');

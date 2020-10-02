@@ -3,12 +3,25 @@
 #include "esp_log.h"
 #include "labathomeerror.hh"
 #include <vector>
+#include "PID_v1.h"
+
+constexpr int64_t TRIGGER_FALLBACK_TIME = 3000000;
 
 static const char *TAG = "plcmanager";
 
 #define SetBit(A, k) (A[(k / 32)] |= (1 << (k % 32)))
 #define ClearBit(A, k) (A[(k / 32)] &= ~(1 << (k % 32)))
 #define TestBit(A, k) (A[(k / 32)] & (1 << (k % 32)))
+
+PLCManager::PLCManager(HAL *hal):hal(hal)
+{
+    currentExecutable = this->createInitialExecutable();
+    nextExecutable = nullptr;
+    pid = new PID(&actualTemperature, &setpointHeaterClosedLoop, &setpointTemperature, KP, KI, KD, DIRECT);
+    pid->SetMode(MANUAL);
+    pid->SetOutputLimits(0, 100.0);
+    pid->SetSampleTime(1000);
+}
 
 bool PLCManager::IsBinaryAvailable(size_t index)
 {
@@ -250,14 +263,99 @@ LabAtHomeErrorCode PLCManager::CheckForNewExecutable()
     return LabAtHomeErrorCode::OK;
 }
 
+
 LabAtHomeErrorCode PLCManager::Loop()
 {
     //Check queue for newly arrived Executable
     //Contract: Alle Eingänge sind gesetzt
-
-    for (const auto &i : this->currentExecutable->functionBlocks)
+    int64_t nowUsSteady = hal->GetMicros();
+    if(experimentMode != ExperimentMode::functionblock && nowUsSteady-this->lastExperimentTrigger>TRIGGER_FALLBACK_TIME)
     {
-        i->execute(this);
+        //auto fallback
+        experimentMode = ExperimentMode::functionblock;
+        ESP_LOGI(TAG, "Auto fallback to experimentMode = ExperimentMode::functionblock;");
+        hal->SetFan1State(0);
+        hal->SetFan2State(0);
+        hal->SetHeaterState(0);
     }
+
+    if(experimentMode == ExperimentMode::functionblock)
+    {
+        for (const auto &i : this->currentExecutable->functionBlocks)
+        {
+            i->execute(this);
+        }
+    }
+    else if(experimentMode==ExperimentMode::openloop){
+        if(pid->GetMode()!=MANUAL)
+        {
+            pid->SetMode(MANUAL);
+        }
+        hal->SetFan1State(this->setpointFan);
+        hal->SetFan2State(this->setpointFan);
+        hal->SetHeaterState(this->setpointHeaterOpenloop);
+    }
+    else if(experimentMode==ExperimentMode::closedloop){
+        if(pid->GetMode()!=AUTOMATIC)
+        {
+            ESP_LOGI(TAG, "pid->SetMode(AUTOMATIC);");
+            pid->SetMode(AUTOMATIC);
+        }
+        if(pid->GetKd()!=this->KD || pid->GetKi()!=this->KI || pid->GetKp()!=this->KP)
+        {
+            ESP_LOGI(TAG, "pid->SetTunings(KP, KI, KD); %f %f %f", KP, KI, KD);
+            pid->SetTunings(KP, KI, KD);
+        }
+        float act =0;
+        hal->GetHeaterTemperature(&act);
+        this->actualTemperature=act;
+
+        bool newResult = pid->Compute();
+        if(newResult)
+        {
+            ESP_LOGI(TAG, "if(newResult): %F", this->setpointHeaterClosedLoop);
+            hal->SetHeaterState(this->setpointHeaterClosedLoop);
+        }
+        hal->SetFan1State(this->setpointFan);
+        hal->SetFan2State(this->setpointFan);
+    }
+    
+    return LabAtHomeErrorCode::OK;
+}
+
+LabAtHomeErrorCode PLCManager::TriggerHeaterExperimentClosedLoop(double setpointTemperature, double setpointFan, double KP, double KI, double KD, ExperimentData *data){
+    this->lastExperimentTrigger=hal->GetMicros();
+    this->experimentMode=ExperimentMode::closedloop;
+    this->setpointTemperature=setpointTemperature;
+    this->setpointFan=setpointFan;
+    this->KP=KP;
+    this->KI=KI;
+    this->KD=KD;
+    data->Fan=hal->GetFan1State();
+    data->Heater=hal->GetHeaterState();
+    hal->GetHeaterTemperature(&(data->ActualTemperature));
+    data->SetpointTemperature=this->setpointTemperature;
+    return LabAtHomeErrorCode::OK;
+}
+LabAtHomeErrorCode PLCManager::TriggerHeaterExperimentOpenLoop(double setpointHeater, double setpointFan, ExperimentData *data){
+    this->lastExperimentTrigger=hal->GetMicros();
+    this->experimentMode=ExperimentMode::openloop;
+    this->setpointHeaterOpenloop=setpointHeater;
+    this->setpointFan=setpointFan;
+    data->Fan=hal->GetFan1State();
+    data->Heater=hal->GetHeaterState();
+    hal->GetHeaterTemperature(&(data->ActualTemperature));
+    data->SetpointTemperature=0;
+    return LabAtHomeErrorCode::OK;
+}
+LabAtHomeErrorCode PLCManager::TriggerHeaterExperimentFunctionblock(ExperimentData *data){
+    this->lastExperimentTrigger=hal->GetMicros();
+    this->experimentMode=ExperimentMode::functionblock;
+    this->setpointHeaterOpenloop=0;
+    this->setpointFan=0;
+    data->Fan=hal->GetFan1State();
+    data->Heater=hal->GetHeaterState();
+    hal->GetHeaterTemperature(&(data->ActualTemperature));
+    data->SetpointTemperature=0;
     return LabAtHomeErrorCode::OK;
 }

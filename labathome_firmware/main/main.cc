@@ -22,6 +22,7 @@ static const char *TAG = "main";
 #include "WS2812.hh"
 #include "esp_log.h"
 
+
 #include "HAL_labathomeV5.hh"
 HAL *hal = new HAL_labathomeV5(MODE_IO33::SERVO2, MODE_MULTI1_PIN::EXT, MODE_MULTI_2_3_PINS::EXT);
 //#include "HAL_wroverkit.hh"
@@ -29,64 +30,32 @@ HAL *hal = new HAL_labathomeV5(MODE_IO33::SERVO2, MODE_MULTI1_PIN::EXT, MODE_MUL
 
 PLCManager *manager = new PLCManager(hal);
 
+
 extern "C"
 {
     void app_main();
-    void managementTask(void *);
+    void experimentTask(void *);
     void plcTask(void *);
 }
 
 
 // Perform an action every 10 ticks.
-void managementTask(void *pvParameters)
+void experimentTask(void *pvParameters)
 {
-    /*
+
     TickType_t xLastWakeTime;
     const TickType_t xFrequency = 10;
 
     // Initialise the xLastWakeTime variable with the current time.
     xLastWakeTime = xTaskGetTickCount();
-    //Einschaltverzögerung
-    uint32_t presettime = 10;
-    uint32_t elapsedtime = 0;
-    int last_button_state = 1;
+
     while (true)
     {
         // Wait for the next cycle.
         vTaskDelayUntil(&xLastWakeTime, xFrequency);
-        int current_button_state = gpio_get_level(SW_ENCODER);
-        if (last_button_state == 1 && current_button_state == 0)
-        {
-            //button pressed!!
-            printf("pressed\n");
-            int adc_reading = adc1_get_raw((adc1_channel_t)channel);
-            uint32_t voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
-            printf("Raw: %d\tVoltage: %dmV\n", adc_reading, voltage);
-        }
-        else if (last_button_state == 0 && current_button_state == 1)
-        {
-            //button released
-            elapsedtime = 0;
-            gpio_set_level(LED_YELLOW, 0);
-            printf("released\n");
-        }
-        else if (current_button_state == 0)
-        {
-            //button is held down
-            if (elapsedtime < presettime)
-            {
-                elapsedtime++;
-            }
-            else if (elapsedtime == presettime)
-            {
-                gpio_set_level(LED_YELLOW, 1);
-                printf("switched\n");
-                elapsedtime++;
-            }
-        }
-        last_button_state = current_button_state;
+
     }
-    */
+    
 }
 
 // Main PLC Task
@@ -186,29 +155,19 @@ static esp_err_t fbd_put_handler(httpd_req_t *req)
     httpd_resp_send_chunk(req, NULL, 0);
     return ESP_OK;
 }
+/*
+Structure Client-->Server
 
-static esp_err_t experiment_get_handler(httpd_req_t *req)
-{    
-    httpd_resp_set_type(req, "application/octet-stream");
-    uint32_t bufU32[4];
-    float *bufF32 = (float *)bufU32;
-    bufU32[0]=(uint32_t)(hal->GetMicros()/1000ULL);
-    bufF32[1]=hal->GetHeaterState();
-    bufF32[2]=hal->GetFan1State();
-    float degrees=0.0;
-    hal->GetHeaterTemperature(&degrees);
-    bufF32[3]=degrees;
-    httpd_resp_send(req, (const char*)bufU32, 16);
-    return ESP_OK;
-}
+*/
 
-static esp_err_t experiment_put_handler(httpd_req_t *req)
+static esp_err_t experiment_handler(httpd_req_t *req)
 {    
     int ret=0;
     int remaining = req->content_len;
-    if(remaining>=MAX_FDB_BUFFER)
+    if(remaining!=24){
+        ESP_LOGE(TAG, "Unexpected Data length %d in experiment_put_handler", remaining);
         return ESP_FAIL;
-    ESP_LOGI(TAG, "fbd_put_handler, expecting %d bytes of data", remaining);
+    }
     uint8_t buf[remaining];
     while (remaining > 0) {
         /* Read the data for the request */
@@ -223,13 +182,31 @@ static esp_err_t experiment_put_handler(httpd_req_t *req)
     }
     // End response
     float *bufF32 = (float*)buf;
-    float heater = bufF32[0];
-    float fan = bufF32[1];
-    ESP_LOGI(TAG, "Set heater to %F and fan to %F", heater, fan);
-    hal->SetFan1State(fan);
-    hal->SetFan2State(fan);
-    hal->SetHeaterState(heater);
-    httpd_resp_send_chunk(req, NULL, 0);
+    uint32_t *bufU32 = (uint32_t*)buf;
+    uint32_t modeU32 = bufU32[0];
+    float setpointTempOrHeater = bufF32[1];
+    float setpointFan = bufF32[2];
+    float KP = bufF32[3];
+    float KI = bufF32[4];
+    float KD = bufF32[5];
+    
+    ESP_LOGI(TAG, "Set mode %d and setpointTorH %F and Setpoint Fan %F", modeU32, setpointTempOrHeater, setpointFan);
+    ExperimentData returnData;
+    switch (modeU32)
+    {
+    case 0: manager->TriggerHeaterExperimentFunctionblock(&returnData); break;
+    case 1: manager->TriggerHeaterExperimentOpenLoop(setpointTempOrHeater, setpointFan, &returnData); break;
+    case 2: manager->TriggerHeaterExperimentClosedLoop(setpointTempOrHeater, setpointFan, KP, KI, KD, &returnData); break;
+    default:break;
+    }
+    
+    httpd_resp_set_type(req, "application/octet-stream");
+    float retbuf[4];
+    retbuf[0]=returnData.SetpointTemperature;
+    retbuf[1]=returnData.Heater;
+    retbuf[2]=returnData.Fan;
+    retbuf[3]=returnData.ActualTemperature;
+    httpd_resp_send(req, (const char*)retbuf, 16);
     return ESP_OK;
 }
 
@@ -247,17 +224,10 @@ static const httpd_uri_t fbd = {
     .user_ctx = 0
 };
 
-static const httpd_uri_t experiment_get = {
-    .uri       = "/experiment",
-    .method    = HTTP_GET,
-    .handler   = experiment_get_handler,
-    .user_ctx = 0
-};
-
 static const httpd_uri_t experiment_put = {
     .uri       = "/experiment",
     .method    = HTTP_PUT,
-    .handler   = experiment_put_handler,
+    .handler   = experiment_handler,
     .user_ctx = 0
 };
 
@@ -273,7 +243,6 @@ static httpd_handle_t start_webserver(void)
         ESP_LOGI(TAG, "Registering URI handlers");
         httpd_register_uri_handler(server, &root);
         httpd_register_uri_handler(server, &fbd);
-        httpd_register_uri_handler(server, &experiment_get);
         httpd_register_uri_handler(server, &experiment_put);
         return server;
     }
@@ -372,7 +341,7 @@ void app_main(void)
 
     server = start_webserver(); 
 
-    //xTaskCreate(managementTask, "managementTask", 1024 * 2, NULL, 5, NULL);
+    //xTaskCreate(experimentTask, "experimentTask", 1024 * 2, NULL, 5, NULL);
     xTaskCreate(plcTask, "plcTask", 4096 * 4, NULL, 6, NULL);
     int i = 0;
 

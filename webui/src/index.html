@@ -104,110 +104,132 @@
       </symbol>
     </defs>
   </svg>
+  <div id="overall_ui_container">
+    <header>
+      <h1><svg class="icon icon-home">
+          <use xlink:href="#icon-home"></use>
+        </svg>&nbsp;Lab@Home Development Environment</h1>
+    </header>
+    <div id="nav_and_main_container">
+      <nav>
+        <a id="show_screen_dashboard" href="javascript:void(0)"><svg class="icon icon-home">
+            <use xlink:href="#icon-home"></use>
+          </svg>&nbsp;Dashboard</a>
+        <a id="show_screen_develop" href="javascript:void(0)"><svg class="icon icon-wrench">
+            <use xlink:href="#icon-make-group"></use>
+          </svg>&nbsp;Develop</a>
+        <a id="show_screen_experiment" href="javascript:void(0)"><svg class="icon icon-hammer">
+            <use xlink:href="#icon-binoculars"></use>
+          </svg>&nbsp;Experiment</a>
+      </nav>
+      <main>
+        <div id="screen_dashboard">
+          <p>Nothing to do here</p>
+        </div>
+        <div id="screen_experiment">
+          <form>
+            <label>Main Controls</label>
+            <div>
+              <label>
+                <input type="radio" name="experiment_mode" value="0" checked/>
+                <div class="functionblock box">
+                  <span>Functionblock</span>
+                </div>
+              </label>
+              
+              <label>
+                <input type="radio" name="experiment_mode" value="1"/>
+                <div class="openloop box">
+                  <span>Open Loop</span>
+                </div>
+              </label>
+              
+              <label>
+                <input type="radio" name="experiment_mode" value="2"/>
+                <div class="closedloop box">
+                  <span>Closed Loop</span>
+                </div>
+              </label>
+
+              <button id="experiment_butRecord" class="large" type="button">🔴</button>
+              <button id="experiment_butStop" class="large" type="button">⬛</button>
+              <button id="experiment_butDelete" class="large" type="button">🗑</button>
+            </div>
+            
+            <label class="experiment_openloopctrl">Heater Power [%]</label>
+            <div class="range-wrap experiment_openloopctrl">
+              <input type="range" id="experiment_inpSetpointHeater" min="0" max="100" value="0"/>
+              <output class="bubble"></output>
+            </div>  
+            
+            <label class="experiment_openloopctrl">Fan Power [%]</label>
+            <div class="range-wrap experiment_openloopctrl">
+              <input type="range" id="experiment_inpFanOL" min="0" max="100" value="0"/>
+              <output class="bubble"></output>
+            </div>  
+            
+  
+            
+            
+            <label class="experiment_closedloopctrl">Setp. Temp [°C]</label>
+            <div class="range-wrap experiment_closedloopctrl">
+              <input type="range" id="experiment_inpSetpointTemperature" min="0" max="80" value="0"/>
+              <output class="bubble"></output>
+            </div>  
+            
+
+            <label class="experiment_closedloopctrl">Fan Power [%]</label>
+            <div class="range-wrap experiment_closedloopctrl">
+              <input type="range" id="experiment_inpFanCL" min="0" max="100" value="0"/>
+              <output class="bubble"></output>
+            </div>  
+            
+
+            <label class="experiment_closedloopctrl">K_P</label>
+            <input class="experiment_closedloopctrl" type="number" id="experiment_inpKP" min="0" max="10" value="0"/>
+
+            <label class="experiment_closedloopctrl">K_I</label>
+            <input class="experiment_closedloopctrl" type="number" id="experiment_inpKI" min="0" max="10" value="0"/>
+
+            <label class="experiment_closedloopctrl">K_D</label>
+            <input class="experiment_closedloopctrl" type="number" id="experiment_inpKD" min="0" max="10" value="0"/>
+
+            
+
+          </form>
+          <div id="experiment_chart" style="height: 300px;" class="ct-chart ct-perfect-fourth"></div>
 
 
-  <header>
-    <h1>Lab@Home Development Environment</h1>
-    <i class="fa fa-warehouse"></i>
-  </header>
-
-  <nav id="navigation">
-    <a id="show_screen_dashboard" href="javascript:void(0)"><svg class="icon icon-home">
-        <use xlink:href="#icon-home"></use>
-      </svg>&nbsp;Dashboard</a>
-    <a id="show_screen_develop" href="javascript:void(0)"><svg class="icon icon-wrench">
-        <use xlink:href="#icon-make-group"></use>
-      </svg>&nbsp;Develop</a>
-    <a id="show_screen_experiment" href="javascript:void(0)"><svg class="icon icon-hammer">
-        <use xlink:href="#icon-make-group"></use>
-      </svg>&nbsp;Experiment</a>
-  </nav>
-
-  <main>
-    <div id="screen_dashboard" class="screen">
-      <p>ConnectionState: <span id="spnConnectionState"></span></p>
-      <div id="pButtons">
-        <button type="button" data-rel="1">Relais 1 on</button>
-        <button type="button" data-rel="0">Relais 1 off</button>
-        <div id="led1" style="display:inline-block;top:5px;width:20px; height:20px; background-color: black"></div>
-        <button type="button" data-rel="3">Relais 2 on</button>
-        <button type="button" data-rel="2">Relais 2 off</button>
-        <div id="led1" style="display:inline-block;top:5px;width:20px; height:20px; background-color: black"></div>
-        </p>
-        <p>
-        <table>
-          <tr>
-            <th>Parameter</th>
-            <th>Value</th>
-          </tr>
-          <tr>
-            <td>Name</td>
-            <td id="td_myName"></td>
-          </tr>
-          <tr>
-            <td>Temperature</td>
-            <td id="td_temperature"></td>
-          </tr>
-          <tr>
-            <td>Humidity</td>
-            <td id="td_humidity"></td>
-          </tr>
-          <tr>
-            <td>Heap</td>
-            <td id="td_heap"></td>
-          </tr>
-          <tr>
-            <td>Time</td>
-            <td id="td_time"></td>
-          </tr>
-        </table>
-        </p>
-      </div>
-    </div>
-    <div id="screen_experiment" class="screen">
-      <div class="container">
-        <div class="section">
-          <div class="content">
-            <input type="range" id="experiment_inpHeater" name="heater" min="0" max="100" value="0">
-            <label for="heater">Heater Power [%]</label>
-            <input type="range" id="experiment_inpFan" name="fan" min="0" max="100" value="0">
-            <label for="fan">Fan Power [%]</label>
-            <button id="experiment_butSet" type="button">Set on lab@home</button>
-            <button id="experiment_butRecord" type="button">⏺</button>
-            <button id="experiment_butStop" type="button">🛑</button>
-          </div>
-          <div id="experiment_chart" class="content"></div>
-
-          <div class="scrollable-content content">
             <table>
               <thead>
                 <tr>
-                  <th>Time [ms]</th>
+                  <th>Time [HH:MM:SS]</th>
+                  <th>Setpoint Temperature [°C]</th>
                   <th>Heater [%]</th>
                   <th>Fan [%]</th>
-                  <th>Temperature [°C]</th>
+                  <th>Actual Temperature [°C]</th>
+                </tr>
+                <tr id="experiment_tabFirstRow">
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
                 </tr>
               </thead>
               <tbody id="experiment_tabBody">
-                <tr>
-                  <td>0</td>
-                  <td>0%</td>
-                  <td>0%</td>
-                  <td>20.0</td>
-                </tr>
               </tbody>
-
             </table>
-          </div>
         </div>
-      </div>
+        <div id="screen_develop" class="screen"></div>
+        <div id="screen_reports" class="screen" style="background-color:beige; height:100%; width:100%;">
+          <div class="ct-chart"></div>
+        </div>
+      </main>
     </div>
-    <div id="screen_develop" class="screen"></div>
-    <div id="screen_reports" class="screen" style="background-color:beige; height:100%; width:100%;">
-      <div class="ct-chart"></div>
-    </div>
-  </main>
-  <footer>Klaus Liebler, Westfälische Hochschule &copy;2020</footer>
+    <footer>Klaus Liebler, Westfälische Hochschule &copy;2020</footer>
+  </div>
+
 
 
 </body>

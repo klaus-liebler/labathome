@@ -27,7 +27,10 @@ export class $
     }
 
     public static HtmlAsFirstChild(parent: Element, type:string,  attributes:string[], classes?: string[], textContent?:string):HTMLElement {
-        return parent.insertBefore(<HTMLElement>$.Elem($.HTMLNS, type, attributes, classes, textContent), parent.firstChild);
+        if(parent.firstChild)
+            return parent.insertBefore(<HTMLElement>$.Elem($.HTMLNS, type, attributes, classes, textContent), parent.firstChild);
+        else
+            return parent.appendChild(<HTMLElement>$.Elem($.HTMLNS, type, attributes, classes, textContent));
     }
 
     private static Elem(ns:string, type:string, attributes:string[], classes?: string[], textContent?:string):Element
