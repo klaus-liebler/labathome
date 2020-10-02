@@ -197,19 +197,23 @@
             
 
           </form>
-          <div id="experiment_chart" style="height: 300px;" class="ct-chart ct-perfect-fourth"></div>
+          <!-- <div id="experiment_chart" style="height: 300px;" class="ct-chart ct-perfect-fourth"></div>-->
+          <div style="height: 300px; width: 100%;"><canvas id="experiment_chart" style="height: 300px; width: 100%;" ></canvas></div>
 
 
             <table>
               <thead>
                 <tr>
                   <th>Time [HH:MM:SS]</th>
+                  <th>Time [seconds]</th>
                   <th>Setpoint Temperature [°C]</th>
+                  <th>Actual Temperature [°C]</th>
                   <th>Heater [%]</th>
                   <th>Fan [%]</th>
-                  <th>Actual Temperature [°C]</th>
+                 
                 </tr>
                 <tr id="experiment_tabFirstRow">
+                  <td></td>
                   <td></td>
                   <td></td>
                   <td></td>

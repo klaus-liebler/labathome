@@ -1,2 +1,3 @@
 **/node_modules
 webui/dist
+webui/dist_compressed
