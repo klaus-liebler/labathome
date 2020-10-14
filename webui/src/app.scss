@@ -1,5 +1,6 @@
 @import "./chartist.scss";
-@import "./flowchart.scss";
+@import "./dialog.scss";
+@import "./flowchart/flowchart.scss";
 
 body {
   overflow: hidden;
@@ -88,10 +89,6 @@ main > div{
     stroke-width: 0;
     stroke: currentColor;
     fill: currentColor;
-  }
-
-  .icon-connection {
-    width: 1.25em;
   }
 
   table {

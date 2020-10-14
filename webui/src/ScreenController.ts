@@ -1,3 +1,5 @@
+import { AppManagement } from "./AppManagement";
+
 export enum ControllerState {
     CREATED,
     STARTED,
@@ -6,7 +8,7 @@ export enum ControllerState {
 
 export abstract class ScreenController {
     private state: ControllerState;
-    constructor(protected div: HTMLDivElement) {
+    constructor(protected appManagement:AppManagement, protected div: HTMLDivElement) {
         this.hideDIV();
         this.state = ControllerState.CREATED;
     }

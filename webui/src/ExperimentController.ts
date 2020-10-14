@@ -1,7 +1,8 @@
 import { $ } from "./Utils";
 import Chart from 'chart.js';
-import { SerializeContext } from "./SerializeContext";
 import { ScreenController } from "./ScreenController";
+import { AppManagement } from "./AppManagement";
+import { SerializeContext } from "./flowchart/SerializeContext";
 
 export let DE_de = new Intl.NumberFormat('de-DE');
 export const CHART_EACH_INTERVAL = 2;
@@ -111,7 +112,7 @@ export class ExperimentController extends ScreenController {
 
         let xhr = new XMLHttpRequest;
         xhr.onerror = (e) => { console.log("Fehler beim XMLHttpRequest!"); };
-        xhr.open("PUT", "/experiment", true);
+        xhr.open("PUT", "/heaterexperiment", true);
         xhr.responseType = "arraybuffer";
         xhr.onload = (e) => {
             let SetpointTemperature: number, Heater: number, Fan: number, ActualTemperature: number;
@@ -176,8 +177,8 @@ export class ExperimentController extends ScreenController {
         xhr.send(ctx.getResult());
     }
 
-    constructor(public div: HTMLDivElement) {
-        super(div);
+    constructor(appManagement:AppManagement, div: HTMLDivElement) {
+        super(appManagement, div);
         this.butRecord = <HTMLButtonElement>document.getElementById("experiment_butRecord")!;
         this.butStop = <HTMLButtonElement>document.getElementById("experiment_butStop")!;
         this.butStop.hidden = true;

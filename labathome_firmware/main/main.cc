@@ -9,27 +9,25 @@
 #include "esp_adc_cal.h"
 #include <esp_wifi.h>
 #include <esp_event.h>
-
 #include <sys/param.h>
 #include <nvs_flash.h>
 #include <esp_netif.h>
 #include <protocol_examples_common.h>
 #include <esp_http_server.h>
-
+#include "http_handlers.hh"
 static const char *TAG = "main";
 #include "HAL.hh"
 #include "functionblocks.hh"
 #include "WS2812.hh"
 #include "esp_log.h"
-
+#include "spiffs.hh"
 
 #include "HAL_labathomeV5.hh"
 HAL *hal = new HAL_labathomeV5(MODE_IO33::SERVO2, MODE_MULTI1_PIN::EXT, MODE_MULTI_2_3_PINS::EXT);
 //#include "HAL_wroverkit.hh"
 //HAL *hal = new HAL_wroverkit();
 
-PLCManager *manager = new PLCManager(hal);
-
+PLCManager *plcmanager = new PLCManager(hal);
 
 extern "C"
 {
@@ -38,27 +36,6 @@ extern "C"
     void plcTask(void *);
 }
 
-
-// Perform an action every 10 ticks.
-void experimentTask(void *pvParameters)
-{
-
-    TickType_t xLastWakeTime;
-    const TickType_t xFrequency = 10;
-
-    // Initialise the xLastWakeTime variable with the current time.
-    xLastWakeTime = xTaskGetTickCount();
-
-    while (true)
-    {
-        // Wait for the next cycle.
-        vTaskDelayUntil(&xLastWakeTime, xFrequency);
-
-    }
-    
-}
-
-// Main PLC Task
 void plcTask(void *pvParameters)
 {
     ESP_LOGI(TAG, "plcTask started");
@@ -66,189 +43,104 @@ void plcTask(void *pvParameters)
     const TickType_t xFrequency = 10;
     // Initialise the xLastWakeTime variable with the current time.
     xLastWakeTime = xTaskGetTickCount();
+    plcmanager->Init();
     while (true)
     {
         // Wait for the next cycle.
         vTaskDelayUntil(&xLastWakeTime, xFrequency);
         ESP_LOGD(TAG, "CheckForNewExecutable");
-        manager->CheckForNewExecutable();
+        plcmanager->CheckForNewExecutable();
         ESP_LOGD(TAG, "BeforeLoop");
         hal->BeforeLoop();
         ESP_LOGD(TAG, "Loop");
-        manager->Loop();
+        plcmanager->Loop();
         ESP_LOGD(TAG, "AfterLoop");
         hal->AfterLoop();
     }
 }
 
-/* This handler allows the custom error handling functionality to be
- * tested from client side. For that, when a PUT request 0 is sent to
- * URI /ctrl, the /hello and /echo URIs are unregistered and following
- * custom error handler http_404_error_handler() is registered.
- * Afterwards, when /hello or /echo is requested, this custom error
- * handler is invoked which, after sending an error message to client,
- * either closes the underlying socket (when requested URI is /echo)
- * or keeps it open (when requested URI is /hello). This allows the
- * client to infer if the custom error handler is functioning as expected
- * by observing the socket state.
- */
-esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
-{
-    if (strcmp("/hello", req->uri) == 0) {
-        httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "/hello URI is not available");
-        /* Return ESP_OK to keep underlying socket open */
-        return ESP_OK;
-    } else if (strcmp("/echo", req->uri) == 0) {
-        httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "/echo URI is not available");
-        /* Return ESP_FAIL to close underlying socket */
-        return ESP_FAIL;
-    }
-    /* For any other URI send 404 and close socket */
-    httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "Some 404 error message");
-    return ESP_FAIL;
-}
 
-
-
-extern const char index_html_gz_start[] asm("_binary_index_html_gz_start");
-extern const char index_html_gz_end[] asm("_binary_index_html_gz_end");
-extern const size_t index_html_gz_size asm("index_html_gz_length");
-
-static esp_err_t root_get_handler(httpd_req_t *req)
-{
-    httpd_resp_set_type(req, "text/html");
-    httpd_resp_set_hdr(req, "Content-Encoding", "gzip");
-    httpd_resp_send(req, index_html_gz_start, index_html_gz_size); // -1 = use strlen()
-
-    return ESP_OK;
-}
-
-const size_t MAX_FDB_BUFFER = 8192;
-static esp_err_t fbd_put_handler(httpd_req_t *req)
-{    
-    int ret=0;
-    int remaining = req->content_len;
-    if(remaining>=MAX_FDB_BUFFER)
-        return ESP_FAIL;
-    ESP_LOGI(TAG, "fbd_put_handler, expecting %d bytes of data", remaining);
-    uint8_t buf[remaining];
-    while (remaining > 0) {
-        /* Read the data for the request */
-        if ((ret = httpd_req_recv(req, (char*)buf,  MIN(remaining, sizeof(buf)))) <= 0) {
-            if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
-                /* Retry receiving if timeout occurred */
-                continue;
-            }
-            return ESP_FAIL;
-        }
-        remaining -= ret;
-    }
-    // End response
-    uint32_t *buf32 = (uint32_t*)buf;
-    printf("Received Buffer:\n");
-    for(size_t i= 0; i<(req->content_len/4); i++)
-    {
-        printf("0x%08x ",buf32[i]);
-    }
-    printf("\n");
-    manager->ParseNewExecutableAndEnqueue((uint8_t*)buf, req->content_len);
-    httpd_resp_send_chunk(req, NULL, 0);
-    return ESP_OK;
-}
-/*
-Structure Client-->Server
-
-*/
-
-static esp_err_t experiment_handler(httpd_req_t *req)
-{    
-    int ret=0;
-    int remaining = req->content_len;
-    if(remaining!=24){
-        ESP_LOGE(TAG, "Unexpected Data length %d in experiment_put_handler", remaining);
-        return ESP_FAIL;
-    }
-    uint8_t buf[remaining];
-    while (remaining > 0) {
-        /* Read the data for the request */
-        if ((ret = httpd_req_recv(req, (char*)buf,  MIN(remaining, sizeof(buf)))) <= 0) {
-            if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
-                /* Retry receiving if timeout occurred */
-                continue;
-            }
-            return ESP_FAIL;
-        }
-        remaining -= ret;
-    }
-    // End response
-    float *bufF32 = (float*)buf;
-    uint32_t *bufU32 = (uint32_t*)buf;
-    uint32_t modeU32 = bufU32[0];
-    float setpointTempOrHeater = bufF32[1];
-    float setpointFan = bufF32[2];
-    float KP = bufF32[3];
-    float KI = bufF32[4];
-    float KD = bufF32[5];
-    
-    ESP_LOGI(TAG, "Set mode %d and setpointTorH %F and Setpoint Fan %F", modeU32, setpointTempOrHeater, setpointFan);
-    ExperimentData returnData;
-    switch (modeU32)
-    {
-    case 0: manager->TriggerHeaterExperimentFunctionblock(&returnData); break;
-    case 1: manager->TriggerHeaterExperimentOpenLoop(setpointTempOrHeater, setpointFan, &returnData); break;
-    case 2: manager->TriggerHeaterExperimentClosedLoop(setpointTempOrHeater, setpointFan, KP, KI, KD, &returnData); break;
-    default:break;
-    }
-    
-    httpd_resp_set_type(req, "application/octet-stream");
-    float retbuf[4];
-    retbuf[0]=returnData.SetpointTemperature;
-    retbuf[1]=returnData.Heater;
-    retbuf[2]=returnData.Fan;
-    retbuf[3]=returnData.ActualTemperature;
-    httpd_resp_send(req, (const char*)retbuf, 16);
-    return ESP_OK;
-}
-
-static const httpd_uri_t root = {
+static const httpd_uri_t getroot = {
     .uri       = "/",
     .method    = HTTP_GET,
-    .handler   = root_get_handler,
-    .user_ctx = 0
+    .handler   = handle_get_root,
+    .user_ctx = plcmanager,
 };
 
-static const httpd_uri_t fbd = {
+static const httpd_uri_t putfbd = {
     .uri       = "/fbd",
     .method    = HTTP_PUT,
-    .handler   = fbd_put_handler,
-    .user_ctx = 0
+    .handler   = handle_put_fbd,
+    .user_ctx = plcmanager,
 };
 
-static const httpd_uri_t experiment_put = {
-    .uri       = "/experiment",
+static const httpd_uri_t getfbd = {
+    .uri       = "/fbd",
+    .method    = HTTP_GET,
+    .handler   = handle_get_fbd,
+    .user_ctx = plcmanager,
+};
+
+static const httpd_uri_t getfbdstorejson = {
+    .uri       = "/fbdstorejson/*",
+    .method    = HTTP_GET,
+    .handler   = handle_get_fbdstorejson,
+    .user_ctx = plcmanager,
+};
+
+static const httpd_uri_t postfbdstorejson = {
+    .uri       = "/fbdstorejson/*",
+    .method    = HTTP_POST,
+    .handler   = handle_post_fbdstorejson,
+    .user_ctx = plcmanager,
+};
+
+static const httpd_uri_t postfbdstorejson = {
+    .uri       = "/fbdstorejson/*",
+    .method    = HTTP_DELETE,
+    .handler   = handle_delete_fbdstorejson,
+    .user_ctx = plcmanager,
+};
+
+static const httpd_uri_t postfbddefaultbin = {
+    .uri       = "/fbddefaultbin",
+    .method    = HTTP_POST,
+    .handler   = handle_post_fbddefaultbin,
+    .user_ctx = plcmanager,
+};
+
+static const httpd_uri_t postfbddefaultjson = {
+    .uri       = "/fbddefaultjson",
+    .method    = HTTP_POST,
+    .handler   = handle_post_fbddefaultjson,
+    .user_ctx = plcmanager,
+};
+
+static const httpd_uri_t putheaterexperiment = {
+    .uri       = "/heaterexperiment",
     .method    = HTTP_PUT,
-    .handler   = experiment_handler,
-    .user_ctx = 0
+    .handler   = handle_put_heaterexperiment,
+    .user_ctx = plcmanager,
 };
 
 static httpd_handle_t start_webserver(void)
 {
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-
+    config.uri_match_fn = httpd_uri_match_wildcard;
     // Start the httpd server
     ESP_LOGI(TAG, "Starting server on port: '%d'", config.server_port);
-    if (httpd_start(&server, &config) == ESP_OK) {
-        // Set URI handlers
-        ESP_LOGI(TAG, "Registering URI handlers");
-        httpd_register_uri_handler(server, &root);
-        httpd_register_uri_handler(server, &fbd);
-        httpd_register_uri_handler(server, &experiment_put);
-        return server;
+    if (httpd_start(&server, &config) != ESP_OK) {
+        ESP_LOGE(TAG, "Error starting server!");
+        esp_restart();
     }
-
-    ESP_LOGI(TAG, "Error starting server!");
-    return NULL;
+    httpd_register_uri_handler(server, &getroot);
+    httpd_register_uri_handler(server, &putfbd);
+    httpd_register_uri_handler(server, &putexperiment);
+    httpd_register_uri_handler(server, &getfbdstorejson);
+    httpd_register_uri_handler(server, &postfbdstorebin);
+    httpd_register_uri_handler(server, &postfbdstorejson);
+    return server;
 }
 
 static void stop_webserver(httpd_handle_t server)
@@ -325,7 +217,7 @@ void app_main(void)
     printf("=======================================================\n");
 
     esp_log_level_set(TAG, ESP_LOG_INFO);
-
+    ESP_ERROR_CHECK(SpiffsManager::Init());
     LAB_ERROR_CHECK(hal->Init());
 
 
@@ -336,8 +228,6 @@ void app_main(void)
     ESP_ERROR_CHECK(example_connect());
     ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &connect_handler, &server));
     ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &disconnect_handler, &server));
-
-
 
     server = start_webserver(); 
 

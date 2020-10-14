@@ -12,9 +12,10 @@
 #include <driver/adc.h>
 #include <driver/i2c.h>
 #include <driver/rmt.h>
-
-#include "WS2812.hh"
 #include "labathomeerror.hh"
+#include "WS2812.hh"
+#include <bh1750.hh>
+#include <bme280.hh>
 
 typedef gpio_num_t Pintype;
 
@@ -97,6 +98,7 @@ constexpr size_t LED_NUMBER = 8;
 constexpr rmt_channel_t CHANNEL_WS2812 = RMT_CHANNEL_0;
 constexpr rmt_channel_t CHANNEL_ONEWIRE_TX = RMT_CHANNEL_1;
 constexpr rmt_channel_t CHANNEL_ONEWIRE_RX = RMT_CHANNEL_2;
+constexpr i2c_port_t I2C_PORT = I2C_NUM_1;
 constexpr uint32_t  DEFAULT_VREF        = 1100; //Use adc2_vref_to_gpio() to obtain a better estimate
 constexpr uint16_t sw_limits[7] = {160, 480, 1175, 1762, 2346, 2779, 3202};
 constexpr int SERVO_MIN_PULSEWIDTH = 500;  //Minimum pulse width in microsecond
@@ -116,15 +118,25 @@ private:
     bool needLedStripUpdate = false;
     int buttonState = 0;
     
+    
+    float lastHeaterTemperature=0.0;
     int64_t nextOneWireReadout = INT64_MAX;
-    float lastTemperature=0.0;
 
+    float lastAmbientBrightness = 0.0;
+    int64_t nextBH1750Readout = INT64_MAX;
+
+    float lastAmbientTempDegCel=0.0;
+    float lastPressurePa=0.0;
+    float lastRelHumidityPercent=0.0;
+    int64_t nextBME280Readout = INT64_MAX;
+    uint32_t bme280ReadoutInterval = UINT32_MAX;
 
     WS2812_Strip<LED_NUMBER> *strip=NULL;
     
     owb_rmt_driver_info rmt_driver_info;
     OneWireBus *owb=NULL;
     DS18B20_Info *ds18b20_info=NULL;
+    BME280* bme280 = new BME280(I2C_PORT, BME280_ADRESS::PRIM); 
 public:
 
 
@@ -146,9 +158,29 @@ public:
 
     LabAtHomeErrorCode GetHeaterTemperature(float * degrees)
     {
-        *degrees= this->lastTemperature;
+        *degrees= this->lastHeaterTemperature;
         return LabAtHomeErrorCode::OK;
     }
+
+    LabAtHomeErrorCode GetAmbientBrightness(float *lux)
+    {
+        *lux=this->lastAmbientBrightness;
+        return LabAtHomeErrorCode::OK;
+    }
+
+    static esp_err_t i2c_master_init(void){
+        
+        i2c_config_t conf;
+        conf.mode = I2C_MODE_MASTER;
+        conf.sda_io_num = PIN_I2C_SDA;
+        conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
+        conf.scl_io_num = PIN_I2C_SCL;
+        conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
+        conf.master.clk_speed = 100000;
+        i2c_param_config(I2C_PORT, &conf);
+        return i2c_driver_install(I2C_PORT, conf.mode, 0, 0, 0);
+    }
+
 
     LabAtHomeErrorCode Init()
     {
@@ -194,7 +226,7 @@ public:
         owb_status status = owb_read_rom(owb, &rom_code);
         if (status == OWB_STATUS_OK)
         {
-            ESP_LOGI(TAG, "Single device  present");
+            
             this->ds18b20_info=ds18b20_malloc();  // heap allocation
             ds18b20_init_solo(ds18b20_info, owb);          // only one device on bus
             ds18b20_use_crc(ds18b20_info, true);           // enable CRC check on all reads
@@ -205,6 +237,37 @@ public:
         else
         {
             ESP_LOGE(TAG, "An error occurred reading ROM code: %d", status);
+        }
+
+        //I2C
+        ESP_ERROR_CHECK(i2c_master_init());
+        //BME280
+        if(bme280->Init(&bme280ReadoutInterval)==ESP_OK)
+        {
+            bme280ReadoutInterval*=2;
+            vTaskDelay(bme280ReadoutInterval / portTICK_RATE_MS);
+            bme280->GetDataAndPrepareNextMeasurement(&this->lastAmbientTempDegCel, &this->lastPressurePa, &this->lastRelHumidityPercent);
+            ESP_LOGI(TAG, "BME280 successfully initialized.");
+            nextBME280Readout=GetMillis()+bme280ReadoutInterval;
+        }
+        else
+        {
+            ESP_LOGW(TAG, "BME280 not found");
+        }
+        
+        
+
+        //BH1750
+        if(BH1750::Command(I2C_NUM_1, BH1750_ADRESS::LOW, BH1750_OPERATIONMODE::ONETIME_L_RESOLUTION)==ESP_OK)
+        {
+            vTaskDelay(30 / portTICK_RATE_MS);
+            BH1750::Read(I2C_NUM_1, BH1750_ADRESS::LOW, &(this->lastAmbientBrightness));
+            BH1750::Command(I2C_NUM_1, BH1750_ADRESS::LOW, BH1750_OPERATIONMODE::ONETIME_L_RESOLUTION);
+            ESP_LOGI(TAG, "BH1750 successfully initialized. Brightness is %f", this->lastAmbientBrightness);
+            nextBH1750Readout=GetMillis()+300;
+        }
+        else{
+            ESP_LOGW(TAG, "BH1750 not found");
         }
         
  
@@ -300,9 +363,22 @@ public:
         int32_t ms = GetMillis();
         if (ms > nextOneWireReadout)
         {
-            ds18b20_read_temp(ds18b20_info, &(this->lastTemperature));
+            ds18b20_read_temp(ds18b20_info, &(this->lastHeaterTemperature));
             ds18b20_convert_all(owb);
             nextOneWireReadout = GetMillis()+1000;
+        }
+
+        if(ms>nextBH1750Readout)
+        {
+            BH1750::Read(I2C_NUM_1, BH1750_ADRESS::LOW, &(this->lastAmbientBrightness));
+            BH1750::Command(I2C_NUM_1, BH1750_ADRESS::LOW, BH1750_OPERATIONMODE::ONETIME_L_RESOLUTION);
+            nextBH1750Readout=GetMillis()+500;
+        }
+
+        if(ms>nextBME280Readout)
+        {
+            bme280->GetDataAndPrepareNextMeasurement(&this->lastAmbientTempDegCel, &this->lastPressurePa, &this->lastRelHumidityPercent);
+            nextBME280Readout=GetMillis()+bme280ReadoutInterval;
         }
         return LabAtHomeErrorCode::OK;
     }

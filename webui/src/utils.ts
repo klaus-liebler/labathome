@@ -22,6 +22,17 @@ export class $
         return  parent.appendChild(<SVGElement>$.Elem($.SVGNS, type, attributes, classes));
     }
 
+
+    //<svg class="icon icon-wastebasket"><use xlink:href="#icon-wastebasket"></use></svg>
+    public static SvgIcon(parent: Element, iconname:string):SVGSVGElement
+    {
+        let svg = <SVGSVGElement>$.Svg(parent, "svg", [], ["icon", "icon-"+iconname]);
+        let use =$.Svg(svg, "use", [], []);
+        use.setAttributeNS(this.XLINKNS, "href", "#icon-"+iconname);
+        parent.appendChild(svg);
+        return svg;
+    }
+
     public static Html(parent: Element, type:string,  attributes:string[], classes?: string[], textContent?:string):HTMLElement {
         return parent.appendChild(<HTMLElement>$.Elem($.HTMLNS, type, attributes, classes, textContent));
     }

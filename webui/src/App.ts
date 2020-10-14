@@ -1,14 +1,16 @@
 import { ExperimentController } from "./ExperimentController";
 import { ScreenController, ControllerState } from "./ScreenController";
 import { DevelopCFCController } from "./DevelopCFCController";
+import { DialogController } from "./DialogController";
+import { AppManagement } from "./AppManagement";
 
 class DashboardController extends ScreenController {
     public onFirstStart(): void { }
     public onRestart(): void { }
     public onStop(): void { }
     public onCreate() { }
-    constructor(public div: HTMLDivElement) {
-        super(div);
+    constructor(appManagement:AppManagement, div: HTMLDivElement) {
+        super(appManagement, div);
     }
 
 }
@@ -17,8 +19,8 @@ class ReportsController extends ScreenController {
     public onFirstStart(): void { }
     public onRestart(): void { }
     public onStop(): void { }
-    constructor(public div: HTMLDivElement) {
-        super(div);
+    constructor(appManagement:AppManagement, div: HTMLDivElement) {
+        super(appManagement, div);
     }
     public onCreate() {
         return;
@@ -28,11 +30,14 @@ class ReportsController extends ScreenController {
 
 
 
-class AppController {
+class AppController implements AppManagement {
 
     private stateDiv: HTMLDivElement;
     private activeControllerIndex: number;
     private screenControllers: ScreenController[];
+    private dialogController:DialogController;
+
+    public DialogController() { return this.dialogController; };
 
 
 
@@ -40,6 +45,7 @@ class AppController {
         this.stateDiv = <HTMLDivElement>document.getElementById("spnConnectionState")!;
         this.screenControllers = [];
         this.activeControllerIndex = 0;
+        this.dialogController=new DialogController(this);
     }
 
     private SetApplicationState(state: string) {
@@ -71,13 +77,14 @@ class AppController {
     }
 
     public startup() {
-        this.screenControllers.push(new DashboardController(<HTMLDivElement>document.getElementById("screen_dashboard")));
-        this.screenControllers.push(new DevelopCFCController(<HTMLDivElement>document.getElementById("screen_develop")));
-        this.screenControllers.push(new ReportsController(<HTMLDivElement>document.getElementById("screen_reports")));
-        this.screenControllers.push(new ExperimentController(<HTMLDivElement>document.getElementById("screen_experiment")));
+        this.dialogController.init();
+        this.screenControllers.push(new DashboardController(this, <HTMLDivElement>document.getElementById("screen_dashboard")));
+        this.screenControllers.push(new DevelopCFCController(this, <HTMLDivElement>document.getElementById("screen_develop")));
+        this.screenControllers.push(new ReportsController(this, <HTMLDivElement>document.getElementById("screen_reports")));
+        this.screenControllers.push(new ExperimentController(this, <HTMLDivElement>document.getElementById("screen_experiment")));
         this.screenControllers.forEach((sc) => sc.onCreate());
 
-        this.setActiveScreen(0);
+        this.setActiveScreen(1);
         let id2index = new Map<string, number>();
         this.screenControllers.forEach((value, index) => { id2index.set("show_" + value.ElementId, index) })
         document.querySelectorAll<HTMLAnchorElement>("nav a").forEach((a: HTMLAnchorElement) => {

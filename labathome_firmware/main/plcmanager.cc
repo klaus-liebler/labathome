@@ -4,10 +4,11 @@
 #include "labathomeerror.hh"
 #include <vector>
 #include "PID_v1.h"
+#include "paths_and_files.hh"
+#include <math.h>
 
 constexpr int64_t TRIGGER_FALLBACK_TIME = 3000000;
-
-static const char *TAG = "plcmanager";
+constexpr const char *TAG = "plcmanager";
 
 #define SetBit(A, k) (A[(k / 32)] |= (1 << (k % 32)))
 #define ClearBit(A, k) (A[(k / 32)] &= ~(1 << (k % 32)))
@@ -35,7 +36,7 @@ bool PLCManager::IsDoubleAvailable(size_t index)
 
 bool PLCManager::IsIntegerAvailable(size_t index)
 {
-    return false;
+    return index < this->currentExecutable->integers.size();
 }
 
 LabAtHomeErrorCode PLCManager::SetBinary(size_t index, bool value)
@@ -49,10 +50,28 @@ LabAtHomeErrorCode PLCManager::SetBinary(size_t index, bool value)
     return LabAtHomeErrorCode::INDEX_OUT_OF_BOUNDS;
 }
 
+LabAtHomeErrorCode PLCManager::SetInteger(size_t index, int value)
+{
+
+    if (index < this->currentExecutable->integers.size())
+    {
+        this->currentExecutable->integers[index] = value;
+        return LabAtHomeErrorCode::OK;
+    }
+    return LabAtHomeErrorCode::INDEX_OUT_OF_BOUNDS;
+}
+
 bool PLCManager::GetBinary(size_t index)
 {
     bool x = false;
     GetBinaryAsPointer(index, &x);
+    return x;
+}
+
+int PLCManager::GetInteger(size_t index)
+{
+    int x = 0;
+    GetIntegerAsPointer(index, &x);
     return x;
 }
 
@@ -62,6 +81,17 @@ LabAtHomeErrorCode PLCManager::GetBinaryAsPointer(size_t index, bool *value)
     if (index < this->currentExecutable->binaries.size())
     {
         *value = this->currentExecutable->binaries[index];
+        return LabAtHomeErrorCode::OK;
+    }
+    return LabAtHomeErrorCode::INDEX_OUT_OF_BOUNDS;
+}
+
+LabAtHomeErrorCode PLCManager::GetIntegerAsPointer(size_t index, int *value)
+{
+
+    if (index < this->currentExecutable->integers.size())
+    {
+        *value = this->currentExecutable->integers[index];
         return LabAtHomeErrorCode::OK;
     }
     return LabAtHomeErrorCode::INDEX_OUT_OF_BOUNDS;
@@ -83,13 +113,20 @@ public:
     const uint8_t *buf;
     size_t maxOffset;
     size_t byteOffset;
-    uint32_t ReadUint32()
+    uint32_t ReadU32()
     {
         uint32_t val = *((uint32_t *)(buf + byteOffset));
         byteOffset += 4;
         return val;
     }
-    LabAtHomeErrorCode ReadUint8Array(uint8_t *target, size_t len)
+
+    int32_t ReadS32()
+    {
+        int32_t val = *((int32_t *)(buf + byteOffset));
+        byteOffset += 4;
+        return val;
+    }
+    LabAtHomeErrorCode ReadU8Array(uint8_t *target, size_t len)
     {
         for (size_t i = 0; i < len; i++)
         {
@@ -107,86 +144,129 @@ LabAtHomeErrorCode PLCManager::ParseNewExecutableAndEnqueue(const uint8_t  *buff
     ctx->byteOffset = 0;
     ctx->maxOffset=length;
 
-    const uint32_t dataStructureVersion = ctx->ReadUint32();
-
-    uint8_t uuid[16];
-    ctx->ReadUint8Array(uuid, 16);
+    const uint32_t dataStructureVersion = ctx->ReadU32();
+    if(dataStructureVersion!=0xAFFECAFE) return LabAtHomeErrorCode::INCOMPATIBLE_VERSION;
+    
+    uint8_t guid[16];
+    ctx->ReadU8Array(guid, 16);
 
     //BOOLEAN=0,
     //INTEGER=1,
     //FLOAT=2,
     //COLOR=3,
-    const uint32_t booleansCount = ctx->ReadUint32();
-    const uint32_t integersCount = ctx->ReadUint32();
-    const uint32_t floatsCount = ctx->ReadUint32();
-    const uint32_t colorsCount = ctx->ReadUint32();
-
-    const uint32_t operatorsCount = ctx->ReadUint32();
+    const uint32_t booleansCount = ctx->ReadU32();
+    const uint32_t integersCount = ctx->ReadU32();
+    const uint32_t floatsCount = ctx->ReadU32();
+    const uint32_t colorsCount = ctx->ReadU32();
+    const uint32_t operatorsCount = ctx->ReadU32();
+    
     std::vector<FunctionBlock *> functionBlocks(operatorsCount);
 
     for (size_t cfgIndex = 0; cfgIndex < operatorsCount; cfgIndex++)
     {
-        const uint32_t operatorType = ctx->ReadUint32();
+        const uint32_t operatorType = ctx->ReadU32();
         switch (operatorType)
         {
         case 1:
         {
             ESP_LOGI(TAG, "Found FB_AND2");
-            functionBlocks[cfgIndex] = new FB_AND2(ctx->ReadUint32(), ctx->ReadUint32(), ctx->ReadUint32(), ctx->ReadUint32());
+            functionBlocks[cfgIndex] = new FB_AND2(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
         }
         break;
         case 2:
         {
             ESP_LOGI(TAG, "Found FB_OR2");
-            functionBlocks[cfgIndex] = new FB_OR2(ctx->ReadUint32(), ctx->ReadUint32(), ctx->ReadUint32(), ctx->ReadUint32());
+            functionBlocks[cfgIndex] = new FB_OR2(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
         }
         break;
         case 7:
         {
             ESP_LOGI(TAG, "FOUND FB_RS");
-            functionBlocks[cfgIndex] = new FB_RS(ctx->ReadUint32(), ctx->ReadUint32(), ctx->ReadUint32(), ctx->ReadUint32());
+            functionBlocks[cfgIndex] = new FB_RS(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
         }
         break;
         case 8:
         {
             ESP_LOGI(TAG, "FOUND FB_NOT");
-            functionBlocks[cfgIndex] = new FB_NOT(ctx->ReadUint32(), ctx->ReadUint32(), ctx->ReadUint32());
+            functionBlocks[cfgIndex] = new FB_NOT(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
         }
         break;
         case 9:
         {
             ESP_LOGI(TAG, "FOUND FB_GreenButton");
-            functionBlocks[cfgIndex] = new FB_GreenButton(ctx->ReadUint32(), ctx->ReadUint32());
+            functionBlocks[cfgIndex] = new FB_GreenButton(ctx->ReadU32(), ctx->ReadU32());
         }
         break;
         case 10:
         {
             ESP_LOGI(TAG, "FOUND FB_EncoderButton");
-            functionBlocks[cfgIndex] = new FB_EncoderButton(ctx->ReadUint32(), ctx->ReadUint32());
+            functionBlocks[cfgIndex] = new FB_EncoderButton(ctx->ReadU32(), ctx->ReadU32());
         }
         break;
         case 11:
         {
             ESP_LOGI(TAG, "FOUND FB_RedButton");
-            functionBlocks[cfgIndex] = new FB_RedButton(ctx->ReadUint32(), ctx->ReadUint32());
+            functionBlocks[cfgIndex] = new FB_RedButton(ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
+        case 12:
+        {
+            ESP_LOGI(TAG, "FOUND FB_MovementSensor");
+            functionBlocks[cfgIndex] = new FB_MovementSensor(ctx->ReadU32(), ctx->ReadU32());
         }
         break;
         case 15:
         {
             ESP_LOGI(TAG, "FOUND FB_RedLED");
-            functionBlocks[cfgIndex] = new FB_RedLED(ctx->ReadUint32(), ctx->ReadUint32());
+            functionBlocks[cfgIndex] = new FB_RedLED(ctx->ReadU32(), ctx->ReadU32());
         }
         break;
         case 16:
         {
             ESP_LOGI(TAG, "FOUND FB_YellowLED");
-            functionBlocks[cfgIndex] = new FB_YellowLED(ctx->ReadUint32(), ctx->ReadUint32());
+            functionBlocks[cfgIndex] = new FB_YellowLED(ctx->ReadU32(), ctx->ReadU32());
         }
         break;
         case 17:
         {
             ESP_LOGI(TAG, "FOUND FB_GreenLED");
-            functionBlocks[cfgIndex] = new FB_GreenLED(ctx->ReadUint32(), ctx->ReadUint32());
+            functionBlocks[cfgIndex] = new FB_GreenLED(ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
+        case 19:
+        {
+            ESP_LOGI(TAG, "FOUND FB_ConstInteger");
+            functionBlocks[cfgIndex] = new FB_ConstInteger(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadS32());
+        }
+        break;
+        case 20:
+        {
+            ESP_LOGI(TAG, "FOUND FB_TON");
+            functionBlocks[cfgIndex] = new FB_TON(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
+        case 22:
+        {
+            ESP_LOGI(TAG, "FOUND FB_GT");
+            functionBlocks[cfgIndex] = new FB_GT(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
+        case 23:
+        {
+            ESP_LOGI(TAG, "FOUND FB_LT");
+            functionBlocks[cfgIndex] = new FB_LT(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
+        case 24:
+        {
+            ESP_LOGI(TAG, "FOUND FB_AmbientBrigthnessSensor");
+            functionBlocks[cfgIndex] = new FB_AmbientBrigthnessSensor(ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
+        case 25:
+        {
+            ESP_LOGI(TAG, "FOUND FB_HeaterTemperatureSensor");
+            functionBlocks[cfgIndex] = new FB_HeaterTemperatureSensor(ctx->ReadU32(), ctx->ReadU32());
         }
         break;
         default:
@@ -206,8 +286,11 @@ LabAtHomeErrorCode PLCManager::ParseNewExecutableAndEnqueue(const uint8_t  *buff
     std::vector<int> integers(integersCount);
     std::vector<double> floats(floatsCount);
     std::vector<uint32_t> colors(colorsCount);
+
+    size_t debugSizeBytes = 4*(ceil(booleansCount/32.0)+integersCount+floatsCount+colorsCount);
     
-    this->nextExecutable = new Executable(functionBlocks, binaries, integers, floats, colors);
+    
+    this->nextExecutable = new Executable(guid, debugSizeBytes, functionBlocks, binaries, integers, floats, colors);
     ESP_LOGI(TAG, "Created new executable and enqueued it");
     return LabAtHomeErrorCode::OK;
 }
@@ -216,16 +299,96 @@ Executable *PLCManager::createInitialExecutable()
 {
     FB_RedButton *button_red = new FB_RedButton(0,2);
     FB_RedLED *led_red = new FB_RedLED(1,2);
+    const uint32_t booleansCount = 3;
+    const uint32_t integersCount = 2;
+    const uint32_t floatsCount = 2;
+    const uint32_t colorsCount = 2;
     
     std::vector<FunctionBlock *> functionBlocks(2);
-    std::vector<bool> binaries(3);
-    std::vector<int> integers(1);
-    std::vector<double> floats(1);
-    std::vector<uint32_t> colors(1);
+    std::vector<bool> binaries(booleansCount);
+    std::vector<int> integers(integersCount);
+    std::vector<double> floats(floatsCount);
+    std::vector<uint32_t> colors(colorsCount);
     functionBlocks[0] = button_red;
     functionBlocks[1] = led_red;
-    Executable *e = new Executable(functionBlocks, binaries, integers, floats, colors);
+    uint8_t guid[16] = {0};
+    //size_t debugSizeBytes = 4*(ceil(booleansCount/32.0)+integersCount+floatsCount+colorsCount);
+    size_t debugSizeBytes = 4*(booleansCount+1+integersCount+1+floatsCount+1+colorsCount+1);//jeweils noch ein size_t für die Länge
+    Executable *e = new Executable(guid, debugSizeBytes, functionBlocks, binaries, integers, floats, colors);
     return e;
+}
+
+LabAtHomeErrorCode PLCManager::GetDebugInfoSize(size_t *sizeInBytes){
+    *sizeInBytes=this->currentExecutable->debugSizeBytes;
+    return LabAtHomeErrorCode::OK;
+}
+
+
+LabAtHomeErrorCode PLCManager::GetDebugInfo(uint8_t *buffer, size_t maxSizeInByte){
+    int *bufAsINT32 = (int*)buffer;
+    float *bufAsFLOAT = (float*)buffer;
+    uint32_t *bufAsUINT32 = (uint32_t*)buffer;
+    size_t offset32 = 0;
+    if(maxSizeInByte<this->currentExecutable->debugSizeBytes) return LabAtHomeErrorCode::INDEX_OUT_OF_BOUNDS;
+    bufAsUINT32[offset32]=this->currentExecutable->binaries.size();
+    offset32++;
+    for (size_t vecPos = 0; vecPos < this->currentExecutable->binaries.size(); vecPos++) {
+        if (this->currentExecutable->binaries[vecPos]) {
+            bufAsINT32[vecPos+offset32] = 1;
+        }
+        else
+        {
+            bufAsINT32[vecPos+offset32] = 0;
+        }
+    }
+    offset32+=this->currentExecutable->binaries.size();
+
+    bufAsUINT32[offset32]=this->currentExecutable->integers.size();
+    offset32++;
+    for (size_t vecPos = 0; vecPos < this->currentExecutable->integers.size(); vecPos++) {
+        bufAsINT32[vecPos+offset32] = this->currentExecutable->binaries[vecPos];
+    }
+    offset32+=this->currentExecutable->integers.size();
+
+    bufAsUINT32[offset32]=this->currentExecutable->floats.size();
+    offset32++;
+    for (size_t vecPos = 0; vecPos < this->currentExecutable->floats.size(); vecPos++) {
+        bufAsFLOAT[vecPos+offset32] = this->currentExecutable->floats[vecPos];
+    }
+    offset32+=this->currentExecutable->floats.size();
+    
+    bufAsUINT32[offset32]=this->currentExecutable->colors.size();
+    offset32++;
+    for (size_t vecPos = 0; vecPos < this->currentExecutable->colors.size(); vecPos++) {
+        bufAsUINT32[vecPos+offset32] = this->currentExecutable->colors[vecPos];
+    }
+    offset32+=this->currentExecutable->colors.size();
+    
+    return LabAtHomeErrorCode::OK;
+}
+
+LabAtHomeErrorCode PLCManager::Init()
+{
+    FILE *fd = NULL;
+    struct stat file_stat;
+    ESP_LOGI(TAG, "Trying to open %s", Paths::DEFAULT_FBD_BIN_FILENAME);
+    if (stat(Paths::DEFAULT_FBD_BIN_FILENAME, &file_stat) == -1) {
+        ESP_LOGI(TAG, "Default PLC file %s does not exist. Using factory default instead", Paths::DEFAULT_FBD_BIN_FILENAME);
+        return LabAtHomeErrorCode::OK;
+    }
+    fd = fopen(Paths::DEFAULT_FBD_BIN_FILENAME, "r");
+    if (!fd) {
+        ESP_LOGE(TAG, "Failed to read existing file : %s", Paths::DEFAULT_FBD_BIN_FILENAME);
+        return LabAtHomeErrorCode::FILE_SYSTEM_ERROR;
+    }
+    uint8_t buf[file_stat.st_size];
+    size_t size_read = fread(buf, 1, file_stat.st_size, fd);
+    if(size_read!=file_stat.st_size){
+        ESP_LOGE(TAG, "Unable to read file completely : %s", Paths::DEFAULT_FBD_BIN_FILENAME);
+        return LabAtHomeErrorCode::FILE_SYSTEM_ERROR;
+    }
+    ESP_LOGI(TAG, "Successfully read %s", Paths::DEFAULT_FBD_BIN_FILENAME);
+    return this->ParseNewExecutableAndEnqueue(buf, size_read);
 }
 
 LabAtHomeErrorCode PLCManager::CheckForNewExecutable()

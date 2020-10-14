@@ -1,23 +1,30 @@
-import { Flowchart, FlowchartData, FlowchartOptions } from "./Flowchart";
+import { AppManagement } from "./AppManagement";
+import { Flowchart, FlowchartData, FlowchartOptions } from "./flowchart/Flowchart";
 import { ScreenController } from "./ScreenController";
 
 
 export class DevelopCFCController extends ScreenController {
     private fc: Flowchart;
+    private timer: number | undefined;
     onFirstStart(): void {
+        this.timer = window.setInterval(() => { this.fc.triggerDebug(); }, 1000);
         this.fc.onFirstStart();
     }
-    public onRestart(): void { }
-    public onStop(): void { }
+    public onRestart(): void {
+        this.timer = window.setInterval(() => { this.fc.triggerDebug(); }, 1000);
+    }
+    public onStop(): void {
+        window.clearInterval(this.timer);
+    }
     public onCreate() { }
-    constructor(public div: HTMLDivElement) {
-        super(div);
+    constructor(appManagement:AppManagement, div: HTMLDivElement) {
+        super(appManagement, div);
         let data: FlowchartData = {
             operators: [
                 {
                     index: 0,
                     caption: "RedButton_1",
-                    typeName: "RedButton",
+                    clazz: "Input_RedButtonOperator",
                     posX: 10,
                     posY: 10,
                     configurationData: null,
@@ -25,7 +32,7 @@ export class DevelopCFCController extends ScreenController {
                 {
                     index: 1,
                     caption: "GreenButton_1",
-                    typeName: "GreenButton",
+                    clazz: "Input_GreenButtonOperator",
                     posX: 10,
                     posY: 150,
                     configurationData: null,
@@ -33,7 +40,7 @@ export class DevelopCFCController extends ScreenController {
                 {
                     index: 2,
                     caption: "AND_1",
-                    typeName: "AND",
+                    clazz: "Logic_ANDOperator",
                     posX: 250,
                     posY: 10,
                     configurationData: null,
@@ -41,7 +48,7 @@ export class DevelopCFCController extends ScreenController {
                 {
                     index: 3,
                     caption: "RedLed_1",
-                    typeName: "RedLed",
+                    clazz: "Output_RedLedOperator",
                     posX: 500,
                     posY: 10,
                     configurationData: null,
@@ -73,7 +80,7 @@ export class DevelopCFCController extends ScreenController {
         };
         let options = new FlowchartOptions();
         options.data = data;
-        this.fc = new Flowchart(this.div, options);
+        this.fc = new Flowchart(this.appManagement, this.div, options);
     }
 
 

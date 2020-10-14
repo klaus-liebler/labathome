@@ -1,7 +1,8 @@
 import {FlowchartInputConnector, FlowchartOutputConnector } from "./FlowchartConnector";
 import {Flowchart, KeyValueTuple} from "./Flowchart";
-import { SerializeContext } from "./FlowchartSerializer";
-import {$} from "./Utils"
+import { SerializeContextAndAdressMap } from "./FlowchartCompiler";
+import { SerializeContext } from "./SerializeContext";
+import {$} from "./../Utils"
 
 export enum PositionType{
     Default,
@@ -14,7 +15,7 @@ export enum SingletonType{
 };
 export class TypeInfo
 {
-    constructor(public GlobalTypeIndex:number, public TypeName:string, public Position:PositionType, public Singleton:SingletonType){}
+    constructor(public GlobalTypeIndex:number, public ClazzName:string, public Position:PositionType, public Singleton:SingletonType){}
 }
 
 export abstract class FlowchartOperator {
@@ -65,7 +66,42 @@ export abstract class FlowchartOperator {
         this.debugInfoSvgText.textContent=text;
     }
 
-    constructor(private parent: Flowchart, private caption: string, private typeInfo: TypeInfo, private configurationData:KeyValueTuple[]|null) {
+    protected cfg_setDefault(key:string, value:any)
+    {
+        if(this.configurationData==null) this.configurationData=[];
+        for (const e of this.configurationData) {
+            if(e.key==key){
+                return;
+            }
+        } 
+        this.configurationData.push({key:key, value:value});
+    }
+
+    protected cfg_getValue(key:string, defaultValue:any):any
+    {
+        if(this.configurationData==null) this.configurationData=[];
+        for (const e of this.configurationData) {
+            if(e.key==key){
+                return e.value;
+            }
+        };
+        this.configurationData.push({key:key, value:defaultValue});
+        return defaultValue;
+    }
+
+    protected cfg_setValue(key:string, value:any)
+    {
+        if(this.configurationData==null) this.configurationData=[];
+        for (const e of this.configurationData) {
+            if(e.key==key){
+                e.value=value;
+                return;
+            }
+        } 
+        this.configurationData.push({key:key, value:value});
+    }
+
+    constructor(private parent: Flowchart, private caption: string, private typeInfo: TypeInfo, protected configurationData:KeyValueTuple[]|null) {
         this.index = FlowchartOperator.MAX_INDEX++;
         this.elementSvgG = <SVGGElement>$.Svg(parent.OperatorsLayer, "g", [], ["operator"]);
         this.elementSvgG.setAttribute('data-operator-index', "" + this.index);
@@ -131,7 +167,6 @@ export abstract class FlowchartOperator {
         let height = 50+num*20+10;
         this.box.setAttribute("height", ""+height);
         this.debugInfoSvgText.setAttribute("y", ""+height);
-        //TODO RedrawConnectors; Connectors zeichnen sich nicht im Construktur, sondern erst nach dem Appenden, um die Reihenfolgen in derser Liste und im DOM gleich zu haben
     }
 
     public MoveTo(x: number, y: number) {
@@ -147,27 +182,17 @@ export abstract class FlowchartOperator {
         }
     }
 
-    public PopulateProperyGrid(parent:HTMLTableElement):boolean
+    public PopulateProperyGrid(parent:HTMLTableSectionElement):boolean
     {
-        //let tr=Flowchart.Html(parent, "tr", [],["develop-propertygrid-tr"]);
-        //Flowchart.Html(tr, "td", [],["develop-propertygrid-td"], "AKey");
-        //Flowchart.Html(tr, "td", [],["develop-propertygrid-td"], "AValue");
         return false;
     }
 
-    protected serializeU32(ctx:SerializeContext, theNumber:number)
-    {
-        ctx.buffer.setUint32(ctx.bufferOffset, theNumber, true);
-        ctx.bufferOffset+=4;
+    public SavePropertyGrid(tbody:HTMLTableSectionElement){
+        return;
     }
 
-    protected serializeS32(ctx:SerializeContext, theNumber:number)
-    {
-        ctx.buffer.setInt32(ctx.bufferOffset, theNumber, true);
-        ctx.bufferOffset+=4;
-    }
     
-    protected SerializeInputsAndOutputs(ctx:SerializeContext)
+    protected SerializeInputsAndOutputs(ctx:SerializeContextAndAdressMap)
     {
         for (const input of this.Inputs) {
             let variableAdress = 0;
@@ -179,7 +204,7 @@ export abstract class FlowchartOperator {
                 let out = links[0].From;
                 variableAdress=ctx.typeIndex2globalConnectorIndex2adressOffset.get(out.Type)!.get(out.GlobalConnectorIndex)||1;
             }
-            this.serializeU32(ctx, variableAdress);
+            ctx.ctx.writeU32(variableAdress);
         }
         for(const output of this.Outputs)
         {
@@ -190,21 +215,21 @@ export abstract class FlowchartOperator {
             else{
                 variableAdress=ctx.typeIndex2globalConnectorIndex2adressOffset.get(output.Type)!.get(output.GlobalConnectorIndex)||1;
             }
-            this.serializeU32(ctx, variableAdress);
+            ctx.ctx.writeU32(variableAdress);
         }
     }
 
-    public SerializeToBinary(ctx:SerializeContext)
+    public SerializeToBinary(ctx:SerializeContextAndAdressMap)
     {
         //serialize Type
-        this.serializeU32(ctx, this.TypeInfo.GlobalTypeIndex);
+        ctx.ctx.writeU32(this.TypeInfo.GlobalTypeIndex);
         //Index of instance
-        this.serializeU32(ctx, this.GlobalOperatorIndex);
+        ctx.ctx.writeU32(this.GlobalOperatorIndex);
         this.SerializeInputsAndOutputs(ctx);
         this.SerializeFurtherProperties(ctx);
     }
     
-    protected SerializeFurtherProperties(mapper:SerializeContext):void{
+    protected SerializeFurtherProperties(mapper:SerializeContextAndAdressMap):void{
         return;
     }
 }

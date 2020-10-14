@@ -1,4 +1,23 @@
+
 export class SerializeContext {
+    public writeGUID(guid: Uint8Array) {
+        for (let i = 0; i < 16; i++) {
+            this.bufferDV.setUint8(this.bufferOffset + i, guid[i]);
+        }
+        this.bufferOffset += 16;
+    }
+
+    public consumeGUIDandCompare(compare:Uint8Array): boolean {
+        let val=true;
+        for (let i = 0; i < 16; i++) {
+            if(compare[i]!=this.bufferDV.getUint8(this.bufferOffset + i)){
+                val=false;
+                break;
+            }
+        }
+        this.bufferOffset += 16;
+        return val;
+    }
     private bufferDV: DataView;
     constructor(private buffer: ArrayBuffer, private bufferOffset: number = 0) {
         this.bufferDV = new DataView(buffer);
@@ -26,6 +45,12 @@ export class SerializeContext {
 
     public readU32(): number {
         let val = this.bufferDV.getUint32(this.bufferOffset, true);
+        this.bufferOffset += 4;
+        return val;
+    }
+
+    public readS32(): number {
+        let val = this.bufferDV.getInt32(this.bufferOffset, true);
         this.bufferOffset += 4;
         return val;
     }

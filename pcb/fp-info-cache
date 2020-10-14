@@ -1,4 +1,4 @@
-18678123264453917
+18700548859442154
 Battery
 BatteryHolder_Bulgin_BX0036_1xC
 Bulgin Battery Holder, BX0036, Battery Type C (https://www.bulgin.com/products/pub/media/bulgin/data/Battery_holders.pdf)
@@ -82096,6 +82096,20 @@ smopla
 2
 2
 smopla
+ADS1115_MODULE
+
+
+0
+10
+10
+smopla
+ADS1115_MODULE_SMD
+surface-mounted straight pin header, 1x10, 2.54mm pitch, single row, style 1 (pin 1 left)
+Surface mounted pin header SMD 1x10 2.54mm single row style1 pin1 left
+0
+10
+10
+smopla
 AM312
 
 
@@ -82116,6 +82130,34 @@ buzzer
 0
 2
 2
+smopla
+DD0315NA_MODULE
+
+
+0
+3
+3
+smopla
+DD1718PA_MODULE
+
+
+0
+5
+5
+smopla
+DD1718PA_MODULE_SMD
+surface-mounted straight pin header, 1x05, 2.54mm pitch, single row, style 1 (pin 1 left)
+Surface mounted pin header SMD 1x05 2.54mm single row style1 pin1 left
+0
+5
+5
+smopla
+ESP32-WROOM-32_HANDSOLDER
+Single 2.4 GHz Wi-Fi and Bluetooth combo chip https://www.espressif.com/sites/default/files/documentation/esp32-wroom-32_datasheet_en.pdf
+Single 2.4 GHz Wi-Fi and Bluetooth combo  chip
+0
+39
+39
 smopla
 ESP32_DEVKITC_COMPATIBLE
 
@@ -82166,12 +82208,26 @@ IPS_240_240
 7
 7
 smopla
+LABORATORY_JACK_RECESSED
+
+
+0
+1
+1
+smopla
 LD06AJSA
 
 
 0
 4
 4
+smopla
+LOGO_WHS
+
+
+0
+0
+0
 smopla
 MAX3485_MODULE
 
@@ -82208,12 +82264,26 @@ PDC004_Module
 4
 2
 smopla
+QR_CODE_smopla_de
+
+
+0
+0
+0
+smopla
 Radial_Fan_5015
 
 
 0
 0
 0
+smopla
+Relay_DPDT_Omron_G6K-2F-Y_HANDSOLDER
+Omron G6K-2F-Y relay package http://omronfs.omron.com/en_US/ecb/products/pdf/en-g6k.pdf
+Omron G6K-2F-Y relay
+0
+8
+8
 smopla
 Resistor_100W
 
@@ -82243,6 +82313,13 @@ SN65HVD230_MODULE
 4
 4
 smopla
+SOT-223-3_TabPin2_HANDSOLDER
+module CMS SOT223 4 pins
+CMS SOT
+0
+4
+3
+smopla
 SPEAKER_2415
 
 
@@ -82263,6 +82340,27 @@ SS12D00
 0
 3
 3
+smopla
+SW_PUSH-12mm_ANCHOR_CENTER
+SW PUSH 12mm https://www.e-switch.com/system/asset/product_line/data_sheet/143/TL1100.pdf
+tact sw push 12mm
+0
+4
+2
+smopla
+USB_C_Receptacle_HANDSOLDER
+USB Type-C receptacle for USB 2.0 and PD, http://www.krhro.com/uploads/soft/180320/1-1P320120243.pdf
+usb usb-c 2.0 pd
+0
+20
+17
+smopla
+dial_0_100
+
+
+0
+0
+0
 smopla
 rheostat_25w
 

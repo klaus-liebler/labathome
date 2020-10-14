@@ -1,6 +1,6 @@
 import { FlowchartInputConnector, FlowchartOutputConnector } from "./FlowchartConnector";
 import { Flowchart } from "./Flowchart";
-import {$, Location2D} from "./Utils"
+import {$, Location2D} from "./../Utils"
 export class FlowchartLink {
     private static MAX_INDEX: number = 0;
     private index: number;

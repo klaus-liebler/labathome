@@ -6,7 +6,8 @@
 #include "freertos/queue.h"
 #include "HAL.hh"
 #include "labathomeerror.hh"
-#include "vector"
+#include <vector>
+#include <cstring>
 
 
 class FunctionBlock;
@@ -15,15 +16,17 @@ class PID;
 class Executable
 {
     public:
+        uint8_t guid[16];
+        size_t debugSizeBytes;
         std::vector<FunctionBlock*> functionBlocks;
         std::vector<bool> binaries;
         std::vector<int> integers;
         std::vector<double> floats;
         std::vector<uint32_t> colors;
-        Executable(std::vector<FunctionBlock*> functionBlocks, std::vector<bool> binaries, std::vector<int> integers, std::vector<double> floats, std::vector<uint32_t> colors):
-            functionBlocks(functionBlocks), binaries(binaries), integers(integers), floats(floats), colors(colors)
+        Executable(uint8_t *guid, size_t debugSizeBytes, std::vector<FunctionBlock*> functionBlocks, std::vector<bool> binaries, std::vector<int> integers, std::vector<double> floats, std::vector<uint32_t> colors):
+            debugSizeBytes(debugSizeBytes), functionBlocks(functionBlocks), binaries(binaries), integers(integers), floats(floats), colors(colors)
         {
-
+            std::memcpy(this->guid, guid, 16);
         }
         ~Executable()
         {
@@ -49,6 +52,11 @@ class FBContext{
         virtual LabAtHomeErrorCode  GetBinaryAsPointer(size_t index, bool *value)=0;
         virtual bool  GetBinary(size_t index)=0;
         virtual LabAtHomeErrorCode  SetBinary(size_t index, bool value)=0;
+
+        virtual LabAtHomeErrorCode  GetIntegerAsPointer(size_t index, int *value);
+        virtual int  GetInteger(size_t index);
+        virtual LabAtHomeErrorCode  SetInteger(size_t index, int value);
+
         virtual int64_t GetMicroseconds()=0;
         virtual HAL *GetHAL()=0;
 };
@@ -102,16 +110,24 @@ class PLCManager:public FBContext
         bool IsIntegerAvailable(size_t index);
         bool IsDoubleAvailable(size_t index);
         LabAtHomeErrorCode  GetBinaryAsPointer(size_t index, bool *value);
-        bool  GetBinary(size_t index);
         LabAtHomeErrorCode  SetBinary(size_t index, bool value);
+        bool  GetBinary(size_t index);
+        LabAtHomeErrorCode  GetIntegerAsPointer(size_t index, int *value);
+        int  GetInteger(size_t index);
+        LabAtHomeErrorCode  SetInteger(size_t index, int value);
         int64_t GetMicroseconds();
         LabAtHomeErrorCode ParseNewExecutableAndEnqueue(const uint8_t  *buffer, size_t length);
         HAL *GetHAL();
         
         PLCManager(HAL *hal);
+        LabAtHomeErrorCode Init();
         LabAtHomeErrorCode CheckForNewExecutable();
         LabAtHomeErrorCode Loop();
         LabAtHomeErrorCode TriggerHeaterExperimentClosedLoop(double setpointTemperature, double setpointFan, double KP, double KI, double KD, ExperimentData *data);
         LabAtHomeErrorCode TriggerHeaterExperimentOpenLoop(double setpointHeater, double setpointFan, ExperimentData *data);
         LabAtHomeErrorCode TriggerHeaterExperimentFunctionblock(ExperimentData *data);
+        LabAtHomeErrorCode GetDebugInfoSize(size_t *sizeInBytes);
+        LabAtHomeErrorCode GetDebugInfo(uint8_t *buffer, size_t maxSizeInByte);
+        
+        
 };

@@ -49,6 +49,7 @@ class HAL
         virtual LabAtHomeErrorCode BeforeLoop()=0;
         virtual LabAtHomeErrorCode AfterLoop()=0;
         virtual LabAtHomeErrorCode GetHeaterTemperature(float *degrees);
+        virtual LabAtHomeErrorCode GetAmbientBrightness(float *lux);
         virtual int64_t GetMicros()=0;
         virtual uint32_t GetMillis()=0; 
 };

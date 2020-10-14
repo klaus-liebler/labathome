@@ -39,6 +39,44 @@ class FB_RedButton: public FunctionBlock{
         ~FB_RedButton(){}
 };
 
+class FB_AmbientBrigthnessSensor:public FunctionBlock{
+    size_t output;
+    public:
+        LabAtHomeErrorCode execute(FBContext *ctx){
+            float value;
+            ctx->GetHAL()->GetAmbientBrightness(&value);
+            ctx->SetInteger(output, value);
+            return LabAtHomeErrorCode::OK;
+        }
+        FB_AmbientBrigthnessSensor(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
+        ~FB_AmbientBrigthnessSensor(){}
+};
+
+class FB_HeaterTemperatureSensor:public FunctionBlock{
+    size_t output;
+    public:
+        LabAtHomeErrorCode execute(FBContext *ctx){
+            float value;
+            ctx->GetHAL()->GetHeaterTemperature(&value);
+            ctx->SetInteger(output, value);
+            return LabAtHomeErrorCode::OK;
+        }
+        FB_HeaterTemperatureSensor(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
+        ~FB_HeaterTemperatureSensor(){}
+};
+
+class FB_MovementSensor:public FunctionBlock{
+    size_t output;
+    public:
+        LabAtHomeErrorCode execute(FBContext *ctx){
+            bool value=ctx->GetHAL()->IsMovementDetected();
+            ctx->SetBinary(output, value);
+            return LabAtHomeErrorCode::OK;
+        }
+        FB_MovementSensor(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
+        ~FB_MovementSensor(){}
+};
+
 class FB_GreenLED: public FunctionBlock{
     size_t input;
     public:
@@ -102,6 +140,36 @@ class FB_OR2: public FunctionBlock{
         ~FB_OR2(){}
 };
 
+class FB_GT: public FunctionBlock{
+    size_t inputA;
+    size_t inputB;
+    size_t output;
+    
+    public:
+        LabAtHomeErrorCode execute(FBContext *ctx)
+        {
+            ctx->SetBinary(this->output, ctx->GetInteger(inputA) > ctx->GetInteger(inputB));
+            return LabAtHomeErrorCode::OK;;
+        }
+        FB_GT(uint32_t IdOnWebApp, size_t inputA, size_t inputB, size_t output):FunctionBlock(IdOnWebApp), inputA(inputA), inputB(inputB), output(output){}
+        ~FB_GT(){}
+};
+
+class FB_LT: public FunctionBlock{
+    size_t inputA;
+    size_t inputB;
+    size_t output;
+    
+    public:
+        LabAtHomeErrorCode execute(FBContext *ctx)
+        {
+            ctx->SetBinary(this->output, ctx->GetInteger(inputA) < ctx->GetInteger(inputB));
+            return LabAtHomeErrorCode::OK;;
+        }
+        FB_LT(uint32_t IdOnWebApp, size_t inputA, size_t inputB, size_t output):FunctionBlock(IdOnWebApp), inputA(inputA), inputB(inputB), output(output){}
+        ~FB_LT(){}
+};
+
 class FB_RS: public FunctionBlock{
     size_t inputR;
     size_t inputS;
@@ -122,30 +190,36 @@ class FB_RS: public FunctionBlock{
 
 class FB_TON: public FunctionBlock{
     //TODO: Elapsed Output!
-    size_t input;
+    size_t inputTrigger;
+    size_t inputPresetTime_msecs;
     size_t output;
-    uint32_t presetTime_secs;
-    int64_t switchOnAtMicrosecond = INT64_MAX;
+    size_t outputElapsedTime_msecs;
+    
+
+    int64_t inputPositiveEdge = INT64_MAX;
     bool lastInputValue;
     
     public:
         LabAtHomeErrorCode execute(FBContext *ctx)
         {
-            bool currentInputValue = ctx->GetBinary(this->input);
-            auto time = ctx->GetMicroseconds();
+            bool currentInputValue = ctx->GetBinary(this->inputTrigger);
+            int presetTime_msecs = ctx->GetInteger(this->inputPresetTime_msecs);
+            auto now = ctx->GetMicroseconds();
             if(lastInputValue==false && currentInputValue==true)
             {
-                switchOnAtMicrosecond = time + 1000000*this->presetTime_secs;
+                inputPositiveEdge=now;
             }
             else if(currentInputValue==false)
             {
-                switchOnAtMicrosecond = INT64_MAX;
+                inputPositiveEdge=INT64_MAX;
             }
             lastInputValue=currentInputValue;
-            ctx->SetBinary(output, time>=switchOnAtMicrosecond);
+            auto elapsed = (now-inputPositiveEdge)/1000;
+            ctx->SetBinary(output, elapsed>=presetTime_msecs);
+            ctx->SetInteger(outputElapsedTime_msecs, elapsed);
             return LabAtHomeErrorCode::OK;
         }
-        FB_TON(uint32_t IdOnWebApp, size_t input, size_t output, uint32_t presetTime_secs):FunctionBlock(IdOnWebApp), input(input), output(output), presetTime_secs(presetTime_secs){}
+        FB_TON(uint32_t IdOnWebApp, size_t inputTrigger, size_t inputPresetTime_msecs, size_t output, size_t outputElapsedTime_msecs):FunctionBlock(IdOnWebApp), inputTrigger(inputTrigger), inputPresetTime_msecs(inputPresetTime_msecs), output(output), outputElapsedTime_msecs(outputElapsedTime_msecs){}
         ~FB_TON(){}
 };
 
@@ -162,3 +236,18 @@ class FB_NOT: public FunctionBlock{
         FB_NOT(uint32_t IdOnWebApp, size_t input, size_t output):FunctionBlock(IdOnWebApp), input(input), output(output){}
         ~FB_NOT(){}
 };
+
+class FB_ConstInteger: public FunctionBlock{
+    size_t output;
+    int constant;
+    public:
+        LabAtHomeErrorCode execute(FBContext *ctx)
+        {
+            ctx->SetInteger(this->output, this->constant);
+            return LabAtHomeErrorCode::OK;
+        }
+        FB_ConstInteger(uint32_t IdOnWebApp, size_t output, int constant):FunctionBlock(IdOnWebApp), output(output), constant(constant){}
+        ~FB_ConstInteger(){}
+};
+
+
