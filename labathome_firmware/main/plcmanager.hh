@@ -16,17 +16,16 @@ class PID;
 class Executable
 {
     public:
-        uint8_t guid[16];
+        uint32_t hash;
         size_t debugSizeBytes;
         std::vector<FunctionBlock*> functionBlocks;
         std::vector<bool> binaries;
         std::vector<int> integers;
         std::vector<double> floats;
         std::vector<uint32_t> colors;
-        Executable(uint8_t *guid, size_t debugSizeBytes, std::vector<FunctionBlock*> functionBlocks, std::vector<bool> binaries, std::vector<int> integers, std::vector<double> floats, std::vector<uint32_t> colors):
-            debugSizeBytes(debugSizeBytes), functionBlocks(functionBlocks), binaries(binaries), integers(integers), floats(floats), colors(colors)
+        Executable(uint32_t hash, size_t debugSizeBytes, std::vector<FunctionBlock*> functionBlocks, std::vector<bool> binaries, std::vector<int> integers, std::vector<double> floats, std::vector<uint32_t> colors):
+            hash(hash), debugSizeBytes(debugSizeBytes), functionBlocks(functionBlocks), binaries(binaries), integers(integers), floats(floats), colors(colors)
         {
-            std::memcpy(this->guid, guid, 16);
         }
         ~Executable()
         {
@@ -49,13 +48,21 @@ class FBContext{
         virtual bool IsBinaryAvailable(size_t index)=0;
         virtual bool IsIntegerAvailable(size_t index)=0;
         virtual bool IsDoubleAvailable(size_t index)=0;
+        virtual bool IsColorAvailable(size_t index)=0;
+        
         virtual LabAtHomeErrorCode  GetBinaryAsPointer(size_t index, bool *value)=0;
-        virtual bool  GetBinary(size_t index)=0;
         virtual LabAtHomeErrorCode  SetBinary(size_t index, bool value)=0;
+        virtual bool  GetBinary(size_t index)=0;
+        
 
-        virtual LabAtHomeErrorCode  GetIntegerAsPointer(size_t index, int *value);
-        virtual int  GetInteger(size_t index);
-        virtual LabAtHomeErrorCode  SetInteger(size_t index, int value);
+        virtual LabAtHomeErrorCode  GetIntegerAsPointer(size_t index, int *value)=0;
+        virtual LabAtHomeErrorCode  SetInteger(size_t index, int value)=0;
+        virtual int  GetInteger(size_t index)=0;
+        
+        virtual LabAtHomeErrorCode  GetColorAsPointer(size_t index, uint32_t *value)=0;
+        virtual LabAtHomeErrorCode  SetColor(size_t index, uint32_t value)=0;
+        virtual uint32_t  GetColor(size_t index)=0;
+        
 
         virtual int64_t GetMicroseconds()=0;
         virtual HAL *GetHAL()=0;
@@ -109,12 +116,20 @@ class PLCManager:public FBContext
         bool IsBinaryAvailable(size_t index);
         bool IsIntegerAvailable(size_t index);
         bool IsDoubleAvailable(size_t index);
+        bool IsColorAvailable(size_t index);
         LabAtHomeErrorCode  GetBinaryAsPointer(size_t index, bool *value);
         LabAtHomeErrorCode  SetBinary(size_t index, bool value);
         bool  GetBinary(size_t index);
+        
         LabAtHomeErrorCode  GetIntegerAsPointer(size_t index, int *value);
-        int  GetInteger(size_t index);
         LabAtHomeErrorCode  SetInteger(size_t index, int value);
+        int  GetInteger(size_t index);
+        
+        LabAtHomeErrorCode  GetColorAsPointer(size_t index, uint32_t *value);
+        LabAtHomeErrorCode  SetColor(size_t index, uint32_t value);
+        uint32_t GetColor(size_t index);
+        
+       
         int64_t GetMicroseconds();
         LabAtHomeErrorCode ParseNewExecutableAndEnqueue(const uint8_t  *buffer, size_t length);
         HAL *GetHAL();

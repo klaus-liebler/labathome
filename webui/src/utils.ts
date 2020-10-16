@@ -14,6 +14,7 @@ export interface Location2D {
 
 export class $
 {
+    
     public static readonly SVGNS = "http://www.w3.org/2000/svg";
     public static readonly XLINKNS = "http://www.w3.org/1999/xlink";
     public static readonly HTMLNS = "http://www.w3.org/1999/xhtml";
@@ -31,6 +32,16 @@ export class $
         use.setAttributeNS(this.XLINKNS, "href", "#icon-"+iconname);
         parent.appendChild(svg);
         return svg;
+    }
+
+    public static ColorNumColor2ColorDomString(num:number):string {
+        let str = num.toString(16);
+        while (str.length < 6) str = "0" + num;
+        return "#"+str;
+    }
+
+    public static ColorDomString2ColorNum(colorString: string):number {
+        return parseInt(colorString.substring(1), 16);
     }
 
     public static Html(parent: Element, type:string,  attributes:string[], classes?: string[], textContent?:string):HTMLElement {

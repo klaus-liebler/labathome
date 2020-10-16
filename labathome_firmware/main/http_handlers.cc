@@ -15,7 +15,7 @@
 #include "plcmanager.hh"
 #include "paths_and_files.hh"
 
-constexpr char *TAG = "HTTP_handler";
+const char *TAG = "HTTP_handler";
 
 
 
@@ -86,13 +86,14 @@ esp_err_t helper_get_fbd(httpd_req_t *req, const char *filepath)
 
 static esp_err_t helper_directory(httpd_req_t *req)
 {
+    ESP_LOGI(TAG, "Got helper_directory request");
     struct dirent *entry;
-    DIR *dir = opendir(Paths::FBDSTORE_BASE);
+    DIR *dir = opendir(Paths::FBDSTORE_BASE_DIRECTORY);
     httpd_resp_set_type(req, "application/json");
     httpd_resp_sendstr_chunk(req, "[");
     bool firstLoop=true;
     while ((entry = readdir(dir)) != NULL) {
-        if(entry->d_type==DT_DIR) continue;
+        if(entry->d_type==DT_DIR) continue; //there shound not be a directory, but just in case..
         if(!firstLoop) httpd_resp_sendstr_chunk(req, ",");
         /* Send chunk of HTML file containing table entries with file name and size */
         httpd_resp_sendstr_chunk(req, "\"");
@@ -100,6 +101,7 @@ static esp_err_t helper_directory(httpd_req_t *req)
         httpd_resp_sendstr_chunk(req, "\"");
         firstLoop=false;
     }
+
     closedir(dir);
     httpd_resp_sendstr_chunk(req, "]");
     /* Send empty chunk to signal HTTP response completion */
@@ -285,15 +287,22 @@ esp_err_t handle_put_heaterexperiment(httpd_req_t *req)
     return ESP_OK;
 }
 
-esp_err_t helper_post_fbd(httpd_req_t *req, const char *filepath){
+esp_err_t helper_post_fbd(httpd_req_t *req, const char *filepath, bool overwrite){
     FILE *fd = NULL;
     struct stat file_stat;
     ESP_LOGI(TAG, "Trying to store : %s", filepath);
 
     if (stat(filepath, &file_stat) == 0) {
-        ESP_LOGE(TAG, "File already exists : %s", filepath);
-        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "File already exists");
-        return ESP_FAIL;
+        if(overwrite)
+        {
+            unlink(filepath);
+        }
+        else
+        {
+            ESP_LOGE(TAG, "File already exists : %s", filepath);
+            httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "File already exists");
+            return ESP_FAIL;
+        }
     }
 
     /* File cannot be larger than a limit */
@@ -383,13 +392,13 @@ esp_err_t handle_post_fbdstorejson(httpd_req_t *req){
     strcpy(filepath, Paths::FBDSTORE_BASE);
     strcpy(filepath+strlen(filepath), filename);
     strcpy(filepath+strlen(filepath), ".json");
-    return helper_post_fbd(req, filepath);
+    return helper_post_fbd(req, filepath, false);
 }
 
 esp_err_t handle_post_fbddefaultbin(httpd_req_t *req){
-    return helper_post_fbd(req, Paths::DEFAULT_FBD_BIN_FILENAME);
+    return helper_post_fbd(req, Paths::DEFAULT_FBD_BIN_FILENAME, true);
 }
 
 esp_err_t handle_post_fbddefaultjson(httpd_req_t *req){
-    return helper_post_fbd(req, Paths::DEFAULT_FBD_JSON_FILENAME);
+    return helper_post_fbd(req, Paths::DEFAULT_FBD_JSON_FILENAME, true);
 }

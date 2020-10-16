@@ -5,17 +5,18 @@ export class FlowchartLink {
     private static MAX_INDEX: number = 0;
     private index: number;
     private element: SVGPathElement;
-    private captionElement: SVGTextElement;
+    private captionElement:SVGTextElement;
+    private captionPath: SVGTextPathElement;
     constructor(private parent: Flowchart, private caption: string, private color: string, private from: FlowchartOutputConnector, private to: FlowchartInputConnector) {
         this.index = FlowchartLink.MAX_INDEX++;
         this.element = <SVGPathElement>$.Svg(parent.LinkLayer, "path", ["stroke-width", "" + this.parent.Options.linkWidth, "fill", "none", "id", "LINK" + this.index]);
         this.RefreshPosition();
-        this.UncolorizeLink();
+        this.UnsetColor();
         this.parent.LinkLayer.appendChild(this.element);
         this.captionElement =<SVGTextElement>$.Svg(parent.LinkLayer, "text",[]);
-        let captionPath = <SVGTextPathElement>$.Svg(this.captionElement, "textPath",["startOffset", "50%","text-anchor", "middle"]);
-        captionPath.setAttributeNS($.XLINKNS, "href", '#' + "LINK" + this.index);
-        captionPath.innerHTML = caption;
+        this.captionPath = <SVGTextPathElement>$.Svg(this.captionElement, "textPath",["startOffset", "50%","text-anchor", "middle"]);
+        this.captionPath.setAttributeNS($.XLINKNS, "href", '#' + "LINK" + this.index);
+        this.captionPath.innerHTML = caption;
         this.element.onclick = (e) => {
             this.parent._notifyLinkClicked(this, e);
         }
@@ -31,7 +32,7 @@ export class FlowchartLink {
     }
 
 
-    public ColorizeLink(color: string) {
+    public SetColor(color: string) {
         this.element.setAttribute('stroke', color);
         //this.element.setAttribute('fill', color);
         //TODO: colorize the small triangle in the connector
@@ -39,8 +40,12 @@ export class FlowchartLink {
         //linkData.internal.els.toSmallConnector.css('border-left-color', color);
     }
 
-    public UncolorizeLink() {
-        this.ColorizeLink(this.parent.Options.defaultLinkColor);
+    public SetCaption(caption:string){
+        this.captionPath.innerHTML=caption;
+    }
+
+    public UnsetColor() {
+        this.SetColor(this.parent.Options.defaultLinkColor);
     }
 
     public RefreshPosition() {

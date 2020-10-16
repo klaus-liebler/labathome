@@ -32,7 +32,8 @@ class HAL
         virtual LabAtHomeErrorCode Init()=0;
         virtual LabAtHomeErrorCode StartBuzzer(double freqHz)=0;
         virtual LabAtHomeErrorCode EndBuzzer()=0;
-        virtual LabAtHomeErrorCode ColorizeLed(LED led, CRGB state)=0;
+        virtual LabAtHomeErrorCode ColorizeLed(LED led, uint32_t color)=0;
+        virtual LabAtHomeErrorCode UnColorizeAllLed()=0;
         virtual LabAtHomeErrorCode SetRelayState(bool state)=0;
         virtual LabAtHomeErrorCode SetHeaterState(float dutyInPercent)=0;
         virtual float GetHeaterState()=0;

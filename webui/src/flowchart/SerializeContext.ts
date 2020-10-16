@@ -22,6 +22,18 @@ export class SerializeContext {
     constructor(private buffer: ArrayBuffer, private bufferOffset: number = 0) {
         this.bufferDV = new DataView(buffer);
     }
+
+    public funhash(start:number, end:number):number{
+        end=Math.min(end, this.bufferDV.byteLength);
+        for(var i = start, h = 0xdeadbeef; i < end; i++)
+            h = Math.imul(h ^ this.bufferDV.getUint8(i), 2654435761);
+        return (h ^ h >>> 16) >>> 0;
+    }
+
+    public overwriteU32(theNumber: number, offset:number): void {
+        if(offset>this.bufferOffset-4) throw new Error("offset>this.bufferOffset-4");
+        this.bufferDV.setUint32(offset, theNumber, true);
+    }
     public writeS32(theNumber: number): void {
         this.bufferDV.setInt32(this.bufferOffset, theNumber, true);
         this.bufferOffset += 4;

@@ -1,7 +1,6 @@
 import {FlowchartInputConnector, FlowchartOutputConnector } from "./FlowchartConnector";
 import {Flowchart, KeyValueTuple} from "./Flowchart";
 import { SerializeContextAndAdressMap } from "./FlowchartCompiler";
-import { SerializeContext } from "./SerializeContext";
 import {$} from "./../Utils"
 
 export enum PositionType{
@@ -15,7 +14,14 @@ export enum SingletonType{
 };
 export class TypeInfo
 {
-    constructor(public GlobalTypeIndex:number, public ClazzName:string, public Position:PositionType, public Singleton:SingletonType){}
+    constructor(
+        public GlobalTypeIndex:number, 
+        public GroupName:string, 
+        public OperatorName:string, 
+        public Position:PositionType, 
+        public Singleton:SingletonType, 
+        public Builder:(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null)=>FlowchartOperator)
+        {}
 }
 
 export abstract class FlowchartOperator {

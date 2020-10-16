@@ -413,9 +413,18 @@ public:
         return LabAtHomeErrorCode::OK;
     }
 
-    LabAtHomeErrorCode ColorizeLed(LED led, CRGB color)
+    LabAtHomeErrorCode ColorizeLed(LED led, uint32_t color)
     {
-        strip->SetPixel((uint8_t)led, color);
+        CRGB colorCRGB(color);
+        strip->SetPixel((uint8_t)led, colorCRGB);
+        //TODO: Hier Prüfung, ob sich tatsächlich etwas verändert hat und ein Update tatsächlich erforderlich ist
+        this->needLedStripUpdate = true;
+        return LabAtHomeErrorCode::OK;
+    }
+
+    LabAtHomeErrorCode UnColorizeAllLed()
+    {
+        strip->Clear(1000);
         this->needLedStripUpdate = true;
         return LabAtHomeErrorCode::OK;
     }

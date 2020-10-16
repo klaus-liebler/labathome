@@ -11,9 +11,9 @@
 #include "esp_log.h"
 #include "driver/rmt.h"
 
-#define PrepareColorGRB(rgb) ( (((rgb) << 8) & 0x00FF0000) | (((rgb) >> 8) & 0x0000FF00) | (rgb & 0x000000FF) )
-#define PrepareColor PrepareColorGRB
-
+//#define PrepareColorGRB(rgb) ( (((rgb) << 8) & 0x00FF0000) | (((rgb) >> 8) & 0x0000FF00) | (rgb & 0x000000FF) )
+//#define PrepareColor PrepareColorGRB
+#define PrepareColor
 
 
 struct CRGB {
@@ -349,10 +349,9 @@ public:
             ESP_LOGE(TAG, "index out of the maximum number of leds");
             return ESP_ERR_INVALID_ARG;
         }
-        this->buffer[3*index+0]=color.r;
-        this->buffer[3*index+1]=color.g;
+        this->buffer[3*index+0]=color.g;
+        this->buffer[3*index+1]=color.r;
         this->buffer[3*index+2]=color.b;
-        
         return ESP_OK;
     }
 

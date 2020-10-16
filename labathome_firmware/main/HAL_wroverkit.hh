@@ -223,24 +223,31 @@ public:
         return LabAtHomeErrorCode::OK;
     }
 
-    LabAtHomeErrorCode ColorizeLed(LED led, CRGB color)
+    LabAtHomeErrorCode ColorizeLed(LED led, uint32_t color)
     {
         strip->SetPixel((uint8_t)led, color);
         this->needLedStripUpdate = true;
         switch (led)
         {
         case LED::LED_RED:
-             this->led_red_on = color!=CRGB::Black;
+             this->led_red_on = color!=0;
             break;
         case LED::LED_YELLOW:
-             this->led_yellow_on = color!=CRGB::Black;
+             this->led_yellow_on = color!=0;
             break;
         case LED::LED_GREEN:
-             this->led_green_on = color!=CRGB::Black;
+             this->led_green_on = color!=0;
             break;        
         default:
             break;
         }
+        return LabAtHomeErrorCode::OK;
+    }
+
+    LabAtHomeErrorCode UnColorizeAllLed(){
+        this->led_red_on=false;
+        this->led_yellow_on=false;
+        this->led_green_on=false;
         return LabAtHomeErrorCode::OK;
     }
 

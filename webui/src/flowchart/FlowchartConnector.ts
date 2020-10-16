@@ -62,7 +62,7 @@ export abstract class FlowchartConnector {
         this.element.onmouseover = (e) => {
             for (const link of this.links.values()) {
                 if (link && link != this.parent.Parent.SelectedLink) {
-                    link.ColorizeLink(Flowchart._shadeColor(this.parent.Parent.Options.defaultLinkColor, -0.4));
+                    link.SetColor(Flowchart._shadeColor(this.parent.Parent.Options.defaultLinkColor, -0.4));
                 }
             }
         }
@@ -70,7 +70,7 @@ export abstract class FlowchartConnector {
         this.element.onmouseout = (e) => {
             for (const link of this.links.values()) {
                 if (link && link != this.parent.Parent.SelectedLink) {
-                    link.UncolorizeLink();
+                    link.UnsetColor();
                 }
             }
         }

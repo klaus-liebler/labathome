@@ -2,28 +2,28 @@ import {FlowchartOperator, PositionType } from "./FlowchartOperator";
 import {ConnectorType } from "./FlowchartConnector";
 import { NodeWrapper, TopologicalSortDFS } from "./TopologicalSorfDFS";
 import { SerializeContext } from "./SerializeContext";
+import { FlowchartLink } from "./FlowchartLink";
 
 export interface SerializeContextAndAdressMap {
     typeIndex2globalConnectorIndex2adressOffset: Map<number, Map<number, number>>;
     ctx: SerializeContext;
 }
 
-export interface GuidAndBufAndMap{
-    guid:Uint8Array;
+export interface HashAndBufAndMaps{
+    hash:number;
     buf: ArrayBuffer;
     typeIndex2globalConnectorIndex2adressOffset:Map<number, Map<number, number>>,
+    typeIndex2adressOffset2ListOfLinks:Map<number, Map<number, Array<FlowchartLink>>>,
 }
 
 declare const msCrypto: Crypto;
-
-
 
 export class FlowchartCompiler {
     public constructor(private index2wrappedOperator:Map<number, NodeWrapper<FlowchartOperator>>)
     {
         
     }
-    public Compile(): GuidAndBufAndMap {
+    public Compile(): HashAndBufAndMaps {
         let wrappedOutputOperators: NodeWrapper<FlowchartOperator>[] = [];
         for (let i of this.index2wrappedOperator.values()) {
             //Stelle für jede "gewrapte Node" fest, welche Operatoren von Ihr abhängig sind
@@ -48,8 +48,8 @@ export class FlowchartCompiler {
             let value = sortedList[key];
             value.Payload.SetDebugInfoText("Sequenznummer " + key);
         }
-        let guidAndBuf= this.serialize(sortedList.map((e) => e.Payload));
-        return guidAndBuf;
+        let hashAndBufAndMaps= this.serialize(sortedList.map((e) => e.Payload));
+        return hashAndBufAndMaps;
     }
 
     private static getRandomValuesWithMathRandom(bytes: Uint8Array): void {
@@ -58,7 +58,6 @@ export class FlowchartCompiler {
             bytes[i] = Math.random() * max;
         }
     }
-
 
     private static getRandomBytes(length: number): Uint8Array {
         const bytes = new Uint8Array(length);
@@ -72,15 +71,19 @@ export class FlowchartCompiler {
         return bytes;
     };
 
-    private serialize(operators: FlowchartOperator[]):GuidAndBufAndMap {
+   
+
+    private serialize(operators: FlowchartOperator[]):HashAndBufAndMaps {
         //Speichert separat für jeden Datentyp (Bool, int, float, color,...), welcher GlobalConnectorIndex auf welchen bei 2 beginnend fortlaufenden Adress-Offset gemapped wird
         //wir beginnen bei 2, weil unbeschaltete Outputs auf 0 schreiben und unbeschaltete Inputs von 1 lesen.
         let typeIndex2globalConnectorIndex2adressOffset = new Map<number, Map<number, number>>(); //globalConnectorIndex_Outputs 2 variableAdress
-        let typeIndex2maxOffset = new Map<number, number>()
+        let typeIndex2maxOffset = new Map<number, number>();
+        let typeIndex2adressOffset2ListOfLinks = new Map<number, Map<number, Array<FlowchartLink>>>();
         for (let type in ConnectorType) {
             if (!isNaN(Number(type))) {
                 typeIndex2globalConnectorIndex2adressOffset.set(Number(type), new Map<number, number>());
                 typeIndex2maxOffset.set(Number(type), 2);
+                typeIndex2adressOffset2ListOfLinks.set(Number(type), new Map<number,Array<FlowchartLink>>());
             }
         }
         for (const operator of operators) {
@@ -93,6 +96,9 @@ export class FlowchartCompiler {
                     //connected output --> create new memory address and set it
                     let index = typeIndex2maxOffset.get(outputKV[1].Type)!;
                     typeIndex2globalConnectorIndex2adressOffset.get(outputKV[1].Type)!.set(outputKV[1].GlobalConnectorIndex, index);
+                    
+                    //add all outgoing links to typeIndex2adressOffset2ListOfLinks
+                    typeIndex2adressOffset2ListOfLinks.get(outputKV[1].Type)!.set(index, outputKV[1].GetLinksCopy());
                     index++;
                     typeIndex2maxOffset.set(outputKV[1].Type, index);
                 }
@@ -110,9 +116,8 @@ export class FlowchartCompiler {
         };
         //Version of Data Structure
         serctx.writeU32(0xAFFECAFE);
-        let guid = FlowchartCompiler.getRandomBytes(16);
-        serctx.writeGUID(guid);
-
+        //Placeholder for hash
+        serctx.writeU32(0);
 
 
         for (let type in ConnectorType) {
@@ -120,16 +125,21 @@ export class FlowchartCompiler {
                 serctx.writeU32(typeIndex2maxOffset.get(Number(type))!);
             }
         }
-        
-        
+    
         //operatorsCount
         serctx.writeU32(operators.length);
         for (const operator of operators) {
             operator.SerializeToBinary(ctx);
         }
 
-        return {guid:guid, buf:ctx.ctx.getResult(), typeIndex2globalConnectorIndex2adressOffset:typeIndex2globalConnectorIndex2adressOffset};
-        
-    }
+        let hash= serctx.funhash(8, (2^32)-1);
+        serctx.overwriteU32(hash, 4);
 
+        return {
+            hash:hash, 
+            buf:ctx.ctx.getResult(), 
+            typeIndex2globalConnectorIndex2adressOffset:typeIndex2globalConnectorIndex2adressOffset,
+            typeIndex2adressOffset2ListOfLinks:typeIndex2adressOffset2ListOfLinks,
+        };
+    }
 }

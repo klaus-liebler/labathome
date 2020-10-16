@@ -44,6 +44,30 @@ void plcTask(void *pvParameters)
     // Initialise the xLastWakeTime variable with the current time.
     xLastWakeTime = xTaskGetTickCount();
     plcmanager->Init();
+    for(int i=0;i<3;i++)
+    {
+        hal->ColorizeLed(LED::LED_RED, CRGB::DarkRed);
+        hal->ColorizeLed(LED::LED_GREEN, CRGB::DarkGreen);
+        hal->ColorizeLed(LED::LED_YELLOW, CRGB::Yellow);
+        hal->ColorizeLed(LED::LED_3, CRGB::DarkBlue);
+        hal->ColorizeLed(LED::LED_4, CRGB::Black);
+        hal->ColorizeLed(LED::LED_5, CRGB::Black);
+        hal->ColorizeLed(LED::LED_6, CRGB::Black);
+        hal->ColorizeLed(LED::LED_7, CRGB::Black);
+        hal->AfterLoop();
+        vTaskDelay(150 / portTICK_PERIOD_MS);
+        hal->ColorizeLed(LED::LED_RED, CRGB::Black);
+        hal->ColorizeLed(LED::LED_GREEN, CRGB::Black);
+        hal->ColorizeLed(LED::LED_YELLOW, CRGB::Black);
+        hal->ColorizeLed(LED::LED_3, CRGB::Black);
+        hal->ColorizeLed(LED::LED_4, CRGB::DarkBlue);
+        hal->ColorizeLed(LED::LED_5, CRGB::Yellow);
+        hal->ColorizeLed(LED::LED_6, CRGB::DarkGreen);
+        hal->ColorizeLed(LED::LED_7, CRGB::DarkRed);
+        hal->AfterLoop();
+        vTaskDelay(150 / portTICK_PERIOD_MS);
+    }
+    hal->UnColorizeAllLed();
     while (true)
     {
         // Wait for the next cycle.
@@ -95,7 +119,7 @@ static const httpd_uri_t postfbdstorejson = {
     .user_ctx = plcmanager,
 };
 
-static const httpd_uri_t postfbdstorejson = {
+static const httpd_uri_t deletefbdstorejson = {
     .uri       = "/fbdstorejson/*",
     .method    = HTTP_DELETE,
     .handler   = handle_delete_fbdstorejson,
@@ -128,18 +152,25 @@ static httpd_handle_t start_webserver(void)
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.uri_match_fn = httpd_uri_match_wildcard;
+    config.max_uri_handlers = 12;
     // Start the httpd server
     ESP_LOGI(TAG, "Starting server on port: '%d'", config.server_port);
     if (httpd_start(&server, &config) != ESP_OK) {
         ESP_LOGE(TAG, "Error starting server!");
         esp_restart();
     }
-    httpd_register_uri_handler(server, &getroot);
-    httpd_register_uri_handler(server, &putfbd);
-    httpd_register_uri_handler(server, &putexperiment);
-    httpd_register_uri_handler(server, &getfbdstorejson);
-    httpd_register_uri_handler(server, &postfbdstorebin);
-    httpd_register_uri_handler(server, &postfbdstorejson);
+    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &getroot));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &putfbd));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &getfbd));
+    
+    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &putheaterexperiment));
+    
+    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &getfbdstorejson));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &deletefbdstorejson));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &postfbdstorejson));
+
+    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &postfbddefaultbin));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &postfbddefaultjson));
     return server;
 }
 
