@@ -147,6 +147,13 @@ static const httpd_uri_t putheaterexperiment = {
     .user_ctx = plcmanager,
 };
 
+static const httpd_uri_t getadcexperiment = {
+    .uri       = "/adcexperiment",
+    .method    = HTTP_GET,
+    .handler   = handle_get_adcexperiment,
+    .user_ctx = plcmanager,
+};
+
 static httpd_handle_t start_webserver(void)
 {
     httpd_handle_t server = NULL;
@@ -171,6 +178,7 @@ static httpd_handle_t start_webserver(void)
 
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &postfbddefaultbin));
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &postfbddefaultjson));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &getadcexperiment));
     return server;
 }
 
@@ -268,7 +276,9 @@ void app_main(void)
 
     while (true)
     {
-        printf("Start was %d seconds ago. Free heap: %d\n", i, esp_get_free_heap_size());
+        float airTemp=0;
+        hal->GetAirTemperature(&airTemp);
+        printf("Start was %d seconds ago. Free heap: %d, Ambient Temp: %F\n", i, esp_get_free_heap_size(), airTemp);
         i += 5;
         vTaskDelay(5000 / portTICK_PERIOD_MS);
     }

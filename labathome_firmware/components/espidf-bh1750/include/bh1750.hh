@@ -26,7 +26,12 @@ enum class BH1750_OPERATIONMODE:uint8_t
 
 
 class BH1750{
+private:
+    i2c_port_t i2c_num;
+    BH1750_ADRESS adress;
 public:
-    static esp_err_t Command(i2c_port_t i2c_num, BH1750_ADRESS adress, BH1750_OPERATIONMODE operation);
-    static esp_err_t Read(i2c_port_t i2c_num, BH1750_ADRESS adress, float *lux);
+    BH1750(const i2c_port_t i2c_num, BH1750_ADRESS adress);
+    ~BH1750();
+    esp_err_t Init(BH1750_OPERATIONMODE operation);
+    esp_err_t Read(float *lux);
 };

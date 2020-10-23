@@ -8,9 +8,7 @@ int8_t user_i2c_read(uint8_t reg_addr, uint8_t *reg_data, uint32_t len, void *in
 {
     BME280_I2C *bme280 = (BME280_I2C *)intf_ptr;
     esp_err_t espRc;
-
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, (bme280->addr << 1) | I2C_MASTER_WRITE, true);
     i2c_master_write_byte(cmd, reg_addr, true);
@@ -86,10 +84,9 @@ esp_err_t BME280::Init(uint32_t *calculatedDelay)
     *calculatedDelay= bme280_cal_meas_delay(&(dev.settings));
     if (com_rslt != 0)
         return ESP_FAIL;
-    com_rslt = bme280_set_sensor_mode(BME280_FORCED_MODE, &dev);
     return com_rslt == BME280_OK ? ESP_OK : ESP_FAIL;
 }
-esp_err_t BME280::GetDataAndPrepareNextMeasurement(float *tempDegCel, float *pressurePa, float *relHumidityPercent)
+esp_err_t BME280::GetDataAndTriggerNextMeasurement(float *tempDegCel, float *pressurePa, float *relHumidityPercent)
 {
     struct bme280_data comp_data;
     int8_t com_rslt = bme280_get_sensor_data(BME280_ALL, &comp_data, &dev);
@@ -100,4 +97,9 @@ esp_err_t BME280::GetDataAndPrepareNextMeasurement(float *tempDegCel, float *pre
         return ESP_FAIL;
     com_rslt = bme280_set_sensor_mode(BME280_FORCED_MODE, &dev);
     return com_rslt == BME280_OK ? ESP_OK : ESP_FAIL;
+}
+
+esp_err_t BME280::TriggerNextMeasurement()
+{
+    return bme280_set_sensor_mode(BME280_FORCED_MODE, &dev) == BME280_OK ? ESP_OK : ESP_FAIL;
 }

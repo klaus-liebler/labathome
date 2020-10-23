@@ -1,5 +1,5 @@
-set(COMPONENT_ADD_INCLUDEDIRS include)
-set(COMPONENT_SRCS "bh1750.cc")
-register_component()
+idf_component_register(SRCS "bh1750.cc"
+                       INCLUDE_DIRS "include"
+                       REQUIRES i2c)
 
 

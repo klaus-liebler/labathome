@@ -20,3 +20,4 @@ esp_err_t handle_delete_fbdstorejson(httpd_req_t *req);
 
 //"Heartbeat" mit Info-Übermittlung fürs Heater-Experiment
 esp_err_t handle_put_heaterexperiment(httpd_req_t *req);
+esp_err_t handle_get_adcexperiment(httpd_req_t *req);

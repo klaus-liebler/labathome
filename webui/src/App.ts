@@ -1,8 +1,9 @@
-import { ExperimentController } from "./ExperimentController";
+import { HeaterExperimentController } from "./HeaterExperimentController";
 import { ScreenController, ControllerState } from "./ScreenController";
 import { DevelopCFCController } from "./DevelopCFCController";
 import { DialogController } from "./DialogController";
 import { AppManagement } from "./AppManagement";
+import { ADCExperimentController } from "./ADCExperimentController";
 
 class DashboardController extends ScreenController {
     public onFirstStart(): void { }
@@ -81,7 +82,8 @@ class AppController implements AppManagement {
         this.screenControllers.push(new DashboardController(this, <HTMLDivElement>document.getElementById("screen_dashboard")));
         this.screenControllers.push(new DevelopCFCController(this, <HTMLDivElement>document.getElementById("screen_develop")));
         this.screenControllers.push(new ReportsController(this, <HTMLDivElement>document.getElementById("screen_reports")));
-        this.screenControllers.push(new ExperimentController(this, <HTMLDivElement>document.getElementById("screen_experiment")));
+        this.screenControllers.push(new HeaterExperimentController(this, <HTMLDivElement>document.getElementById("screen_heaterexperiment")));
+        this.screenControllers.push(new ADCExperimentController(this, <HTMLDivElement>document.getElementById("screen_adcexperiment")))
         this.screenControllers.forEach((sc) => sc.onCreate());
 
         this.setActiveScreen(1);

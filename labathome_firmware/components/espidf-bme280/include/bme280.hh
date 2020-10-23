@@ -25,5 +25,6 @@ public:
     BME280(i2c_port_t i2c_num, BME280_ADRESS adress);
     ~BME280();
     esp_err_t Init(uint32_t *calculatedDelay);
-    esp_err_t GetDataAndPrepareNextMeasurement(float *tempDegCel, float *pressurePa, float *relHumidityPercent);
+    esp_err_t GetDataAndTriggerNextMeasurement(float *tempDegCel, float *pressurePa, float *relHumidityPercent);
+    esp_err_t TriggerNextMeasurement();
 };

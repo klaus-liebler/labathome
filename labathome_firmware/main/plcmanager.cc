@@ -448,6 +448,8 @@ LabAtHomeErrorCode PLCManager::GetDebugInfo(uint8_t *buffer, size_t maxSizeInByt
     return LabAtHomeErrorCode::OK;
 }
 
+
+
 LabAtHomeErrorCode PLCManager::Init()
 {
     FILE *fd = NULL;

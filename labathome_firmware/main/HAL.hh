@@ -30,6 +30,7 @@ class HAL
 {
     public:
         virtual LabAtHomeErrorCode Init()=0;
+        virtual void SensorLoop_ForInternalUseOnly()=0;
         virtual LabAtHomeErrorCode StartBuzzer(double freqHz)=0;
         virtual LabAtHomeErrorCode EndBuzzer()=0;
         virtual LabAtHomeErrorCode ColorizeLed(LED led, uint32_t color)=0;
@@ -49,8 +50,12 @@ class HAL
         virtual LabAtHomeErrorCode SetServoPosition(Servo servo, uint32_t angle_0_to_180)=0;
         virtual LabAtHomeErrorCode BeforeLoop()=0;
         virtual LabAtHomeErrorCode AfterLoop()=0;
-        virtual LabAtHomeErrorCode GetHeaterTemperature(float *degrees);
+        virtual LabAtHomeErrorCode GetHeaterTemperature(float *degreesCelcius);
         virtual LabAtHomeErrorCode GetAmbientBrightness(float *lux);
+        virtual LabAtHomeErrorCode GetAirTemperature(float *degreesCelcius);
+        virtual LabAtHomeErrorCode GetAirPressure(float *pa);
+        virtual LabAtHomeErrorCode GetAirRelHumidity(float *percent);
+        virtual LabAtHomeErrorCode GetADCValues(float **voltages);
         virtual int64_t GetMicros()=0;
         virtual uint32_t GetMillis()=0; 
 };

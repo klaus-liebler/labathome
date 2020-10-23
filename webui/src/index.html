@@ -117,15 +117,44 @@
         <a id="show_screen_develop" href="javascript:void(0)"><svg class="icon icon-wrench">
             <use xlink:href="#icon-make-group"></use>
           </svg>&nbsp;Develop</a>
-        <a id="show_screen_experiment" href="javascript:void(0)"><svg class="icon icon-hammer">
+        <a id="show_screen_heaterexperiment" href="javascript:void(0)"><svg class="icon">
             <use xlink:href="#icon-binoculars"></use>
-          </svg>&nbsp;Experiment</a>
+          </svg>&nbsp;Heater Experiment</a>
+        <a id="show_screen_adcexperiment" href="javascript:void(0)"><svg class="icon">
+            <use xlink:href="#icon-binoculars"></use>
+          </svg>&nbsp;ADC Experiment</a>
       </nav>
       <main>
         <div id="screen_dashboard">
           <p>Nothing to do here</p>
         </div>
-        <div id="screen_experiment">
+        <div id="screen_adcexperiment">
+          <div style="height: 300px; width: 100%;"><canvas id="experiment_chart" style="height: 300px; width: 100%;" ></canvas></div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Time [HH:MM:SS]</th>
+                  <th>Time [seconds]</th>
+                  <th>Input 0 [V]</th>
+                  <th>Input 1 [V]</th>
+                  <th>Input 2 [V]</th>
+                  <th>Input 3 [V]</th>
+                 
+                </tr>
+                <tr id="adcexperiment_tabFirstRow">
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+              </thead>
+              <tbody id="adcexperiment_tabBody">
+              </tbody>
+            </table>
+        </div>
+        <div id="screen_heaterexperiment">
           <form>
             <label>Main Controls</label>
             <div>
@@ -167,23 +196,18 @@
               <output class="bubble"></output>
             </div>  
             
-  
-            
-            
             <label class="experiment_closedloopctrl">Setp. Temp [°C]</label>
             <div class="range-wrap experiment_closedloopctrl">
               <input type="range" id="experiment_inpSetpointTemperature" min="0" max="80" value="0"/>
               <output class="bubble"></output>
             </div>  
             
-
             <label class="experiment_closedloopctrl">Fan Power [%]</label>
             <div class="range-wrap experiment_closedloopctrl">
               <input type="range" id="experiment_inpFanCL" min="0" max="100" value="0"/>
               <output class="bubble"></output>
             </div>  
             
-
             <label class="experiment_closedloopctrl">K_P</label>
             <input class="experiment_closedloopctrl" type="number" id="experiment_inpKP" min="0" max="10" value="0"/>
 
@@ -192,14 +216,9 @@
 
             <label class="experiment_closedloopctrl">K_D</label>
             <input class="experiment_closedloopctrl" type="number" id="experiment_inpKD" min="0" max="10" value="0"/>
-
-            
-
           </form>
           <!-- <div id="experiment_chart" style="height: 300px;" class="ct-chart ct-perfect-fourth"></div>-->
           <div style="height: 300px; width: 100%;"><canvas id="experiment_chart" style="height: 300px; width: 100%;" ></canvas></div>
-
-
             <table>
               <thead>
                 <tr>

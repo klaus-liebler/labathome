@@ -3,9 +3,7 @@
 #include "HAL.hh"
 
 #include <inttypes.h>
-#include <owb.h>
-#include <owb_rmt.h>
-#include <ds18b20.h>
+
 
 #include <driver/mcpwm.h>
 #include <driver/ledc.h>
@@ -16,6 +14,11 @@
 #include "WS2812.hh"
 #include <bh1750.hh>
 #include <bme280.hh>
+#include <ads1115.hh>
+#include <owb.h>
+#include <owb_rmt.h>
+#include <ds18b20.h>
+#include <i2c.hh>
 
 typedef gpio_num_t Pintype;
 
@@ -105,38 +108,34 @@ constexpr int SERVO_MIN_PULSEWIDTH = 500;  //Minimum pulse width in microsecond
 constexpr int SERVO_MAX_PULSEWIDTH = 2400; //Maximum pulse width in microsecond
 constexpr int SERVO_MAX_DEGREE = 180;      //Maximum angle in degree upto which servo can rotate
 
+extern "C" void sensorTask(void *pvParameters);
+
 class HAL_labathomeV5:public HAL
 {
 private:
-
-
     bool movementIsDetected = false;
     esp_adc_cal_characteristics_t *adc_chars;
     MODE_IO33 mode_io33;
     MODE_MULTI1_PIN mode_multi1;
     MODE_MULTI_2_3_PINS mode_multi23;
     bool needLedStripUpdate = false;
-    int buttonState = 0;
     
-    
-    float lastHeaterTemperature=0.0;
-    int64_t nextOneWireReadout = INT64_MAX;
 
-    float lastAmbientBrightness = 0.0;
-    int64_t nextBH1750Readout = INT64_MAX;
+     WS2812_Strip<LED_NUMBER> *strip=NULL;
 
-    float lastAmbientTempDegCel=0.0;
-    float lastPressurePa=0.0;
-    float lastRelHumidityPercent=0.0;
-    int64_t nextBME280Readout = INT64_MAX;
-    uint32_t bme280ReadoutInterval = UINT32_MAX;
+    uint32_t buttonState = 0;
 
-    WS2812_Strip<LED_NUMBER> *strip=NULL;
-    
-    owb_rmt_driver_info rmt_driver_info;
-    OneWireBus *owb=NULL;
-    DS18B20_Info *ds18b20_info=NULL;
-    BME280* bme280 = new BME280(I2C_PORT, BME280_ADRESS::PRIM); 
+    //SensorValues
+    float heaterTemperatureDegCel=0.0;
+    float airTemperatureDegCel=0.0;
+    float airPressurePa=0.0;
+    float airRelHumidityPercent=0.0;
+    float ambientBrightnessLux = 0.0;
+    float ADS1115Values[4];
+    uint16_t ds4525doTemperature;
+    uint16_t ds4525doPressure;
+    //Actor Values
+    uint16_t pca9685Values[16];
 public:
 
 
@@ -155,40 +154,168 @@ public:
         return (uint32_t) (esp_timer_get_time() / 1000ULL);
     }
 
+    int64_t GetMillis64(){
+        return esp_timer_get_time() / 1000ULL;
+    }
 
-    LabAtHomeErrorCode GetHeaterTemperature(float * degrees)
+    LabAtHomeErrorCode GetADCValues(float **voltages){
+        *voltages = this->ADS1115Values;
+        return LabAtHomeErrorCode::OK;
+    }
+  
+    void SensorLoop_ForInternalUseOnly()
     {
-        *degrees= this->lastHeaterTemperature;
+        int64_t nextOneWireReadout = INT64_MAX;
+        int64_t nextBME280Readout = INT64_MAX;
+        int64_t nextBH1750Readout = INT64_MAX;
+        TickType_t  nextADS1115Readout = UINT32_MAX;
+        uint16_t nextADS1115Mux = 0b100; //100...111
+        
+        uint32_t oneWireReadoutIntervalMs = 200;
+        uint32_t bme280ReadoutIntervalMs = UINT32_MAX;
+        uint32_t bh1750ReadoutIntervalMs = 200;
+        TickType_t ads1115ReadoutInterval= portMAX_DELAY;
+
+        //OneWire
+        DS18B20_Info *ds18b20_info=NULL;
+        owb_rmt_driver_info rmt_driver_info;
+        OneWireBus *owb = owb_rmt_initialize(&rmt_driver_info, PIN_ONEWIRE, CHANNEL_ONEWIRE_TX, CHANNEL_ONEWIRE_RX);
+        owb_use_crc(owb, true);  // enable CRC check for ROM code
+        // Find all connected devices
+        OneWireBus_ROMCode rom_code;
+        owb_status status = owb_read_rom(owb, &rom_code);
+        if (status == OWB_STATUS_OK)
+        {
+            
+            ds18b20_info=ds18b20_malloc();  // heap allocation
+            ds18b20_init_solo(ds18b20_info, owb);// only one device on bus
+            ds18b20_use_crc(ds18b20_info, true); // enable CRC check on all reads
+            ds18b20_set_resolution(ds18b20_info, DS18B20_RESOLUTION_10_BIT); //10bit -->187ms Conversion time
+            ds18b20_convert_all(owb);
+            nextOneWireReadout=GetMillis()+200;
+        }
+        else
+        {
+            ESP_LOGE(TAG, "OneWire: An error occurred reading ROM code: %d", status);
+        }
+
+        
+        //BME280
+        BME280* bme280 = new BME280(I2C_PORT, BME280_ADRESS::PRIM);
+        if(bme280->Init(&bme280ReadoutIntervalMs)==ESP_OK){
+            bme280->TriggerNextMeasurement();
+            bme280ReadoutIntervalMs+=20;
+            bme280->TriggerNextMeasurement();
+            nextBME280Readout=GetMillis()+bme280ReadoutIntervalMs;
+            ESP_LOGI(TAG, "I2C: BME280 successfully initialized.");  
+        }
+        else
+        {
+            ESP_LOGW(TAG, "I2C: BME280 not found");
+        }
+        
+        //BH1750
+        BH1750* bh1750 = new BH1750(I2C_PORT, BH1750_ADRESS::LOW);
+        if(bh1750->Init(BH1750_OPERATIONMODE::CONTINU_H_RESOLUTION)==ESP_OK){
+            bh1750ReadoutIntervalMs = 200;
+            nextBH1750Readout=GetMillis()+bh1750ReadoutIntervalMs;
+            ESP_LOGI(TAG, "I2C: BH1750 successfully initialized.");
+        }
+        else{
+            ESP_LOGW(TAG, "I2C: BH1750 not found");
+        }
+
+        //ADS1115
+        ADS1115 *ads1115 = new ADS1115(I2C_PORT, (uint8_t)0x48);
+        if(ads1115->Init(ads1115_sps_t::ADS1115_SPS_16, &ads1115ReadoutInterval)==ESP_OK){
+            ads1115->TriggerMeasurement((ads1115_mux_t)nextADS1115Mux);
+            nextADS1115Mux++;
+            nextADS1115Readout=xTaskGetTickCount()+ads1115ReadoutInterval;
+            ESP_LOGI(TAG, "I2C: ADS1115 successfully initialized.");
+        }
+        else{
+            ESP_LOGW(TAG, "I2C: ADS1115 not found");
+        }
+
+        while(true){
+           
+            this->movementIsDetected= gpio_get_level(PIN_MOVEMENT);
+            int adc_reading = adc1_get_raw(PIN_SW_CHANNEL);
+            //uint32_t voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
+            //printf("Raw: %d\tVoltage: %dmV\n", adc_reading, voltage);
+            int i = 0;
+            for (i = 0; i < sizeof(sw_limits) / sizeof(uint16_t); i++)
+            {
+                if (adc_reading < sw_limits[i])
+                    break;
+            }
+            i = ~i;
+            this->buttonState = i;
+
+            if (GetMillis64() > nextOneWireReadout)
+            {
+                ds18b20_read_temp(ds18b20_info, &(this->heaterTemperatureDegCel));
+                ds18b20_convert_all(owb);
+                nextOneWireReadout = GetMillis64()+oneWireReadoutIntervalMs;
+            }
+            if(GetMillis64()>nextBME280Readout)
+            {
+                bme280->GetDataAndTriggerNextMeasurement(&this->airTemperatureDegCel, &this->airPressurePa, &this->airRelHumidityPercent);
+                nextBME280Readout=GetMillis64()+bme280ReadoutIntervalMs;
+            }
+            if(GetMillis64()>nextBH1750Readout)
+            {
+                bh1750->Read(&(this->ambientBrightnessLux));
+                nextBH1750Readout=GetMillis64()+bh1750ReadoutIntervalMs;
+            }
+            if(GetMillis64()>nextBH1750Readout)
+            {
+                bh1750->Read(&(this->ambientBrightnessLux));
+                nextBH1750Readout=GetMillis64()+bh1750ReadoutIntervalMs;
+            }
+
+            if(xTaskGetTickCount()>=nextADS1115Readout){
+                ads1115->GetVoltage(&ADS1115Values[nextADS1115Mux&0b11]);
+                nextADS1115Mux++;
+                if(nextADS1115Mux>0b111) nextADS1115Mux=0b100;
+                ads1115->TriggerMeasurement((ads1115_mux_t)nextADS1115Mux);
+                nextADS1115Readout=xTaskGetTickCount()+ads1115ReadoutInterval;
+            }
+        }
+    }
+
+
+    LabAtHomeErrorCode GetHeaterTemperature(float * degreesCelcius)
+    {
+        *degreesCelcius= this->heaterTemperatureDegCel;
+        return LabAtHomeErrorCode::OK;
+    }
+
+    LabAtHomeErrorCode GetAirTemperature(float *degreesCelcius){
+        *degreesCelcius= this->airTemperatureDegCel;
+        return LabAtHomeErrorCode::OK;
+    }
+
+    LabAtHomeErrorCode GetAirPressure(float *pa){
+        *pa=this->airPressurePa;
+        return LabAtHomeErrorCode::OK;
+    }
+    LabAtHomeErrorCode GetAirRelHumidity(float *percent){
+        *percent=this->airRelHumidityPercent;
         return LabAtHomeErrorCode::OK;
     }
 
     LabAtHomeErrorCode GetAmbientBrightness(float *lux)
     {
-        *lux=this->lastAmbientBrightness;
+        *lux=this->ambientBrightnessLux;
         return LabAtHomeErrorCode::OK;
-    }
-
-    static esp_err_t i2c_master_init(void){
-        
-        i2c_config_t conf;
-        conf.mode = I2C_MODE_MASTER;
-        conf.sda_io_num = PIN_I2C_SDA;
-        conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
-        conf.scl_io_num = PIN_I2C_SCL;
-        conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
-        conf.master.clk_speed = 100000;
-        i2c_param_config(I2C_PORT, &conf);
-        return i2c_driver_install(I2C_PORT, conf.mode, 0, 0, 0);
     }
 
 
     LabAtHomeErrorCode Init()
     {
-        if (mode_io33 == MODE_IO33::FAN1_SENSE)
-        {
-           return LabAtHomeErrorCode::NOT_YET_IMPLEMENTED;
-        }
-
+        if (mode_io33 == MODE_IO33::FAN1_SENSE) return LabAtHomeErrorCode::NOT_YET_IMPLEMENTED;
+        
         gpio_pad_select_gpio((uint8_t)PIN_R3_1);
         gpio_set_direction(PIN_R3_1, GPIO_MODE_INPUT);
         gpio_set_pull_mode(PIN_R3_1, GPIO_FLOATING);
@@ -196,7 +323,6 @@ public:
         gpio_pad_select_gpio((uint8_t)PIN_MOVEMENT);
         gpio_set_direction(PIN_MOVEMENT, GPIO_MODE_INPUT);
         gpio_set_pull_mode(PIN_MOVEMENT, GPIO_FLOATING);
-
 
         adc_chars = (esp_adc_cal_characteristics_t *)calloc(1, sizeof(esp_adc_cal_characteristics_t));
         esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_0db, ADC_WIDTH_BIT_12, DEFAULT_VREF, adc_chars);
@@ -216,66 +342,6 @@ public:
         gpio_set_direction(PIN_R3_ON, GPIO_MODE_OUTPUT);
         gpio_set_pull_mode(PIN_R3_ON, GPIO_FLOATING);
 
-
-
-        //OneWire
-        owb = owb_rmt_initialize(&rmt_driver_info, PIN_ONEWIRE, CHANNEL_ONEWIRE_TX, CHANNEL_ONEWIRE_RX);
-        owb_use_crc(owb, true);  // enable CRC check for ROM code
-        // Find all connected devices
-        OneWireBus_ROMCode rom_code;
-        owb_status status = owb_read_rom(owb, &rom_code);
-        if (status == OWB_STATUS_OK)
-        {
-            
-            this->ds18b20_info=ds18b20_malloc();  // heap allocation
-            ds18b20_init_solo(ds18b20_info, owb);          // only one device on bus
-            ds18b20_use_crc(ds18b20_info, true);           // enable CRC check on all reads
-            ds18b20_set_resolution(ds18b20_info, DS18B20_RESOLUTION_12_BIT);
-            ds18b20_convert_all(owb);
-            nextOneWireReadout=GetMillis()+1000;
-        }
-        else
-        {
-            ESP_LOGE(TAG, "An error occurred reading ROM code: %d", status);
-        }
-
-        //I2C
-        ESP_ERROR_CHECK(i2c_master_init());
-        //BME280
-        if(bme280->Init(&bme280ReadoutInterval)==ESP_OK)
-        {
-            bme280ReadoutInterval*=2;
-            vTaskDelay(bme280ReadoutInterval / portTICK_RATE_MS);
-            bme280->GetDataAndPrepareNextMeasurement(&this->lastAmbientTempDegCel, &this->lastPressurePa, &this->lastRelHumidityPercent);
-            ESP_LOGI(TAG, "BME280 successfully initialized.");
-            nextBME280Readout=GetMillis()+bme280ReadoutInterval;
-        }
-        else
-        {
-            ESP_LOGW(TAG, "BME280 not found");
-        }
-        
-        
-
-        //BH1750
-        if(BH1750::Command(I2C_NUM_1, BH1750_ADRESS::LOW, BH1750_OPERATIONMODE::ONETIME_L_RESOLUTION)==ESP_OK)
-        {
-            vTaskDelay(30 / portTICK_RATE_MS);
-            BH1750::Read(I2C_NUM_1, BH1750_ADRESS::LOW, &(this->lastAmbientBrightness));
-            BH1750::Command(I2C_NUM_1, BH1750_ADRESS::LOW, BH1750_OPERATIONMODE::ONETIME_L_RESOLUTION);
-            ESP_LOGI(TAG, "BH1750 successfully initialized. Brightness is %f", this->lastAmbientBrightness);
-            nextBH1750Readout=GetMillis()+300;
-        }
-        else{
-            ESP_LOGW(TAG, "BH1750 not found");
-        }
-        
- 
-        //LED Strip
-        strip = new WS2812_Strip<LED_NUMBER>(CHANNEL_WS2812);
-        ESP_ERROR_CHECK(strip->Init(PIN_LED_STRIP));
-        ESP_ERROR_CHECK(strip->Clear(100));
-
         //Servos
         mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0A, PIN_SERVO1);
         if (mode_io33 == MODE_IO33::SERVO2)
@@ -288,7 +354,7 @@ public:
         pwm_config.cmpr_b = 0;     //duty cycle of PWMxb = 0
         pwm_config.counter_mode = MCPWM_UP_COUNTER;
         pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
-        mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_0, &pwm_config); //Configure PWM0A & PWM0B with above settings
+        ESP_ERROR_CHECK(mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_0, &pwm_config)); //Configure PWM0A & PWM0B with above settings
 
         //Fans
         mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM1A, PIN_FAN1_DRIVE);
@@ -298,7 +364,7 @@ public:
         pwm_config.cmpr_b = 0;     //duty cycle of PWMxb = 0
         pwm_config.counter_mode = MCPWM_UP_COUNTER;
         pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
-        mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_1, &pwm_config);
+        ESP_ERROR_CHECK(mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_1, &pwm_config));
         
         //Heater
         mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM2A, PIN_HEATER);
@@ -307,7 +373,7 @@ public:
         pwm_config.cmpr_b = 0;     //duty cycle of PWMxb = 0
         pwm_config.counter_mode = MCPWM_UP_COUNTER;
         pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
-        mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_2, &pwm_config);
+        ESP_ERROR_CHECK(mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_2, &pwm_config));
 
         //LED
         ledc_timer_config_t power_ledc_timer;
@@ -315,7 +381,7 @@ public:
         power_ledc_timer.freq_hz = 5000;                      // frequency of PWM signal
         power_ledc_timer.speed_mode = LEDC_HIGH_SPEED_MODE;   // timer mode
         power_ledc_timer.timer_num = LEDC_TIMER_0;            // timer index
-        ledc_timer_config(&power_ledc_timer);
+        ESP_ERROR_CHECK(ledc_timer_config(&power_ledc_timer));
 
         ledc_channel_config_t ledc_channel;
         ledc_channel.channel = LEDC_CHANNEL_0;
@@ -324,14 +390,14 @@ public:
         ledc_channel.speed_mode = LEDC_HIGH_SPEED_MODE;
         ledc_channel.hpoint = 0;
         ledc_channel.timer_sel = LEDC_TIMER_0;
-        ledc_channel_config(&ledc_channel);
+        ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
 
         ledc_timer_config_t buzzer_timer;
         buzzer_timer.duty_resolution = LEDC_TIMER_10_BIT; // resolution of PWM duty
         buzzer_timer.freq_hz = 440;                       // frequency of PWM signal
         buzzer_timer.speed_mode = LEDC_HIGH_SPEED_MODE;   // timer mode
         buzzer_timer.timer_num = LEDC_TIMER_2;            // timer index
-        ledc_timer_config(&buzzer_timer);
+        ESP_ERROR_CHECK(ledc_timer_config(&buzzer_timer));
 
         ledc_channel_config_t buzzer_channel;
         buzzer_channel.channel = LEDC_CHANNEL_2;
@@ -340,46 +406,35 @@ public:
         buzzer_channel.speed_mode = LEDC_HIGH_SPEED_MODE;
         buzzer_channel.hpoint = 0;
         buzzer_channel.timer_sel = LEDC_TIMER_2;
-        ledc_channel_config(&buzzer_channel);
+        ESP_ERROR_CHECK(ledc_channel_config(&buzzer_channel));
+
+        //I2C Master
+        i2c_config_t conf;
+        conf.mode = I2C_MODE_MASTER;
+        conf.sda_io_num = PIN_I2C_SDA;
+        conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
+        conf.scl_io_num = PIN_I2C_SCL;
+        conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
+        conf.master.clk_speed = 100000;
+        i2c_param_config(I2C_PORT, &conf);
+        ESP_ERROR_CHECK(i2c_driver_install(I2C_PORT, conf.mode, 0, 0, 0));
+
+        ESP_ERROR_CHECK(I2C::Init());
+
+        //LED Strip
+        strip = new WS2812_Strip<LED_NUMBER>(CHANNEL_WS2812);
+        ESP_ERROR_CHECK(strip->Init(PIN_LED_STRIP));
+        ESP_ERROR_CHECK(strip->Clear(100));
+
+
+        xTaskCreate(sensorTask, "sensorTask", 4096 * 4, this, 6, NULL);
+
         return LabAtHomeErrorCode::OK;
     }
 
     LabAtHomeErrorCode BeforeLoop()
     {
-        this->movementIsDetected= gpio_get_level(PIN_MOVEMENT);
         
-        int adc_reading = adc1_get_raw(PIN_SW_CHANNEL);
-        uint32_t voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
-        (void)voltage;
-        //printf("Raw: %d\tVoltage: %dmV\n", adc_reading, voltage);
-        int i = 0;
-        for (i = 0; i < sizeof(sw_limits) / sizeof(uint16_t); i++)
-        {
-            if (adc_reading < sw_limits[i])
-                break;
-        }
-        i = ~i;
-        this->buttonState = i;
-        int32_t ms = GetMillis();
-        if (ms > nextOneWireReadout)
-        {
-            ds18b20_read_temp(ds18b20_info, &(this->lastHeaterTemperature));
-            ds18b20_convert_all(owb);
-            nextOneWireReadout = GetMillis()+1000;
-        }
-
-        if(ms>nextBH1750Readout)
-        {
-            BH1750::Read(I2C_NUM_1, BH1750_ADRESS::LOW, &(this->lastAmbientBrightness));
-            BH1750::Command(I2C_NUM_1, BH1750_ADRESS::LOW, BH1750_OPERATIONMODE::ONETIME_L_RESOLUTION);
-            nextBH1750Readout=GetMillis()+500;
-        }
-
-        if(ms>nextBME280Readout)
-        {
-            bme280->GetDataAndPrepareNextMeasurement(&this->lastAmbientTempDegCel, &this->lastPressurePa, &this->lastRelHumidityPercent);
-            nextBME280Readout=GetMillis()+bme280ReadoutInterval;
-        }
         return LabAtHomeErrorCode::OK;
     }
 
@@ -516,3 +571,8 @@ public:
         return LabAtHomeErrorCode::OK;
     }
 };
+
+void sensorTask(void *pvParameters){
+    HAL_labathomeV5 *hal = (HAL_labathomeV5 *)pvParameters;
+    hal->SensorLoop_ForInternalUseOnly();
+}

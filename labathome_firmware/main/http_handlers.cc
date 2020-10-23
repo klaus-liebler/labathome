@@ -15,7 +15,7 @@
 #include "plcmanager.hh"
 #include "paths_and_files.hh"
 
-const char *TAG = "HTTP_handler";
+static const char *TAG = "HTTP_handler";
 
 
 
@@ -232,10 +232,20 @@ esp_err_t handle_get_fbd(httpd_req_t *req){
     uint8_t buf[size];
     plcmanager->GetDebugInfo(buf, size);
     httpd_resp_set_type(req, "application/octet-stream");
-    httpd_resp_send(req, (char *)buf, size); // -1 = use strlen()
+    httpd_resp_send(req, (char *)buf, size);
     return ESP_OK;
 }
 
+
+esp_err_t handle_get_adcexperiment(httpd_req_t *req)
+{
+    PLCManager *plcmanager = (PLCManager *)(req->user_ctx);
+    float *buf;
+    plcmanager->GetHAL()->GetADCValues(&buf);
+    httpd_resp_set_type(req, "application/octet-stream");
+    httpd_resp_send(req, (char *)buf, 4*sizeof(float));
+    return ESP_OK;
+}
 esp_err_t handle_put_heaterexperiment(httpd_req_t *req)
 {    
     PLCManager *plcmanager = (PLCManager *)(req->user_ctx);

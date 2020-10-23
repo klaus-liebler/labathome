@@ -7,7 +7,7 @@ import { SerializeContext } from "./flowchart/SerializeContext";
 export let DE_de = new Intl.NumberFormat('de-DE');
 export const CHART_EACH_INTERVAL = 2;
 
-export class ExperimentController extends ScreenController {
+export class HeaterExperimentController extends ScreenController {
     private butRecord: HTMLButtonElement;
     private butStop: HTMLButtonElement;
     private butDelete: HTMLButtonElement;
