@@ -4,15 +4,6 @@
 #include "driver/i2c.h"
 #include "driver/gpio.h"
  
-// Interface Type I
-constexpr uint8_t MS4525DAddress = 0x28;
-// Interface Type J
-//constexpr uint8_t MS4525DAddress = 0x36;
-// Interface Type K
-//constexpr uint8_t MS4525DAddress = 0x46;
-// Interface Type 0
-//constexpr uint8_t MS4525DAddress = 0x48;
- 
 /* Register address */
 constexpr uint8_t  ADDR_READ_MR=0x00;    /* write to this address to start conversion */
  
@@ -44,6 +35,22 @@ constexpr int16_t MS4525ZeroCounts=(MS4525MinScaleCounts+MS4525FullScaleCounts)/
      Fault=0b11,
  };
 
+ enum class MS4523_Adress{
+     I=0x28,
+     J=0x36,
+     K=0x46,
+     DIGIT_0=0x48,
+     DIGIT_1=0x49,
+     DIGIT_2=0x4A,
+     DIGIT_3=0x4B,
+     DIGIT_4=0x4C,
+     DIGIT_5=0x4D,
+     DIGIT_6=0x4E,
+     DIGIT_7=0x4F,
+     DIGIT_8=0x50,
+     DIGIT_9=0x51,
+ };
+
  /** airspeed scaling factors; out = (in * Vscale) + offset */
 struct airspeed_scale {
     float   offset_pa;
@@ -54,13 +61,13 @@ class MS4525DO
 {
     public:
 
-        MS4525DO(i2c_port_t i2c_port, uint8_t address=MS4525DAddress);
+        MS4525DO(i2c_port_t i2c_port, MS4523_Adress address);
         ~MS4525DO();
         esp_err_t Init(void);
         esp_err_t Read(void);              // returns status of measurement
         float GetPSI(void);             // returns the PSI of last measurement
         float GetTemperature(void);     // returns temperature of last measurement
-        float GetAirSpeed(void);        // calculates and returns the airspeed
+        float GetAirSpeedMetersPerSecond(void);        // calculates and returns the airspeed
         MS4525_Status GetStatus();
     private:
         i2c_port_t i2c_port;

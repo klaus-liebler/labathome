@@ -47,7 +47,8 @@ class HAL
         virtual bool GetButtonEncoderIsPressed()=0;
         virtual bool GetButtonGreenIsPressed()=0;
         virtual bool IsMovementDetected()=0;
-        virtual LabAtHomeErrorCode SetServoPosition(Servo servo, uint32_t angle_0_to_180)=0;
+        virtual LabAtHomeErrorCode SetServo1Position(uint32_t angle_0_to_180)=0;
+        virtual LabAtHomeErrorCode SetServo2Position(uint32_t angle_0_to_180)=0;
         virtual LabAtHomeErrorCode BeforeLoop()=0;
         virtual LabAtHomeErrorCode AfterLoop()=0;
         virtual LabAtHomeErrorCode GetHeaterTemperature(float *degreesCelcius);
@@ -55,7 +56,9 @@ class HAL
         virtual LabAtHomeErrorCode GetAirTemperature(float *degreesCelcius);
         virtual LabAtHomeErrorCode GetAirPressure(float *pa);
         virtual LabAtHomeErrorCode GetAirRelHumidity(float *percent);
+        virtual LabAtHomeErrorCode GetAirSpeed(float *speedMetersPerSecond);
         virtual LabAtHomeErrorCode GetADCValues(float **voltages);
+        virtual LabAtHomeErrorCode PlaySong(uint32_t songNumber);
         virtual int64_t GetMicros()=0;
         virtual uint32_t GetMillis()=0; 
 };

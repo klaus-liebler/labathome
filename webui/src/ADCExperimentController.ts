@@ -13,13 +13,6 @@ export class ADCExperimentController extends ScreenController {
     private butDelete: HTMLButtonElement;
     private tbody: HTMLTableSectionElement;
     private tfirstRow: HTMLTableRowElement;
-    private inputSetpointHeater: HTMLInputElement;
-    private inputSetpointTemperature: HTMLInputElement;
-    private inputFanCL: HTMLInputElement;
-    private inputFanOL: HTMLInputElement;
-    private inputKP: HTMLInputElement;
-    private inputKI: HTMLInputElement;
-    private inputKD: HTMLInputElement;
     private timer: number | undefined;
     private chart: Chart;
     private chartConfig: Chart.ChartConfiguration;
@@ -108,12 +101,12 @@ export class ADCExperimentController extends ScreenController {
 
     constructor(appManagement:AppManagement, div: HTMLDivElement) {
         super(appManagement, div);
-        this.butRecord = <HTMLButtonElement>document.getElementById("experiment_butRecord")!;
-        this.butStop = <HTMLButtonElement>document.getElementById("experiment_butStop")!;
+        this.butRecord = <HTMLButtonElement>document.getElementById("adcexperiment_butRecord")!;
+        this.butStop = <HTMLButtonElement>document.getElementById("adcexperiment_butStop")!;
         this.butStop.hidden = true;
-        this.butDelete = <HTMLButtonElement>document.getElementById("experiment_butDelete")!;
-        this.tbody = <HTMLTableSectionElement>document.getElementById("experiment_tabBody")!;
-        this.tfirstRow = <HTMLTableRowElement>document.getElementById("experiment_tabFirstRow")!;
+        this.butDelete = <HTMLButtonElement>document.getElementById("adcexperiment_butDelete")!;
+        this.tbody = <HTMLTableSectionElement>document.getElementById("adcexperiment_tabBody")!;
+        this.tfirstRow = <HTMLTableRowElement>document.getElementById("adcexperiment_tabFirstRow")!;
         
         this.chartConfig = {
             type: 'line',
@@ -171,7 +164,7 @@ export class ADCExperimentController extends ScreenController {
             }
         };
 
-        let ctx = <HTMLCanvasElement>document.getElementById('experiment_chart')!;
+        let ctx = <HTMLCanvasElement>document.getElementById('adcexperiment_chart')!;
         this.chart = new Chart(ctx, this.chartConfig);
 
         this.butStop.onclick = (e) => {

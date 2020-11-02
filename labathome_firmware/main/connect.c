@@ -43,7 +43,7 @@ static esp_netif_t *s_example_esp_netif = NULL;
 static esp_ip6_addr_t s_ipv6_addr;
 #endif
 
-static const char *TAG = "example_connect";
+static const char *TAG = "wifi";
 
 /* set up connection, Wi-Fi or Ethernet */
 static void start(void);
@@ -92,23 +92,9 @@ esp_err_t example_connect(void)
     ESP_LOGI(TAG, "Connected to %s", s_connection_name);
     ESP_LOGI(TAG, "IPv4 address: " IPSTR, IP2STR(&s_ip_addr));
     const char * hostnameptr;
-    if(tcpip_adapter_get_hostname(TCPIP_ADAPTER_IF_STA, &hostnameptr)==ESP_OK)
-    {
-        if(hostnameptr!=NULL)
-        {
-            ESP_LOGI(TAG, "Hostname %s", hostnameptr);
-        }
-        else
-        {
-            ESP_LOGW(TAG, "Hostname is still null");
-        }
-        
-        
-    }
-    else{
-        ESP_LOGW(TAG, "No hostname defined");
-    }
-    
+    tcpip_adapter_get_hostname(TCPIP_ADAPTER_IF_STA, &hostnameptr);
+    ESP_LOGI(TAG, "Hostname %s", hostnameptr);
+      
 #ifdef CONFIG_EXAMPLE_CONNECT_IPV6
     ESP_LOGI(TAG, "IPv6 address: " IPV6STR, IPV62STR(s_ipv6_addr));
 #endif
@@ -188,7 +174,7 @@ static void start(void)
     uint8_t mac[6];
     esp_read_mac(mac, ESP_MAC_WIFI_STA);
     char hostname[32];
-    sprintf(hostname, "labathome_%02X%02X%02X", mac[3], mac[4], mac[5]);
+    sprintf(hostname, "labathome-%02X%02X%02X", mac[3], mac[4], mac[5]);
     ESP_ERROR_CHECK(tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_STA, hostname));
     ESP_LOGI(TAG, "Hostname set to %s", hostname);
     ESP_ERROR_CHECK(esp_wifi_connect());

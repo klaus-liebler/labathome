@@ -89,6 +89,24 @@ public:
     ~FB_GreenLED(){}
 };
 
+class FB_Melody: public FunctionBlock{
+    size_t input;
+    uint32_t melodyIndex;
+    bool lastInputState = false;
+public:
+    LabAtHomeErrorCode execute(FBContext *ctx){
+        bool newInputState=ctx->GetBinary(input);
+        if(!lastInputState && newInputState){
+            ctx->GetHAL()->PlaySong(melodyIndex);
+        }
+        lastInputState=newInputState;
+
+        return LabAtHomeErrorCode::OK;;
+    }
+    FB_Melody(uint32_t IdOnWebApp, size_t input, uint32_t melodyIndex):FunctionBlock(IdOnWebApp), input(input), melodyIndex(melodyIndex){}
+    ~FB_Melody(){}
+};
+
 class FB_YellowLED: public FunctionBlock{
     size_t input;
 public:
@@ -315,7 +333,7 @@ class FB_TOF: public FunctionBlock{
     size_t outputElapsedTime_msecs;
     
 
-    int64_t inputNegativeEdge = INT64_MAX;
+    int64_t inputNegativeEdge = INT64_MIN;
     bool lastInputValue;
     
     public:
@@ -335,7 +353,7 @@ class FB_TOF: public FunctionBlock{
             lastInputValue=currentInputValue;
             auto elapsed = (now-inputNegativeEdge)/1000;
             elapsed=std::min(elapsed, (long long)presetTime_msecs);
-            ctx->SetBinary(output, currentInputValue | (elapsed<presetTime_msecs));
+            ctx->SetBinary(output, currentInputValue || (elapsed<presetTime_msecs));
             ctx->SetInteger(outputElapsedTime_msecs, elapsed);
             return LabAtHomeErrorCode::OK;
         }

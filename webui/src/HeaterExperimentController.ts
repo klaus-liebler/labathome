@@ -64,26 +64,26 @@ export class HeaterExperimentController extends ScreenController {
     private onModeChange(newMode: number) {
         switch (newMode) {
             case 0:
-                document.querySelectorAll('.experiment_closedloopctrl').forEach((v, k) => {
+                document.querySelectorAll('.heaterexperiment_closedloopctrl').forEach((v, k) => {
                     (<HTMLElement>v).style.display = "none";
                 });
-                document.querySelectorAll('.experiment_openloopctrl').forEach((v, k) => {
+                document.querySelectorAll('.heaterexperiment_openloopctrl').forEach((v, k) => {
                     (<HTMLElement>v).style.display = "none";
                 });
                 break;
             case 1:
-                document.querySelectorAll('.experiment_closedloopctrl').forEach((v, k) => {
+                document.querySelectorAll('.heaterexperiment_closedloopctrl').forEach((v, k) => {
                     (<HTMLElement>v).style.display = "none";
                 });
-                document.querySelectorAll('.experiment_openloopctrl').forEach((v, k) => {
+                document.querySelectorAll('.heaterexperiment_openloopctrl').forEach((v, k) => {
                     (<HTMLElement>v).style.display = "inline-block";
                 });
                 break;
             case 2:
-                document.querySelectorAll('.experiment_closedloopctrl').forEach((v, k) => {
+                document.querySelectorAll('.heaterexperiment_closedloopctrl').forEach((v, k) => {
                     (<HTMLElement>v).style.display = "inline-block";
                 });
-                document.querySelectorAll('.experiment_openloopctrl').forEach((v, k) => {
+                document.querySelectorAll('.heaterexperiment_openloopctrl').forEach((v, k) => {
                     (<HTMLElement>v).style.display = "none";
                 });
                 break;
@@ -179,20 +179,20 @@ export class HeaterExperimentController extends ScreenController {
 
     constructor(appManagement:AppManagement, div: HTMLDivElement) {
         super(appManagement, div);
-        this.butRecord = <HTMLButtonElement>document.getElementById("experiment_butRecord")!;
-        this.butStop = <HTMLButtonElement>document.getElementById("experiment_butStop")!;
+        this.butRecord = <HTMLButtonElement>document.getElementById("heaterexperiment_butRecord")!;
+        this.butStop = <HTMLButtonElement>document.getElementById("heaterexperiment_butStop")!;
         this.butStop.hidden = true;
-        this.butDelete = <HTMLButtonElement>document.getElementById("experiment_butDelete")!;
-        this.tbody = <HTMLTableSectionElement>document.getElementById("experiment_tabBody")!;
-        this.tfirstRow = <HTMLTableRowElement>document.getElementById("experiment_tabFirstRow")!;
-        this.inputSetpointHeater = <HTMLInputElement>document.getElementById("experiment_inpSetpointHeater");
-        this.inputFanOL = <HTMLInputElement>document.getElementById("experiment_inpFanOL")!;
-        this.inputSetpointTemperature = <HTMLInputElement>document.getElementById("experiment_inpSetpointTemperature");
-        this.inputFanCL = <HTMLInputElement>document.getElementById("experiment_inpFanCL")!;
+        this.butDelete = <HTMLButtonElement>document.getElementById("heaterexperiment_butDelete")!;
+        this.tbody = <HTMLTableSectionElement>document.getElementById("heaterexperiment_tabBody")!;
+        this.tfirstRow = <HTMLTableRowElement>document.getElementById("heaterexperiment_tabFirstRow")!;
+        this.inputSetpointHeater = <HTMLInputElement>document.getElementById("heaterexperiment_inpSetpointHeater");
+        this.inputFanOL = <HTMLInputElement>document.getElementById("heaterexperiment_inpFanOL")!;
+        this.inputSetpointTemperature = <HTMLInputElement>document.getElementById("heaterexperiment_inpSetpointTemperature");
+        this.inputFanCL = <HTMLInputElement>document.getElementById("heaterexperiment_inpFanCL")!;
 
-        this.inputKP = <HTMLInputElement>document.getElementById("experiment_inpKP")!;
-        this.inputKI = <HTMLInputElement>document.getElementById("experiment_inpKI")!;
-        this.inputKD = <HTMLInputElement>document.getElementById("experiment_inpKD")!;
+        this.inputKP = <HTMLInputElement>document.getElementById("heaterexperiment_inpKP")!;
+        this.inputKI = <HTMLInputElement>document.getElementById("heaterexperiment_inpKI")!;
+        this.inputKD = <HTMLInputElement>document.getElementById("heaterexperiment_inpKD")!;
 
         this.onModeChange(0);
 
@@ -261,11 +261,11 @@ export class HeaterExperimentController extends ScreenController {
             }
         };
 
-        let ctx = <HTMLCanvasElement>document.getElementById('experiment_chart')!;
+        let ctx = <HTMLCanvasElement>document.getElementById('heaterexperiment_chart')!;
         this.chart = new Chart(ctx, this.chartConfig);
 
 
-        document.querySelectorAll('input[name="experiment_mode"]').forEach((v, k) => {
+        document.querySelectorAll('input[name="heaterexperiment_mode"]').forEach((v, k) => {
             let inp = <HTMLInputElement>v;
             inp.onclick = (e) => {
                 let num = parseInt(inp.value);

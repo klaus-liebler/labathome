@@ -25,7 +25,7 @@ export abstract class FlowchartConnector {
     protected connector:SVGElement;
     protected connectorGroup:SVGGElement;
 
-    private links = new Map<number, FlowchartLink>();
+    protected  links = new Map<number, FlowchartLink>();
     public HasLink = (globalLinkIndex: number) => this.links.has(globalLinkIndex);
     public AddLink = (link: FlowchartLink) => this.links.set(link.GlobalLinkIndex, link);
     public RemoveLink = (link: FlowchartLink) => this.links.delete(link.GlobalLinkIndex);
@@ -109,6 +109,12 @@ export class FlowchartInputConnector extends FlowchartConnector {
     }
     protected GetLinkpointXOffset(width:number): number{return 0;}  
     protected  getIOSpecifics(){return {inputOrOutput:"input", parent:this.Parent.InputSvgG, translateY:0, dx:8};}
+    public GetGlobalConnectorIndexOfSignalSource():number {
+        for(let link of this.links.values()){
+            return link.From.GlobalConnectorIndex;
+        }
+        return -1;
+    }
 }
 export class FlowchartOutputConnector extends FlowchartConnector {
     constructor (parent: FlowchartOperator, caption: string, localIndex:number, type:ConnectorType) {

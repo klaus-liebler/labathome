@@ -118,6 +118,12 @@ svg.flowchart-container {
       stroke: rgb(63, 204, 75);
       stroke-width:3;
     }
+    &.False{
+      fill: #7a7979;
+    }
+    &.True{
+      fill:rgb(55, 68, 253)
+    }
   }
   
   .operator-title {

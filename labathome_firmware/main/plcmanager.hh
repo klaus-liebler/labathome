@@ -80,36 +80,50 @@ class FunctionBlock {
       virtual ~FunctionBlock(){};
 };
 
-struct ExperimentData{
+struct HeaterExperimentData{
     float Heater;
     float Fan;
     float ActualTemperature;
     float SetpointTemperature;
 };
 
+struct AirspeedExperimentData{
+    float Fan;
+    float Servo;
+    float SetpointAirspeed;
+    float ActualAirspeed;
+};
+
 
 enum class ExperimentMode
 {
     functionblock,
-    openloop,
-    closedloop,
+    openloop_heater,
+    closedloop_heater,
+    closedloop_airspeed,
 };
 
 class PLCManager:public FBContext
 {
  private:
         HAL *hal;
-        PID *pid;
+        PID *heaterPIDController;
+        PID *airspeedPIDController;
         Executable *currentExecutable;
         Executable *nextExecutable;
         Executable* createInitialExecutable();
         int64_t lastExperimentTrigger=0;
         ExperimentMode experimentMode;
-        double KP=0; double KI=0; double KD=0;
+        double heaterKP=0; double heaterKI=0; double heaterKD=0;
+        double airspeedKP=0; double airspeedKI=0; double airspeedKD=0;
         double actualTemperature=0;
         double setpointTemperature=0;
-        double setpointFan=0;
-        double setpointHeaterOpenloop=0;
+        double actualAirspeed=0;
+        double setpointAirspeed=0;
+        double setpointFan1=0;
+        double setpointFan2=0;
+        double setpointServo1=0;
+        double setpointHeaterOpenLoop=0;
         double setpointHeaterClosedLoop=0;
         
     public:
@@ -139,9 +153,12 @@ class PLCManager:public FBContext
  
         LabAtHomeErrorCode CheckForNewExecutable();
         LabAtHomeErrorCode Loop();
-        LabAtHomeErrorCode TriggerHeaterExperimentClosedLoop(double setpointTemperature, double setpointFan, double KP, double KI, double KD, ExperimentData *data);
-        LabAtHomeErrorCode TriggerHeaterExperimentOpenLoop(double setpointHeater, double setpointFan, ExperimentData *data);
-        LabAtHomeErrorCode TriggerHeaterExperimentFunctionblock(ExperimentData *data);
+        LabAtHomeErrorCode TriggerAirspeedExperimentClosedLoop(double setpointAirspeed, double setpointServo1, double KP, double KI, double KD, AirspeedExperimentData *data);
+        LabAtHomeErrorCode TriggerAirspeedExperimentOpenLoop(double setpointFan2, double setpointServo1, AirspeedExperimentData *data);
+        LabAtHomeErrorCode TriggerAirspeedExperimentFunctionblock(AirspeedExperimentData *data);
+        LabAtHomeErrorCode TriggerHeaterExperimentClosedLoop(double setpointTemperature, double setpointFan, double KP, double KI, double KD, HeaterExperimentData *data);
+        LabAtHomeErrorCode TriggerHeaterExperimentOpenLoop(double setpointHeater, double setpointFan, HeaterExperimentData *data);
+        LabAtHomeErrorCode TriggerHeaterExperimentFunctionblock(HeaterExperimentData *data);
         LabAtHomeErrorCode GetDebugInfoSize(size_t *sizeInBytes);
         LabAtHomeErrorCode GetDebugInfo(uint8_t *buffer, size_t maxSizeInByte);
         

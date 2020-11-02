@@ -12,8 +12,8 @@ static const char *TAG = "ADS1115";
 
 ADS1115::ADS1115(i2c_port_t i2c_port, uint8_t address) : i2c_port(i2c_port), address(address){}
 
-constexpr TickType_t SPSindex2WaitingTime[] = {125/portTICK_PERIOD_MS, 63/portTICK_PERIOD_MS, 32/portTICK_PERIOD_MS,
-16/portTICK_PERIOD_MS, 8/portTICK_PERIOD_MS, 4/portTICK_PERIOD_MS, 3/portTICK_PERIOD_MS, 2/portTICK_PERIOD_MS};
+constexpr TickType_t SPSindex2WaitingTime[] = {125/portTICK_PERIOD_MS+1, 63/portTICK_PERIOD_MS+1, 32/portTICK_PERIOD_MS+1,
+16/portTICK_PERIOD_MS+1, 8/portTICK_PERIOD_MS+1, 4/portTICK_PERIOD_MS+1, 3/portTICK_PERIOD_MS+1, 2/portTICK_PERIOD_MS+1};
 
 esp_err_t ADS1115::Init(ads1115_sps_t sps, TickType_t *howLongToWaitForResult)
 {

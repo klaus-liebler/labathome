@@ -7,10 +7,13 @@
 			"path": "doc"
 		},
 		{
+			"path": "webui"
+		},
+		{
 			"path": "labathome_firmware"
 		},
 		{
-			"path": "webui"
+			"path": "rtttl2binary"
 		}
 	],
 	"settings": {

@@ -4,6 +4,7 @@ import { DevelopCFCController } from "./DevelopCFCController";
 import { DialogController } from "./DialogController";
 import { AppManagement } from "./AppManagement";
 import { ADCExperimentController } from "./ADCExperimentController";
+import { AirspeedExperimentController } from "./AirspeedExperimentController";
 
 class DashboardController extends ScreenController {
     public onFirstStart(): void { }
@@ -83,6 +84,7 @@ class AppController implements AppManagement {
         this.screenControllers.push(new DevelopCFCController(this, <HTMLDivElement>document.getElementById("screen_develop")));
         this.screenControllers.push(new ReportsController(this, <HTMLDivElement>document.getElementById("screen_reports")));
         this.screenControllers.push(new HeaterExperimentController(this, <HTMLDivElement>document.getElementById("screen_heaterexperiment")));
+        this.screenControllers.push(new AirspeedExperimentController(this, <HTMLDivElement>document.getElementById("screen_airspeedexperiment")))
         this.screenControllers.push(new ADCExperimentController(this, <HTMLDivElement>document.getElementById("screen_adcexperiment")))
         this.screenControllers.forEach((sc) => sc.onCreate());
 

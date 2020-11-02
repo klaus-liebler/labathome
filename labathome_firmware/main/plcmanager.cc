@@ -18,10 +18,14 @@ PLCManager::PLCManager(HAL *hal):hal(hal)
 {
     currentExecutable = this->createInitialExecutable();
     nextExecutable = nullptr;
-    pid = new PID(&actualTemperature, &setpointHeaterClosedLoop, &setpointTemperature, KP, KI, KD, DIRECT);
-    pid->SetMode(MANUAL);
-    pid->SetOutputLimits(0, 100.0);
-    pid->SetSampleTime(1000);
+    heaterPIDController = new PID(&actualTemperature, &setpointHeaterClosedLoop, &setpointTemperature, heaterKP, heaterKI, heaterKD, DIRECT);
+    heaterPIDController->SetMode(MANUAL);
+    heaterPIDController->SetOutputLimits(0, 100.0);
+    heaterPIDController->SetSampleTime(1000);
+    airspeedPIDController = new PID(&actualAirspeed, &setpointFan2, &setpointFan2, airspeedKP, airspeedKI, airspeedKD, DIRECT);
+    airspeedPIDController->SetMode(MANUAL);
+    airspeedPIDController->SetOutputLimits(0, 100.0);
+    airspeedPIDController->SetSampleTime(1000);
 }
 
 bool PLCManager::IsBinaryAvailable(size_t index)
@@ -341,6 +345,12 @@ LabAtHomeErrorCode PLCManager::ParseNewExecutableAndEnqueue(const uint8_t  *buff
             functionBlocks[cfgIndex] = new FB_LED7(ctx->ReadU32(), ctx->ReadU32());
         }
         break;
+        case 32:
+        {
+            ESP_LOGI(TAG, "FOUND FB_Melody");
+            functionBlocks[cfgIndex] = new FB_Melody(ctx->ReadU32(), ctx->ReadU32(),ctx->ReadU32());
+        }
+        break;
 
         default:
             ESP_LOGE(TAG, "Unknown Operator Type found");
@@ -512,6 +522,7 @@ LabAtHomeErrorCode PLCManager::CheckForNewExecutable()
 
 LabAtHomeErrorCode PLCManager::Loop()
 {
+    static ExperimentMode previousExperimentMode = ExperimentMode::functionblock;
     //Check queue for newly arrived Executable
     //Contract: Alle Eingänge sind gesetzt
     int64_t nowUsSteady = hal->GetMicros();
@@ -520,11 +531,23 @@ LabAtHomeErrorCode PLCManager::Loop()
         //auto fallback
         experimentMode = ExperimentMode::functionblock;
         ESP_LOGI(TAG, "Auto fallback to experimentMode = ExperimentMode::functionblock;");
+    }
+    if(this->experimentMode!=previousExperimentMode){
+        //Safe settings on mode change!
         hal->SetFan1State(0);
         hal->SetFan2State(0);
         hal->SetHeaterState(0);
+        hal->SetServo1Position(0);
+        this->setpointAirspeed=0;
+        this->setpointFan1=0.0;
+        this->setpointFan2=0.0;
+        this->setpointHeaterClosedLoop=0.0;
+        this->setpointHeaterOpenLoop=0.0;
+        this->setpointServo1=0;
+        this->setpointTemperature=0;
     }
-
+    previousExperimentMode = this->experimentMode;
+    
     if(experimentMode == ExperimentMode::functionblock)
     {
         for (const auto &i : this->currentExecutable->functionBlocks)
@@ -532,76 +555,147 @@ LabAtHomeErrorCode PLCManager::Loop()
             i->execute(this);
         }
     }
-    else if(experimentMode==ExperimentMode::openloop){
-        if(pid->GetMode()!=MANUAL)
-        {
-            pid->SetMode(MANUAL);
-        }
-        hal->SetFan1State(this->setpointFan);
-        hal->SetFan2State(this->setpointFan);
-        hal->SetHeaterState(this->setpointHeaterOpenloop);
+    else if(experimentMode==ExperimentMode::openloop_heater){
+        if(heaterPIDController->GetMode()!=MANUAL) heaterPIDController->SetMode(MANUAL);
+        if(airspeedPIDController->GetMode()!=MANUAL) airspeedPIDController->SetMode(MANUAL);
+        hal->SetFan1State(this->setpointFan1);
+        hal->SetFan2State(this->setpointFan1);
+        hal->SetHeaterState(this->setpointHeaterOpenLoop);
     }
-    else if(experimentMode==ExperimentMode::closedloop){
-        if(pid->GetMode()!=AUTOMATIC)
+    else if(experimentMode==ExperimentMode::closedloop_heater){
+        if(heaterPIDController->GetMode()!=AUTOMATIC)
         {
-            ESP_LOGI(TAG, "pid->SetMode(AUTOMATIC);");
-            pid->SetMode(AUTOMATIC);
+            ESP_LOGI(TAG, "heaterPIDController->SetMode(AUTOMATIC);");
+            heaterPIDController->SetMode(AUTOMATIC);
         }
-        if(pid->GetKd()!=this->KD || pid->GetKi()!=this->KI || pid->GetKp()!=this->KP)
+        if(heaterPIDController->GetKd()!=this->heaterKD || heaterPIDController->GetKi()!=this->heaterKI || heaterPIDController->GetKp()!=this->heaterKP)
         {
-            ESP_LOGI(TAG, "pid->SetTunings(KP, KI, KD); %f %f %f", KP, KI, KD);
-            pid->SetTunings(KP, KI, KD);
+            ESP_LOGI(TAG, "heaterPIDController->SetTunings(KP, KI, KD); %f %f %f", heaterKP, heaterKI, heaterKD);
+            heaterPIDController->SetTunings(heaterKP, heaterKI, heaterKD);
         }
         float act =0;
         hal->GetHeaterTemperature(&act);
         this->actualTemperature=act;
 
-        bool newResult = pid->Compute();
+        bool newResult = heaterPIDController->Compute();
         if(newResult)
         {
-            ESP_LOGI(TAG, "if(newResult): %F", this->setpointHeaterClosedLoop);
+            ESP_LOGI(TAG, "heaterPIDController if(newResult): %F", this->setpointHeaterClosedLoop);
             hal->SetHeaterState(this->setpointHeaterClosedLoop);
         }
-        hal->SetFan1State(this->setpointFan);
-        hal->SetFan2State(this->setpointFan);
+        hal->SetFan1State(this->setpointFan1);
+        hal->SetFan2State(this->setpointFan1);
+    }
+    else if(experimentMode==ExperimentMode::closedloop_airspeed){
+        if(airspeedPIDController->GetMode()!=AUTOMATIC)
+        {
+            ESP_LOGI(TAG, "airspeedPIDController->SetMode(AUTOMATIC);");
+            airspeedPIDController->SetMode(AUTOMATIC);
+        }
+        if(airspeedPIDController->GetKd()!=this->airspeedKD || airspeedPIDController->GetKi()!=this->airspeedKI || airspeedPIDController->GetKp()!=this->airspeedKP)
+        {
+            ESP_LOGI(TAG, "airspeedPIDController->SetTunings(KP, KI, KD); %f %f %f", airspeedKP, airspeedKI, airspeedKD);
+            airspeedPIDController->SetTunings(airspeedKP, airspeedKI, airspeedKD);
+        }
+        float act =0;
+        hal->GetAirSpeed(&act);
+        this->actualAirspeed=act;
+
+        bool newResult = airspeedPIDController->Compute();
+        if(newResult)
+        {
+            ESP_LOGI(TAG, "airspeedPIDController if(newResult): %F", this->setpointFan2);
+            hal->SetFan2State(this->setpointFan2);
+        }
+        hal->SetFan2State(this->setpointFan2);
     }
     
     return LabAtHomeErrorCode::OK;
 }
 
-LabAtHomeErrorCode PLCManager::TriggerHeaterExperimentClosedLoop(double setpointTemperature, double setpointFan, double KP, double KI, double KD, ExperimentData *data){
+LabAtHomeErrorCode PLCManager::TriggerHeaterExperimentClosedLoop(double setpointTemperature, double setpointFan1, double KP, double KI, double KD, HeaterExperimentData *data){
+    //Trigger
     this->lastExperimentTrigger=hal->GetMicros();
-    this->experimentMode=ExperimentMode::closedloop;
+    this->experimentMode=ExperimentMode::closedloop_heater;
+    //New Setpoints
     this->setpointTemperature=setpointTemperature;
-    this->setpointFan=setpointFan;
-    this->KP=KP;
-    this->KI=KI;
-    this->KD=KD;
+    this->setpointFan1=setpointFan1;
+    this->heaterKP=KP;
+    this->heaterKI=KI;
+    this->heaterKD=KD;
+    //Fill return data
     data->Fan=hal->GetFan1State();
     data->Heater=hal->GetHeaterState();
     hal->GetHeaterTemperature(&(data->ActualTemperature));
     data->SetpointTemperature=this->setpointTemperature;
     return LabAtHomeErrorCode::OK;
 }
-LabAtHomeErrorCode PLCManager::TriggerHeaterExperimentOpenLoop(double setpointHeater, double setpointFan, ExperimentData *data){
+LabAtHomeErrorCode PLCManager::TriggerHeaterExperimentOpenLoop(double setpointHeater, double setpointFan1, HeaterExperimentData *data){
+    //Trigger
     this->lastExperimentTrigger=hal->GetMicros();
-    this->experimentMode=ExperimentMode::openloop;
-    this->setpointHeaterOpenloop=setpointHeater;
-    this->setpointFan=setpointFan;
+    this->experimentMode=ExperimentMode::openloop_heater;
+    //New Setpoints
+    this->setpointHeaterOpenLoop=setpointHeater;
+    this->setpointFan1=setpointFan1;
+    //Fill return data
     data->Fan=hal->GetFan1State();
     data->Heater=hal->GetHeaterState();
     hal->GetHeaterTemperature(&(data->ActualTemperature));
     data->SetpointTemperature=0;
     return LabAtHomeErrorCode::OK;
 }
-LabAtHomeErrorCode PLCManager::TriggerHeaterExperimentFunctionblock(ExperimentData *data){
+LabAtHomeErrorCode PLCManager::TriggerHeaterExperimentFunctionblock(HeaterExperimentData *data){
+    //Trigger
     this->lastExperimentTrigger=hal->GetMicros();
     this->experimentMode=ExperimentMode::functionblock;
-    this->setpointHeaterOpenloop=0;
-    this->setpointFan=0;
+    //Fill return data
     data->Fan=hal->GetFan1State();
     data->Heater=hal->GetHeaterState();
     hal->GetHeaterTemperature(&(data->ActualTemperature));
     data->SetpointTemperature=0;
+    return LabAtHomeErrorCode::OK;
+}
+
+LabAtHomeErrorCode PLCManager::TriggerAirspeedExperimentClosedLoop(double setpointAirspeed, double setpointServo1, double KP, double KI, double KD, AirspeedExperimentData *data){
+    //Trigger
+    this->lastExperimentTrigger=hal->GetMicros();
+    this->experimentMode=ExperimentMode::closedloop_airspeed;
+    //New Setpoints
+    this->setpointAirspeed=setpointAirspeed;
+    this->setpointServo1=setpointServo1;
+    this->airspeedKP=KP;
+    this->airspeedKI=KI;
+    this->airspeedKD=KD;
+    //Fill return data 
+    data->Fan=hal->GetFan2State();
+    hal->GetAirSpeed(&(data->ActualAirspeed));
+    data->SetpointAirspeed=setpointAirspeed;
+    data->Servo=this->setpointServo1;
+    return LabAtHomeErrorCode::OK;
+}
+
+LabAtHomeErrorCode PLCManager::TriggerAirspeedExperimentOpenLoop(double setpointFan2, double setpointServo1, AirspeedExperimentData *data){
+    //Trigger
+    this->lastExperimentTrigger=hal->GetMicros();
+    this->experimentMode=ExperimentMode::openloop_heater;
+    //New Setpoints
+    this->setpointFan2=setpointFan2;
+    this->setpointServo1=setpointServo1;
+    //Fill return data
+    data->Fan=hal->GetFan2State();
+    hal->GetAirSpeed(&(data->ActualAirspeed));
+    data->SetpointAirspeed=setpointAirspeed;
+    data->Servo=this->setpointServo1;
+    return LabAtHomeErrorCode::OK;
+}
+LabAtHomeErrorCode PLCManager::TriggerAirspeedExperimentFunctionblock(AirspeedExperimentData *data){
+    //Trigger
+    this->lastExperimentTrigger=hal->GetMicros();
+    this->experimentMode=ExperimentMode::functionblock;
+    //Fill return data
+    data->Fan=hal->GetFan2State();
+    hal->GetAirSpeed(&(data->ActualAirspeed));
+    data->SetpointAirspeed=setpointAirspeed;
+    data->Servo=this->setpointServo1;
     return LabAtHomeErrorCode::OK;
 }

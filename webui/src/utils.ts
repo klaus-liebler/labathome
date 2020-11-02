@@ -11,6 +11,15 @@ export interface Location2D {
     y: number;
 }
 
+export interface KeyValueTuple {
+    key: string;
+    value: any;
+}
+
+export class StringNumberTuple{
+    public constructor(public s:string, public n:number){}
+}
+
 
 export class $
 {
@@ -74,5 +83,69 @@ export class $
             element.textContent=textContent;
         }
         return element;
+    }
+
+    public static InputNumber(table:HTMLTableSectionElement, min:number, max:number, key:string, cfg:KeyValueTuple[]|null):HTMLInputElement
+    {
+        let value:number=0;
+        if(cfg!=null)
+        {
+            for (const e of cfg) {
+                if(e.key==key && !isNaN(e.value)){
+                    value=e.value;
+                    break;
+                }
+            }
+        }
+        let tr=$.Html(table, "tr", [],["develop-propertygrid-tr"]);
+        $.Html(tr, "td", [],["develop-propertygrid-td"], key);
+        let inputContainer = $.Html(tr, "td", [],["develop-propertygrid-td"]);
+        return <HTMLInputElement>$.Html(inputContainer, "input", ["type", "number", "min", ""+Math.round(min), "max", ""+Math.round(max), "value", ""+Math.round(value),]);
+    }
+
+    public static InputSelect(table:HTMLTableSectionElement, displayValueAndKeyvalues:StringNumberTuple[], key:string, cfg:KeyValueTuple[]|null):HTMLSelectElement
+    {
+        let value:number=0;
+        if(cfg!=null)
+        {
+            for (const e of cfg) {
+                if(e.key==key && !isNaN(e.value)){
+                    value=e.value;
+                    break;
+                }
+            }
+        }
+        let tr=$.Html(table, "tr", [],["develop-propertygrid-tr"]);
+        $.Html(tr, "td", [],["develop-propertygrid-td"], key);
+        let inputContainer = $.Html(tr, "td", [],["develop-propertygrid-td"]);
+        let select = <HTMLSelectElement>$.Html(inputContainer, "select", [], []);
+        for(let i=0;i<displayValueAndKeyvalues.length;i++)
+        {
+            let option = $.Html(select, "option", ["value", ""+displayValueAndKeyvalues[i].n], [], displayValueAndKeyvalues[i].s);
+            if(i==value){
+                option.setAttribute("selected", "");
+            }
+        }
+        return select;
+    }
+
+   
+
+    public static InputColor(table:HTMLTableSectionElement, key:string, cfg:KeyValueTuple[]|null):HTMLInputElement
+    {
+        let value:string="#ff0000";
+        if(cfg!=null)
+        {
+            for (const e of cfg) {
+                if(e.key==key){
+                    value=e.value;
+                    break;
+                }
+            }
+        }
+        let tr=$.Html(table, "tr", [],["develop-propertygrid-tr"]);
+        $.Html(tr, "td", [],["develop-propertygrid-td"], key);
+        let inputContainer = $.Html(tr, "td", [],["develop-propertygrid-td"]);
+        return <HTMLInputElement>$.Html(inputContainer, "input", ["type", "color",  "value", value]);
     }
 }

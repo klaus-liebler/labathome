@@ -1,7 +1,8 @@
 import {FlowchartInputConnector, FlowchartOutputConnector } from "./FlowchartConnector";
-import {Flowchart, KeyValueTuple} from "./Flowchart";
+import {Flowchart} from "./Flowchart";
 import { SerializeContextAndAdressMap } from "./FlowchartCompiler";
-import {$} from "./../Utils"
+import {$, KeyValueTuple} from "./../Utils"
+import { SimulationContext } from "./SimulationContext";
 
 export enum PositionType{
     Default,
@@ -55,7 +56,7 @@ export abstract class FlowchartOperator {
     private x=0;
     private y=0;
 
-    private box:SVGRectElement;
+    protected box:SVGRectElement;
 
     public ShowAsSelected(state:boolean)
     {
@@ -123,7 +124,7 @@ export abstract class FlowchartOperator {
 
 
         this.elementSvgG.onclick = (e) => {
-            console.log("FlowchartOperator this.box.onclick");
+            console.log("FlowchartOperator this.elementSvgG.onclick");
             parent._notifyOperatorClicked(this, e);
         };
         
@@ -194,6 +195,18 @@ export abstract class FlowchartOperator {
     }
 
     public SavePropertyGrid(tbody:HTMLTableSectionElement){
+        return;
+    }
+
+    public OnSimulationStart(ctx:SimulationContext){
+        return;
+    }
+
+    public OnSimulationStep(ctx:SimulationContext){
+        return;
+    }
+
+    public OnSimulationStop(ctx:SimulationContext){
         return;
     }
 

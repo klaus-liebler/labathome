@@ -1,8 +1,10 @@
 import {FlowchartOperator, TypeInfo, PositionType, SingletonType} from "./FlowchartOperator";
-import {Flowchart, KeyValueTuple} from "./Flowchart";
+import {Flowchart} from "./Flowchart";
 import {FlowchartInputConnector, FlowchartOutputConnector, ConnectorType} from "./FlowchartConnector";
 import { SerializeContextAndAdressMap } from "./FlowchartCompiler";
-import {$} from "./../Utils"
+import {$, KeyValueTuple, StringNumberTuple} from "./../Utils";
+import * as Song from "./Songs";
+import { SimulationContext } from "./SimulationContext";
 
 const Logic="Logic";
 const Arithmetic="Arithmetic";
@@ -11,8 +13,12 @@ const Sensor = "Sensor";
 const Output="Output";
 const Timing="Timing";
 const Converter="Converter";
+const Sound = "Sound";
+const Control = "Control";
+const Custom ="Custom";
 
 const CONSTANT = "Constant";
+const SONG_INDEX = "Song Index"
 
 export class OperatorRegistry{
     IsIndexKnown(globalTypeIndex: number) {
@@ -94,6 +100,9 @@ export class OperatorRegistry{
         r.Register(29, Output, "LED5", PositionType.Output, SingletonType.Singleton, (p, ca, ti, co)=>new Output_Led5Operator(p, ca, ti, co));
         r.Register(30, Output, "LED6", PositionType.Output, SingletonType.Singleton, (p, ca, ti, co)=>new Output_Led6Operator(p, ca, ti, co));
         r.Register(31, Output, "LED7", PositionType.Output, SingletonType.Singleton, (p, ca, ti, co)=>new Output_Led7Operator(p, ca, ti, co));
+        r.Register(32, Sound, "Melody", PositionType.Output, SingletonType.Singleton, (p, ca, ti, co)=>new Sound_Melody(p, ca, ti, co));
+        r.Register(33, Control, "PID", PositionType.Default, SingletonType.Default, (p, ca, ti, co)=>new Control_PID(p, ca, ti, co));
+        r.Register(100, Custom, "XYZXYZBlock", PositionType.Default, SingletonType.Default, (p, ca, ti, co)=>new Custom_XYZBlock(p, ca, ti, co))
         return r;
     }
 }
@@ -101,113 +110,202 @@ export class OperatorRegistry{
 
 
 export class Logic_ANDOperator extends FlowchartOperator {
-  
+    private A:FlowchartInputConnector;
+    private B:FlowchartInputConnector;
+    private C:FlowchartOutputConnector;
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
         super(parent, caption, ti, configurationData);
-        let A = new FlowchartInputConnector(this, "A", 0, ConnectorType.BOOLEAN);
-        let B = new FlowchartInputConnector(this, "B", 1, ConnectorType.BOOLEAN);
-        let C = new FlowchartOutputConnector(this, "C", 0, ConnectorType.BOOLEAN);
-        this.AppendConnectors([A, B], [C]);
+        this.A = new FlowchartInputConnector(this, "A", 0, ConnectorType.BOOLEAN);
+        this.B = new FlowchartInputConnector(this, "B", 1, ConnectorType.BOOLEAN);
+        this.C = new FlowchartOutputConnector(this, "C", 0, ConnectorType.BOOLEAN);
+        this.AppendConnectors([this.A, this.B], [this.C]);
+    }
+
+    OnSimulationStep(ctx:SimulationContext){
+        let A = ctx.GetBoolean(this.A);
+        let B = ctx.GetBoolean(this.B);
+        ctx.SetBoolean(this.C, A && B);
     }
 }
 
 export class Logic_OROperator extends FlowchartOperator {
+    private A:FlowchartInputConnector;
+    private B:FlowchartInputConnector;
+    private C:FlowchartOutputConnector;
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
         super(parent, caption, ti, configurationData);
-        let A = new FlowchartInputConnector(this, "A", 0, ConnectorType.BOOLEAN);
-        let B = new FlowchartInputConnector(this, "B", 1, ConnectorType.BOOLEAN);
-        let C = new FlowchartOutputConnector(this, "C", 0,ConnectorType.BOOLEAN);
-        this.AppendConnectors([A, B], [C]);
+        this.A = new FlowchartInputConnector(this, "A", 0, ConnectorType.BOOLEAN);
+        this.B = new FlowchartInputConnector(this, "B", 1, ConnectorType.BOOLEAN);
+        this.C = new FlowchartOutputConnector(this, "C", 0,ConnectorType.BOOLEAN);
+        this.AppendConnectors([this.A, this.B], [this.C]);
+    }
+
+    OnSimulationStep(ctx:SimulationContext){
+        let A = ctx.GetBoolean(this.A);
+        let B = ctx.GetBoolean(this.B);
+        ctx.SetBoolean(this.C, A || B);
     }
 }
 
 export class Arithmetic_ADDOperator extends FlowchartOperator {
+    private A:FlowchartInputConnector;
+    private B:FlowchartInputConnector;
+    private C:FlowchartOutputConnector;
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
         super(parent, caption, ti, configurationData);
-        let A = new FlowchartInputConnector(this, "A", 0, ConnectorType.INTEGER);
-        let B = new FlowchartInputConnector(this, "B", 1, ConnectorType.INTEGER);
-        let C = new FlowchartOutputConnector(this, "C", 0, ConnectorType.INTEGER);
-        this.AppendConnectors([A, B], [C]);
+        this.A = new FlowchartInputConnector(this, "A", 0, ConnectorType.INTEGER);
+        this.B = new FlowchartInputConnector(this, "B", 1, ConnectorType.INTEGER);
+        this.C = new FlowchartOutputConnector(this, "C", 0, ConnectorType.INTEGER);
+        this.AppendConnectors([this.A, this.B], [this.C]);
+    }
+
+    OnSimulationStep(ctx:SimulationContext){
+        let A = ctx.GetInteger(this.A);
+        let B = ctx.GetInteger(this.B);
+        ctx.SetInteger(this.C, A + B);
     }
 }
 
 export class Arithmetic_MULTIPLYOperator extends FlowchartOperator {
+    private A:FlowchartInputConnector;
+    private B:FlowchartInputConnector;
+    private C:FlowchartOutputConnector;
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
         super(parent, caption, ti, configurationData);
-        let A = new FlowchartInputConnector(this, "A", 0, ConnectorType.INTEGER);
-        let B = new FlowchartInputConnector(this, "B", 1, ConnectorType.INTEGER);
-        let C = new FlowchartOutputConnector(this, "C", 0, ConnectorType.INTEGER);
-        this.AppendConnectors([A, B], [C]);
+        this.A = new FlowchartInputConnector(this, "A", 0, ConnectorType.INTEGER);
+        this.B = new FlowchartInputConnector(this, "B", 1, ConnectorType.INTEGER);
+        this.C = new FlowchartOutputConnector(this, "C", 0, ConnectorType.INTEGER);
+        this.AppendConnectors([this.A, this.B], [this.C]);
+    }
+
+    OnSimulationStep(ctx:SimulationContext){
+        let A = ctx.GetInteger(this.A);
+        let B = ctx.GetInteger(this.B);
+        ctx.SetInteger(this.C, A * B);
     }
 }
 
 export class Arithmetic_MAXOperator extends FlowchartOperator {
+    private A:FlowchartInputConnector;
+    private B:FlowchartInputConnector;
+    private C:FlowchartOutputConnector;
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
         super(parent, caption, ti, configurationData);
-        let A = new FlowchartInputConnector(this, "A", 0, ConnectorType.INTEGER);
-        let B = new FlowchartInputConnector(this, "B", 1, ConnectorType.INTEGER);
-        let C = new FlowchartOutputConnector(this, "C", 0, ConnectorType.INTEGER);
-        this.AppendConnectors([A, B], [C]);
+        this.A = new FlowchartInputConnector(this, "A", 0, ConnectorType.INTEGER);
+        this.B = new FlowchartInputConnector(this, "B", 1, ConnectorType.INTEGER);
+        this.C = new FlowchartOutputConnector(this, "C", 0, ConnectorType.INTEGER);
+        this.AppendConnectors([this.A, this.B], [this.C]);
+    }
+
+    OnSimulationStep(ctx:SimulationContext){
+        let A = ctx.GetInteger(this.A);
+        let B = ctx.GetInteger(this.B);
+        ctx.SetInteger(this.C, Math.max(A,B));
     }
 }
 
 export class Arithmetic_MINOperator extends FlowchartOperator {
+    private A:FlowchartInputConnector;
+    private B:FlowchartInputConnector;
+    private C:FlowchartOutputConnector;
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
         super(parent, caption, ti, configurationData);
-        let A = new FlowchartInputConnector(this, "A", 0, ConnectorType.INTEGER);
-        let B = new FlowchartInputConnector(this, "B", 1, ConnectorType.INTEGER);
-        let C = new FlowchartOutputConnector(this, "C", 0, ConnectorType.INTEGER);
-        this.AppendConnectors([A, B], [C]);
+        this.A = new FlowchartInputConnector(this, "A", 0, ConnectorType.INTEGER);
+        this.B = new FlowchartInputConnector(this, "B", 1, ConnectorType.INTEGER);
+        this.C = new FlowchartOutputConnector(this, "C", 0, ConnectorType.INTEGER);
+        this.AppendConnectors([this.A, this.B], [this.C]);
+    }
+
+    OnSimulationStep(ctx:SimulationContext){
+        let A = ctx.GetInteger(this.A);
+        let B = ctx.GetInteger(this.B);
+        ctx.SetInteger(this.C, Math.min(A,B));
     }
 }
 
 export class Logic_RSOperator extends FlowchartOperator {
+    private R:FlowchartInputConnector;
+    private S:FlowchartInputConnector;
+    private C:FlowchartOutputConnector;
+    private state:boolean=false;
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
         super(parent, caption, ti, configurationData);
-        let R = new FlowchartInputConnector(this, "R", 0, ConnectorType.BOOLEAN);
-        let S = new FlowchartInputConnector(this, "S", 1, ConnectorType.BOOLEAN);
-        let C = new FlowchartOutputConnector(this, "C", 0, ConnectorType.BOOLEAN);
-        this.AppendConnectors([R, S], [C]);
+        this.R = new FlowchartInputConnector(this, "R", 0, ConnectorType.BOOLEAN);
+        this.S = new FlowchartInputConnector(this, "S", 1, ConnectorType.BOOLEAN);
+        this.C = new FlowchartOutputConnector(this, "C", 0, ConnectorType.BOOLEAN);
+        this.AppendConnectors([this.R, this.S], [this.C]);
+    }
+    OnSimulationStart(ctx:SimulationContext){
+        this.state=false;
+    }
+
+    OnSimulationStep(ctx:SimulationContext){
+        if(ctx.GetBoolean(this.R)) this.state=false;
+        else if(ctx.GetBoolean(this.S)) this.state = true;
+        ctx.SetBoolean(this.C, this.state);
     }
 }
 
 export class Logic_NotOperator extends FlowchartOperator {
+    private IN:FlowchartInputConnector;
+    private OUT:FlowchartOutputConnector;
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
         super(parent, caption, ti, configurationData);
-        let A = new FlowchartInputConnector(this, "A", 0, ConnectorType.BOOLEAN);
-        let C = new FlowchartOutputConnector(this, "C", 0, ConnectorType.BOOLEAN);
-        this.AppendConnectors([A], [C]);
+        this.IN = new FlowchartInputConnector(this, "IN", 0, ConnectorType.BOOLEAN);
+        this.OUT = new FlowchartOutputConnector(this, "OUT", 0, ConnectorType.BOOLEAN);
+        this.AppendConnectors([this.IN], [this.OUT]);
+    }
+
+    OnSimulationStep(ctx:SimulationContext){
+        ctx.SetBoolean(this.OUT, !ctx.GetBoolean(this.IN));
     }
 
 }
-
-export class Input_GreenButtonOperator extends FlowchartOperator {
-    public StorageId:string;
+class Input_CommonButtonOperator extends FlowchartOperator {
+    private state:boolean=false;
+    private O:FlowchartOutputConnector;
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
         super(parent, caption, ti, configurationData);
-        let O = new FlowchartOutputConnector(this, "IsPressed", 0, ConnectorType.BOOLEAN);
-        this.AppendConnectors([], [O]);
-        this.StorageId="4711";
+        this.O = new FlowchartOutputConnector(this, "IsPressed", 0, ConnectorType.BOOLEAN);
+        this.AppendConnectors([], [this.O]);
+        this.ElementSvgG.onclick=(e)=>{
+            console.log("Input_CommonButtonOperator this.ElementSvgG.onclick");
+            parent._notifyOperatorClicked(this, e);
+            this.state=!this.state;
+        }
+    }
+
+    OnSimulationStart(ctx:SimulationContext){
+        this.state=false;
+    }
+
+    OnSimulationStep(ctx:SimulationContext){
+        this.box.classList.remove(this.state?"False":"True");
+        this.box.classList.add(this.state?"True":"False");
+        ctx.SetBoolean(this.O, this.state);
+    }
+
+    OnSimulationStop(ctx:SimulationContext){
+        this.box.classList.remove("False", "True");
     }
 }
 
-export class Input_EncoderButtonOperator extends FlowchartOperator {
-    public StorageId:string;
+
+export class Input_GreenButtonOperator extends Input_CommonButtonOperator {
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
         super(parent, caption, ti, configurationData);
-        let O = new FlowchartOutputConnector(this, "IsPressed", 0, ConnectorType.BOOLEAN);
-        this.AppendConnectors([], [O]);
-        this.StorageId="4711";
     }
 }
 
-export class Input_RedButtonOperator extends FlowchartOperator {
-    public StorageId:string;
+export class Input_EncoderButtonOperator extends Input_CommonButtonOperator {
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
         super(parent, caption, ti, configurationData);
-        let O = new FlowchartOutputConnector(this, "IsPressed", 0, ConnectorType.BOOLEAN);
-        this.AppendConnectors([], [O]);
-        this.StorageId="4711";
+    }
+}
+
+export class Input_RedButtonOperator extends Input_CommonButtonOperator {
+    constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
+        super(parent, caption, ti, configurationData);
     }
 }
 
@@ -232,121 +330,154 @@ export class Sensor_AmbientTemperatureOperator extends FlowchartOperator {
 }
 
 export class Output_RelayOperator extends FlowchartOperator {
-    public StorageId:string;
+    private I:FlowchartInputConnector;
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
         super(parent, caption, ti, configurationData);
-        let conn = new FlowchartInputConnector(this, "Relay", 0, ConnectorType.BOOLEAN);
-        this.AppendConnectors([conn], []);
-        this.StorageId="4711";
+        this.I=new FlowchartInputConnector(this, "Relay", 0, ConnectorType.BOOLEAN);
+        this.AppendConnectors([this.I], []);
+    }
+
+    OnSimulationStep(ctx:SimulationContext){
+        let state = ctx.GetBoolean(this.I);
+        this.box.classList.remove(state?"False":"True");
+        this.box.classList.add(state?"True":"False");
     }
 }
 
-export class Output_RedLedOperator extends FlowchartOperator {
-    public StorageId:string;
-    constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
+
+class Output_CommonLedOperator extends FlowchartOperator {
+    protected  I:FlowchartInputConnector;
+    constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null, protected colorOnTRUE:string, protected colorOnFALSE:string) {
         super(parent, caption, ti, configurationData);
-        let conn = new FlowchartInputConnector(this, "LED", 0, ConnectorType.BOOLEAN);
-        this.AppendConnectors([conn], []);
-        this.StorageId="4711";
+        this.I = new FlowchartInputConnector(this, "LED", 0, ConnectorType.BOOLEAN);
+        this.AppendConnectors([this.I], []);
+    }
+
+    OnSimulationStep(ctx:SimulationContext){
+        let state = ctx.GetBoolean(this.I);
+        this.box.style.fill=state?this.colorOnTRUE:this.colorOnFALSE;
+    }
+
+    OnSimulationStop(ctx:SimulationContext){
+        this.box.style.removeProperty("fill");
     }
 }
 
-export class Output_YellowLedOperator extends FlowchartOperator {
-    public StorageId:string;
+
+export class Output_RedLedOperator extends Output_CommonLedOperator {
+
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
-        super(parent, caption, ti, configurationData);
-        let conn = new FlowchartInputConnector(this, "LED", 0, ConnectorType.BOOLEAN);
-        this.AppendConnectors([conn], []);
-        this.StorageId="4711";
+        super(parent, caption, ti, configurationData, "red", "grey");
     }
 }
 
-export class Output_GreenLedOperator extends FlowchartOperator {
-    public StorageId:string;
+export class Output_YellowLedOperator extends Output_CommonLedOperator {
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
-        super(parent, caption, ti, configurationData);
-        let conn = new FlowchartInputConnector(this, "LED", 0, ConnectorType.BOOLEAN);
-        this.AppendConnectors([conn], []);
-        this.StorageId="4711";
+        super(parent, caption, ti, configurationData, "yellow", "grey");
     }
 }
 
-export class Output_Led3Operator extends FlowchartOperator {
-    public StorageId:string;
+export class Output_GreenLedOperator extends Output_CommonLedOperator {
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
-        super(parent, caption, ti, configurationData);
-        let conn = new FlowchartInputConnector(this, "LED", 0, ConnectorType.COLOR);
-        this.AppendConnectors([conn], []);
-        this.StorageId="4711";
+        super(parent, caption, ti, configurationData, "green", "grey");
     }
 }
 
-export class Output_Led4Operator extends FlowchartOperator {
-    public StorageId:string;
+export class Output_CommonRGBLedOperator extends FlowchartOperator {
+    protected LED:FlowchartInputConnector;
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
         super(parent, caption, ti, configurationData);
-        let conn = new FlowchartInputConnector(this, "LED", 0, ConnectorType.COLOR);
-        this.AppendConnectors([conn], []);
-        this.StorageId="4711";
+        this.LED = new FlowchartInputConnector(this, "LED", 0, ConnectorType.COLOR);
+        this.AppendConnectors([this.LED], []);
+    }
+
+    OnSimulationStep(ctx:SimulationContext){
+        this.box.style.fill=ctx.GetColor(this.LED);
+    }
+
+    OnSimulationStop(ctx:SimulationContext){
+        this.box.style.removeProperty("fill");
     }
 }
 
-export class Output_Led5Operator extends FlowchartOperator {
-    public StorageId:string;
+export class Output_Led3Operator extends Output_CommonRGBLedOperator {
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
         super(parent, caption, ti, configurationData);
-        let conn = new FlowchartInputConnector(this, "LED", 0, ConnectorType.COLOR);
-        this.AppendConnectors([conn], []);
-        this.StorageId="4711";
     }
 }
 
-export class Output_Led6Operator extends FlowchartOperator {
-    public StorageId:string;
+export class Output_Led4Operator extends Output_CommonRGBLedOperator {
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
         super(parent, caption, ti, configurationData);
-        let conn = new FlowchartInputConnector(this, "LED", 0, ConnectorType.COLOR);
-        this.AppendConnectors([conn], []);
-        this.StorageId="4711";
     }
 }
 
-export class Output_Led7Operator extends FlowchartOperator {
-    public StorageId:string;
+export class Output_Led5Operator extends Output_CommonRGBLedOperator {
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
         super(parent, caption, ti, configurationData);
-        let conn = new FlowchartInputConnector(this, "LED", 0, ConnectorType.COLOR);
-        this.AppendConnectors([conn], []);
-        this.StorageId="4711";
+    }
+}
+
+export class Output_Led6Operator extends Output_CommonRGBLedOperator {
+    constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
+        super(parent, caption, ti, configurationData);
+    }
+}
+
+export class Output_Led7Operator extends Output_CommonRGBLedOperator {
+    constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
+        super(parent, caption, ti, configurationData);
     }
 }
 
 export class Logic_ConstTRUEOperator extends FlowchartOperator {
-    public StorageId:string;
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
         super(parent, caption, ti, configurationData);
         let O = new FlowchartOutputConnector(this, "TRUE", 0, ConnectorType.BOOLEAN);
         this.AppendConnectors([], [O]);
-        this.StorageId="4711";
     }
 }
 
-
-export class Arithmetic_ConstINTOperator extends FlowchartOperator {
-    
-    public StorageId:string;
+export class Sound_Melody extends FlowchartOperator {
+  
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
         super(parent, caption, ti, configurationData);
-        let O = new FlowchartOutputConnector(this, "Out", 0, ConnectorType.INTEGER);
-        this.AppendConnectors([], [O]);
-        this.StorageId="4711";
+        let A = new FlowchartInputConnector(this, "Trigger", 0, ConnectorType.BOOLEAN);
+        this.AppendConnectors([A], []);
+        this.cfg_setDefault(SONG_INDEX, 0);
+    }
+
+    private songIndexHTMLSelect:HTMLSelectElement|null=null;
+    public PopulateProperyGrid(tbody:HTMLTableSectionElement):boolean
+    {
+        this.songIndexHTMLSelect=$.InputSelect(tbody, Song.default(), SONG_INDEX, this.configurationData);
+        return true;
+    }
+
+    public SavePropertyGrid(tbody:HTMLTableSectionElement){
+        if(this.songIndexHTMLSelect==null) return;
+        this.cfg_setValue(SONG_INDEX, parseInt(this.songIndexHTMLSelect.value));
+    }
+
+    protected SerializeFurtherProperties(ctx:SerializeContextAndAdressMap):void{
+        ctx.ctx.writeS32(this.cfg_getValue(SONG_INDEX, 0));
+        return;
+    }
+}
+
+export class Arithmetic_ConstINTOperator extends FlowchartOperator {
+    private O:FlowchartOutputConnector;
+    constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
+        super(parent, caption, ti, configurationData);
+        this.O = new FlowchartOutputConnector(this, "Out", 0, ConnectorType.INTEGER);
+        this.AppendConnectors([], [this.O]);
         this.cfg_setDefault(CONSTANT, 0);
     }
 
     private constantHTMLInput:HTMLInputElement|null=null;
     public PopulateProperyGrid(tbody:HTMLTableSectionElement):boolean
     {
-        this.constantHTMLInput=PropertyGridHelpers.Number(tbody, -32768, 32767, CONSTANT, this.configurationData);
+        this.constantHTMLInput=$.InputNumber(tbody, -32768, 32767, CONSTANT, this.configurationData);
         return true;
     }
 
@@ -359,26 +490,32 @@ export class Arithmetic_ConstINTOperator extends FlowchartOperator {
         ctx.ctx.writeS32(this.cfg_getValue(CONSTANT, 0));
         return;
     }
+
+    public OnSimulationStart(ctx:SimulationContext){
+        ctx.SetInteger(this.O, this.cfg_getValue(CONSTANT, 0));
+    }
+
 }
 
 const COLOR_TRUE="Color for TRUE";
 const COLOR_FALSE="Color for FALSE";
 
 export class Bool2ColorConvert extends FlowchartOperator {
-    
+    private IN:FlowchartInputConnector;
+    private OUT:FlowchartOutputConnector;
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
         super(parent, caption, ti, configurationData);
-        let IN = new FlowchartInputConnector(this, "IN", 0, ConnectorType.BOOLEAN);
-        let OUT = new FlowchartOutputConnector(this, "OUT", 0, ConnectorType.COLOR);
-        this.AppendConnectors([IN], [OUT]);
+        this.IN = new FlowchartInputConnector(this, "IN", 0, ConnectorType.BOOLEAN);
+        this.OUT = new FlowchartOutputConnector(this, "OUT", 0, ConnectorType.COLOR);
+        this.AppendConnectors([this.IN], [this.OUT]);
     }
 
     private colorTRUEHTMLInput:HTMLInputElement|null=null;
     private colorFALSEHTMLInput:HTMLInputElement|null=null;
     public PopulateProperyGrid(tbody:HTMLTableSectionElement):boolean
     {
-        this.colorTRUEHTMLInput=PropertyGridHelpers.Color(tbody, COLOR_TRUE, this.configurationData);
-        this.colorFALSEHTMLInput=PropertyGridHelpers.Color(tbody, COLOR_FALSE, this.configurationData);
+        this.colorTRUEHTMLInput=$.InputColor(tbody, COLOR_TRUE, this.configurationData);
+        this.colorFALSEHTMLInput=$.InputColor(tbody, COLOR_FALSE, this.configurationData);
         return true;
     }
 
@@ -397,29 +534,89 @@ export class Bool2ColorConvert extends FlowchartOperator {
         ctx.ctx.writeU32(colorNum);
         return;
     }
+
+    public OnSimulationStep(ctx:SimulationContext){
+        let currentInputValue = ctx.GetBoolean(this.IN);
+        let color =currentInputValue?this.cfg_getValue(COLOR_TRUE, "RED"):this.cfg_getValue(COLOR_FALSE, "GREY");
+        ctx.SetColor(this.OUT, color);
+    }
 }
 
 export class Timing_TONOperator extends FlowchartOperator {
-  
+    private inputTRIGGER:FlowchartInputConnector;
+    private inputPresetTime_msecs:FlowchartInputConnector;
+    private output:FlowchartOutputConnector;
+    private outputElapsedTime_msecs:FlowchartOutputConnector;
+    private lastInputValue:boolean=false;
+    private inputPositiveEdge:number = Number.MAX_VALUE;
+    
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
         super(parent, caption, ti, configurationData);
-        let A = new FlowchartInputConnector(this, "TRIGGER", 0, ConnectorType.BOOLEAN);
-        let B = new FlowchartInputConnector(this, "PT_MS", 1, ConnectorType.INTEGER);
-        let C = new FlowchartOutputConnector(this, "OUT", 0, ConnectorType.BOOLEAN);
-        let D = new FlowchartOutputConnector(this, "ET_MS", 0, ConnectorType.INTEGER);
-        this.AppendConnectors([A, B], [C,D]);
+        this.inputTRIGGER = new FlowchartInputConnector(this, "TRIGGER", 0, ConnectorType.BOOLEAN);
+        this.inputPresetTime_msecs = new FlowchartInputConnector(this, "PT_MS", 1, ConnectorType.INTEGER);
+        this.output = new FlowchartOutputConnector(this, "OUT", 0, ConnectorType.BOOLEAN);
+        this.outputElapsedTime_msecs = new FlowchartOutputConnector(this, "ET_MS", 0, ConnectorType.INTEGER);
+        this.AppendConnectors([this.inputTRIGGER, this.inputPresetTime_msecs], [this.output,this.outputElapsedTime_msecs]);
+    }
+
+    public OnSimulationStart(ctx:SimulationContext){
+        this.inputPositiveEdge = Number.MAX_VALUE;
+    }
+
+    public OnSimulationStep(ctx:SimulationContext){
+        let currentInputValue = ctx.GetBoolean(this.inputTRIGGER);
+        let presetTime_msecs = ctx.GetInteger(this.inputPresetTime_msecs);
+        let now = ctx.GetMillis();
+        if(this.lastInputValue==false && currentInputValue==true){
+            this.inputPositiveEdge=now;
+        }
+        else if(currentInputValue==false){
+            this.inputPositiveEdge=Number.MAX_VALUE;
+        }
+        this.lastInputValue=currentInputValue;
+        let elapsed = (now-this.inputPositiveEdge);
+        ctx.SetBoolean(this.output, elapsed>=presetTime_msecs);
+        ctx.SetInteger(this.outputElapsedTime_msecs, elapsed);
     }
 }
 
 export class Timing_TOFOperator extends FlowchartOperator {
   
+    private inputTRIGGER:FlowchartInputConnector;
+    private inputPresetTime_msecs:FlowchartInputConnector;
+    private output:FlowchartOutputConnector;
+    private outputElapsedTime_msecs:FlowchartOutputConnector;
+    private lastInputValue:boolean=false;
+    private inputNegativeEdge:number = 0;
+    
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
         super(parent, caption, ti, configurationData);
-        let A = new FlowchartInputConnector(this, "TRIGGER", 0, ConnectorType.BOOLEAN);
-        let B = new FlowchartInputConnector(this, "PresetTimeMS", 1, ConnectorType.INTEGER);
-        let C = new FlowchartOutputConnector(this, "OUT", 0, ConnectorType.BOOLEAN);
-        let D = new FlowchartOutputConnector(this, "ElapsedTimeMS", 0, ConnectorType.INTEGER);
-        this.AppendConnectors([A, B], [C,D]);
+        this.inputTRIGGER = new FlowchartInputConnector(this, "TRIGGER", 0, ConnectorType.BOOLEAN);
+        this.inputPresetTime_msecs = new FlowchartInputConnector(this, "PT_MS", 1, ConnectorType.INTEGER);
+        this.output = new FlowchartOutputConnector(this, "OUT", 0, ConnectorType.BOOLEAN);
+        this.outputElapsedTime_msecs = new FlowchartOutputConnector(this, "ET_MS", 0, ConnectorType.INTEGER);
+        this.AppendConnectors([this.inputTRIGGER, this.inputPresetTime_msecs], [this.output,this.outputElapsedTime_msecs]);
+    }
+
+    public OnSimulationStart(ctx:SimulationContext){
+        this.inputNegativeEdge = 0;
+    }
+
+    public OnSimulationStep(ctx:SimulationContext){
+        let currentInputValue = ctx.GetBoolean(this.inputTRIGGER);
+        let presetTime_msecs = ctx.GetInteger(this.inputPresetTime_msecs);
+        let now = ctx.GetMillis();
+        if(this.lastInputValue==true && currentInputValue==false){
+            this.inputNegativeEdge=now;
+        }
+        else if(currentInputValue==false){
+            this.inputNegativeEdge=0;
+        }
+        this.lastInputValue=currentInputValue;
+        let elapsed = (now-this.inputNegativeEdge);
+        elapsed=Math.min(elapsed, presetTime_msecs)
+        ctx.SetBoolean(this.output, currentInputValue || (elapsed<presetTime_msecs));
+        ctx.SetInteger(this.outputElapsedTime_msecs, elapsed);
     }
 }
 
@@ -459,55 +656,65 @@ export class Sensor_HeaterTemperatureOperator extends FlowchartOperator {
     }
 }
 
-export class Custom_XYZOperator extends FlowchartOperator {
+export class Custom_XYZBlock extends FlowchartOperator {
     constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
         super(parent, caption, ti, configurationData);
         let A = new FlowchartInputConnector(this, "TempVL", 0, ConnectorType.INTEGER);
         let B = new FlowchartInputConnector(this, "TempRL", 1, ConnectorType.INTEGER);
         let B1 = new FlowchartInputConnector(this, "Switch", 2, ConnectorType.BOOLEAN);
         let C = new FlowchartOutputConnector(this, "Motor", 0,ConnectorType.BOOLEAN);
-        let C1 = new FlowchartOutputConnector(this, "Stellventil", 1,ConnectorType.INTEGER);
+        let C1 = new FlowchartOutputConnector(this, "Valve", 1,ConnectorType.INTEGER);
         this.AppendConnectors([A, B, B1], [C, C1]);
+    }
+
+    private value1HTMLInput:HTMLInputElement|null=null;
+    private value2HTMLInput:HTMLInputElement|null=null;
+    private value3HTMLInput:HTMLInputElement|null=null;
+    private color1HTMLInput:HTMLInputElement|null=null;
+    public PopulateProperyGrid(tbody:HTMLTableSectionElement):boolean
+    {
+        this.value1HTMLInput=$.InputNumber(tbody, -32768, 32767, "Value1", this.configurationData);
+        this.value1HTMLInput=$.InputNumber(tbody, -32768, 32767, "Value2", this.configurationData);
+        this.value1HTMLInput=$.InputNumber(tbody, -32768, 32767, "Value3", this.configurationData);
+        this.color1HTMLInput=$.InputColor(tbody, "Color1", this.configurationData);
+        return true;
+    }
+
+    public SavePropertyGrid(tbody:HTMLTableSectionElement){
+        this.cfg_setValue("Value1", this.value1HTMLInput!.valueAsNumber);
+        this.cfg_setValue("Value2", this.value2HTMLInput!.valueAsNumber);
+        this.cfg_setValue("Value3", this.value3HTMLInput!.valueAsNumber);
+        this.cfg_setValue("Color1", this.color1HTMLInput!.valueAsNumber);
+    }
+
+    protected SerializeFurtherProperties(ctx:SerializeContextAndAdressMap):void{
+        ctx.ctx.writeS32(this.cfg_getValue("Value1", 0));
+        ctx.ctx.writeS32(this.cfg_getValue("Value2", 0));
+        ctx.ctx.writeS32(this.cfg_getValue("Value3", 0));
+        let colorString = this.cfg_getValue("Color1", "#000000");
+        let colorNum=$.ColorDomString2ColorNum(colorString);
+        ctx.ctx.writeU32(colorNum);
+        return;
     }
 }
 
-class PropertyGridHelpers
-{
-    public static Number(table:HTMLTableSectionElement, min:number, max:number, key:string, cfg:KeyValueTuple[]|null):HTMLInputElement
-    {
-        let value:number=0;
-        if(cfg!=null)
-        {
-            for (const e of cfg) {
-                if(e.key==key && !isNaN(e.value)){
-                    value=e.value;
-                    break;
-                }
-            }
-        }
-        let tr=$.Html(table, "tr", [],["develop-propertygrid-tr"]);
-        $.Html(tr, "td", [],["develop-propertygrid-td"], key);
-        let inputContainer = $.Html(tr, "td", [],["develop-propertygrid-td"]);
-        return <HTMLInputElement>$.Html(inputContainer, "input", ["type", "number", "min", ""+Math.round(min), "max", ""+Math.round(max), "value", ""+Math.round(value),]);
-    }
+export class Control_PID extends FlowchartOperator {
+    private inputActualValue:FlowchartInputConnector;
+    private inputSetpoint:FlowchartInputConnector;
+    private inputKP:FlowchartInputConnector;
+    private inputKI:FlowchartInputConnector;
+    private inputKD:FlowchartInputConnector;
+    private output:FlowchartOutputConnector;
 
-   
 
-    public static Color(table:HTMLTableSectionElement, key:string, cfg:KeyValueTuple[]|null):HTMLInputElement
-    {
-        let value:string="#ff0000";
-        if(cfg!=null)
-        {
-            for (const e of cfg) {
-                if(e.key==key){
-                    value=e.value;
-                    break;
-                }
-            }
-        }
-        let tr=$.Html(table, "tr", [],["develop-propertygrid-tr"]);
-        $.Html(tr, "td", [],["develop-propertygrid-td"], key);
-        let inputContainer = $.Html(tr, "td", [],["develop-propertygrid-td"]);
-        return <HTMLInputElement>$.Html(inputContainer, "input", ["type", "color",  "value", value]);
+    constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
+        super(parent, caption, ti, configurationData);
+        this.inputActualValue = new FlowchartInputConnector(this, "Actual", 0, ConnectorType.FLOAT);
+        this.inputSetpoint = new FlowchartInputConnector(this, "Setpoint", 1, ConnectorType.FLOAT);
+        this.inputKP= new FlowchartInputConnector(this, "KP", 2, ConnectorType.FLOAT);
+        this.inputKI= new FlowchartInputConnector(this, "KI", 3, ConnectorType.FLOAT);
+        this.inputKD= new FlowchartInputConnector(this, "KD", 4, ConnectorType.FLOAT);
+        this.output = new FlowchartOutputConnector(this, "Out", 1,ConnectorType.INTEGER);
+        this.AppendConnectors([this.inputActualValue, this.inputSetpoint, this.inputKP, this.inputKI, this.inputKD], [this.output]);
     }
 }

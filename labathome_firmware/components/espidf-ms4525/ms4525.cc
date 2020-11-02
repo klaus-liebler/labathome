@@ -7,7 +7,7 @@
 #include <i2c.hh>
 
 
-MS4525DO::MS4525DO(i2c_port_t i2c_port, uint8_t address):i2c_port(i2c_port), address(address)
+MS4525DO::MS4525DO(i2c_port_t i2c_port, MS4523_Adress address):i2c_port(i2c_port), address((uint8_t)address)
 {
 }
 
@@ -79,7 +79,7 @@ float MS4525DO::GetTemperature(void){     // returns temperature of last measure
     return temperature;
 }
  
-float MS4525DO::GetAirSpeed(void){        // calculates and returns the airspeed
+float MS4525DO::GetAirSpeedMetersPerSecond(void){        // calculates and returns the airspeed
     float psi = GetPSI();
     /* Velocity calculation from a pitot tube explanation */
     /* +/- 1PSI, approximately 100 m/s */

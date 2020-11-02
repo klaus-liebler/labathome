@@ -120,6 +120,9 @@
         <a id="show_screen_heaterexperiment" href="javascript:void(0)"><svg class="icon">
             <use xlink:href="#icon-binoculars"></use>
           </svg>&nbsp;Heater Experiment</a>
+        <a id="show_screen_airspeedexperiment" href="javascript:void(0)"><svg class="icon">
+            <use xlink:href="#icon-binoculars"></use>
+          </svg>&nbsp;Airspeed Exp.</a>
         <a id="show_screen_adcexperiment" href="javascript:void(0)"><svg class="icon">
             <use xlink:href="#icon-binoculars"></use>
           </svg>&nbsp;ADC Experiment</a>
@@ -129,7 +132,15 @@
           <p>Nothing to do here</p>
         </div>
         <div id="screen_adcexperiment">
-          <div style="height: 300px; width: 100%;"><canvas id="experiment_chart" style="height: 300px; width: 100%;" ></canvas></div>
+          <form>
+            <label>Main Controls</label>
+            <div>
+              <button id="adcexperiment_butRecord" class="large" type="button">🔴</button>
+              <button id="adcexperiment_butStop" class="large" type="button">⬛</button>
+              <button id="adcexperiment_butDelete" type="button"><svg class="icon icon-bin2"><use xlink:href="#icon-bin2"></use></svg></button>
+            </div>
+          </form>
+          <div style="height: 300px; width: 100%;"><canvas id="adcexperiment_chart" style="height: 300px; width: 100%;" ></canvas></div>
             <table>
               <thead>
                 <tr>
@@ -159,66 +170,66 @@
             <label>Main Controls</label>
             <div>
               <label>
-                <input type="radio" name="experiment_mode" value="0" checked/>
+                <input type="radio" name="heaterexperiment_mode" value="0" checked/>
                 <div class="functionblock box">
                   <span>Functionblock</span>
                 </div>
               </label>
               
               <label>
-                <input type="radio" name="experiment_mode" value="1"/>
+                <input type="radio" name="heaterexperiment_mode" value="1"/>
                 <div class="openloop box">
                   <span>Open Loop</span>
                 </div>
               </label>
               
               <label>
-                <input type="radio" name="experiment_mode" value="2"/>
+                <input type="radio" name="heaterexperiment_mode" value="2"/>
                 <div class="closedloop box">
                   <span>Closed Loop</span>
                 </div>
               </label>
 
-              <button id="experiment_butRecord" class="large" type="button">🔴</button>
-              <button id="experiment_butStop" class="large" type="button">⬛</button>
-              <button id="experiment_butDelete" type="button"><svg class="icon icon-bin2"><use xlink:href="#icon-bin2"></use></svg></button>
+              <button id="heaterexperiment_butRecord" class="large" type="button">🔴</button>
+              <button id="heaterexperiment_butStop" class="large" type="button">⬛</button>
+              <button id="heaterexperiment_butDelete" type="button"><svg class="icon icon-bin2"><use xlink:href="#icon-bin2"></use></svg></button>
             </div>
             
-            <label class="experiment_openloopctrl">Heater Power [%]</label>
-            <div class="range-wrap experiment_openloopctrl">
-              <input type="range" id="experiment_inpSetpointHeater" min="0" max="100" value="0"/>
+            <label class="heaterexperiment_openloopctrl">Heater Power [%]</label>
+            <div class="range-wrap heaterexperiment_openloopctrl">
+              <input type="range" id="heaterexperiment_inpSetpointHeater" min="0" max="100" value="0"/>
               <output class="bubble"></output>
             </div>  
             
-            <label class="experiment_openloopctrl">Fan Power [%]</label>
-            <div class="range-wrap experiment_openloopctrl">
-              <input type="range" id="experiment_inpFanOL" min="0" max="100" value="0"/>
+            <label class="heaterexperiment_openloopctrl">Fan Power [%]</label>
+            <div class="range-wrap heaterexperiment_openloopctrl">
+              <input type="range" id="heaterexperiment_inpFanOL" min="0" max="100" value="0"/>
               <output class="bubble"></output>
             </div>  
             
-            <label class="experiment_closedloopctrl">Setp. Temp [°C]</label>
-            <div class="range-wrap experiment_closedloopctrl">
-              <input type="range" id="experiment_inpSetpointTemperature" min="0" max="80" value="0"/>
+            <label class="heaterexperiment_closedloopctrl">Setp. Temp [°C]</label>
+            <div class="range-wrap heaterexperiment_closedloopctrl">
+              <input type="range" id="heaterexperiment_inpSetpointTemperature" min="0" max="80" value="0"/>
               <output class="bubble"></output>
             </div>  
             
-            <label class="experiment_closedloopctrl">Fan Power [%]</label>
-            <div class="range-wrap experiment_closedloopctrl">
-              <input type="range" id="experiment_inpFanCL" min="0" max="100" value="0"/>
+            <label class="heaterexperiment_closedloopctrl">Fan Power [%]</label>
+            <div class="range-wrap heaterexperiment_closedloopctrl">
+              <input type="range" id="heaterexperiment_inpFanCL" min="0" max="100" value="0"/>
               <output class="bubble"></output>
             </div>  
             
-            <label class="experiment_closedloopctrl">K_P</label>
-            <input class="experiment_closedloopctrl" type="number" id="experiment_inpKP" min="0" max="10" value="0"/>
+            <label class="heaterexperiment_closedloopctrl">K_P</label>
+            <input class="heaterexperiment_closedloopctrl" type="number" id="heaterexperiment_inpKP" min="0" max="10" value="0"/>
 
-            <label class="experiment_closedloopctrl">K_I</label>
-            <input class="experiment_closedloopctrl" type="number" id="experiment_inpKI" min="0" max="10" value="0"/>
+            <label class="heaterexperiment_closedloopctrl">K_I</label>
+            <input class="heaterexperiment_closedloopctrl" type="number" id="heaterexperiment_inpKI" min="0" max="10" value="0"/>
 
-            <label class="experiment_closedloopctrl">K_D</label>
-            <input class="experiment_closedloopctrl" type="number" id="experiment_inpKD" min="0" max="10" value="0"/>
+            <label class="heaterexperiment_closedloopctrl">K_D</label>
+            <input class="heaterexperiment_closedloopctrl" type="number" id="heaterexperiment_inpKD" min="0" max="10" value="0"/>
           </form>
           <!-- <div id="experiment_chart" style="height: 300px;" class="ct-chart ct-perfect-fourth"></div>-->
-          <div style="height: 300px; width: 100%;"><canvas id="experiment_chart" style="height: 300px; width: 100%;" ></canvas></div>
+          <div style="height: 300px; width: 100%;"><canvas id="heaterexperiment_chart" style="height: 300px; width: 100%;" ></canvas></div>
             <table>
               <thead>
                 <tr>
@@ -230,7 +241,7 @@
                   <th>Fan [%]</th>
                  
                 </tr>
-                <tr id="experiment_tabFirstRow">
+                <tr id="heaterexperiment_tabFirstRow">
                   <td></td>
                   <td></td>
                   <td></td>
@@ -239,7 +250,95 @@
                   <td></td>
                 </tr>
               </thead>
-              <tbody id="experiment_tabBody">
+              <tbody id="heaterexperiment_tabBody">
+              </tbody>
+            </table>
+        </div>
+        <div id="screen_airspeedexperiment">
+          <form>
+            <label>Main Controls</label>
+            <div>
+              <label>
+                <input type="radio" name="airspeedexperiment_mode" value="0" checked/>
+                <div class="functionblock box">
+                  <span>Functionblock</span>
+                </div>
+              </label>
+              
+              <label>
+                <input type="radio" name="airspeedexperiment_mode" value="1"/>
+                <div class="openloop box">
+                  <span>Open Loop</span>
+                </div>
+              </label>
+              
+              <label>
+                <input type="radio" name="airspeedexperiment_mode" value="2"/>
+                <div class="closedloop box">
+                  <span>Closed Loop</span>
+                </div>
+              </label>
+
+              <button id="airspeedexperiment_butRecord" class="large" type="button">🔴</button>
+              <button id="airspeedexperiment_butStop" class="large" type="button">⬛</button>
+              <button id="airspeedexperiment_butDelete" type="button"><svg class="icon icon-bin2"><use xlink:href="#icon-bin2"></use></svg></button>
+            </div>
+            
+            <label class="airspeedexperiment_openloopctrl">Fan Power [%]</label>
+            <div class="range-wrap airspeedexperiment_openloopctrl">
+              <input type="range" id="airspeedexperiment_inpSetpointFan" min="0" max="100" value="0"/>
+              <output class="bubble"></output>
+            </div>  
+            
+            <label class="airspeedexperiment_openloopctrl">Servo Position [deg]</label>
+            <div class="range-wrap airspeedexperiment_openloopctrl">
+              <input type="range" id="airspeedexperiment_inpServoOL" min="0" max="100" value="0"/>
+              <output class="bubble"></output>
+            </div>  
+            
+            <label class="airspeedexperiment_closedloopctrl">Setp. Airspeed [m/s]</label>
+            <div class="range-wrap airspeedexperiment_closedloopctrl">
+              <input type="range" id="airspeedexperiment_inpSetpointAirspeed" min="0" max="80" value="0"/>
+              <output class="bubble"></output>
+            </div>  
+            
+            <label class="airspeedexperiment_closedloopctrl">Servo Position [deg]</label>
+            <div class="range-wrap airspeedexperiment_closedloopctrl">
+              <input type="range" id="airspeedexperiment_inpServoCL" min="0" max="100" value="0"/>
+              <output class="bubble"></output>
+            </div>  
+            
+            <label class="airspeedexperiment_closedloopctrl">K_P</label>
+            <input class="airspeedexperiment_closedloopctrl" type="number" id="airspeedexperiment_inpKP" min="0" max="10" value="0"/>
+
+            <label class="airspeedexperiment_closedloopctrl">K_I</label>
+            <input class="airspeedexperiment_closedloopctrl" type="number" id="airspeedexperiment_inpKI" min="0" max="10" value="0"/>
+
+            <label class="airspeedexperiment_closedloopctrl">K_D</label>
+            <input class="airspeedexperiment_closedloopctrl" type="number" id="airspeedexperiment_inpKD" min="0" max="10" value="0"/>
+          </form>
+          <div style="height: 300px; width: 100%;"><canvas id="airspeedexperiment_chart" style="height: 300px; width: 100%;" ></canvas></div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Time [HH:MM:SS]</th>
+                  <th>Time [seconds]</th>
+                  <th>Setpoint Airspeed [m/s]</th>
+                  <th>Actual Airspeed [m/s]</th>
+                  <th>Fan [%]</th>
+                  <th>Servo [deg]</th>
+                 
+                </tr>
+                <tr id="airspeedexperiment_tabFirstRow">
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+              </thead>
+              <tbody id="airspeedexperiment_tabBody">
               </tbody>
             </table>
         </div>

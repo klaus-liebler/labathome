@@ -1,12 +1,13 @@
 import { ConnectorType, FlowchartInputConnector, FlowchartOutputConnector } from "./FlowchartConnector";
-import { FlowchartCompiler, HashAndBufAndMaps } from "./FlowchartCompiler";
+import { FlowchartCompiler, HashAndBufAndMaps, SortedOperatorsAndMaps } from "./FlowchartCompiler";
 import { FlowchartLink } from "./FlowchartLink";
 import { FlowchartOperator, PositionType, TypeInfo } from "./FlowchartOperator";
 import * as operatorimpl from "./FlowchartOperatorImpl";
 import { NodeWrapper, TopologicalSortDFS } from "./TopologicalSorfDFS";
-import { Utils, $ } from "./../Utils";
+import { Utils, $, KeyValueTuple } from "./../Utils";
 import { AppManagement } from "../AppManagement";
 import { SerializeContext } from "./SerializeContext";
+import { SimulationManager } from "./SimulationManager";
 
 export class FlowchartOptions {
     canUserEditLinks: boolean = true;
@@ -49,10 +50,7 @@ export interface OperatorData {
     configurationData: KeyValueTuple[] | null;
 }
 
-export interface KeyValueTuple {
-    key: string;
-    value: any;
-}
+
 
 export interface LinkData {
     color: string;
@@ -65,6 +63,7 @@ export interface LinkData {
 export class Flowchart {
     
     private operatorRegistry:operatorimpl.OperatorRegistry;
+    private simulationManager?:SimulationManager|null;
     private operators = new Map<number, FlowchartOperator>();
     private links = new Map<number, FlowchartLink>();
     public static readonly DATATYPE2COLOR = new Map([[ConnectorType.BOOLEAN, "RED"], [ConnectorType.COLOR, "GREEN"], [ConnectorType.FLOAT, "BLUE"], [ConnectorType.INTEGER, "YELLOW"], [ConnectorType.COLOR, "PURPLE"]]);
@@ -275,26 +274,6 @@ export class Flowchart {
         this.selectedLink = link;
         link.SetColor(this.options.defaultSelectedLinkColor);
     }
-
-    private callCompiler():HashAndBufAndMaps {
-        let index2wrappedOperator = new Map<number, NodeWrapper<FlowchartOperator>>();
-        this.operators.forEach((v, k, m) => {
-            index2wrappedOperator.set(v.GlobalOperatorIndex, new NodeWrapper<FlowchartOperator>(v));
-        });
-        let compilerInstance = new FlowchartCompiler(index2wrappedOperator);
-        let guidAndBufAndMap: HashAndBufAndMaps=compilerInstance.Compile()
-        
-        this.currentDebugInfo=guidAndBufAndMap;
-        let dv = new DataView(guidAndBufAndMap.buf);
-        let code: String = "const uint8_t code[] = {"
-        for (let i = 0; i < dv.byteLength; i++) {
-            code += "0x" + dv.getUint8(i).toString(16) + ", ";
-        }
-        code += "};";
-        console.log(code);
-        return guidAndBufAndMap;
-    }
-
  
 
     private deleteSelectedThing(): void {
@@ -506,12 +485,36 @@ export class Flowchart {
         };
         $.Html(menuDebugDropContent, "a", ["href", "#"], [], "☭ Run Now").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
-            this.put2fbd(this.callCompiler().buf);
+            let compilerInstance = new FlowchartCompiler(this.operators);
+            let guidAndBufAndMap: HashAndBufAndMaps=compilerInstance.Compile();  
+            this.currentDebugInfo=guidAndBufAndMap;
+            this.put2fbd(guidAndBufAndMap.buf);
             e.preventDefault();
         }
         $.Html(menuDebugDropContent, "a", ["href", "#"], [], "👣 Set as Startup-App").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
-            this.saveJSONandBINToLabathomeDefaultFile(this.callCompiler().buf);
+            let compilerInstance = new FlowchartCompiler(this.operators);
+            let guidAndBufAndMap: HashAndBufAndMaps=compilerInstance.Compile();  
+            this.saveJSONandBINToLabathomeDefaultFile(guidAndBufAndMap.buf);
+            e.preventDefault();
+        }
+        let menuSimulation = $.Html(toolbar, "div", [], ["dropdown"]);
+        let menuSimulationDropBtn = <HTMLButtonElement>$.Html(menuSimulation, "button", [], ["dropbtn"], "Simulation ▼");
+
+        let menuSimulationDropContent = $.Html(menuSimulation, "div", [], ["dropdown-content"]);
+        menuSimulationDropBtn.onclick = (e) => {
+            menuSimulationDropContent.classList.toggle("show");
+        };
+        $.Html(menuSimulationDropContent, "a", ["href", "#"], [], "➤ Start Simulation").onclick = (e) => {
+            Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
+            let compilerInstance = new FlowchartCompiler(this.operators);
+            this.simulationManager=new SimulationManager(compilerInstance.CompileForSimulation());
+            this.simulationManager.Start(false);
+            e.preventDefault();
+        }
+        $.Html(menuSimulationDropContent, "a", ["href", "#"], [], "× Stop Simulation").onclick = (e) => {
+            Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
+            this.simulationManager?.Stop();
             e.preventDefault();
         }
         //let menuDebugLink2 = $.Html(menuDebugDropContent, "a", ["href", "#"], [], "◉ Stop");
@@ -576,9 +579,6 @@ export class Flowchart {
                 this.unselectOperator();
                 this.unselectLink();
             }
-        }
-        this.flowchartContainerSvgSvg.onmouseup = (e) => {
-            console.log("Flowchart this.element.onmouseup with e.target=" + e.target);
         }
 
         workspace.onkeyup = (e) => {

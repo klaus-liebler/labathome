@@ -278,7 +278,7 @@ esp_err_t handle_put_heaterexperiment(httpd_req_t *req)
     float KD = bufF32[5];
     
     ESP_LOGI(TAG, "Set mode %d and setpointTorH %F and Setpoint Fan %F", modeU32, setpointTempOrHeater, setpointFan);
-    ExperimentData returnData;
+    HeaterExperimentData returnData;
     switch (modeU32)
     {
     case 0: plcmanager->TriggerHeaterExperimentFunctionblock(&returnData); break;
@@ -293,6 +293,56 @@ esp_err_t handle_put_heaterexperiment(httpd_req_t *req)
     retbuf[1]=returnData.Heater;
     retbuf[2]=returnData.Fan;
     retbuf[3]=returnData.ActualTemperature;
+    httpd_resp_send(req, (const char*)retbuf, 16);
+    return ESP_OK;
+}
+
+esp_err_t handle_put_airspeedexperiment(httpd_req_t *req){
+    PLCManager *plcmanager = (PLCManager *)(req->user_ctx);
+    int ret=0;
+    int remaining = req->content_len;
+    if(remaining!=24){
+        ESP_LOGE(TAG, "Unexpected Data length %d in experiment_put_handler", remaining);
+        return ESP_FAIL;
+    }
+    uint8_t buf[remaining];
+    while (remaining > 0) {
+        /* Read the data for the request */
+        if ((ret = httpd_req_recv(req, (char*)buf,  MIN(remaining, sizeof(buf)))) <= 0) {
+            if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
+                /* Retry receiving if timeout occurred */
+                continue;
+            }
+            return ESP_FAIL;
+        }
+        remaining -= ret;
+    }
+    // End response
+    float *bufF32 = (float*)buf;
+    uint32_t *bufU32 = (uint32_t*)buf;
+    uint32_t modeU32 = bufU32[0];
+    float setpointTempOrHeater = bufF32[1];
+    float setpointFan = bufF32[2];
+    float KP = bufF32[3];
+    float KI = bufF32[4];
+    float KD = bufF32[5];
+    
+    ESP_LOGI(TAG, "Set mode %d and setpointTorH %F and Setpoint Fan %F", modeU32, setpointTempOrHeater, setpointFan);
+    AirspeedExperimentData returnData;
+    switch (modeU32)
+    {
+    case 0: plcmanager->TriggerAirspeedExperimentFunctionblock(&returnData); break;
+    case 1: plcmanager->TriggerAirspeedExperimentOpenLoop(setpointTempOrHeater, setpointFan, &returnData); break;
+    case 2: plcmanager->TriggerAirspeedExperimentClosedLoop(setpointTempOrHeater, setpointFan, KP, KI, KD, &returnData); break;
+    default:break;
+    }
+    
+    httpd_resp_set_type(req, "application/octet-stream");
+    float retbuf[4];
+    retbuf[0]=returnData.SetpointAirspeed;
+    retbuf[1]=returnData.Fan;
+    retbuf[2]=returnData.Servo;
+    retbuf[3]=returnData.ActualAirspeed;
     httpd_resp_send(req, (const char*)retbuf, 16);
     return ESP_OK;
 }

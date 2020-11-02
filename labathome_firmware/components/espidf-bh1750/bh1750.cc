@@ -7,7 +7,8 @@ BH1750::BH1750(i2c_port_t i2c_num, BH1750_ADRESS adress):i2c_num(i2c_num), adres
 }
 esp_err_t BH1750::Init(BH1750_OPERATIONMODE operation)
 {
-    return I2C::WriteReg(i2c_num, (uint8_t)adress, (uint8_t)operation, 0, 0);
+    uint8_t op = (uint8_t)operation;
+    return I2C::Write(i2c_num, (uint8_t)adress, &op, 1);
 
 }
 esp_err_t BH1750::Read(float *lux){

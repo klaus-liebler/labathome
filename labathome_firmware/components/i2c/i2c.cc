@@ -85,7 +85,12 @@ esp_err_t I2C::IsAvailable(const i2c_port_t port, uint8_t address7bit){
 }
 
 esp_err_t I2C::Read(const i2c_port_t port, uint8_t address7bit, uint8_t *data, size_t len){
-     esp_err_t espRc;
+    if (!xSemaphoreTake(locks[port], 1000 / portTICK_RATE_MS))
+    {
+        ESP_LOGE(TAG, "Could not take port mutex %d", port);
+        return ESP_ERR_TIMEOUT;
+    }
+    esp_err_t espRc;
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, (address7bit << 1) | I2C_MASTER_READ, true);
@@ -97,5 +102,24 @@ esp_err_t I2C::Read(const i2c_port_t port, uint8_t address7bit, uint8_t *data, s
     i2c_master_stop(cmd);
     espRc = i2c_master_cmd_begin(port, cmd, 10 / portTICK_PERIOD_MS);
     i2c_cmd_link_delete(cmd);
+     xSemaphoreGive(locks[port]);
+    return espRc;
+}
+
+esp_err_t I2C::Write(const i2c_port_t port, uint8_t address7bit, uint8_t *data, size_t len){
+    if (!xSemaphoreTake(locks[port], 1000 / portTICK_RATE_MS))
+    {
+        ESP_LOGE(TAG, "Could not take port mutex %d", port);
+        return ESP_ERR_TIMEOUT;
+    }
+    esp_err_t espRc;
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, address7bit << 1 | I2C_MASTER_WRITE, true);
+    i2c_master_write(cmd, data, len, true);
+    i2c_master_stop(cmd);
+    espRc = i2c_master_cmd_begin(port, cmd, 1000 / portTICK_RATE_MS);
+    i2c_cmd_link_delete(cmd);
+    xSemaphoreGive(locks[port]);
     return espRc;
 }

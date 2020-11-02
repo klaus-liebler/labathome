@@ -1,0 +1,1 @@
+{"version":3,"file":"gulpfile.js","sourceRoot":"","sources":["../gulpfile.ts"],"names":[],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;AAAA,yCAA8B;AAC9B,gEAAmC;AAInC,SAAS,OAAO,CAAC,EAAW;IAExB,OAAO,IAAI,CAAC,GAAG,CAAC,YAAY,CAAC;SAC5B,IAAI,CAAC,sBAAK,EAAE,CAAC;SACb,IAAI,CAAC,IAAI,CAAC,IAAI,CAAC,QAAQ,CAAC,CAAC,CAAC;AAC/B,CAAC;AAED,OAAO,CAAC,OAAO,GAAG,OAAO,CAAC"}

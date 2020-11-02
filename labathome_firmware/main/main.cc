@@ -68,6 +68,8 @@ void plcTask(void *pvParameters)
         vTaskDelay(150 / portTICK_PERIOD_MS);
     }
     hal->UnColorizeAllLed();
+    plcmanager->GetHAL()->PlaySong(1);
+    ESP_LOGI(TAG, "plcmanager main loop starts");
     while (true)
     {
         // Wait for the next cycle.
@@ -147,6 +149,13 @@ static const httpd_uri_t putheaterexperiment = {
     .user_ctx = plcmanager,
 };
 
+static const httpd_uri_t putairspeedexperiment = {
+    .uri       = "/airspeedexperiment",
+    .method    = HTTP_PUT,
+    .handler   = handle_put_airspeedexperiment,
+    .user_ctx = plcmanager,
+};
+
 static const httpd_uri_t getadcexperiment = {
     .uri       = "/adcexperiment",
     .method    = HTTP_GET,
@@ -171,6 +180,7 @@ static httpd_handle_t start_webserver(void)
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &getfbd));
     
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &putheaterexperiment));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &putairspeedexperiment));
     
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &getfbdstorejson));
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &deletefbdstorejson));
@@ -276,9 +286,11 @@ void app_main(void)
 
     while (true)
     {
-        float airTemp=0;
+        float airTemp=0.0;
         hal->GetAirTemperature(&airTemp);
-        printf("Start was %d seconds ago. Free heap: %d, Ambient Temp: %F\n", i, esp_get_free_heap_size(), airTemp);
+        float heaterTemp=0.0;
+        hal->GetHeaterTemperature(&heaterTemp);
+        printf("Start was %d seconds ago. Free heap: %d, Ambient Temp: %F, Heater Temp: %F\n", i, esp_get_free_heap_size(), airTemp, heaterTemp);
         i += 5;
         vTaskDelay(5000 / portTICK_PERIOD_MS);
     }
