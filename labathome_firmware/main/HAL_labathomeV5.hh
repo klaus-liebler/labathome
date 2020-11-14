@@ -582,7 +582,7 @@ public:
 
     LabAtHomeErrorCode SetHeaterState(float dutyInPercent)
     {
-        if(!this->heaterEmergencyShutdown) return LabAtHomeErrorCode::EMERGENCY_SHUTDOWN;
+        if(this->heaterEmergencyShutdown) return LabAtHomeErrorCode::EMERGENCY_SHUTDOWN;
         mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_2, MCPWM_OPR_A, dutyInPercent);
         return LabAtHomeErrorCode::OK;
     }

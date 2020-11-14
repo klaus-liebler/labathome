@@ -277,7 +277,7 @@ esp_err_t handle_put_heaterexperiment(httpd_req_t *req)
     float KI = bufF32[4];
     float KD = bufF32[5];
     
-    ESP_LOGI(TAG, "Set mode %d and setpointTorH %F and Setpoint Fan %F", modeU32, setpointTempOrHeater, setpointFan);
+    ESP_LOGI(TAG, "Set mode %d and setpointTempOrHeater %F and Setpoint Fan %F", modeU32, setpointTempOrHeater, setpointFan);
     HeaterExperimentData returnData;
     switch (modeU32)
     {
