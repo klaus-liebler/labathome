@@ -274,8 +274,8 @@ esp_err_t handle_put_heaterexperiment(httpd_req_t *req)
     float setpointTempOrHeater = bufF32[1];
     float setpointFan = bufF32[2];
     float KP = bufF32[3];
-    float KI = bufF32[4];
-    float KD = bufF32[5];
+    float TN = bufF32[4];
+    float TV = bufF32[5];
     
     ESP_LOGI(TAG, "Set mode %d and setpointTempOrHeater %F and Setpoint Fan %F", modeU32, setpointTempOrHeater, setpointFan);
     HeaterExperimentData returnData;
@@ -283,7 +283,7 @@ esp_err_t handle_put_heaterexperiment(httpd_req_t *req)
     {
     case 0: plcmanager->TriggerHeaterExperimentFunctionblock(&returnData); break;
     case 1: plcmanager->TriggerHeaterExperimentOpenLoop(setpointTempOrHeater, setpointFan, &returnData); break;
-    case 2: plcmanager->TriggerHeaterExperimentClosedLoop(setpointTempOrHeater, setpointFan, KP, KI, KD, &returnData); break;
+    case 2: plcmanager->TriggerHeaterExperimentClosedLoop(setpointTempOrHeater, setpointFan, KP, TN, TV, &returnData); break;
     default:break;
     }
     
@@ -324,8 +324,8 @@ esp_err_t handle_put_airspeedexperiment(httpd_req_t *req){
     float setpointTempOrHeater = bufF32[1];
     float setpointFan = bufF32[2];
     float KP = bufF32[3];
-    float KI = bufF32[4];
-    float KD = bufF32[5];
+    float TN = bufF32[4];
+    float TV = bufF32[5];
     
     ESP_LOGI(TAG, "Set mode %d and setpointTorH %F and Setpoint Fan %F", modeU32, setpointTempOrHeater, setpointFan);
     AirspeedExperimentData returnData;
@@ -333,7 +333,7 @@ esp_err_t handle_put_airspeedexperiment(httpd_req_t *req){
     {
     case 0: plcmanager->TriggerAirspeedExperimentFunctionblock(&returnData); break;
     case 1: plcmanager->TriggerAirspeedExperimentOpenLoop(setpointTempOrHeater, setpointFan, &returnData); break;
-    case 2: plcmanager->TriggerAirspeedExperimentClosedLoop(setpointTempOrHeater, setpointFan, KP, KI, KD, &returnData); break;
+    case 2: plcmanager->TriggerAirspeedExperimentClosedLoop(setpointTempOrHeater, setpointFan, KP, TN, TV, &returnData); break;
     default:break;
     }
     

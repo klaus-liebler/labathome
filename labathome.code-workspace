@@ -1,19 +1,19 @@
 {
 	"folders": [
 		{
-			"path": "devtools"
-		},
-		{
 			"path": "doc"
-		},
-		{
-			"path": "webui"
 		},
 		{
 			"path": "labathome_firmware"
 		},
 		{
 			"path": "rtttl2binary"
+		},
+		{
+			"path": "labathome_webui"
+		},
+		{
+			"path": "labathome_buildtools"
 		}
 	],
 	"settings": {

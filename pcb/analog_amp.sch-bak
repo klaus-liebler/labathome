@@ -1,0 +1,120 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 2 2
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L Amplifier_Audio:TDA7052A U18
+U 1 1 60B7A80F
+P 4250 2650
+F 0 "U18" H 4250 3131 50  0000 C CNN
+F 1 "TDA7052A" H 4250 3040 50  0000 C CNN
+F 2 "Package_DIP:DIP-8_W7.62mm" H 4250 2650 50  0001 C CIN
+F 3 "http://www.nxp.com/docs/en/data-sheet/TDA7052A_AT.pdf" H 4250 2650 50  0001 C CNN
+	1    4250 2650
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR068
+U 1 1 60B7AD13
+P 3950 2950
+F 0 "#PWR068" H 3950 2700 50  0001 C CNN
+F 1 "GND" H 3955 2777 50  0000 C CNN
+F 2 "" H 3950 2950 50  0001 C CNN
+F 3 "" H 3950 2950 50  0001 C CNN
+	1    3950 2950
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4250 2950 4150 2950
+Connection ~ 4150 2950
+Wire Wire Line
+	4150 2950 3950 2950
+Wire Wire Line
+	3950 2750 3950 2950
+Connection ~ 3950 2950
+$Comp
+L Connector_Generic:Conn_01x02 J?
+U 1 1 60B7BC42
+P 4750 2600
+AR Path="/5FDDB245/60B7BC42" Ref="J?"  Part="1" 
+AR Path="/60B762EC/60B7BC42" Ref="J10"  Part="1" 
+F 0 "J10" H 4830 2592 50  0000 L CNN
+F 1 "SPK" H 4830 2501 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 4750 2600 50  0001 C CNN
+F 3 "~" H 4750 2600 50  0001 C CNN
+	1    4750 2600
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4550 2550 4550 2600
+Wire Wire Line
+	4550 2750 4550 2700
+Text GLabel 2800 2650 0    50   Input ~ 0
+I2S_DATA
+$Comp
+L power:+5V #PWR069
+U 1 1 60B7C583
+P 4150 2350
+F 0 "#PWR069" H 4150 2200 50  0001 C CNN
+F 1 "+5V" H 4165 2523 50  0000 C CNN
+F 2 "" H 4150 2350 50  0001 C CNN
+F 3 "" H 4150 2350 50  0001 C CNN
+	1    4150 2350
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:CP C13
+U 1 1 60B7D408
+P 3250 2550
+F 0 "C13" H 3368 2596 50  0000 L CNN
+F 1 "CP" H 3368 2505 50  0000 L CNN
+F 2 "Capacitor_THT:C_Radial_D8.0mm_H11.5mm_P3.50mm" H 3288 2400 50  0001 C CNN
+F 3 "~" H 3250 2550 50  0001 C CNN
+	1    3250 2550
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3250 2400 4150 2400
+Wire Wire Line
+	4150 2400 4150 2350
+Connection ~ 4150 2350
+Wire Wire Line
+	3950 2950 3800 2950
+Wire Wire Line
+	3250 2950 3250 2700
+$Comp
+L Device:R_POT RV?
+U 1 1 60B8D423
+P 3800 2650
+F 0 "RV?" H 3731 2696 50  0000 R CNN
+F 1 "R_POT" H 3731 2605 50  0000 R CNN
+F 2 "" H 3800 2650 50  0001 C CNN
+F 3 "~" H 3800 2650 50  0001 C CNN
+	1    3800 2650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3950 2650 3950 2550
+Wire Wire Line
+	3800 2800 3800 2950
+Connection ~ 3800 2950
+Wire Wire Line
+	3800 2950 3250 2950
+Wire Wire Line
+	3800 2500 3800 2200
+Wire Wire Line
+	3800 2200 2800 2200
+Wire Wire Line
+	2800 2200 2800 2650
+$EndSCHEMATC

@@ -9,7 +9,7 @@
 #include <driver/adc.h>
 #include <driver/i2c.h>
 #include <driver/rmt.h>
-#include "labathomeerror.hh"
+#include "errorcodes.hh"
 #include "WS2812.hh"
 #include <bh1750.hh>
 #include <ms4525.hh>
@@ -18,6 +18,7 @@
 #include <owb.h>
 #include <owb_rmt.h>
 #include <ds18b20.h>
+#include <rotenc.hh>
 #include <i2c.hh>
 
 typedef gpio_num_t Pintype;
@@ -132,6 +133,7 @@ private:
     uint32_t song_nextNoteTimeMs = UINT32_MAX;
 
     WS2812_Strip<LED_NUMBER> *strip = NULL;
+    cRotaryEncoder *rotenc = NULL;
 
     uint32_t buttonState = 0;
 
@@ -147,7 +149,6 @@ private:
     uint16_t ds4525doPressure;
     //Actor Values
     uint16_t pca9685Values[16];
-
 public:
     HAL_labathomeV5(MODE_IO33 mode_io33, MODE_MULTI1_PIN mode_multi1, MODE_MULTI_2_3_PINS mode_multi23) : mode_io33(mode_io33), mode_multi1(mode_multi1), mode_multi23(mode_multi23)
     {
@@ -168,10 +169,14 @@ public:
         return esp_timer_get_time() / 1000ULL;
     }
 
-    LabAtHomeErrorCode GetADCValues(float **voltages)
+    ErrorCode GetADCValues(float **voltages)
     {
         *voltages = this->ADS1115Values;
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
+    }
+
+    ErrorCode GetEncoderValue(int16_t *value){
+        return this->rotenc->GetValue(value)==ESP_OK?ErrorCode::OK:ErrorCode::GENERIC_ERROR;
     }
 
     void SensorLoop_ForInternalUseOnly()
@@ -259,6 +264,8 @@ public:
             nextMS4525Readout = GetMillis() + ms4525ReadoutInterval;
         }
 
+
+
         while (true)
         {
             this->movementIsDetected = gpio_get_level(PIN_MOVEMENT);
@@ -290,11 +297,6 @@ public:
                 bh1750->Read(&(this->ambientBrightnessLux));
                 nextBH1750Readout = GetMillis64() + bh1750ReadoutIntervalMs;
             }
-            if (GetMillis64() > nextBH1750Readout)
-            {
-                bh1750->Read(&(this->ambientBrightnessLux));
-                nextBH1750Readout = GetMillis64() + bh1750ReadoutIntervalMs;
-            }
             if (GetMillis64() > nextMS4525Readout)
             {
                 ms4525->Read();
@@ -316,7 +318,7 @@ public:
         
     }
 
-    LabAtHomeErrorCode PlaySong(uint32_t songNumber)
+    ErrorCode PlaySong(uint32_t songNumber)
     {
         if (songNumber >= sizeof(SONGS) / sizeof(Note))
             songNumber = 0;
@@ -324,50 +326,50 @@ public:
         this->song_nextNoteTimeMs = GetMillis();
         this->songNumber = songNumber;
         ESP_LOGI(TAG, "Set Song to %d", songNumber);
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
 
-    LabAtHomeErrorCode GetHeaterTemperature(float *degreesCelcius)
+    ErrorCode GetHeaterTemperature(float *degreesCelcius)
     {
         *degreesCelcius = this->heaterTemperatureDegCel;
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
 
-    LabAtHomeErrorCode GetAirTemperature(float *degreesCelcius)
+    ErrorCode GetAirTemperature(float *degreesCelcius)
     {
         *degreesCelcius = this->airTemperatureDegCel;
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
 
-    LabAtHomeErrorCode GetAirPressure(float *pa)
+    ErrorCode GetAirPressure(float *pa)
     {
         *pa = this->airPressurePa;
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
-    LabAtHomeErrorCode GetAirRelHumidity(float *percent)
+    ErrorCode GetAirRelHumidity(float *percent)
     {
         *percent = this->airRelHumidityPercent;
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
 
-    LabAtHomeErrorCode GetAirSpeed(float *meterPerSecond)
+    ErrorCode GetAirSpeed(float *meterPerSecond)
     {
         *meterPerSecond = this->airSpeedMeterPerSecond;
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
 
-    LabAtHomeErrorCode GetAmbientBrightness(float *lux)
+    ErrorCode GetAmbientBrightness(float *lux)
     {
         *lux = this->ambientBrightnessLux;
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
 
     static constexpr auto power_ledc_timer_duty_resolution = LEDC_TIMER_10_BIT;
 
-    LabAtHomeErrorCode Init()
+    ErrorCode Init()
     {
         if (mode_io33 == MODE_IO33::FAN1_SENSE)
-            return LabAtHomeErrorCode::NOT_YET_IMPLEMENTED;
+            return ErrorCode::NOT_YET_IMPLEMENTED;
 
         gpio_pad_select_gpio((uint8_t)PIN_R3_1);
         gpio_set_direction(PIN_R3_1, GPIO_MODE_INPUT);
@@ -428,7 +430,7 @@ public:
         pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
         ESP_ERROR_CHECK(mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_2, &pwm_config));
 
-        //LED
+        //White LED
         ledc_timer_config_t power_ledc_timer;
         power_ledc_timer.duty_resolution = power_ledc_timer_duty_resolution; // resolution of PWM duty
         power_ledc_timer.freq_hz = 500;                                      // frequency of PWM signal
@@ -481,12 +483,16 @@ public:
         ESP_ERROR_CHECK(strip->Init(PIN_LED_STRIP));
         ESP_ERROR_CHECK(strip->Clear(100));
 
+        rotenc=new cRotaryEncoder((pcnt_unit_t)0, PIN_ROTENC_A, PIN_ROTENC_B, -100, 100);
+        rotenc->Init();
+        rotenc->Start();
+
         xTaskCreate(sensorTask, "sensorTask", 4096 * 4, this, 6, NULL);
 
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
 
-    LabAtHomeErrorCode BeforeLoop()
+    ErrorCode BeforeLoop()
     {
 
         if(this->heaterTemperatureDegCel>85){
@@ -494,10 +500,10 @@ public:
             this->SetHeaterState(0);
             this->heaterEmergencyShutdown=true;
         }
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
 
-    LabAtHomeErrorCode AfterLoop()
+    ErrorCode AfterLoop()
     {
         if (needLedStripUpdate)
         {
@@ -534,10 +540,10 @@ public:
                 }
             }
         }
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
 
-    LabAtHomeErrorCode StartBuzzer(double freqHz)
+    ErrorCode StartBuzzer(double freqHz)
     {
         ledc_timer_config_t buzzer_timer;
         buzzer_timer.duty_resolution = LEDC_TIMER_10_BIT; // resolution of PWM duty
@@ -548,43 +554,43 @@ public:
         ledc_timer_config(&buzzer_timer);
         ledc_set_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_2, 512);
         ledc_update_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_2);
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
 
-    LabAtHomeErrorCode EndBuzzer()
+    ErrorCode EndBuzzer()
     {
         ledc_set_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_2, 0);
         ledc_update_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_2);
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
 
-    LabAtHomeErrorCode ColorizeLed(LED led, uint32_t color)
+    ErrorCode ColorizeLed(LED led, uint32_t color)
     {
         CRGB colorCRGB(color);
         strip->SetPixel((uint8_t)led, colorCRGB);
         //TODO: Hier Prüfung, ob sich tatsächlich etwas verändert hat und ein Update tatsächlich erforderlich ist
         this->needLedStripUpdate = true;
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
 
-    LabAtHomeErrorCode UnColorizeAllLed()
+    ErrorCode UnColorizeAllLed()
     {
         strip->Clear(1000);
         this->needLedStripUpdate = true;
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
 
-    LabAtHomeErrorCode SetRelayState(bool state)
+    ErrorCode SetRelayState(bool state)
     {
         gpio_set_level(PIN_R3_ON, state);
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
 
-    LabAtHomeErrorCode SetHeaterState(float dutyInPercent)
+    ErrorCode SetHeaterState(float dutyInPercent)
     {
-        if(this->heaterEmergencyShutdown) return LabAtHomeErrorCode::EMERGENCY_SHUTDOWN;
+        if(this->heaterEmergencyShutdown) return ErrorCode::EMERGENCY_SHUTDOWN;
         mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_2, MCPWM_OPR_A, dutyInPercent);
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
 
     float GetHeaterState()
@@ -592,10 +598,10 @@ public:
         return mcpwm_get_duty(MCPWM_UNIT_0, MCPWM_TIMER_2, MCPWM_OPR_A);
     }
 
-    LabAtHomeErrorCode SetFan1State(float dutyInPercent)
+    ErrorCode SetFan1State(float dutyInPercent)
     {
         mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_1, MCPWM_OPR_A, dutyInPercent);
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
 
     float GetFan1State()
@@ -603,10 +609,10 @@ public:
         return mcpwm_get_duty(MCPWM_UNIT_0, MCPWM_TIMER_1, MCPWM_OPR_A);
     }
 
-    LabAtHomeErrorCode SetFan2State(float dutyInPercent)
+    ErrorCode SetFan2State(float dutyInPercent)
     {
         mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_1, MCPWM_OPR_B, dutyInPercent);
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
 
     float GetFan2State()
@@ -614,14 +620,14 @@ public:
         return mcpwm_get_duty(MCPWM_UNIT_0, MCPWM_TIMER_1, MCPWM_OPR_B);
     }
 
-    LabAtHomeErrorCode SetLedPowerWhiteState(uint8_t dutyInpercent)
+    ErrorCode SetLedPowerWhiteState(uint8_t dutyInpercent)
     {
         if (dutyInpercent > 100)
             dutyInpercent = 100;
         uint32_t duty = (((2 ^ power_ledc_timer_duty_resolution) - 1) * dutyInpercent) / 100;
         ledc_set_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0, duty);
         ledc_update_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0);
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
 
     bool GetButtonRedIsPressed()
@@ -644,18 +650,18 @@ public:
         return this->movementIsDetected;
     }
 
-    LabAtHomeErrorCode SetServo1Position(uint32_t angle_0_to_180)
+    ErrorCode SetServo1Position(uint32_t angle_0_to_180)
     {
         uint32_t cal_pulsewidth = (SERVO_MIN_PULSEWIDTH + (((SERVO_MAX_PULSEWIDTH - SERVO_MIN_PULSEWIDTH) * (angle_0_to_180)) / (SERVO_MAX_DEGREE)));
         esp_err_t err =  mcpwm_set_duty_in_us(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM_OPR_A, cal_pulsewidth);
-        return err==ESP_OK?LabAtHomeErrorCode::OK:LabAtHomeErrorCode::GENERIC_ERROR;
+        return err==ESP_OK?ErrorCode::OK:ErrorCode::GENERIC_ERROR;
     }
 
-    LabAtHomeErrorCode SetServo2Position(uint32_t angle_0_to_180)
+    ErrorCode SetServo2Position(uint32_t angle_0_to_180)
     {
         uint32_t cal_pulsewidth = (SERVO_MIN_PULSEWIDTH + (((SERVO_MAX_PULSEWIDTH - SERVO_MIN_PULSEWIDTH) * (angle_0_to_180)) / (SERVO_MAX_DEGREE)));
         esp_err_t err =  mcpwm_set_duty_in_us(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM_OPR_B, cal_pulsewidth);
-        return err==ESP_OK?LabAtHomeErrorCode::OK:LabAtHomeErrorCode::GENERIC_ERROR;
+        return err==ESP_OK?ErrorCode::OK:ErrorCode::GENERIC_ERROR;
     }
 };
 

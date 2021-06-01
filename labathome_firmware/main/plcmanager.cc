@@ -1,13 +1,13 @@
 #include "plcmanager.hh"
 #include "functionblocks.hh"
 #include "esp_log.h"
-#include "labathomeerror.hh"
+#include "errorcodes.hh"
 #include <vector>
-#include "PID_v1.h"
+#include "pidcontroller.hh"
 #include "paths_and_files.hh"
 #include <math.h>
 
-constexpr int64_t TRIGGER_FALLBACK_TIME = 3000000;
+constexpr uint32_t TRIGGER_FALLBACK_TIME_MS = 3000;
 constexpr const char *TAG = "plcmanager";
 
 #define SetBit(A, k) (A[(k / 32)] |= (1 << (k % 32)))
@@ -18,14 +18,8 @@ PLCManager::PLCManager(HAL *hal):hal(hal)
 {
     currentExecutable = this->createInitialExecutable();
     nextExecutable = nullptr;
-    heaterPIDController = new PID(&actualTemperature, &setpointHeaterClosedLoop, &setpointTemperature, heaterKP, heaterKI, heaterKD, DIRECT);
-    heaterPIDController->SetMode(MANUAL);
-    heaterPIDController->SetOutputLimits(0, 100.0);
-    heaterPIDController->SetSampleTime(1000);
-    airspeedPIDController = new PID(&actualAirspeed, &setpointFan2, &setpointFan2, airspeedKP, airspeedKI, airspeedKD, DIRECT);
-    airspeedPIDController->SetMode(MANUAL);
-    airspeedPIDController->SetOutputLimits(0, 100.0);
-    airspeedPIDController->SetSampleTime(1000);
+    heaterPIDController = new PIDController(&actualTemperature, &setpointHeater, &setpointTemperature, 0, 100, Mode::OFF, Direction::DIRECT, 1000);
+    airspeedPIDController = new PIDController(&actualAirspeed, &setpointFan2, &setpointFan2, 0, 100, Mode::OFF, Direction::DIRECT, 1000);
 }
 
 bool PLCManager::IsBinaryAvailable(size_t index)
@@ -48,33 +42,33 @@ bool PLCManager::IsDoubleAvailable(size_t index)
     return false;
 }
 
-LabAtHomeErrorCode PLCManager::SetBinary(size_t index, bool value)
+ErrorCode PLCManager::SetBinary(size_t index, bool value)
 {
     if (index < this->currentExecutable->binaries.size())
     {
         this->currentExecutable->binaries[index] = value;
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
-    return LabAtHomeErrorCode::INDEX_OUT_OF_BOUNDS;
+    return ErrorCode::INDEX_OUT_OF_BOUNDS;
 }
 
-LabAtHomeErrorCode PLCManager::SetInteger(size_t index, int value)
+ErrorCode PLCManager::SetInteger(size_t index, int value)
 {
 
     if (index < this->currentExecutable->integers.size())
     {
         this->currentExecutable->integers[index] = value;
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
-    return LabAtHomeErrorCode::INDEX_OUT_OF_BOUNDS;
+    return ErrorCode::INDEX_OUT_OF_BOUNDS;
 }
 
-LabAtHomeErrorCode PLCManager::SetColor(size_t index, uint32_t value)
+ErrorCode PLCManager::SetColor(size_t index, uint32_t value)
 {
     if (index >= this->currentExecutable->colors.size())
-        return LabAtHomeErrorCode::INDEX_OUT_OF_BOUNDS;
+        return ErrorCode::INDEX_OUT_OF_BOUNDS;
     this->currentExecutable->colors[index] = value;
-    return LabAtHomeErrorCode::OK;
+    return ErrorCode::OK;
 }
 
 bool PLCManager::GetBinary(size_t index)
@@ -98,28 +92,28 @@ uint32_t PLCManager::GetColor(size_t index)
     return x;
 }
 
-LabAtHomeErrorCode PLCManager::GetBinaryAsPointer(size_t index, bool *value)
+ErrorCode PLCManager::GetBinaryAsPointer(size_t index, bool *value)
 {
     if (index >= this->currentExecutable->binaries.size())
-        return LabAtHomeErrorCode::INDEX_OUT_OF_BOUNDS;
+        return ErrorCode::INDEX_OUT_OF_BOUNDS;
     *value = this->currentExecutable->binaries[index];
-    return LabAtHomeErrorCode::OK;
+    return ErrorCode::OK;
 }
 
-LabAtHomeErrorCode PLCManager::GetIntegerAsPointer(size_t index, int *value)
+ErrorCode PLCManager::GetIntegerAsPointer(size_t index, int *value)
 {
     if (index >= this->currentExecutable->integers.size())
-        return LabAtHomeErrorCode::INDEX_OUT_OF_BOUNDS;
+        return ErrorCode::INDEX_OUT_OF_BOUNDS;
     *value = this->currentExecutable->integers[index];
-    return LabAtHomeErrorCode::OK;
+    return ErrorCode::OK;
 }
 
-LabAtHomeErrorCode PLCManager::GetColorAsPointer(size_t index, uint32_t *value)
+ErrorCode PLCManager::GetColorAsPointer(size_t index, uint32_t *value)
 {
     if (index >= this->currentExecutable->colors.size())
-        return LabAtHomeErrorCode::INDEX_OUT_OF_BOUNDS;
+        return ErrorCode::INDEX_OUT_OF_BOUNDS;
     *value = this->currentExecutable->colors[index];
-    return LabAtHomeErrorCode::OK;
+    return ErrorCode::OK;
 }
 
 int64_t PLCManager::GetMicroseconds()
@@ -153,19 +147,19 @@ public:
         byteOffset += 4;
         return val;
     }
-    LabAtHomeErrorCode ReadU8Array(uint8_t *target, size_t len)
+    ErrorCode ReadU8Array(uint8_t *target, size_t len)
     {
-        //if(byteOffset+len>=maxOffset) return LabAtHomeErrorCode::INDEX_OUT_OF_BOUNDS;
+        //if(byteOffset+len>=maxOffset) return ErrorCode::INDEX_OUT_OF_BOUNDS;
         for (size_t i = 0; i < len; i++)
         {
             target[i] = buf[byteOffset + i];
         }
         byteOffset += len;
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
 };
 
-LabAtHomeErrorCode PLCManager::ParseNewExecutableAndEnqueue(const uint8_t  *buffer, size_t length)
+ErrorCode PLCManager::ParseNewExecutableAndEnqueue(const uint8_t  *buffer, size_t length)
 {
     ParseContext *ctx = new ParseContext();
     ctx->buf = buffer;
@@ -173,7 +167,7 @@ LabAtHomeErrorCode PLCManager::ParseNewExecutableAndEnqueue(const uint8_t  *buff
     ctx->maxOffset=length;
     ESP_LOGI(TAG, "Starting to parse new Executable of length %d", length);
     const uint32_t dataStructureVersion = ctx->ReadU32();
-    if(dataStructureVersion!=0xAFFECAFE) return LabAtHomeErrorCode::INCOMPATIBLE_VERSION;
+    if(dataStructureVersion!=0xAFFECAFE) return ErrorCode::INCOMPATIBLE_VERSION;
     
     uint32_t hash= ctx->ReadU32();
 
@@ -241,6 +235,12 @@ LabAtHomeErrorCode PLCManager::ParseNewExecutableAndEnqueue(const uint8_t  *buff
         {
             ESP_LOGI(TAG, "FOUND FB_MovementSensor");
             functionBlocks[cfgIndex] = new FB_MovementSensor(ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
+        case 13:
+        {
+            ESP_LOGI(TAG, "FOUND FB_AirTemperatureSensor");
+            functionBlocks[cfgIndex] = new FB_AirTemperatureSensor(ctx->ReadU32(), ctx->ReadU32());
         }
         break;
         case 14:
@@ -351,10 +351,17 @@ LabAtHomeErrorCode PLCManager::ParseNewExecutableAndEnqueue(const uint8_t  *buff
             functionBlocks[cfgIndex] = new FB_Melody(ctx->ReadU32(), ctx->ReadU32(),ctx->ReadU32());
         }
         break;
+        case 33:
+        {
+            ESP_LOGI(TAG, "FOUND FB_MQTT");
+            //welche broker URL (aktuell nicht genutzt), welches Topic template, immer nach wie vielen Millisekunden senden
+            functionBlocks[cfgIndex] = new FB_MQTT(ctx->ReadU32(), ctx->ReadU32(),ctx->ReadU32());
+        }
+        break;
 
         default:
             ESP_LOGE(TAG, "Unknown Operator Type found");
-            return LabAtHomeErrorCode::INVALID_NEW_FBD;
+            return ErrorCode::INVALID_NEW_FBD;
         }
     }
 
@@ -362,7 +369,7 @@ LabAtHomeErrorCode PLCManager::ParseNewExecutableAndEnqueue(const uint8_t  *buff
 
     if (this->nextExecutable != nullptr)
     {
-        return LabAtHomeErrorCode::QUEUE_OVERLOAD;
+        return ErrorCode::QUEUE_OVERLOAD;
     }
 
     std::vector<bool> binaries(booleansCount);
@@ -374,7 +381,7 @@ LabAtHomeErrorCode PLCManager::ParseNewExecutableAndEnqueue(const uint8_t  *buff
     
     this->nextExecutable = new Executable(hash, debugSizeBytes, functionBlocks, binaries, integers, floats, colors);
     ESP_LOGI(TAG, "Created new executable and enqueued it");
-    return LabAtHomeErrorCode::OK;
+    return ErrorCode::OK;
 }
 
 Executable *PLCManager::createInitialExecutable()
@@ -400,18 +407,18 @@ Executable *PLCManager::createInitialExecutable()
     return e;
 }
 
-LabAtHomeErrorCode PLCManager::GetDebugInfoSize(size_t *sizeInBytes){
+ErrorCode PLCManager::GetDebugInfoSize(size_t *sizeInBytes){
     *sizeInBytes=this->currentExecutable->debugSizeBytes;
-    return LabAtHomeErrorCode::OK;
+    return ErrorCode::OK;
 }
 
 
-LabAtHomeErrorCode PLCManager::GetDebugInfo(uint8_t *buffer, size_t maxSizeInByte){
+ErrorCode PLCManager::GetDebugInfo(uint8_t *buffer, size_t maxSizeInByte){
     int *bufAsINT32 = (int*)buffer;
     float *bufAsFLOAT = (float*)buffer;
     uint32_t *bufAsUINT32 = (uint32_t*)buffer;
     size_t offset32 = 0;
-    if(maxSizeInByte<this->currentExecutable->debugSizeBytes) return LabAtHomeErrorCode::INDEX_OUT_OF_BOUNDS;
+    if(maxSizeInByte<this->currentExecutable->debugSizeBytes) return ErrorCode::INDEX_OUT_OF_BOUNDS;
     
     //First, the Hash
     bufAsUINT32[offset32]=this->currentExecutable->hash;
@@ -455,41 +462,39 @@ LabAtHomeErrorCode PLCManager::GetDebugInfo(uint8_t *buffer, size_t maxSizeInByt
     }
     offset32+=this->currentExecutable->colors.size();
     
-    return LabAtHomeErrorCode::OK;
+    return ErrorCode::OK;
 }
 
-
-
-LabAtHomeErrorCode PLCManager::Init()
+ErrorCode PLCManager::Init()
 {
     FILE *fd = NULL;
     struct stat file_stat;
     ESP_LOGI(TAG, "Trying to open %s", Paths::DEFAULT_FBD_BIN_FILENAME);
     if (stat(Paths::DEFAULT_FBD_BIN_FILENAME, &file_stat) == -1) {
         ESP_LOGI(TAG, "Default PLC file %s does not exist. Using factory default instead", Paths::DEFAULT_FBD_BIN_FILENAME);
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
     fd = fopen(Paths::DEFAULT_FBD_BIN_FILENAME, "r");
     if (!fd) {
         ESP_LOGE(TAG, "Failed to read existing file : %s", Paths::DEFAULT_FBD_BIN_FILENAME);
-        return LabAtHomeErrorCode::FILE_SYSTEM_ERROR;
+        return ErrorCode::FILE_SYSTEM_ERROR;
     }
     uint8_t buf[file_stat.st_size];
     size_t size_read = fread(buf, 1, file_stat.st_size, fd);
     if(size_read!=file_stat.st_size){
         ESP_LOGE(TAG, "Unable to read file completely : %s", Paths::DEFAULT_FBD_BIN_FILENAME);
-        return LabAtHomeErrorCode::FILE_SYSTEM_ERROR;
+        return ErrorCode::FILE_SYSTEM_ERROR;
     }
     ESP_LOGI(TAG, "Successfully read %s", Paths::DEFAULT_FBD_BIN_FILENAME);
     return this->ParseNewExecutableAndEnqueue(buf, size_read);
 }
 
-LabAtHomeErrorCode PLCManager::CheckForNewExecutable()
+ErrorCode PLCManager::CheckForNewExecutable()
 {
     if (this->nextExecutable == nullptr)
     {
         //no new executable available
-        return LabAtHomeErrorCode::OK;
+        return ErrorCode::OK;
     }
     ESP_LOGI(TAG, "New executable available");
     //new Executable available --> delete all elements of old Executable
@@ -516,17 +521,20 @@ LabAtHomeErrorCode PLCManager::CheckForNewExecutable()
         i->initPhase3(this);
     }
     ESP_LOGI(TAG, "New executable Init Phase 3");
-    return LabAtHomeErrorCode::OK;
+    return ErrorCode::OK;
+}
+
+void PLCManager::LoopPID(int64_t nowUs)
+{
+        
 }
 
 
-LabAtHomeErrorCode PLCManager::Loop()
+ErrorCode PLCManager::Loop()
 {
-    static ExperimentMode previousExperimentMode = ExperimentMode::functionblock;
-    //Check queue for newly arrived Executable
-    //Contract: Alle Eingänge sind gesetzt
-    int64_t nowUsSteady = hal->GetMicros();
-    if(experimentMode != ExperimentMode::functionblock && nowUsSteady-this->lastExperimentTrigger>TRIGGER_FALLBACK_TIME)
+    static ExperimentMode previousExperimentMode = ExperimentMode::functionblock; //set in last line of this method
+    uint32_t nowMsSteady = hal->GetMillis();
+    if(experimentMode != ExperimentMode::functionblock && nowMsSteady-this->lastExperimentTrigger>TRIGGER_FALLBACK_TIME_MS)
     {
         //auto fallback
         experimentMode = ExperimentMode::functionblock;
@@ -541,12 +549,11 @@ LabAtHomeErrorCode PLCManager::Loop()
         this->setpointAirspeed=0;
         this->setpointFan1=0.0;
         this->setpointFan2=0.0;
-        this->setpointHeaterClosedLoop=0.0;
-        this->setpointHeaterOpenLoop=0.0;
+        this->setpointHeater=0.0;
         this->setpointServo1=0;
         this->setpointTemperature=0;
     }
-    previousExperimentMode = this->experimentMode;
+    
     
     if(experimentMode == ExperimentMode::functionblock)
     {
@@ -556,37 +563,29 @@ LabAtHomeErrorCode PLCManager::Loop()
         }
     }
     else if(experimentMode==ExperimentMode::openloop_heater){
-        if(heaterPIDController->GetMode()!=MANUAL) heaterPIDController->SetMode(MANUAL);
-        if(airspeedPIDController->GetMode()!=MANUAL) airspeedPIDController->SetMode(MANUAL);
+        heaterPIDController->SetMode(Mode::OFF, nowMsSteady);
+        hal->SetHeaterState(this->setpointHeater);
         hal->SetFan1State(this->setpointFan1);
         hal->SetFan2State(this->setpointFan1);
-        hal->SetHeaterState(this->setpointHeaterOpenLoop);
     }
     else if(experimentMode==ExperimentMode::closedloop_heater){
-        if(heaterPIDController->GetMode()!=AUTOMATIC)
+        heaterPIDController->SetMode(Mode::CLOSEDLOOP, nowMsSteady);
+        if(heaterPIDController->SetKpTnTv(heaterKP, heaterTN, heaterTV)!=ErrorCode::OBJECT_NOT_CHANGED)
         {
-            ESP_LOGI(TAG, "heaterPIDController->SetMode(AUTOMATIC);");
-            heaterPIDController->SetMode(AUTOMATIC);
-        }
-        if(heaterPIDController->GetKd()!=this->heaterKD || heaterPIDController->GetKi()!=this->heaterKI || heaterPIDController->GetKp()!=this->heaterKP)
-        {
-            ESP_LOGI(TAG, "heaterPIDController->SetTunings(KP, KI, KD); %f %f %f", heaterKP, heaterKI, heaterKD);
-            heaterPIDController->SetTunings(heaterKP, heaterKI, heaterKD);
+            ESP_LOGI(TAG, "SetKpTnTv to %F %F %F", heaterKP, heaterTN, heaterTV);
         }
         float act =0;
         hal->GetHeaterTemperature(&act);
         this->actualTemperature=act;
-
-        bool newResult = heaterPIDController->Compute();
-        if(newResult)
-        {
-            ESP_LOGI(TAG, "heaterPIDController if(newResult): %F", this->setpointHeaterClosedLoop);
-            hal->SetHeaterState(this->setpointHeaterClosedLoop);
+        if(heaterPIDController->Compute(nowMsSteady)==ErrorCode::OK){ //OK means: Value changed
+             ESP_LOGI(TAG, "Computed a new  setpointHeater %F", setpointHeater);
         }
+        hal->SetHeaterState(this->setpointHeater);
         hal->SetFan1State(this->setpointFan1);
         hal->SetFan2State(this->setpointFan1);
     }
     else if(experimentMode==ExperimentMode::closedloop_airspeed){
+        /*
         if(airspeedPIDController->GetMode()!=AUTOMATIC)
         {
             ESP_LOGI(TAG, "airspeedPIDController->SetMode(AUTOMATIC);");
@@ -608,75 +607,74 @@ LabAtHomeErrorCode PLCManager::Loop()
             hal->SetFan2State(this->setpointFan2);
         }
         hal->SetFan2State(this->setpointFan2);
+        */
     }
-    
-    return LabAtHomeErrorCode::OK;
+    previousExperimentMode = this->experimentMode;
+    return ErrorCode::OK;
 }
 
-LabAtHomeErrorCode PLCManager::TriggerHeaterExperimentClosedLoop(double setpointTemperature, double setpointFan1, double KP, double KI, double KD, HeaterExperimentData *data){
+ErrorCode PLCManager::TriggerHeaterExperimentClosedLoop(double setpointTemperature, double setpointFan1, double KP, double TN, double TV, HeaterExperimentData *data){
     //Trigger
-    this->lastExperimentTrigger=hal->GetMicros();
+    this->lastExperimentTrigger=hal->GetMillis();
     this->experimentMode=ExperimentMode::closedloop_heater;
     //New Setpoints
     this->setpointTemperature=setpointTemperature;
     this->setpointFan1=setpointFan1;
     this->heaterKP=KP;
-    this->heaterKI=KI;
-    this->heaterKD=KD;
+    this->heaterTN=TN;
+    this->heaterTV=TV;
     //Fill return data
     data->Fan=hal->GetFan1State();
     data->Heater=hal->GetHeaterState();
     hal->GetHeaterTemperature(&(data->ActualTemperature));
     data->SetpointTemperature=this->setpointTemperature;
-    return LabAtHomeErrorCode::OK;
+    return ErrorCode::OK;
 }
-LabAtHomeErrorCode PLCManager::TriggerHeaterExperimentOpenLoop(double setpointHeater, double setpointFan1, HeaterExperimentData *data){
+ErrorCode PLCManager::TriggerHeaterExperimentOpenLoop(double setpointHeater, double setpointFan1, HeaterExperimentData *data){
     //Trigger
-    this->lastExperimentTrigger=hal->GetMicros();
+    this->lastExperimentTrigger=hal->GetMillis();
     this->experimentMode=ExperimentMode::openloop_heater;
     //New Setpoints
-    this->setpointHeaterOpenLoop=setpointHeater;
+    this->setpointHeater=setpointHeater;
     this->setpointFan1=setpointFan1;
     //Fill return data
     data->Fan=hal->GetFan1State();
     data->Heater=hal->GetHeaterState();
     hal->GetHeaterTemperature(&(data->ActualTemperature));
     data->SetpointTemperature=0;
-    return LabAtHomeErrorCode::OK;
+    return ErrorCode::OK;
 }
-LabAtHomeErrorCode PLCManager::TriggerHeaterExperimentFunctionblock(HeaterExperimentData *data){
+ErrorCode PLCManager::TriggerHeaterExperimentFunctionblock(HeaterExperimentData *data){
     //Trigger
-    this->lastExperimentTrigger=hal->GetMicros();
+    this->lastExperimentTrigger=hal->GetMillis();
     this->experimentMode=ExperimentMode::functionblock;
     //Fill return data
     data->Fan=hal->GetFan1State();
     data->Heater=hal->GetHeaterState();
     hal->GetHeaterTemperature(&(data->ActualTemperature));
     data->SetpointTemperature=0;
-    return LabAtHomeErrorCode::OK;
+    return ErrorCode::OK;
 }
-
-LabAtHomeErrorCode PLCManager::TriggerAirspeedExperimentClosedLoop(double setpointAirspeed, double setpointServo1, double KP, double KI, double KD, AirspeedExperimentData *data){
+ErrorCode PLCManager::TriggerAirspeedExperimentClosedLoop(double setpointAirspeed, double setpointServo1, double KP, double TN, double TV, AirspeedExperimentData *data){
     //Trigger
-    this->lastExperimentTrigger=hal->GetMicros();
+    this->lastExperimentTrigger=hal->GetMillis();
     this->experimentMode=ExperimentMode::closedloop_airspeed;
     //New Setpoints
     this->setpointAirspeed=setpointAirspeed;
     this->setpointServo1=setpointServo1;
     this->airspeedKP=KP;
-    this->airspeedKI=KI;
-    this->airspeedKD=KD;
+    this->airspeedTN=TN;
+    this->airspeedTV=TV;
     //Fill return data 
     data->Fan=hal->GetFan2State();
     hal->GetAirSpeed(&(data->ActualAirspeed));
     data->SetpointAirspeed=setpointAirspeed;
     data->Servo=this->setpointServo1;
-    return LabAtHomeErrorCode::OK;
+    return ErrorCode::OK;
 }
-
-LabAtHomeErrorCode PLCManager::TriggerAirspeedExperimentOpenLoop(double setpointFan2, double setpointServo1, AirspeedExperimentData *data){
+ErrorCode PLCManager::TriggerAirspeedExperimentOpenLoop(double setpointFan2, double setpointServo1, AirspeedExperimentData *data){
     //Trigger
-    this->lastExperimentTrigger=hal->GetMicros();
+    this->lastExperimentTrigger=hal->GetMillis();
     this->experimentMode=ExperimentMode::openloop_heater;
     //New Setpoints
     this->setpointFan2=setpointFan2;
@@ -686,16 +684,16 @@ LabAtHomeErrorCode PLCManager::TriggerAirspeedExperimentOpenLoop(double setpoint
     hal->GetAirSpeed(&(data->ActualAirspeed));
     data->SetpointAirspeed=setpointAirspeed;
     data->Servo=this->setpointServo1;
-    return LabAtHomeErrorCode::OK;
+    return ErrorCode::OK;
 }
-LabAtHomeErrorCode PLCManager::TriggerAirspeedExperimentFunctionblock(AirspeedExperimentData *data){
+ErrorCode PLCManager::TriggerAirspeedExperimentFunctionblock(AirspeedExperimentData *data){
     //Trigger
-    this->lastExperimentTrigger=hal->GetMicros();
+    this->lastExperimentTrigger=hal->GetMillis();
     this->experimentMode=ExperimentMode::functionblock;
     //Fill return data
     data->Fan=hal->GetFan2State();
     hal->GetAirSpeed(&(data->ActualAirspeed));
     data->SetpointAirspeed=setpointAirspeed;
     data->Servo=this->setpointServo1;
-    return LabAtHomeErrorCode::OK;
+    return ErrorCode::OK;
 }

@@ -12,7 +12,7 @@
 #include <sys/param.h>
 #include <nvs_flash.h>
 #include <esp_netif.h>
-#include <protocol_examples_common.h>
+#include "protocol_examples_common.h"
 #include <esp_http_server.h>
 #include "http_handlers.hh"
 static const char *TAG = "main";
@@ -219,7 +219,7 @@ static void connect_handler(void* arg, esp_event_base_t event_base,
     }
 }
 
-void _lab_error_check_failed(LabAtHomeErrorCode rc, const char *file, int line, const char *function, const char *expression)
+void _lab_error_check_failed(ErrorCode rc, const char *file, int line, const char *function, const char *expression)
 {
     printf("Error %d occured in File %s in line %d in expression %s", (int)rc, file, line, expression);
 }
@@ -238,8 +238,8 @@ void _lab_error_check_failed(LabAtHomeErrorCode rc, const char *file, int line, 
     } while(0)
 #else
 #define LAB_ERROR_CHECK(x) do {                                         \
-        LabAtHomeErrorCode __err_rc = (x);                                       \
-        if (__err_rc != LabAtHomeErrorCode::OK) {                                       \
+        ErrorCode __err_rc = (x);                                       \
+        if (__err_rc != ErrorCode::OK) {                                       \
             _lab_error_check_failed(__err_rc, __FILE__, __LINE__,       \
                                     __ASSERT_FUNC, #x);                 \
         }                                                               \
@@ -286,11 +286,9 @@ void app_main(void)
 
     while (true)
     {
-        float airTemp=0.0;
-        hal->GetAirTemperature(&airTemp);
-        float heaterTemp=0.0;
-        hal->GetHeaterTemperature(&heaterTemp);
-        printf("Start was %d seconds ago. Free heap: %d, Ambient Temp: %F, Heater Temp: %F\n", i, esp_get_free_heap_size(), airTemp, heaterTemp);
+        int16_t value=42;
+        hal->GetEncoderValue(&value);
+        printf("Start was %d seconds ago. Free heap: %d, Encoder %d\n", i, esp_get_free_heap_size(), value);
         i += 5;
         vTaskDelay(5000 / portTICK_PERIOD_MS);
     }

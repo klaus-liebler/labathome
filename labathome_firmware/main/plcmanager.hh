@@ -5,13 +5,13 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "HAL.hh"
-#include "labathomeerror.hh"
+#include "errorcodes.hh"
 #include <vector>
 #include <cstring>
 
 
 class FunctionBlock;
-class PID;
+class PIDController;
 
 class Executable
 {
@@ -50,17 +50,17 @@ class FBContext{
         virtual bool IsDoubleAvailable(size_t index)=0;
         virtual bool IsColorAvailable(size_t index)=0;
         
-        virtual LabAtHomeErrorCode  GetBinaryAsPointer(size_t index, bool *value)=0;
-        virtual LabAtHomeErrorCode  SetBinary(size_t index, bool value)=0;
+        virtual ErrorCode  GetBinaryAsPointer(size_t index, bool *value)=0;
+        virtual ErrorCode  SetBinary(size_t index, bool value)=0;
         virtual bool  GetBinary(size_t index)=0;
         
 
-        virtual LabAtHomeErrorCode  GetIntegerAsPointer(size_t index, int *value)=0;
-        virtual LabAtHomeErrorCode  SetInteger(size_t index, int value)=0;
+        virtual ErrorCode  GetIntegerAsPointer(size_t index, int *value)=0;
+        virtual ErrorCode  SetInteger(size_t index, int value)=0;
         virtual int  GetInteger(size_t index)=0;
         
-        virtual LabAtHomeErrorCode  GetColorAsPointer(size_t index, uint32_t *value)=0;
-        virtual LabAtHomeErrorCode  SetColor(size_t index, uint32_t value)=0;
+        virtual ErrorCode  GetColorAsPointer(size_t index, uint32_t *value)=0;
+        virtual ErrorCode  SetColor(size_t index, uint32_t value)=0;
         virtual uint32_t  GetColor(size_t index)=0;
         
 
@@ -70,11 +70,11 @@ class FBContext{
 
 class FunctionBlock {
    public:
-      virtual LabAtHomeErrorCode initPhase1(FBContext *ctx){return LabAtHomeErrorCode::OK;};
-      virtual LabAtHomeErrorCode initPhase2(FBContext *ctx){return LabAtHomeErrorCode::OK;};
-      virtual LabAtHomeErrorCode initPhase3(FBContext *ctx){return LabAtHomeErrorCode::OK;};
-      virtual LabAtHomeErrorCode execute(FBContext *ctx)=0;
-      virtual LabAtHomeErrorCode deinit(FBContext *ctx){return LabAtHomeErrorCode::OK;}
+      virtual ErrorCode initPhase1(FBContext *ctx){return ErrorCode::OK;};
+      virtual ErrorCode initPhase2(FBContext *ctx){return ErrorCode::OK;};
+      virtual ErrorCode initPhase3(FBContext *ctx){return ErrorCode::OK;};
+      virtual ErrorCode execute(FBContext *ctx)=0;
+      virtual ErrorCode deinit(FBContext *ctx){return ErrorCode::OK;}
       const uint32_t IdOnWebApp;
       FunctionBlock(uint32_t IdOnWebApp):IdOnWebApp(IdOnWebApp){}
       virtual ~FunctionBlock(){};
@@ -107,15 +107,15 @@ class PLCManager:public FBContext
 {
  private:
         HAL *hal;
-        PID *heaterPIDController;
-        PID *airspeedPIDController;
+        PIDController *heaterPIDController;
+        PIDController *airspeedPIDController;
         Executable *currentExecutable;
         Executable *nextExecutable;
         Executable* createInitialExecutable();
-        int64_t lastExperimentTrigger=0;
+        uint32_t lastExperimentTrigger=0;
         ExperimentMode experimentMode;
-        double heaterKP=0; double heaterKI=0; double heaterKD=0;
-        double airspeedKP=0; double airspeedKI=0; double airspeedKD=0;
+        double heaterKP=0; double heaterTN=0; double heaterTV=0;
+        double airspeedKP=0; double airspeedTN=0; double airspeedTV=0;
         double actualTemperature=0;
         double setpointTemperature=0;
         double actualAirspeed=0;
@@ -123,44 +123,45 @@ class PLCManager:public FBContext
         double setpointFan1=0;
         double setpointFan2=0;
         double setpointServo1=0;
-        double setpointHeaterOpenLoop=0;
-        double setpointHeaterClosedLoop=0;
+        double setpointHeater=0;
+
+        void LoopPID(int64_t nowUs);
         
     public:
         bool IsBinaryAvailable(size_t index);
         bool IsIntegerAvailable(size_t index);
         bool IsDoubleAvailable(size_t index);
         bool IsColorAvailable(size_t index);
-        LabAtHomeErrorCode  GetBinaryAsPointer(size_t index, bool *value);
-        LabAtHomeErrorCode  SetBinary(size_t index, bool value);
+        ErrorCode  GetBinaryAsPointer(size_t index, bool *value);
+        ErrorCode  SetBinary(size_t index, bool value);
         bool  GetBinary(size_t index);
         
-        LabAtHomeErrorCode  GetIntegerAsPointer(size_t index, int *value);
-        LabAtHomeErrorCode  SetInteger(size_t index, int value);
+        ErrorCode  GetIntegerAsPointer(size_t index, int *value);
+        ErrorCode  SetInteger(size_t index, int value);
         int  GetInteger(size_t index);
         
-        LabAtHomeErrorCode  GetColorAsPointer(size_t index, uint32_t *value);
-        LabAtHomeErrorCode  SetColor(size_t index, uint32_t value);
+        ErrorCode  GetColorAsPointer(size_t index, uint32_t *value);
+        ErrorCode  SetColor(size_t index, uint32_t value);
         uint32_t GetColor(size_t index);
         
        
         int64_t GetMicroseconds();
-        LabAtHomeErrorCode ParseNewExecutableAndEnqueue(const uint8_t  *buffer, size_t length);
+        ErrorCode ParseNewExecutableAndEnqueue(const uint8_t  *buffer, size_t length);
         HAL *GetHAL();
         
         PLCManager(HAL *hal);
-        LabAtHomeErrorCode Init();
+        ErrorCode Init();
  
-        LabAtHomeErrorCode CheckForNewExecutable();
-        LabAtHomeErrorCode Loop();
-        LabAtHomeErrorCode TriggerAirspeedExperimentClosedLoop(double setpointAirspeed, double setpointServo1, double KP, double KI, double KD, AirspeedExperimentData *data);
-        LabAtHomeErrorCode TriggerAirspeedExperimentOpenLoop(double setpointFan2, double setpointServo1, AirspeedExperimentData *data);
-        LabAtHomeErrorCode TriggerAirspeedExperimentFunctionblock(AirspeedExperimentData *data);
-        LabAtHomeErrorCode TriggerHeaterExperimentClosedLoop(double setpointTemperature, double setpointFan, double KP, double KI, double KD, HeaterExperimentData *data);
-        LabAtHomeErrorCode TriggerHeaterExperimentOpenLoop(double setpointHeater, double setpointFan, HeaterExperimentData *data);
-        LabAtHomeErrorCode TriggerHeaterExperimentFunctionblock(HeaterExperimentData *data);
-        LabAtHomeErrorCode GetDebugInfoSize(size_t *sizeInBytes);
-        LabAtHomeErrorCode GetDebugInfo(uint8_t *buffer, size_t maxSizeInByte);
+        ErrorCode CheckForNewExecutable();
+        ErrorCode Loop();
+        ErrorCode TriggerAirspeedExperimentClosedLoop(double setpointAirspeed, double setpointServo1, double KP, double TN, double TV, AirspeedExperimentData *data);
+        ErrorCode TriggerAirspeedExperimentOpenLoop(double setpointFan2, double setpointServo1, AirspeedExperimentData *data);
+        ErrorCode TriggerAirspeedExperimentFunctionblock(AirspeedExperimentData *data);
+        ErrorCode TriggerHeaterExperimentClosedLoop(double setpointTemperature, double setpointFan, double KP, double TN, double TV, HeaterExperimentData *data);
+        ErrorCode TriggerHeaterExperimentOpenLoop(double setpointHeater, double setpointFan, HeaterExperimentData *data);
+        ErrorCode TriggerHeaterExperimentFunctionblock(HeaterExperimentData *data);
+        ErrorCode GetDebugInfoSize(size_t *sizeInBytes);
+        ErrorCode GetDebugInfo(uint8_t *buffer, size_t maxSizeInByte);
         
         
 };
