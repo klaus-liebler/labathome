@@ -3028,7 +3028,7 @@ F 3 "" H 2100 5350 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Notes Line
-	2300 600  2300 4450
+	1100 400  1100 4250
 Wire Notes Line
 	550  600  550  4450
 $Comp
@@ -3158,9 +3158,9 @@ $EndComp
 Text GLabel -250 5450 2    50   BiDi ~ 0
 1wire
 $Sheet
-S 650  3050 500  250 
-U 60B80D3E
-F0 "I2S_AMP" 50
-F1 "I2S_AMP.sch" 50
+S 650  3050 500  150 
+U 60B762EC
+F0 "analog_amp" 50
+F1 "analog_amp.sch" 50
 $EndSheet
 $EndSCHEMATC
