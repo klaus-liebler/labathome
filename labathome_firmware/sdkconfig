@@ -121,6 +121,17 @@ CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
+# MQTT Configuration
+#
+CONFIG_BROKER_URL="mqtt://mqtt.eclipse.org"
+CONFIG_BROKER_USER="user"
+CONFIG_BROKER_PASSWORD="password"
+CONFIG_BROKER_TOPIC_TEMPLATE1="/labathome/airquaity/%d"
+CONFIG_BROKER_TOPIC_TEMPLATE2="/labathome/devicestatus/%d"
+CONFIG_BROKER_TOPIC_TEMPLATE3="/labathome/command/%d"
+# end of MQTT Configuration
+
+#
 # Wifi/Eth Connection Configuration
 #
 CONFIG_EXAMPLE_CONNECT_WIFI=y

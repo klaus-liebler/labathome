@@ -27,15 +27,15 @@ $EndComp
 $Comp
 L Connector_Generic:Conn_01x02 J?
 U 1 1 60B7BC42
-P 5300 3500
+P 5300 3600
 AR Path="/5FDDB245/60B7BC42" Ref="J?"  Part="1" 
 AR Path="/60B762EC/60B7BC42" Ref="J10"  Part="1" 
-F 0 "J10" H 5380 3492 50  0000 L CNN
-F 1 "SPK" H 5380 3401 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 5300 3500 50  0001 C CNN
-F 3 "~" H 5300 3500 50  0001 C CNN
-	1    5300 3500
-	1    0    0    -1  
+F 0 "J10" H 5380 3592 50  0000 L CNN
+F 1 "SPK" H 5380 3501 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 5300 3600 50  0001 C CNN
+F 3 "~" H 5300 3600 50  0001 C CNN
+	1    5300 3600
+	1    0    0    1   
 $EndComp
 Text GLabel 2900 4250 1    50   Input ~ 0
 I2S_DATA
@@ -62,9 +62,11 @@ F 3 "~" H 5800 3550 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L liebler_IC:MD8002A IC1
+L liebler_SEMICONDUCTORS:MD8002A IC1
 U 1 1 60B8825A
 P 3700 3500
+AR Path="/60B8825A" Ref="IC1"  Part="1" 
+AR Path="/60B762EC/60B8825A" Ref="IC1"  Part="1" 
 F 0 "IC1" H 4200 3765 50  0000 C CNN
 F 1 "MD8002A" H 4200 3674 50  0000 C CNN
 F 2 "sensact:SOIC-8_3.9x4.9mm_Pitch1.27mm_handsolder" H 4550 3600 50  0001 L CNN

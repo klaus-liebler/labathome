@@ -876,8 +876,6 @@ F 3 "" H 1250 6400 50  0001 C CNN
 	1    1250 6400
 	1    0    0    -1  
 $EndComp
-Wire Notes Line
-	-2800 1850 -2800 5550
 $Comp
 L power:GND #PWR0109
 U 1 1 5EDDA32B
@@ -1089,24 +1087,24 @@ LED_STRIP
 $Comp
 L power:+5V #PWR051
 U 1 1 5EFC1FD4
-P 700 2700
-F 0 "#PWR051" H 700 2550 50  0001 C CNN
-F 1 "+5V" V 800 2650 50  0000 L CNN
-F 2 "" H 700 2700 50  0001 C CNN
-F 3 "" H 700 2700 50  0001 C CNN
-	1    700  2700
-	0    -1   -1   0   
+P 700 2400
+F 0 "#PWR051" H 700 2250 50  0001 C CNN
+F 1 "+5V" V 800 2350 50  0000 L CNN
+F 2 "" H 700 2400 50  0001 C CNN
+F 3 "" H 700 2400 50  0001 C CNN
+	1    700  2400
+	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR052
 U 1 1 5EFC292C
 P 1350 2800
 F 0 "#PWR052" H 1350 2550 50  0001 C CNN
-F 1 "GND" V 1355 2672 50  0000 R CNN
+F 1 "GND" H 1300 2750 50  0000 R CNN
 F 2 "" H 1350 2800 50  0001 C CNN
 F 3 "" H 1350 2800 50  0001 C CNN
 	1    1350 2800
-	0    1    1    0   
+	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR027
@@ -1122,13 +1120,13 @@ $EndComp
 $Comp
 L Diode:1N4001 D5
 U 1 1 5EFF290C
-P 850 2700
-F 0 "D5" H 850 2600 50  0000 C CNN
-F 1 "1N4001" H 850 2800 50  0000 C CNN
-F 2 "Diode_SMD:D_SMA_Handsoldering" H 850 2525 50  0001 C CNN
-F 3 "http://www.vishay.com/docs/88503/1n4001.pdf" H 850 2700 50  0001 C CNN
-	1    850  2700
-	-1   0    0    1   
+P 700 2550
+F 0 "D5" H 700 2450 50  0000 C CNN
+F 1 "1N4001" H 700 2650 50  0000 C CNN
+F 2 "Diode_SMD:D_SMA_Handsoldering" H 700 2375 50  0001 C CNN
+F 3 "http://www.vishay.com/docs/88503/1n4001.pdf" H 700 2550 50  0001 C CNN
+	1    700  2550
+	0    -1   -1   0   
 $EndComp
 $Comp
 L smopla:SR602 U1
@@ -1179,8 +1177,6 @@ Muss MOSI
 Text GLabel 1750 4000 0    50   Input ~ 0
 SPI_IO2
 NoConn ~ 1750 4200
-Wire Wire Line
-	1350 2700 1000 2700
 Wire Wire Line
 	7900 3100 7900 3200
 $Comp
@@ -2030,7 +2026,7 @@ U 1 1 5F50BAFA
 P 1550 2600
 F 0 "J12" H 1550 2900 50  0000 C CNN
 F 1 "NEOPIXEL" H 1550 2800 50  0000 C CNN
-F 2 "smopla:NEOPIXEL_STICK_alternativ" H 1550 2600 50  0001 C CNN
+F 2 "liebler_MODULES:NEOPIXEL_STICK" H 1550 2600 50  0001 C CNN
 F 3 "~" H 1550 2600 50  0001 C CNN
 	1    1550 2600
 	1    0    0    -1  
@@ -3028,7 +3024,7 @@ F 3 "" H 2100 5350 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Notes Line
-	1100 400  1100 4250
+	2300 600  2300 4450
 Wire Notes Line
 	550  600  550  4450
 $Comp
@@ -3163,4 +3159,28 @@ U 60B762EC
 F0 "analog_amp" 50
 F1 "analog_amp.sch" 50
 $EndSheet
+$Comp
+L Device:CP C15
+U 1 1 60C23DBB
+P 1050 2800
+F 0 "C15" V 1305 2800 50  0000 C CNN
+F 1 "100u" V 1214 2800 50  0000 C CNN
+F 2 "liebler_PASSIVES:CP_Elec_6.3x7.7_handsolder" H 1088 2650 50  0001 C CNN
+F 3 "~" H 1050 2800 50  0001 C CNN
+	1    1050 2800
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	1350 2800 1200 2800
+Wire Wire Line
+	700  2700 1350 2700
+Wire Wire Line
+	1850 2700 2150 2700
+Wire Wire Line
+	2150 2700 2150 2950
+Wire Wire Line
+	2150 2950 900  2950
+Wire Wire Line
+	900  2950 900  2800
+Connection ~ 1850 2700
 $EndSCHEMATC

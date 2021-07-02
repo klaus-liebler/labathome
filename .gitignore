@@ -1,3 +1,4 @@
 **/node_modules
-webui/dist
-webui/dist_compressed
+labathome_webui/dist
+labathome_webui/dist_compressed
+labathome_firmware/build

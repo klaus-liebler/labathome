@@ -1,4 +1,4 @@
-19303903866078055
+19286243696631550
 Battery
 BatteryHolder_Bulgin_BX0036_1xC
 Bulgin Battery Holder, BX0036, Battery Type C (https://www.bulgin.com/products/pub/media/bulgin/data/Battery_holders.pdf)
@@ -50714,97 +50714,6 @@ One digit LED 7 segment SA39-11 SC39-11 SA39-12 SC39-12
 0
 10
 10
-ESP8266
-ESP-01
-Module, ESP-8266, ESP-01, 8 pin
-Module ESP-8266 ESP8266
-0
-8
-8
-ESP8266
-ESP-03
-Module, ESP-8266, ESP-03, 14 pad, SMD
-Module ESP-8266 ESP8266
-0
-14
-14
-ESP8266
-ESP-06
-
-
-0
-20
-20
-ESP8266
-ESP-07S
-Module, ESP-8266, ESP-07S, 14 pad, SMD
-Module ESP-8266 ESP8266
-0
-16
-16
-ESP8266
-ESP-07v2
-Module, ESP-8266, ESP-07v2, 16 pad, SMD
-Module ESP-8266 ESP8266
-0
-16
-16
-ESP8266
-ESP-12
-Module, ESP-8266, ESP-12, 16 pad, SMD
-Module ESP-8266 ESP8266
-0
-16
-16
-ESP8266
-ESP-12E
-Module, ESP-8266, ESP-12, 16 pad, SMD
-Module ESP-8266 ESP8266
-0
-22
-22
-ESP8266
-ESP-12E_SMD
-Module, ESP-8266, ESP-12, 16 pad, SMD
-Module ESP-8266 ESP8266
-0
-22
-22
-ESP8266
-ESP-13-WROOM-02
-Module, ESP-8266, ESP-13-WROOM-02, 18 pad, SMD
-Module ESP-8266 ESP8266
-0
-19
-19
-ESP8266
-ESP-201
-Module, ESP-8266, ESP-201, 26 pin, through hole, 0.1 inch
-Module ESP-8266 ESP8266
-0
-26
-26
-ESP8266
-ESP12F-Devkit-V3
-
-
-0
-30
-30
-ESP8266
-NodeMCU-LoLinV3
-
-
-0
-30
-30
-ESP8266
-NodeMCU1.0(12-E)
-
-
-0
-30
-30
 Ferrite_THT
 LairdTech_28C0236-0JW-10
 Ferrite, vertical, LairdTech 28C0236-0JW-10, https://assets.lairdtech.com/home/brandworld/files/28C0236-0JW-10.pdf, JW Miller core https://www.bourns.com/products/magnetic-products/j.w.-miller-through-hole-ferrite-beads-emi-filters
@@ -83208,6 +83117,20 @@ LM2596HV
 0
 4
 4
+liebler_MODULES
+NEOPIXEL_STICK
+JST PH series connector, B4B-PH-K (http://www.jst-mfg.com/product/pdf/eng/ePH.pdf), generated with kicad-footprint-generator
+connector JST PH side entry
+0
+8
+8
+liebler_PASSIVES
+CP_Elec_6.3x7.7_handsolder
+SMD capacitor, aluminum electrolytic, Nichicon, 6.3x7.7mm
+capacitor electrolytic
+0
+2
+2
 liebler_PASSIVES
 L_1040
 Inductor, Taiyo Yuden, NR series, Taiyo-Yuden_NR-10050, 9.8mmx10.0mm, https://ds.yuden.co.jp/TYCOMPAS/or/specSheet?pn=NR10050T1R3N
@@ -84158,7 +84081,7 @@ Resistor_100W
 
 
 0
-2
+4
 2
 smopla
 RotaryEncoder_Alps_EC11E-Switch_Vertical_H20mm
