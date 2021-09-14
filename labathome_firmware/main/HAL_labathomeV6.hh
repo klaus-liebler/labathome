@@ -154,6 +154,10 @@ public:
     {
     }
 
+    ErrorCode HardwareTest() override{
+        return ErrorCode::OK;
+    }
+
     int64_t IRAM_ATTR GetMicros()
     {
         return esp_timer_get_time();
@@ -430,7 +434,7 @@ public:
         pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
         ESP_ERROR_CHECK(mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_2, &pwm_config));
 
-        //White LED
+        //White Power LED
         ledc_timer_config_t power_ledc_timer;
         power_ledc_timer.duty_resolution = power_ledc_timer_duty_resolution; // resolution of PWM duty
         power_ledc_timer.freq_hz = 500;                                      // frequency of PWM signal
@@ -447,6 +451,7 @@ public:
         ledc_channel.hpoint = 0;
         ledc_channel.timer_sel = LEDC_TIMER_0;
         ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
+        
         //Buzzer
         ledc_timer_config_t buzzer_timer;
         buzzer_timer.duty_resolution = LEDC_TIMER_10_BIT; // resolution of PWM duty

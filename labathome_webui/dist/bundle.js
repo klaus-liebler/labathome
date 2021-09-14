@@ -23228,6 +23228,21 @@ class Flowchart {
         element.click();
         document.body.removeChild(element);
     }
+    saveBinToLocalFile() {
+        let text = this.fbd2json();
+        let compilerInstance = new FlowchartCompiler_1.FlowchartCompiler(this.operators);
+        let binFile = compilerInstance.Compile();
+        let blob = new Blob([new Uint8Array(binFile.buf, 0, binFile.buf.byteLength)], { type: "octet/stream" });
+        let url = window.URL.createObjectURL(blob);
+        let filename = "functionBlockDiagram.bin";
+        var element = document.createElement('a');
+        element.style.display = 'none';
+        element.href = url;
+        element.download = filename;
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    }
     openFromLocalFile(files) {
         if (files == null || files.length != 1)
             return;
@@ -23363,6 +23378,11 @@ class Flowchart {
         utils_1.$.Html(menuFileDropContent, "a", ["href", "#"], [], "💾 Save (labathome)").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem) => { elem.classList.remove("show"); });
             this.saveJSONToLabathomeFile();
+            e.preventDefault();
+        };
+        utils_1.$.Html(menuFileDropContent, "a", ["href", "#"], [], "💾 Save Bin (Local)").onclick = (e) => {
+            Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem) => { elem.classList.remove("show"); });
+            this.saveBinToLocalFile();
             e.preventDefault();
         };
         //let runbutton = $.Html(toolbar, "a", ["href", "#"], ["develop-toolbar"], "Run");
@@ -23599,7 +23619,7 @@ class FlowchartCompiler {
         let sortedOperators = this.sortOperators();
         for (const key in sortedOperators) {
             let value = sortedOperators[key];
-            value.SetDebugInfoText("Sequenznummer " + key);
+            value.SetDebugInfoText("Sequence " + key);
         }
         let maps = this.createLookupMaps(sortedOperators);
         return {
@@ -23613,7 +23633,7 @@ class FlowchartCompiler {
         let sortedOperators = this.sortOperators();
         for (const key in sortedOperators) {
             let value = sortedOperators[key];
-            value.SetDebugInfoText("Sequenznummer " + key);
+            value.SetDebugInfoText("Sequence " + key);
         }
         let maps = this.createLookupMaps(sortedOperators);
         let hashAndBuf = this.serialize(sortedOperators, maps);

@@ -30,6 +30,18 @@ menu "MQTT Configuration"
         help
             Define a template for a topic and use a single %d as template parameter
 endmenu
+menu "labathome"
+    config LABATHOME_BOARD_VERSION_MAJOR
+        int "LABATHOME_BOARD_VERSION_MAJOR"
+        default 6
+    config LABATHOME_BOARD_VERSION_MINOR
+        int "LABATHOME_BOARD_VERSION_MINOR"
+        default 0
+    config LABATHOME_HW_TEST
+        bool "LABATHOME_HW_TEST"
+        default n
+    
+endmenu
 menu "Wifi/Eth Connection Configuration"
 
     config EXAMPLE_CONNECT_WIFI

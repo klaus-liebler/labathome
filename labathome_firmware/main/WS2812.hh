@@ -321,10 +321,10 @@ template <size_t LEDSIZE>
 class WS2812_Strip{
 private:
     const char *TAG = "WS2812_Strip";
-    const uint32_t WS2812_T0H_NS =(350);
+    const uint32_t WS2812_T0H_NS =(400);//350?
     const uint32_t WS2812_T0L_NS =(1000);
     const uint32_t WS2812_T1H_NS =(1000);
-    const uint32_t WS2812_T1L_NS =(350);
+    const uint32_t WS2812_T1L_NS =(400);//350?
     const uint32_t WS2812_RESET_US =(280);
     
 
@@ -371,23 +371,14 @@ public:
 
     esp_err_t Init(gpio_num_t gpio)
     {
-        rmt_config_t config;
-        config.rmt_mode=RMT_MODE_TX;
-        config.channel=this->channel;
-        config.gpio_num=gpio;
-        config.clk_div=2;
-        config.mem_block_num=1;
-        config.tx_config.carrier_freq_hz=38000;
-        config.tx_config.carrier_level=RMT_CARRIER_LEVEL_HIGH;
-        config.tx_config.idle_level=RMT_IDLE_LEVEL_LOW;
-        config.tx_config.carrier_duty_percent=33,
-        config.tx_config.carrier_en=false;
-        config.tx_config.loop_en=false;
-        config.tx_config.idle_output_en=true;  
+        rmt_config_t config = RMT_DEFAULT_CONFIG_TX(gpio, this->channel);
+        config.clk_div = 2;  
         ESP_ERROR_CHECK(rmt_config(&config));
-        ESP_ERROR_CHECK(rmt_driver_install(config.channel, 0, 0));
+        ESP_ERROR_CHECK(rmt_driver_install(this->channel, 0, 0));
         
         uint32_t counter_clk_hz = 40000000;
+        ESP_ERROR_CHECK(rmt_get_counter_clock(this->channel, &counter_clk_hz));
+        ESP_LOGI(TAG, "Counter Clock in Hz is %d", counter_clk_hz);
         // ns -> ticks
         float ratio = (float)counter_clk_hz / 1e9;
         ws2812_t0h_ticks = (uint32_t)(ratio * WS2812_T0H_NS);
@@ -395,7 +386,7 @@ public:
         ws2812_t1h_ticks = (uint32_t)(ratio * WS2812_T1H_NS);
         ws2812_t1l_ticks = (uint32_t)(ratio * WS2812_T1L_NS);
         // set ws2812 to rmt adapter
-        rmt_translator_init(this->channel, ws2812_rmt_adapter);
+        ESP_ERROR_CHECK(rmt_translator_init(this->channel, ws2812_rmt_adapter));
         return ESP_OK;
     }
 

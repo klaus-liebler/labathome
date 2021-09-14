@@ -30,6 +30,7 @@ class HAL
 {
     public:
         virtual ErrorCode Init()=0;
+        virtual ErrorCode HardwareTest()=0;
         virtual void SensorLoop_ForInternalUseOnly()=0;
         virtual ErrorCode StartBuzzer(double freqHz)=0;
         virtual ErrorCode EndBuzzer()=0;

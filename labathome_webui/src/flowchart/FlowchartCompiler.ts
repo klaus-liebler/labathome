@@ -74,7 +74,7 @@ export class FlowchartCompiler {
         let sortedOperators = this.sortOperators();
         for (const key in sortedOperators) {
             let value = sortedOperators[key];
-            value.SetDebugInfoText("Sequenznummer " + key);
+            value.SetDebugInfoText("Sequence " + key);
         }
         let maps=this.createLookupMaps(sortedOperators);
         return {
@@ -89,7 +89,7 @@ export class FlowchartCompiler {
         let sortedOperators = this.sortOperators();
         for (const key in sortedOperators) {
             let value = sortedOperators[key];
-            value.SetDebugInfoText("Sequenznummer " + key);
+            value.SetDebugInfoText("Sequence " + key);
         }
         let maps=this.createLookupMaps(sortedOperators);
         let hashAndBuf= this.serialize(sortedOperators, maps);

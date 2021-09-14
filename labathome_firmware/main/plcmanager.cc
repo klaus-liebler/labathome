@@ -351,14 +351,14 @@ ErrorCode PLCManager::ParseNewExecutableAndEnqueue(const uint8_t  *buffer, size_
             functionBlocks[cfgIndex] = new FB_Melody(ctx->ReadU32(), ctx->ReadU32(),ctx->ReadU32());
         }
         break;
-        case 33:
+        /*case 33:
         {
             ESP_LOGI(TAG, "FOUND FB_MQTT");
             //welche broker URL (aktuell nicht genutzt), welches Topic template, immer nach wie vielen Millisekunden senden
-            functionBlocks[cfgIndex] = new FB_MQTT(ctx->ReadU32(), ctx->ReadU32(),ctx->ReadU32());
+            functionBlocks[cfgIndex] = new FB_MQTT(ctx->ReadU32(), ctx->ReadU32(),ctx->ReadU32()); //FIXME
         }
         break;
-
+*/
         default:
             ESP_LOGE(TAG, "Unknown Operator Type found");
             return ErrorCode::INVALID_NEW_FBD;
