@@ -43,6 +43,7 @@ F 0 "Q2" V 6700 1350 50  0000 L CNN
 F 1 "IRLZ44N" V 6700 1000 50  0000 L CNN
 F 2 "Package_TO_SOT_THT:TO-220-3_Horizontal_TabDown" H 6650 1400 50  0001 C CNN
 F 3 "~" H 6450 1300 50  0001 C CNN
+F 4 "Heater only" V 6450 1300 50  0001 C CNN "Option"
 	1    6450 1300
 	1    0    0    -1  
 $EndComp
@@ -54,6 +55,7 @@ F 0 "R11" H 6500 900 50  0000 R CNN
 F 1 "22R, 100W" H 6500 1000 50  0000 R CNN
 F 2 "smopla:Resistor_100W" V 6480 950 50  0001 C CNN
 F 3 "~" H 6550 950 50  0001 C CNN
+F 4 "Heater only" H 6550 950 50  0001 C CNN "Option"
 	1    6550 950 
 	1    0    0    -1  
 $EndComp
@@ -65,6 +67,7 @@ F 0 "K1" H 9380 2846 50  0000 L CNN
 F 1 "G5V-2" H 9380 2755 50  0000 L CNN
 F 2 "Relay_THT:Relay_DPDT_Omron_G5V-2" H 9400 2750 50  0001 L CNN
 F 3 "http://omronfs.omron.com/en_US/ecb/products/pdf/en-g5v_2.pdf" H 8750 2800 50  0001 C CNN
+F 4 "VPS only" H 8750 2800 50  0001 C CNN "Option"
 	1    8750 2800
 	1    0    0    -1  
 $EndComp
@@ -76,6 +79,7 @@ F 0 "K3" H 10880 4096 50  0000 L CNN
 F 1 "G5V-2" H 10880 4005 50  0000 L CNN
 F 2 "Relay_THT:Relay_DPDT_Omron_G5V-2" H 10900 4000 50  0001 L CNN
 F 3 "http://omronfs.omron.com/en_US/ecb/products/pdf/en-g5v_2.pdf" H 10250 4050 50  0001 C CNN
+F 4 "VPS only" H 10250 4050 50  0001 C CNN "Option"
 	1    10250 4050
 	1    0    0    -1  
 $EndComp
@@ -87,6 +91,7 @@ F 0 "D6" H 10193 5266 50  0000 C CNN
 F 1 "BLUE" H 10193 5175 50  0000 C CNN
 F 2 "LED_THT:LED_D5.0mm" H 10200 5050 50  0001 C CNN
 F 3 "~" H 10200 5050 50  0001 C CNN
+F 4 "VPS only" H 10200 5050 50  0001 C CNN "Option"
 	1    10200 5050
 	1    0    0    -1  
 $EndComp
@@ -98,6 +103,7 @@ F 0 "D7" H 10193 5666 50  0000 C CNN
 F 1 "WHITE" H 10193 5575 50  0000 C CNN
 F 2 "LED_THT:LED_D5.0mm" H 10200 5450 50  0001 C CNN
 F 3 "~" H 10200 5450 50  0001 C CNN
+F 4 "VPS only" H 10200 5450 50  0001 C CNN "Option"
 	1    10200 5450
 	1    0    0    -1  
 $EndComp
@@ -109,6 +115,7 @@ F 0 "SW5" H 10600 6635 50  0000 C CNN
 F 1 "WHITE" H 10600 6544 50  0000 C CNN
 F 2 "liebler_MECH:Button_12mm_ANCHOR_CENTER" H 10600 6550 50  0001 C CNN
 F 3 "~" H 10600 6550 50  0001 C CNN
+F 4 "VPS only" H 10600 6350 50  0001 C CNN "Option"
 	1    10600 6350
 	1    0    0    -1  
 $EndComp
@@ -120,6 +127,7 @@ F 0 "SW4" H 10600 6235 50  0000 C CNN
 F 1 "BLUE" H 10600 6144 50  0000 C CNN
 F 2 "liebler_MECH:Button_12mm_ANCHOR_CENTER" H 10600 6150 50  0001 C CNN
 F 3 "~" H 10600 6150 50  0001 C CNN
+F 4 "VPS only" H 10600 5950 50  0001 C CNN "Option"
 	1    10600 5950
 	1    0    0    -1  
 $EndComp
@@ -240,6 +248,7 @@ F 0 "R14" V 10293 5450 50  0000 C CNN
 F 1 "K1" V 10384 5450 50  0000 C CNN
 F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 10430 5450 50  0001 C CNN
 F 3 "~" H 10500 5450 50  0001 C CNN
+F 4 "VPS only" V 10500 5450 50  0001 C CNN "Option"
 	1    10500 5450
 	0    1    1    0   
 $EndComp
@@ -251,6 +260,7 @@ F 0 "R13" V 10293 5050 50  0000 C CNN
 F 1 "K1" V 10384 5050 50  0000 C CNN
 F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 10430 5050 50  0001 C CNN
 F 3 "~" H 10500 5050 50  0001 C CNN
+F 4 "VPS only" V 10500 5050 50  0001 C CNN "Option"
 	1    10500 5050
 	0    1    1    0   
 $EndComp
@@ -337,6 +347,7 @@ F 0 "K2" H 10880 2846 50  0000 L CNN
 F 1 "G5V-2" H 10880 2755 50  0000 L CNN
 F 2 "Relay_THT:Relay_DPDT_Omron_G5V-2" H 10900 2750 50  0001 L CNN
 F 3 "http://omronfs.omron.com/en_US/ecb/products/pdf/en-g5v_2.pdf" H 10250 2800 50  0001 C CNN
+F 4 "VPS only" H 10250 2800 50  0001 C CNN "Option"
 	1    10250 2800
 	1    0    0    -1  
 $EndComp
@@ -464,6 +475,7 @@ F 0 "R10" V 6100 1450 50  0000 C CNN
 F 1 "10K" V 6200 1450 50  0000 C CNN
 F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 6130 1450 50  0001 C CNN
 F 3 "~" H 6200 1450 50  0001 C CNN
+F 4 "Heater only" V 6200 1450 50  0001 C CNN "Option"
 	1    6200 1450
 	-1   0    0    1   
 $EndComp
@@ -475,6 +487,7 @@ F 0 "R9" V 5900 1300 50  0000 C CNN
 F 1 "1K" V 6000 1300 50  0000 C CNN
 F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 5930 1300 50  0001 C CNN
 F 3 "~" H 6000 1300 50  0001 C CNN
+F 4 "Heater only" V 6000 1300 50  0001 C CNN "Option"
 	1    6000 1300
 	0    -1   -1   0   
 $EndComp
@@ -498,6 +511,7 @@ F 0 "J9" H 9780 942 50  0000 L CNN
 F 1 "FAN1" H 9780 851 50  0000 L CNN
 F 2 "Connector:FanPinHeader_1x03_P2.54mm_Vertical" H 9700 900 50  0001 C CNN
 F 3 "~" H 9700 900 50  0001 C CNN
+F 4 "Heater only" H 9700 900 50  0001 C CNN "Option"
 	1    9700 900 
 	1    0    0    -1  
 $EndComp
@@ -522,6 +536,7 @@ F 0 "R15" V 7950 1150 50  0000 C CNN
 F 1 "1K" V 8050 1150 50  0000 C CNN
 F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 7980 1150 50  0001 C CNN
 F 3 "~" H 8050 1150 50  0001 C CNN
+F 4 "Heater only" V 8050 1150 50  0001 C CNN "Option"
 	1    8050 1150
 	0    -1   -1   0   
 $EndComp
@@ -713,6 +728,7 @@ F 0 "D8" V 9050 4000 50  0000 L CNN
 F 1 "1N4148" V 9150 3900 50  0000 L CNN
 F 2 "Diode_SMD:D_SMA_Handsoldering" H 9550 3875 50  0001 C CNN
 F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 9550 4050 50  0001 C CNN
+F 4 "VPS only" V 9550 4050 50  0001 C CNN "Option"
 	1    9550 4050
 	0    -1   -1   0   
 $EndComp
@@ -735,6 +751,7 @@ F 0 "R12" V 8750 3900 50  0000 C CNN
 F 1 "1K" V 8850 3900 50  0000 C CNN
 F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 8780 3900 50  0001 C CNN
 F 3 "~" H 8850 3900 50  0001 C CNN
+F 4 "VPS only" V 8850 3900 50  0001 C CNN "Option"
 	1    8850 3900
 	1    0    0    -1  
 $EndComp
@@ -830,6 +847,7 @@ F 0 "R1" V 7600 4100 50  0000 C CNN
 F 1 "2k2" V 7700 4100 50  0000 C CNN
 F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 7630 4100 50  0001 C CNN
 F 3 "~" H 7700 4100 50  0001 C CNN
+F 4 "VPS only" V 7700 4100 50  0001 C CNN "Option"
 	1    7700 4100
 	-1   0    0    1   
 $EndComp
@@ -841,6 +859,7 @@ F 0 "R2" V 7600 4400 50  0000 C CNN
 F 1 "3k3" V 7700 4400 50  0000 C CNN
 F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 7630 4400 50  0001 C CNN
 F 3 "~" H 7700 4400 50  0001 C CNN
+F 4 "VPS only" V 7700 4400 50  0001 C CNN "Option"
 	1    7700 4400
 	-1   0    0    1   
 $EndComp
@@ -873,6 +892,7 @@ F 0 "U8" H 1250 6650 50  0000 C CNN
 F 1 "MIC" H 1650 6650 50  0000 C CNN
 F 2 "smopla:INMP441_Module" H 1250 6400 50  0001 C CNN
 F 3 "" H 1250 6400 50  0001 C CNN
+F 4 "Microphone only" H 1250 6400 50  0001 C CNN "Option"
 	1    1250 6400
 	1    0    0    -1  
 $EndComp
@@ -1028,6 +1048,7 @@ F 0 "J5" H 8450 6567 50  0000 C CNN
 F 1 "VPS" H 8450 6476 50  0000 C CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_2x25_P2.54mm_Vertical" H 8400 5150 50  0001 C CNN
 F 3 "~" H 8400 5150 50  0001 C CNN
+F 4 "VPS only" H 8400 5150 50  0001 C CNN "Option"
 	1    8400 5150
 	1    0    0    -1  
 $EndComp
@@ -1187,6 +1208,7 @@ F 0 "J3" H 7808 3581 50  0000 C CNN
 F 1 "5V" H 7808 3490 50  0000 C CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 7700 3300 50  0001 C CNN
 F 3 "~" H 7700 3300 50  0001 C CNN
+F 4 "VPS only" H 7700 3300 50  0001 C CNN "Option"
 	1    7700 3300
 	1    0    0    -1  
 $EndComp
@@ -1200,6 +1222,7 @@ F 0 "X1" H 7300 1700 50  0000 L CNN
 F 1 "FAN_6024" H 7300 1600 50  0000 L CNN
 F 2 "smopla:FAN_6024" H 7500 1650 50  0001 C CNN
 F 3 "" H 7500 1650 50  0001 C CNN
+F 4 "Heater only" H 7500 1650 50  0001 C CNN "Option"
 	1    7500 1650
 	1    0    0    -1  
 $EndComp
@@ -1219,6 +1242,7 @@ F 0 "JP4" H 7350 1050 50  0000 C CNN
 F 1 "5V FAN1+2 24V" H 7350 950 50  0000 C CNN
 F 2 "Connector_PinSocket_2.54mm:PinSocket_1x03_P2.54mm_Vertical" H 7350 850 50  0001 C CNN
 F 3 "~" H 7350 850 50  0001 C CNN
+F 4 "Heater only" H 7350 850 50  0001 C CNN "Option"
 	1    7350 850 
 	1    0    0    1   
 $EndComp
@@ -1368,6 +1392,7 @@ F 0 "U11" H 850 7600 50  0000 C CNN
 F 1 "AM312" H 850 7400 50  0000 C CNN
 F 2 "smopla:AM312" H 550 7500 50  0001 C CNN
 F 3 "" H 550 7500 50  0001 C CNN
+F 4 "Alternative PIR only" H 1250 7500 50  0001 C CNN "Option"
 	1    1250 7500
 	1    0    0    -1  
 $EndComp
@@ -1507,6 +1532,7 @@ F 0 "SPK1" H 1650 3146 50  0000 L CNN
 F 1 "SPEAKER" H 1650 3055 50  0000 L CNN
 F 2 "smopla:SPEAKER_2415" H 1550 3100 50  0001 C CNN
 F 3 "~" H 1550 3100 50  0001 C CNN
+F 4 "Sound only" H 1550 3100 50  0001 C CNN "Option"
 	1    1550 3100
 	1    0    0    -1  
 $EndComp
@@ -1826,6 +1852,7 @@ F 0 "U9" H 3500 7681 50  0000 C CNN
 F 1 "RFM95W-868S2" H 3500 7590 50  0000 C CNN
 F 2 "RF_Module:HOPERF_RFM9XW_SMD" H 200 8650 50  0001 C CNN
 F 3 "https://www.hoperf.com/data/upload/portal/20181127/5bfcbea20e9ef.pdf" H 200 8650 50  0001 C CNN
+F 4 "LoRaWan only" H 3500 7000 50  0001 C CNN "Option"
 	1    3500 7000
 	1    0    0    -1  
 $EndComp
@@ -2000,6 +2027,7 @@ F 0 "Q4" H 9241 4096 50  0000 L CNN
 F 1 "BC847" H 9241 4005 50  0000 L CNN
 F 2 "Package_TO_SOT_SMD:SOT-23_Handsoldering" H 9250 3975 50  0001 L CIN
 F 3 "http://www.infineon.com/dgdl/Infineon-BC847SERIES_BC848SERIES_BC849SERIES_BC850SERIES-DS-v01_01-en.pdf?fileId=db3a304314dca389011541d4630a1657" H 9050 4050 50  0001 L CNN
+F 4 "VPS only" H 9050 4050 50  0001 C CNN "Option"
 	1    9050 4050
 	1    0    0    -1  
 $EndComp
@@ -2123,6 +2151,7 @@ F 0 "R6" V 6800 950 50  0000 C CNN
 F 1 "3K3" V 6900 950 50  0000 C CNN
 F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 6830 950 50  0001 C CNN
 F 3 "~" H 6900 950 50  0001 C CNN
+F 4 "Heater only" V 6900 950 50  0001 C CNN "Option"
 	1    6900 950 
 	-1   0    0    1   
 $EndComp
@@ -2134,6 +2163,7 @@ F 0 "D1" V 6939 1132 50  0000 R CNN
 F 1 "HEATER ON" V 6848 1132 50  0000 R CNN
 F 2 "LED_THT:LED_D5.0mm" H 6900 1250 50  0001 C CNN
 F 3 "~" H 6900 1250 50  0001 C CNN
+F 4 "Heater only" V 6900 1250 50  0001 C CNN "Option"
 	1    6900 1250
 	0    -1   -1   0   
 $EndComp
@@ -2191,6 +2221,7 @@ F 0 "U12" H 5750 6900 60  0000 C CNN
 F 1 "24V->4V" H 6150 6650 60  0000 C CNN
 F 2 "sensact:MODULE_STEPDOWN" H 5750 6650 60  0001 C CNN
 F 3 "" H 5750 6650 60  0001 C CNN
+F 4 "LoRaWan only" H 5750 6650 50  0001 C CNN "Option"
 	1    5750 6650
 	1    0    0    -1  
 $EndComp
@@ -2215,6 +2246,7 @@ F 0 "GSM_Module1" H 6050 7950 60  0000 C CNN
 F 1 "SIM800L" H 6050 7850 60  0000 C CNN
 F 2 "smopla:SIM800L" H 6050 7450 60  0001 C CNN
 F 3 "" H 6050 7450 60  0001 C CNN
+F 4 "LoRaWan only" H 6050 7450 50  0001 C CNN "Option"
 	1    6050 7450
 	1    0    0    -1  
 $EndComp
@@ -2249,6 +2281,7 @@ F 0 "C3" H 4968 7446 50  0000 L CNN
 F 1 "1m" H 4968 7355 50  0000 L CNN
 F 2 "Capacitor_Tantalum_SMD:CP_EIA-7360-38_Kemet-E_Pad2.25x4.25mm_HandSolder" H 4888 7250 50  0001 C CNN
 F 3 "~" H 4850 7400 50  0001 C CNN
+F 4 "LoRaOnly" H 4850 7400 50  0001 C CNN "Option"
 	1    4850 7400
 	1    0    0    -1  
 $EndComp
@@ -2368,6 +2401,7 @@ F 0 "U13" H 6050 5667 50  0000 C CNN
 F 1 "LM358" H 6050 5576 50  0000 C CNN
 F 2 "sensact:SOIC-8_3.9x4.9mm_Pitch1.27mm_handsolder" H 6050 5300 50  0001 C CNN
 F 3 "http://www.ti.com/lit/ds/symlink/lm2904-n.pdf" H 6050 5300 50  0001 C CNN
+F 4 "PowerLED only" H 6050 5300 50  0001 C CNN "Option"
 	1    6050 5300
 	1    0    0    -1  
 $EndComp
@@ -2379,6 +2413,7 @@ F 0 "R8" V 5550 5050 50  0000 C CNN
 F 1 "22k" V 5650 5050 50  0000 C CNN
 F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 5580 5050 50  0001 C CNN
 F 3 "~" H 5650 5050 50  0001 C CNN
+F 4 "PowerLED only" V 5650 5050 50  0001 C CNN "Option"
 	1    5650 5050
 	1    0    0    -1  
 $EndComp
@@ -2390,6 +2425,7 @@ F 0 "R17" V 5550 5350 50  0000 C CNN
 F 1 "1K" V 5650 5350 50  0000 C CNN
 F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 5580 5350 50  0001 C CNN
 F 3 "~" H 5650 5350 50  0001 C CNN
+F 4 "PowerLED only" V 5650 5350 50  0001 C CNN "Option"
 	1    5650 5350
 	1    0    0    -1  
 $EndComp
@@ -2404,6 +2440,7 @@ F 0 "C4" H 6465 5496 50  0000 L CNN
 F 1 "10n" H 6465 5405 50  0000 L CNN
 F 2 "Capacitor_SMD:C_1206_3216Metric_Pad1.42x1.75mm_HandSolder" H 6388 5300 50  0001 C CNN
 F 3 "~" H 6350 5450 50  0001 C CNN
+F 4 "PowerLED only" H 6350 5450 50  0001 C CNN "Option"
 	1    6350 5450
 	1    0    0    -1  
 $EndComp
@@ -2415,6 +2452,7 @@ F 0 "R22" V 6400 5300 50  0000 C CNN
 F 1 "K1" V 6500 5300 50  0000 C CNN
 F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 6430 5300 50  0001 C CNN
 F 3 "~" H 6500 5300 50  0001 C CNN
+F 4 "PowerLED only" V 6500 5300 50  0001 C CNN "Option"
 	1    6500 5300
 	0    1    1    0   
 $EndComp
@@ -2427,6 +2465,7 @@ F 0 "R23" V 6600 5600 50  0000 C CNN
 F 1 "1k" V 6500 5600 50  0000 C CNN
 F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 6430 5600 50  0001 C CNN
 F 3 "~" H 6500 5600 50  0001 C CNN
+F 4 "PowerLED only" V 6500 5600 50  0001 C CNN "Option"
 	1    6500 5600
 	0    1    1    0   
 $EndComp
@@ -2438,6 +2477,7 @@ F 0 "R24" V 6850 5750 50  0000 C CNN
 F 1 "1R" V 6950 5750 50  0000 C CNN
 F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 6880 5750 50  0001 C CNN
 F 3 "~" H 6950 5750 50  0001 C CNN
+F 4 "PowerLED only" V 6950 5750 50  0001 C CNN "Option"
 	1    6950 5750
 	1    0    0    -1  
 $EndComp
@@ -2517,6 +2557,7 @@ F 0 "D11" V 6996 4930 50  0000 R CNN
 F 1 "3528" V 6905 4930 50  0000 R CNN
 F 2 "LED_SMD:LED_PLCC_2835_Handsoldering" V 6950 5000 50  0001 C CNN
 F 3 "~" V 6950 5000 50  0001 C CNN
+F 4 "PowerLED only" V 6950 5000 50  0001 C CNN "Option"
 	1    6950 5000
 	0    -1   -1   0   
 $EndComp
@@ -2528,6 +2569,7 @@ F 0 "D10" V 6996 4730 50  0000 R CNN
 F 1 "3528" V 6905 4730 50  0000 R CNN
 F 2 "LED_SMD:LED_PLCC_2835_Handsoldering" V 6950 4800 50  0001 C CNN
 F 3 "~" V 6950 4800 50  0001 C CNN
+F 4 "PowerLED only" V 6950 4800 50  0001 C CNN "Option"
 	1    6950 4800
 	0    -1   -1   0   
 $EndComp
@@ -2539,6 +2581,7 @@ F 0 "D9" V 6996 4530 50  0000 R CNN
 F 1 "3528" V 6905 4530 50  0000 R CNN
 F 2 "LED_SMD:LED_PLCC_2835_Handsoldering" V 6950 4600 50  0001 C CNN
 F 3 "~" V 6950 4600 50  0001 C CNN
+F 4 "PowerLED only" V 6950 4600 50  0001 C CNN "Option"
 	1    6950 4600
 	0    -1   -1   0   
 $EndComp
@@ -2550,6 +2593,7 @@ F 0 "D3" H 6700 4650 50  0000 C CNN
 F 1 "3528" H 6700 4750 50  0000 C CNN
 F 2 "LED_SMD:LED_PLCC_2835_Handsoldering" V 6700 4500 50  0001 C CNN
 F 3 "~" V 6700 4500 50  0001 C CNN
+F 4 "PowerLED only" H 6700 4500 50  0001 C CNN "Option"
 	1    6700 4500
 	-1   0    0    1   
 $EndComp
@@ -2561,6 +2605,7 @@ F 0 "D2" H 6500 4650 50  0000 C CNN
 F 1 "3528" H 6500 4750 50  0000 C CNN
 F 2 "LED_SMD:LED_PLCC_2835_Handsoldering" V 6500 4500 50  0001 C CNN
 F 3 "~" V 6500 4500 50  0001 C CNN
+F 4 "PowerLED only" H 6500 4500 50  0001 C CNN "Option"
 	1    6500 4500
 	-1   0    0    1   
 $EndComp
@@ -2585,6 +2630,7 @@ F 0 "C5" V 5800 6100 50  0000 L CNN
 F 1 "u1" V 5800 5900 50  0000 L CNN
 F 2 "Capacitor_SMD:C_1206_3216Metric_Pad1.42x1.75mm_HandSolder" H 5788 5900 50  0001 C CNN
 F 3 "~" H 5750 6050 50  0001 C CNN
+F 4 "PowerLED only" V 5750 6050 50  0001 C CNN "Option"
 	1    5750 6050
 	0    1    1    0   
 $EndComp
@@ -2653,6 +2699,7 @@ F 0 "C6" V 4850 5650 50  0000 L CNN
 F 1 "u1" V 4850 5450 50  0000 L CNN
 F 2 "Capacitor_SMD:C_1206_3216Metric_Pad1.42x1.75mm_HandSolder" H 4838 5450 50  0001 C CNN
 F 3 "~" H 4800 5600 50  0001 C CNN
+F 4 "PressureSensor only" V 4800 5600 50  0001 C CNN "Option"
 	1    4800 5600
 	0    -1   -1   0   
 $EndComp
@@ -2718,6 +2765,7 @@ F 0 "Q1" H 8591 1196 50  0000 L CNN
 F 1 "BC847" H 8591 1105 50  0000 L CNN
 F 2 "Package_TO_SOT_SMD:SOT-23_Handsoldering" H 8600 1075 50  0001 L CIN
 F 3 "http://www.infineon.com/dgdl/Infineon-BC847SERIES_BC848SERIES_BC849SERIES_BC850SERIES-DS-v01_01-en.pdf?fileId=db3a304314dca389011541d4630a1657" H 8400 1150 50  0001 L CNN
+F 4 "Heater only" H 8400 1150 50  0001 C CNN "Option"
 	1    8400 1150
 	1    0    0    -1  
 $EndComp
@@ -2752,6 +2800,7 @@ F 0 "Q6" H 8800 700 50  0000 L CNN
 F 1 "IRLML5203" H 8800 800 50  0000 L CNN
 F 2 "Package_TO_SOT_SMD:SOT-23_Handsoldering" H 8900 875 50  0001 L CIN
 F 3 "https://www.infineon.com/dgdl/irlml5203pbf.pdf?fileId=5546d462533600a40153566868da261d" H 8700 950 50  0001 L CNN
+F 4 "Heater only" H 8700 950 50  0001 C CNN "Option"
 	1    8700 950 
 	1    0    0    1   
 $EndComp
@@ -2778,6 +2827,7 @@ F 0 "R25" V 8300 800 50  0000 C CNN
 F 1 "1K" V 8400 800 50  0000 C CNN
 F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder" V 8330 800 50  0001 C CNN
 F 3 "~" H 8400 800 50  0001 C CNN
+F 4 "Heater only" V 8400 800 50  0001 C CNN "Option"
 	1    8400 800 
 	1    0    0    -1  
 $EndComp
@@ -2789,6 +2839,7 @@ F 0 "R16" V 8400 1500 50  0000 C CNN
 F 1 "220R" V 8500 1500 50  0000 C CNN
 F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.42x1.75mm_HandSolder" V 8430 1500 50  0001 C CNN
 F 3 "~" H 8500 1500 50  0001 C CNN
+F 4 "Heater only" V 8500 1500 50  0001 C CNN "Option"
 	1    8500 1500
 	-1   0    0    1   
 $EndComp
@@ -2800,6 +2851,7 @@ F 0 "D12" V 8150 600 50  0000 L CNN
 F 1 "10V" V 8250 600 50  0000 L CNN
 F 2 "Diode_SMD:D_SMA_Handsoldering" H 8200 800 50  0001 C CNN
 F 3 "~" H 8200 800 50  0001 C CNN
+F 4 "Heater only" V 8200 800 50  0001 C CNN "Option"
 	1    8200 800 
 	0    1    1    0   
 $EndComp
@@ -2813,6 +2865,7 @@ F 0 "U2" H 3950 1617 50  0000 C CNN
 F 1 "TPS5430DDA" H 3950 1526 50  0000 C CNN
 F 2 "sensact:SOIC-8_3.9x4.9mm_Pitch1.27mm_pad_handsolder" H 4000 800 50  0001 L CIN
 F 3 "http://www.ti.com/lit/ds/symlink/tps5430.pdf" H 3950 1150 50  0001 C CNN
+F 4 "DiscretePSU only" H 3950 1150 50  0001 C CNN "Option"
 	1    3950 1150
 	1    0    0    -1  
 $EndComp
@@ -2827,6 +2880,7 @@ F 0 "C7" H 3300 1000 50  0000 L CNN
 F 1 "10u" H 3300 900 50  0000 L CNN
 F 2 "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder" H 3338 950 50  0001 C CNN
 F 3 "~" H 3300 1100 50  0001 C CNN
+F 4 "DiscretePSU only" H 3300 1100 50  0001 C CNN "Option"
 	1    3300 1100
 	1    0    0    -1  
 $EndComp
@@ -2838,6 +2892,7 @@ F 0 "C9" H 5200 1000 50  0000 L CNN
 F 1 "100u" H 5200 900 50  0000 L CNN
 F 2 "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder" H 5238 950 50  0001 C CNN
 F 3 "~" H 5200 1100 50  0001 C CNN
+F 4 "DiscretePSU only" H 5200 1100 50  0001 C CNN "Option"
 	1    5200 1100
 	1    0    0    -1  
 $EndComp
@@ -2849,6 +2904,7 @@ F 0 "C10" H 5400 1000 50  0000 L CNN
 F 1 "22u" H 5400 900 50  0000 L CNN
 F 2 "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder" H 5438 950 50  0001 C CNN
 F 3 "~" H 5400 1100 50  0001 C CNN
+F 4 "DiscretePSU only" H 5400 1100 50  0001 C CNN "Option"
 	1    5400 1100
 	1    0    0    -1  
 $EndComp
@@ -2860,6 +2916,7 @@ F 0 "C8" V 4650 1000 50  0000 L CNN
 F 1 "10n" V 4650 750 50  0000 L CNN
 F 2 "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder" H 4638 800 50  0001 C CNN
 F 3 "~" H 4600 950 50  0001 C CNN
+F 4 "DiscretePSU only" V 4600 950 50  0001 C CNN "Option"
 	1    4600 950 
 	0    -1   -1   0   
 $EndComp
@@ -2875,6 +2932,7 @@ F 0 "D4" V 4554 1380 50  0000 L CNN
 F 1 "2A" V 4645 1380 50  0000 L CNN
 F 2 "sensact:do214aa_handsolder" H 4600 1300 50  0001 C CNN
 F 3 "~" H 4600 1300 50  0001 C CNN
+F 4 "DiscretePSU only" V 4600 1300 50  0001 C CNN "Option"
 	1    4600 1300
 	0    1    1    0   
 $EndComp
@@ -2889,6 +2947,7 @@ F 0 "L1" V 4719 950 50  0000 C CNN
 F 1 "47u" V 4810 950 50  0000 C CNN
 F 2 "sensact:Inductor_CD104_handsolder" H 4900 950 50  0001 C CNN
 F 3 "~" H 4900 950 50  0001 C CNN
+F 4 "DiscretePSU only" V 4900 950 50  0001 C CNN "Option"
 	1    4900 950 
 	0    1    1    0   
 $EndComp
@@ -2901,6 +2960,7 @@ F 0 "R26" H 5150 1100 50  0000 C CNN
 F 1 "10k" V 5050 1100 50  0000 C CNN
 F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder" V 4980 1100 50  0001 C CNN
 F 3 "~" H 5050 1100 50  0001 C CNN
+F 4 "DiscretePSU only" H 5050 1100 50  0001 C CNN "Option"
 	1    5050 1100
 	-1   0    0    1   
 $EndComp
@@ -2912,6 +2972,7 @@ F 0 "R27" H 5150 1450 50  0000 C CNN
 F 1 "3K3" V 5050 1400 50  0000 C CNN
 F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder" V 4980 1400 50  0001 C CNN
 F 3 "~" H 5050 1400 50  0001 C CNN
+F 4 "DiscretePSU only" H 5050 1400 50  0001 C CNN "Option"
 	1    5050 1400
 	-1   0    0    1   
 $EndComp
@@ -2981,6 +3042,7 @@ F 0 "Q5" V 7100 5350 50  0000 L CNN
 F 1 "IRF530" V 7100 5000 50  0000 L CNN
 F 2 "Package_TO_SOT_THT:TO-220-3_Horizontal_TabDown" H 7050 5400 50  0001 C CNN
 F 3 "~" H 6850 5300 50  0001 C CNN
+F 4 "PowerLED only" V 6850 5300 50  0001 C CNN "Option"
 	1    6850 5300
 	1    0    0    -1  
 $EndComp
@@ -3189,6 +3251,7 @@ F 0 "J16" H 12807 4267 50  0000 C CNN
 F 1 "HCP" H 12807 4176 50  0000 C CNN
 F 2 "liebler_CONN:WR_MJ_Modular_Jack_Vertical_Plastic_6P6C" V 12750 3725 50  0001 C CNN
 F 3 "~" V 12750 3725 50  0001 C CNN
+F 4 "HörmannGarage only" H 12750 3700 50  0001 C CNN "Option"
 	1    12750 3700
 	1    0    0    -1  
 $EndComp

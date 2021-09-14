@@ -47,6 +47,7 @@ F 0 "RV1" H 2831 4446 50  0000 R CNN
 F 1 "5k" H 2831 4355 50  0000 R CNN
 F 2 "Potentiometer_THT:Potentiometer_Alps_RK09K_Single_Vertical" H 2900 4400 50  0001 C CNN
 F 3 "~" H 2900 4400 50  0001 C CNN
+F 4 "Sound only" H 2900 4400 50  0001 C CNN "Option"
 	1    2900 4400
 	1    0    0    -1  
 $EndComp
@@ -58,6 +59,7 @@ F 0 "C11" H 5915 3596 50  0000 L CNN
 F 1 "u1" H 5915 3505 50  0000 L CNN
 F 2 "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder" H 5838 3400 50  0001 C CNN
 F 3 "~" H 5800 3550 50  0001 C CNN
+F 4 "Sound only" H 5800 3550 50  0001 C CNN "Option"
 	1    5800 3550
 	1    0    0    -1  
 $EndComp
@@ -101,6 +103,7 @@ F 0 "C12" H 3265 3796 50  0000 L CNN
 F 1 "1u" H 3265 3705 50  0000 L CNN
 F 2 "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder" H 3188 3600 50  0001 C CNN
 F 3 "~" H 3150 3750 50  0001 C CNN
+F 4 "Sound only" H 3150 3750 50  0001 C CNN "Option"
 	1    3150 3750
 	1    0    0    -1  
 $EndComp
@@ -128,6 +131,7 @@ F 0 "C13" H 3615 4296 50  0000 L CNN
 F 1 "u1" H 3615 4205 50  0000 L CNN
 F 2 "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder" H 3538 4100 50  0001 C CNN
 F 3 "~" H 3500 4250 50  0001 C CNN
+F 4 "Sound only" H 3500 4250 50  0001 C CNN "Option"
 	1    3500 4250
 	1    0    0    -1  
 $EndComp
@@ -141,6 +145,7 @@ F 0 "R28" H 3570 3996 50  0000 L CNN
 F 1 "10k" H 3570 3905 50  0000 L CNN
 F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder" V 3430 3950 50  0001 C CNN
 F 3 "~" H 3500 3950 50  0001 C CNN
+F 4 "Sound only" H 3500 3950 50  0001 C CNN "Option"
 	1    3500 3950
 	1    0    0    -1  
 $EndComp
@@ -152,6 +157,7 @@ F 0 "R29" V 4100 4150 50  0000 C CNN
 F 1 "22k" V 4200 4150 50  0000 C CNN
 F 2 "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder" V 4130 4150 50  0001 C CNN
 F 3 "~" H 4200 4150 50  0001 C CNN
+F 4 "Sound only" V 4200 4150 50  0001 C CNN "Option"
 	1    4200 4150
 	0    1    1    0   
 $EndComp
@@ -214,6 +220,7 @@ F 0 "C14" H 6265 3596 50  0000 L CNN
 F 1 "10u" H 6265 3505 50  0000 L CNN
 F 2 "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder" H 6188 3400 50  0001 C CNN
 F 3 "~" H 6150 3550 50  0001 C CNN
+F 4 "Sound only" H 6150 3550 50  0001 C CNN "Option"
 	1    6150 3550
 	1    0    0    -1  
 $EndComp
