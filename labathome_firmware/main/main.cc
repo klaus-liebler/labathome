@@ -22,8 +22,8 @@ static const char *TAG = "main";
 #include "esp_log.h"
 #include "spiffs.hh"
 
-#include "HAL_labathomeV5.hh"
-HAL *hal = new HAL_labathomeV5(MODE_IO33::SERVO2, MODE_MULTI1_PIN::EXT, MODE_MULTI_2_3_PINS::EXT);
+#include "HAL_labathomeV6.hh"
+HAL *hal = new HAL_labathome(MODE_IO33::SERVO2, MODE_MULTI1_PIN::EXT, MODE_MULTI_2_3_PINS::EXT);
 //#include "HAL_wroverkit.hh"
 //HAL *hal = new HAL_wroverkit();
 
@@ -68,7 +68,7 @@ void plcTask(void *pvParameters)
         vTaskDelay(150 / portTICK_PERIOD_MS);
     }
     hal->UnColorizeAllLed();
-    plcmanager->GetHAL()->PlaySong(1);
+    hal->PlaySong(1);
     ESP_LOGI(TAG, "plcmanager main loop starts");
     while (true)
     {
@@ -169,12 +169,14 @@ static httpd_handle_t start_webserver(void)
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.uri_match_fn = httpd_uri_match_wildcard;
     config.max_uri_handlers = 12;
-    // Start the httpd server
-    ESP_LOGI(TAG, "Starting server on port: '%d'", config.server_port);
-    if (httpd_start(&server, &config) != ESP_OK) {
-        ESP_LOGE(TAG, "Error starting server!");
+    const char *hostnameptr;
+    tcpip_adapter_get_hostname(TCPIP_ADAPTER_IF_STA, &hostnameptr);
+    if (httpd_start(&server, &config) != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Error starting HTTPd!");
         esp_restart();
     }
+    ESP_LOGI(TAG, "HTTPd successfully started for website http://%s:%d", hostnameptr, config.server_port);
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &getroot));
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &putfbd));
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &getfbd));
@@ -214,7 +216,6 @@ static void connect_handler(void* arg, esp_event_base_t event_base,
 {
     httpd_handle_t* server = (httpd_handle_t*) arg;
     if (*server == NULL) {
-        ESP_LOGI(TAG, "Starting webserver");
         *server = start_webserver();
     }
 }
@@ -248,23 +249,6 @@ void _lab_error_check_failed(ErrorCode rc, const char *file, int line, const cha
 
 void app_main(void)
 {
-    /* Print chip information */
-    esp_chip_info_t chip_info;
-    esp_chip_info(&chip_info);
-    printf("This is %s chip with %d CPU cores, WiFi%s%s, ",
-           CONFIG_IDF_TARGET,
-           chip_info.cores,
-           (chip_info.features & CHIP_FEATURE_BT) ? "/BT" : "",
-           (chip_info.features & CHIP_FEATURE_BLE) ? "/BLE" : "");
-
-    printf("silicon revision %d, ", chip_info.revision);
-
-    printf("%dMB %s flash\n", spi_flash_get_chip_size() / (1024 * 1024),
-           (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
-
-    
-    printf("=======================================================\n");
-
     esp_log_level_set(TAG, ESP_LOG_INFO);
     ESP_ERROR_CHECK(SpiffsManager::Init());
     LAB_ERROR_CHECK(hal->Init());
@@ -282,17 +266,24 @@ void app_main(void)
 
     //xTaskCreate(experimentTask, "experimentTask", 1024 * 2, NULL, 5, NULL);
     xTaskCreate(plcTask, "plcTask", 4096 * 4, NULL, 6, NULL);
-    int i = 0;
+    int secs = 0;
 
     while (true)
     {
-        int16_t value=42;
-        hal->GetEncoderValue(&value);
-        printf("Start was %d seconds ago. Free heap: %d, Encoder %d\n", i, esp_get_free_heap_size(), value);
-        i += 5;
+        float heaterTemp{0.f};
+        hal->GetHeaterTemperature(&heaterTemp);
+        float airTemp{0.f};
+        hal->GetAirTemperature(&airTemp);
+        float airPres{0.f};
+        hal->GetAirPressure(&airPres);
+        float airHumid{0.f};
+        hal->GetAirRelHumidity(&airHumid);
+        int16_t encoderValue{0};
+        hal->GetEncoderValue(&encoderValue);
+        
+        ESP_LOGI(TAG, "Run %4d, Heap %6d, RED %d YEL %d ENC %d GRN %d MOV %d HEAT %4.1f AIRT %4.1f PRS %5.0f HUM %3.0f  ", secs, esp_get_free_heap_size(),
+            hal->GetButtonRedIsPressed(), hal->GetButtonEncoderIsPressed(), encoderValue, hal->GetButtonGreenIsPressed(),  hal->IsMovementDetected(), heaterTemp, airTemp, airPres, airHumid);
+        secs += 5;
         vTaskDelay(5000 / portTICK_PERIOD_MS);
     }
-    printf("Restarting now.\n");
-    fflush(stdout);
-    esp_restart();
 }
