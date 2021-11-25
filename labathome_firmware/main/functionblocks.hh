@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "plcmanager.hh"
 #include "math.h"
+#include "crgb.hh"
 
 class FB_GreenButton: public FunctionBlock{
     size_t output;

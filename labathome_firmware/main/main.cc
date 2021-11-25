@@ -12,17 +12,17 @@
 #include <sys/param.h>
 #include <nvs_flash.h>
 #include <esp_netif.h>
-#include "protocol_examples_common.h"
+#include "connect.hh"
 #include <esp_http_server.h>
 #include "http_handlers.hh"
 static const char *TAG = "main";
 #include "HAL.hh"
 #include "functionblocks.hh"
-#include "WS2812.hh"
+#include "WS2812_strip.hh"
 #include "esp_log.h"
 #include "spiffs.hh"
 
-#include "HAL_labathomeV6.hh"
+#include "HAL_labathomeV5.hh"
 HAL *hal = new HAL_labathome(MODE_IO33::SERVO2, MODE_MULTI1_PIN::EXT, MODE_MULTI_2_3_PINS::EXT);
 //#include "HAL_wroverkit.hh"
 //HAL *hal = new HAL_wroverkit();
@@ -50,24 +50,54 @@ void plcTask(void *pvParameters)
         hal->ColorizeLed(LED::LED_GREEN, CRGB::DarkGreen);
         hal->ColorizeLed(LED::LED_YELLOW, CRGB::Yellow);
         hal->ColorizeLed(LED::LED_3, CRGB::DarkBlue);
-        hal->ColorizeLed(LED::LED_4, CRGB::Black);
-        hal->ColorizeLed(LED::LED_5, CRGB::Black);
-        hal->ColorizeLed(LED::LED_6, CRGB::Black);
-        hal->ColorizeLed(LED::LED_7, CRGB::Black);
         hal->AfterLoop();
-        vTaskDelay(150 / portTICK_PERIOD_MS);
-        hal->ColorizeLed(LED::LED_RED, CRGB::Black);
-        hal->ColorizeLed(LED::LED_GREEN, CRGB::Black);
-        hal->ColorizeLed(LED::LED_YELLOW, CRGB::Black);
-        hal->ColorizeLed(LED::LED_3, CRGB::Black);
-        hal->ColorizeLed(LED::LED_4, CRGB::DarkBlue);
-        hal->ColorizeLed(LED::LED_5, CRGB::Yellow);
-        hal->ColorizeLed(LED::LED_6, CRGB::DarkGreen);
-        hal->ColorizeLed(LED::LED_7, CRGB::DarkRed);
+        vTaskDelay(pdMS_TO_TICKS(150));
+        hal->ColorizeLed(LED::LED_RED, CRGB::DarkBlue);
+        hal->ColorizeLed(LED::LED_GREEN, CRGB::Yellow);
+        hal->ColorizeLed(LED::LED_YELLOW, CRGB::DarkGreen);
+        hal->ColorizeLed(LED::LED_3, CRGB::DarkRed);
         hal->AfterLoop();
-        vTaskDelay(150 / portTICK_PERIOD_MS);
+        vTaskDelay(pdMS_TO_TICKS(150));
     }
-    hal->UnColorizeAllLed();
+    // hal->SetFan1State(30);
+    // hal->SetFan2State(30);
+    // while (true)
+    // {
+    //     vTaskDelay(pdMS_TO_TICKS(2000)); 
+    // }
+    
+    // for(int i=0;i<5;i++)
+    // {
+    //     hal->SetFan1State(30);
+    //     hal->SetFan2State(30);
+    //     ESP_LOGI(TAG, "Fans 30");
+    //     vTaskDelay(pdMS_TO_TICKS(2000));
+    //     hal->SetFan1State(60);
+    //     hal->SetFan2State(60);
+    //     ESP_LOGI(TAG, "Fans 60");
+    //     vTaskDelay(pdMS_TO_TICKS(2000));
+    //     hal->SetFan1State(100);
+    //     hal->SetFan2State(100);
+    //     ESP_LOGI(TAG, "Fans 100");
+    //     vTaskDelay(pdMS_TO_TICKS(2000));
+    //     hal->SetFan1State(60);
+    //     hal->SetFan2State(60);
+    //     ESP_LOGI(TAG, "Fans 60");
+    //     vTaskDelay(pdMS_TO_TICKS(2000));
+    // }
+
+    // hal->UnColorizeAllLed();
+    // #define PI 3.14159265
+    // for(int i=0;i<3;i++)
+    // {
+    //     for(int deg=0;deg<360;deg+=10){
+    //         uint8_t result = 50*(sin(deg*PI/180)+1);
+    //         hal->SetLedPowerWhiteState(result);
+    //         ESP_LOGI(TAG, "LED POWER WHITE %d", result);
+    //         vTaskDelay(pdMS_TO_TICKS(30));
+    //     }
+    // }
+    
     hal->PlaySong(1);
     ESP_LOGI(TAG, "plcmanager main loop starts");
     while (true)
@@ -169,13 +199,18 @@ static httpd_handle_t start_webserver(void)
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.uri_match_fn = httpd_uri_match_wildcard;
     config.max_uri_handlers = 12;
-    const char *hostnameptr;
-    tcpip_adapter_get_hostname(TCPIP_ADAPTER_IF_STA, &hostnameptr);
+
     if (httpd_start(&server, &config) != ESP_OK)
     {
         ESP_LOGE(TAG, "Error starting HTTPd!");
         esp_restart();
     }
+
+    const char *hostnameptr;
+    if(tcpip_adapter_get_hostname(TCPIP_ADAPTER_IF_STA, &hostnameptr)!=ESP_OK || hostnameptr==NULL){
+        ESP_ERROR_CHECK(tcpip_adapter_get_hostname(TCPIP_ADAPTER_IF_AP, &hostnameptr));
+    }
+
     ESP_LOGI(TAG, "HTTPd successfully started for website http://%s:%d", hostnameptr, config.server_port);
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &getroot));
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &putfbd));
@@ -194,31 +229,6 @@ static httpd_handle_t start_webserver(void)
     return server;
 }
 
-static void stop_webserver(httpd_handle_t server)
-{
-    // Stop the httpd server
-    httpd_stop(server);
-}
-
-static void disconnect_handler(void* arg, esp_event_base_t event_base, 
-                               int32_t event_id, void* event_data)
-{
-    httpd_handle_t* server = (httpd_handle_t*) arg;
-    if (*server) {
-        ESP_LOGI(TAG, "Stopping webserver");
-        stop_webserver(*server);
-        *server = NULL;
-    }
-}
-
-static void connect_handler(void* arg, esp_event_base_t event_base, 
-                            int32_t event_id, void* event_data)
-{
-    httpd_handle_t* server = (httpd_handle_t*) arg;
-    if (*server == NULL) {
-        *server = start_webserver();
-    }
-}
 
 void _lab_error_check_failed(ErrorCode rc, const char *file, int line, const char *function, const char *expression)
 {
@@ -253,16 +263,11 @@ void app_main(void)
     ESP_ERROR_CHECK(SpiffsManager::Init());
     LAB_ERROR_CHECK(hal->Init());
 
-
-    static httpd_handle_t server;
     ESP_ERROR_CHECK(nvs_flash_init());
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
-    ESP_ERROR_CHECK(example_connect());
-    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &connect_handler, &server));
-    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &disconnect_handler, &server));
-
-    server = start_webserver(); 
+    connectSTA2AP(false);
+    xSemaphoreTake( connectSemaphore, portMAX_DELAY);
+    //startAP();
+    start_webserver(); 
 
     //xTaskCreate(experimentTask, "experimentTask", 1024 * 2, NULL, 5, NULL);
     xTaskCreate(plcTask, "plcTask", 4096 * 4, NULL, 6, NULL);

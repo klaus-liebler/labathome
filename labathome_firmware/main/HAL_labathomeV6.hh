@@ -10,7 +10,7 @@
 #include <driver/i2c.h>
 #include <driver/rmt.h>
 #include "errorcodes.hh"
-#include "WS2812.hh"
+#include "ws2812_strip.hh"
 #include <bh1750.hh>
 #include <ms4525.hh>
 #include <bme280.hh>
@@ -183,7 +183,7 @@ public:
         return this->rotenc->GetValue(value)==ESP_OK?ErrorCode::OK:ErrorCode::GENERIC_ERROR;
     }
 
-    void SensorLoop_ForInternalUseOnly()
+   void SensorLoop_ForInternalUseOnly()
     {
         int64_t nextOneWireReadout = INT64_MAX;
         int64_t nextBME280Readout = INT64_MAX;
@@ -192,7 +192,7 @@ public:
         TickType_t nextADS1115Readout = UINT32_MAX;
         uint16_t nextADS1115Mux = 0b100; //100...111
 
-        uint32_t oneWireReadoutIntervalMs = 200;
+        uint32_t oneWireReadoutIntervalMs = 800; //10bit -->187ms Conversion time, 12bit--> 750ms
         uint32_t bme280ReadoutIntervalMs = UINT32_MAX;
         uint32_t bh1750ReadoutIntervalMs = 200;
         TickType_t ads1115ReadoutInterval = portMAX_DELAY;
@@ -212,9 +212,9 @@ public:
             ds18b20_info = ds18b20_malloc();                                 // heap allocation
             ds18b20_init_solo(ds18b20_info, owb);                            // only one device on bus
             ds18b20_use_crc(ds18b20_info, true);                             // enable CRC check on all reads
-            ds18b20_set_resolution(ds18b20_info, DS18B20_RESOLUTION_10_BIT); //10bit -->187ms Conversion time
+            ds18b20_set_resolution(ds18b20_info, DS18B20_RESOLUTION_12_BIT); 
             ds18b20_convert_all(owb);
-            nextOneWireReadout = GetMillis() + 200;
+            nextOneWireReadout = GetMillis() + oneWireReadoutIntervalMs;
         }
         else
         {
@@ -450,6 +450,7 @@ public:
         ledc_channel.speed_mode = LEDC_HIGH_SPEED_MODE;
         ledc_channel.hpoint = 0;
         ledc_channel.timer_sel = LEDC_TIMER_0;
+        ledc_channel.intr_type=LEDC_INTR_DISABLE;
         ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
         
         //Buzzer
@@ -468,6 +469,7 @@ public:
         buzzer_channel.speed_mode = LEDC_HIGH_SPEED_MODE;
         buzzer_channel.hpoint = 0;
         buzzer_channel.timer_sel = LEDC_TIMER_2;
+        buzzer_channel.intr_type=LEDC_INTR_DISABLE;
         ESP_ERROR_CHECK(ledc_channel_config(&buzzer_channel));
 
         //I2C Master
@@ -478,14 +480,15 @@ public:
         conf.scl_io_num = PIN_I2C_SCL;
         conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
         conf.master.clk_speed = 100000;
+        conf.clk_flags=0;
         i2c_param_config(I2C_PORT, &conf);
         ESP_ERROR_CHECK(i2c_driver_install(I2C_PORT, conf.mode, 0, 0, 0));
 
         ESP_ERROR_CHECK(I2C::Init());
 
         //LED Strip
-        strip = new WS2812_Strip<LED_NUMBER>(CHANNEL_WS2812);
-        ESP_ERROR_CHECK(strip->Init(PIN_LED_STRIP));
+        strip = new WS2812_Strip<LED_NUMBER>();
+        ESP_ERROR_CHECK(strip->Init(VSPI_HOST, PIN_LED_STRIP, 2 ));
         ESP_ERROR_CHECK(strip->Clear(100));
 
         rotenc=new cRotaryEncoder((pcnt_unit_t)0, PIN_ROTENC_A, PIN_ROTENC_B, -100, 100);

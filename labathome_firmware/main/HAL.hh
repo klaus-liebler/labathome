@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include "sdkconfig.h"
 #include "esp_system.h"
-#include "WS2812.hh"
 #include "errorcodes.hh"
 
 enum class LED : uint8_t

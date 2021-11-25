@@ -1,3 +1,7 @@
 {
-  "C_Cpp.intelliSenseEngine": "Tag Parser"
+  "C_Cpp.intelliSenseEngine": "Default",
+  "files.associations": {
+    "*.ipp": "cpp",
+    "cmath": "cpp"
+  }
 }

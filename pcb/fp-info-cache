@@ -1,141 +1,120 @@
-32081695800832
-Relay_SMD
-Relay_DPDT_AXICOM_IMSeries_JLeg
-http://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Specification+Or+Standard%7F108-98001%7FW5%7Fpdf%7FEnglish%7FENG_SS_108-98001_W5.pdf
-AXICOM IM-Series Relay J JLeg
+27469007865245
+liebler_PASSIVES
+ASPIAIG-Q8080
+
+
 0
-8
-8
-Relay_SMD
-Relay_DPDT_FRT5_SMD
-IM Signal Relay DPDT FRT5 narrow footprint, SMD version of package
-Relay DPDT IM-relay FRT5
+2
+2
+liebler_PASSIVES
+CP_Elec_6.3x7.7_handsolder
+SMD capacitor, aluminum electrolytic, Nichicon, 6.3x7.7mm
+capacitor electrolytic
 0
-10
-10
-Relay_SMD
-Relay_DPDT_Kemet_EE2_NU
-Kemet signal relay, DPDT, double coil latching, https://content.kemet.com/datasheets/KEM_R7002_EC2_EE2.pdf
-Kemet EC2 signal relay DPDT double coil latching surface mount SMD
+2
+2
+liebler_PASSIVES
+L_7.3x7.3_H4.5_handsolder
+Choke, SMD, 7.3x7.3mm 4.5mm height
+Choke SMD
 0
-8
-8
-Relay_SMD
-Relay_DPDT_Kemet_EE2_NUH
-Kemet signal relay, DPDT, double coil latching, https://content.kemet.com/datasheets/KEM_R7002_EC2_EE2.pdf
-Kemet EC2 signal relay DPDT double coil latching surface mount SMD
+2
+2
+liebler_PASSIVES
+L_0630
+smd shielded power inductor https://abracon.com/Magnetics/power/ASPI-0630LR.pdf
+inductor abracon smd shielded
 0
-8
-8
-Relay_SMD
-Relay_DPDT_Kemet_EE2_NUH_DoubleCoil
-Kemet signal relay, DPDT, double coil latching, https://content.kemet.com/datasheets/KEM_R7002_EC2_EE2.pdf
-Kemet EC2 signal relay DPDT double dual coil latching surface mount SMD
+2
+2
+liebler_PASSIVES
+L_1040
+Inductor, Wuerth Elektronik, Wuerth_HCI-1040, 10.2mmx10.2mm
+inductor Wuerth hci smd
 0
-10
-10
-Relay_SMD
-Relay_DPDT_Kemet_EE2_NUX_DoubleCoil
-Kemet signal relay, DPDT, double coil latching, https://content.kemet.com/datasheets/KEM_R7002_EC2_EE2.pdf
-Kemet EC2 signal relay DPDT double dual coil latching surface mount SMD
+2
+2
+liebler_PASSIVES
+L_1040_handsolder
+Inductor, Taiyo Yuden, NR series, Taiyo-Yuden_NR-10050, 9.8mmx10.0mm, https://ds.yuden.co.jp/TYCOMPAS/or/specSheet?pn=NR10050T1R3N
+inductor taiyo-yuden nr smd
 0
-10
-10
-Relay_SMD
-Relay_DPDT_Kemet_EE2_NUX_NKX
-Kemet signal relay, DPDT, double coil latching, https://content.kemet.com/datasheets/KEM_R7002_EC2_EE2.pdf
-Kemet EC2 signal relay DPDT double coil latching surface mount SMD
+2
+2
+liebler_PASSIVES
+L_CD54
+
+
 0
-8
-8
-Relay_SMD
-Relay_DPDT_Kemet_EE2_NU_DoubleCoil
-Kemet signal relay, DPDT, double coil latching, https://content.kemet.com/datasheets/KEM_R7002_EC2_EE2.pdf
-Kemet EC2 signal relay DPDT double dual coil latching surface mount SMD
+2
+2
+liebler_PASSIVES
+L_CD75_handsolder
+
+
 0
-10
-10
-Relay_SMD
-Relay_DPDT_Omron_G6H-2F
-package for Omron G6H-2F relais, see http://cdn-reichelt.de/documents/datenblatt/C300/G6H%23OMR.pdf
-Omron G6H-2F relais
+2
+2
+liebler_PASSIVES
+L_CD104
+
+
 0
-10
-10
-Relay_SMD
-Relay_DPDT_Omron_G6K-2F
-Omron G6K-2F relay package http://omronfs.omron.com/en_US/ecb/products/pdf/en-g6k.pdf
-Omron G6K-2F relay
+2
+2
+liebler_PASSIVES
+L_CD104_handsolder
+
+
 0
-8
-8
-Relay_SMD
-Relay_DPDT_Omron_G6K-2F-Y
-Omron G6K-2F-Y relay package http://omronfs.omron.com/en_US/ecb/products/pdf/en-g6k.pdf
-Omron G6K-2F-Y relay
+2
+2
+liebler_PASSIVES
+L_CD127
+
+
 0
-8
-8
-Relay_SMD
-Relay_DPDT_Omron_G6K-2G
-Omron G6K-2G relay package http://omronfs.omron.com/en_US/ecb/products/pdf/en-g6k.pdf
-Omron G6K-2G relay
+2
+2
+liebler_PASSIVES
+L_CDRH104_handsolder
+
+
 0
-8
-8
-Relay_SMD
-Relay_DPDT_Omron_G6K-2G-Y
-Omron G6K-2G-Y relay package http://omronfs.omron.com/en_US/ecb/products/pdf/en-g6k.pdf
-Omron G6K-2G-Y relay
+2
+2
+liebler_PASSIVES
+L_SLF7045
+
+
 0
-8
-8
-Relay_SMD
-Relay_DPDT_Omron_G6S-2F
-Relay Omron G6S-2F, see http://omronfs.omron.com/en_US/ecb/products/pdf/en-g6s.pdf
-Relay Omron G6S-2F
+2
+2
+liebler_PASSIVES
+L_SRR4028
+
+
 0
-8
-8
-Relay_SMD
-Relay_DPDT_Omron_G6S-2G
-Relay Omron G6S-2G, see http://omronfs.omron.com/en_US/ecb/products/pdf/en-g6s.pdf
-Relay Omron G6S-2G
+2
+2
+liebler_PASSIVES
+Resistor_100W
+
+
 0
-8
-8
-Relay_SMD
-Relay_DPDT_Omron_G6SK-2F
-Relay Omron G6SK-2F, see http://omronfs.omron.com/en_US/ecb/products/pdf/en-g6s.pdf
-Relay Omron G6SK-2F
+2
+2
+liebler_PASSIVES
+X_3225
+crystal Epson Toyocom FA-238 and TSX-3225 series
+
 0
-10
-10
-Relay_SMD
-Relay_DPDT_Omron_G6SK-2G
-Relay Omron G6SK-2G, see http://omronfs.omron.com/en_US/ecb/products/pdf/en-g6s.pdf
-Relay Omron G6SK-2G
+4
+4
+liebler_PASSIVES
+X_53050uita
+
+
 0
-10
-10
-Relay_SMD
-Relay_Fujitsu_FTR-B3S
-https://www.fujitsu.com/downloads/MICRO/fcai/relays/ftr-b3.pdf
-Fujitsh FTR B3S B3SA Relay J JLeg
-0
-8
-8
-Relay_SMD
-Relay_SPDT_AXICOM_HF3Series_50ohms_Pitch1.27mm
-hiqsdr.com/images/3/3e/Axicom-HF3.pdf
-AXICOM HF3-Series Relay Pitch 1.27mm 50ohms
-0
-16
-16
-Relay_SMD
-Relay_SPDT_AXICOM_HF3Series_75ohms_Pitch1.27mm
-hiqsdr.com/images/3/3e/Axicom-HF3.pdf
-AXICOM HF3-Series Relay Pitch 1.27mm 75ohm
-0
-16
-16
+4
+4

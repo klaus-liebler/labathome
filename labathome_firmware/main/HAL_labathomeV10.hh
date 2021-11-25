@@ -22,49 +22,47 @@
 #include <i2c.hh>
 
 typedef gpio_num_t Pintype;
-
-constexpr Pintype PIN_R3_1 = (Pintype)36;
-constexpr Pintype PIN_MOVEMENT = (Pintype)39;
-constexpr Pintype PIN_SW = (Pintype)34;
+//36=VP, 39=VN
+constexpr Pintype PIN_R3_1 = (Pintype)34;//
+constexpr Pintype PIN_MOVEMENT = (Pintype)35;
+constexpr Pintype PIN_SW = (Pintype)36;
 constexpr adc1_channel_t PIN_SW_CHANNEL = ADC1_CHANNEL_6;
-constexpr Pintype PIN_ROTENC_A = (Pintype)35;
-constexpr Pintype PIN_FAN2_DRIVE = (Pintype)32;
-constexpr Pintype PIN_FAN1_SENSE = (Pintype)33;
-constexpr Pintype PIN_SERVO2 = (Pintype)33;
+constexpr Pintype PIN_ROTENC_A = (Pintype)39;
+constexpr Pintype PIN_FAN2_DRIVE = (Pintype)2;
+constexpr Pintype PIN_FAN1_SENSE = (Pintype)17;
+constexpr Pintype PIN_SERVO2 = (Pintype)17;
 constexpr Pintype PIN_SPEAKER = (Pintype)25;
-constexpr Pintype PIN_LED_STRIP = (Pintype)26;
+constexpr Pintype PIN_LED_STRIP = (Pintype)15;
 
 constexpr Pintype PIN_MULTI1 = (Pintype)27;
 constexpr Pintype PIN_ONEWIRE = (Pintype)14;
-constexpr Pintype PIN_FAN1_DRIVE = (Pintype)12;
+constexpr Pintype PIN_FAN1_DRIVE = (Pintype)18;
 constexpr Pintype PIN_LED_POWER_WHITE = (Pintype)13;
 
-constexpr Pintype PIN_SPI_MOSI = (Pintype)23;
-constexpr Pintype PIN_I2C_SDA = (Pintype)22;
-constexpr Pintype PIN_I2C_SCL = (Pintype)21;
-constexpr Pintype PIN_SPI_MISO = (Pintype)19;
-constexpr Pintype PIN_SPI_CLK = (Pintype)18;
-constexpr Pintype PIN_SPI_IO1 = (Pintype)5;
-constexpr Pintype PIN_HEATER = (Pintype)17;
-constexpr Pintype PIN_MULTI3 = (Pintype)16;
-constexpr Pintype PIN_MULTI2 = (Pintype)4;
+constexpr Pintype PIN_SPI_MOSI = (Pintype)21;
+constexpr Pintype PIN_I2C_SDA = (Pintype)19;
+constexpr Pintype PIN_I2C_SCL = (Pintype)22;
+constexpr Pintype PIN_SPI_MISO = (Pintype)16;
+constexpr Pintype PIN_SPI_CLK = (Pintype)23;
+constexpr Pintype PIN_SPI_IO1 = (Pintype)4;
+constexpr Pintype PIN_HEATER = (Pintype)12;
+constexpr Pintype PIN_MULTI3 = (Pintype)33;
+constexpr Pintype PIN_MULTI2 = (Pintype)26;
 constexpr Pintype PIN_SPI_IO2 = (Pintype)0;
-constexpr Pintype PIN_R3_ON = (Pintype)2;
-constexpr Pintype PIN_ROTENC_B = (Pintype)15;
+constexpr Pintype PIN_R3_ON = (Pintype)32;
+constexpr Pintype PIN_ROTENC_B = (Pintype)5;
 
 constexpr Pintype PIN_SERVO1 = PIN_MULTI1;
-constexpr Pintype PIN_I2S_SCK = PIN_MULTI1;
-constexpr Pintype PIN_485_DE = PIN_MULTI1;
+constexpr Pintype PIN_I2S_SD = PIN_MULTI1;
+constexpr Pintype PIN_485_DI = PIN_MULTI1;
 constexpr Pintype PIN_EXT1 = PIN_MULTI1;
 
-constexpr Pintype PN_485_RO = PIN_MULTI2;
-constexpr Pintype PN_CAN_TX = PIN_MULTI2;
+constexpr Pintype PN_485_DE = PIN_MULTI2;
 constexpr Pintype PN_EXT2 = PIN_MULTI2;
 constexpr Pintype PN_I2S_WS = PIN_MULTI2;
 
-constexpr Pintype PN_485_DI = PIN_MULTI3;
-constexpr Pintype PN_CAN_RX = PIN_MULTI3;
-constexpr Pintype PN_I2S_SD = PIN_MULTI3;
+constexpr Pintype PN_485_RO = PIN_MULTI3;
+constexpr Pintype PN_I2S_SCK = PIN_MULTI3;
 constexpr Pintype PN_EXT3 = PIN_MULTI3;
 
 struct Note
@@ -106,7 +104,7 @@ enum class Button : uint8_t
 
 #define CHECK_BIT(var, pos) ((var) & (1 << (pos)))
 
-constexpr size_t LED_NUMBER = 8;
+constexpr size_t LED_NUMBER = 4;
 constexpr rmt_channel_t CHANNEL_WS2812 = RMT_CHANNEL_0;
 constexpr rmt_channel_t CHANNEL_ONEWIRE_TX = RMT_CHANNEL_1;
 constexpr rmt_channel_t CHANNEL_ONEWIRE_RX = RMT_CHANNEL_2;

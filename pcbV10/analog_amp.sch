@@ -3,7 +3,7 @@ EELAYER 30 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 2 3
+Sheet 2 4
 Title ""
 Date ""
 Rev ""
@@ -33,19 +33,19 @@ AR Path="/60B762EC/60B7BC42" Ref="J10"  Part="1"
 AR Path="/61349A3C/60B7BC42" Ref="J13"  Part="1" 
 F 0 "J13" H 5380 3592 50  0000 L CNN
 F 1 "SPK" H 5380 3501 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 5300 3600 50  0001 C CNN
+F 2 "Connector_Wire:SolderWire-0.1sqmm_1x02_P3.6mm_D0.4mm_OD1mm" H 5300 3600 50  0000 C CNN
 F 3 "~" H 5300 3600 50  0001 C CNN
 	1    5300 3600
 	1    0    0    1   
 $EndComp
-Text GLabel 2900 4250 1    50   Input ~ 0
+Text GLabel 2900 3950 1    50   Input ~ 0
 AUDIO
 $Comp
 L Device:R_POT RV1
 U 1 1 60B8D423
 P 2900 4400
 F 0 "RV1" H 2831 4446 50  0000 R CNN
-F 1 "5k" H 2831 4355 50  0000 R CNN
+F 1 "1k" H 2831 4355 50  0000 R CNN
 F 2 "Potentiometer_THT:Potentiometer_Alps_RK09K_Single_Vertical" H 2900 4400 50  0001 C CNN
 F 3 "~" H 2900 4400 50  0001 C CNN
 F 4 "Sound only" H 2900 4400 50  0001 C CNN "Option"
@@ -73,7 +73,7 @@ AR Path="/60B762EC/60B8825A" Ref="IC1"  Part="1"
 AR Path="/61349A3C/60B8825A" Ref="U18"  Part="1" 
 F 0 "U18" H 4200 3765 50  0000 C CNN
 F 1 "MD8002A" H 4200 3674 50  0000 C CNN
-F 2 "Package_SO:SO-8_3.9x4.9mm_P1.27mm" H 4550 3600 50  0001 L CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 4550 3600 50  0001 L CNN
 F 3 "https://www.sunrom.com/get/408862" H 4550 3500 50  0001 L CNN
 F 4 "Audio Amplifier, SOP8" H 4550 3400 50  0001 L CNN "Description"
 F 5 "1.75" H 4550 3300 50  0001 L CNN "Height"
@@ -238,4 +238,16 @@ Wire Wire Line
 	5600 3400 5600 3700
 Wire Wire Line
 	5600 3700 4700 3700
+$Comp
+L Device:R R42
+U 1 1 619968EA
+P 2900 4100
+F 0 "R42" H 2970 4146 50  0000 L CNN
+F 1 "2k2" H 2970 4055 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" V 2830 4100 50  0001 C CNN
+F 3 "~" H 2900 4100 50  0001 C CNN
+F 4 "Sound only" H 2900 4100 50  0001 C CNN "Option"
+	1    2900 4100
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC

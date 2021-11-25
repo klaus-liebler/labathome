@@ -3,7 +3,7 @@ EELAYER 30 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 3 3
+Sheet 3 4
 Title ""
 Date ""
 Rev ""
@@ -62,7 +62,7 @@ L Connector:Conn_Coaxial J14
 U 1 1 622F9D36
 P 2500 1050
 F 0 "J14" H 2600 1025 50  0000 L CNN
-F 1 "LoRa" H 2600 934 50  0000 L CNN
+F 1 "LoRa Antenna" H 2600 934 50  0000 L CNN
 F 2 "Connector_Coaxial:SMA_Samtec_SMA-J-P-X-ST-EM1_EdgeMount" H 2500 1050 50  0001 C CNN
 F 3 " ~" H 2500 1050 50  0001 C CNN
 	1    2500 1050

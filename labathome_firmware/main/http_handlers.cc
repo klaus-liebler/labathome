@@ -3,7 +3,7 @@
 #include <sys/param.h>
 #include <sys/unistd.h>
 #include <sys/stat.h>
-#include <dirent.h>
+#include <sys/dirent.h>
 
 #include "esp_err.h"
 #include "esp_log.h"
