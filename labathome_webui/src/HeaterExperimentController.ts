@@ -1,5 +1,5 @@
 import { $ } from "./utils";
-import Chart from 'chart.js';
+import { Chart} from 'chart.js';
 import { ScreenController } from "./ScreenController";
 import { AppManagement } from "./AppManagement";
 import { SerializeContext } from "./flowchart/SerializeContext";
@@ -21,10 +21,8 @@ export class HeaterExperimentController extends ScreenController {
     private inputTN: HTMLInputElement;
     private inputTV: HTMLInputElement;
     private timer: number | undefined;
-    //FIXME private chart:chrtst.IChartistLineChart;
     private chart: Chart;
-    //FIXME private chartData:chrtst.IChartistData;
-    private chartConfig: Chart.ChartConfiguration;
+
     private counter = 10 ^ 6;
     private mode: number = 0;
     private seconds = 0;
@@ -32,11 +30,9 @@ export class HeaterExperimentController extends ScreenController {
     private recording = false;
 
     public onFirstStart(): void {
-        //FIXME this.chart.update(this.chartData);
         this.timer = window.setInterval(() => { this.sendAndReceive(); }, 1000);
     }
     public onRestart(): void {
-        //FIXME this.chart.update(this.chartData);
         this.timer = window.setInterval(() => { this.sendAndReceive(); }, 1000);
     }
     public onStop(): void {
@@ -51,8 +47,8 @@ export class HeaterExperimentController extends ScreenController {
     }
 
     private resetData() {
-        this.chartConfig.data!.labels = [];
-        this.chartConfig.data!.datasets!.forEach((dataset) => {
+        this.chart.data!.labels = [];
+        this.chart.data!.datasets!.forEach((dataset) => {
             dataset!.data = [];
         });
         this.chart.update();
@@ -139,17 +135,17 @@ export class HeaterExperimentController extends ScreenController {
                     $.Html(tr, "td", [], [], this.tfirstRow.children[i].textContent!);
                 }
                 if (this.counter >= CHART_EACH_INTERVAL) {
-                    if (this.chartConfig.data!.labels!.length > 100) {
-                        this.chartConfig.data!.labels?.shift();
-                        this.chartConfig.data!.datasets!.forEach((dataset) => {
+                    if (this.chart.data!.labels!.length > 100) {
+                        this.chart.data!.labels?.shift();
+                        this.chart.data!.datasets!.forEach((dataset) => {
                             dataset!.data!.shift();
                         });
                     }
-                    this.chartConfig.data!.labels!.push(now.toLocaleTimeString("de-DE"));
-                    this.chartConfig.data?.datasets![0].data?.push(SetpointTemperature);
-                    this.chartConfig.data?.datasets![1].data?.push(ActualTemperature);
-                    this.chartConfig.data?.datasets![2].data?.push(Heater);
-                    this.chartConfig.data?.datasets![3].data?.push(Fan);
+                    this.chart.data!.labels!.push(now.toLocaleTimeString("de-DE"));
+                    this.chart.data?.datasets![0].data?.push(SetpointTemperature);
+                    this.chart.data?.datasets![1].data?.push(ActualTemperature);
+                    this.chart.data?.datasets![2].data?.push(Heater);
+                    this.chart.data?.datasets![3].data?.push(Fan);
                     //this.setpointTemperatureValues.push(SetpointTemperature)
                     //this.heaterValues.push(Heater);
                     //this.fanValues.push(Fan);
@@ -196,16 +192,8 @@ export class HeaterExperimentController extends ScreenController {
 
         this.onModeChange(0);
 
-        /*var ctx = document.getElementById('myChart');
-        this.chartData = {labels:this.dateValues,series: [this.setpointTemperatureValues, this.actualTemperatureValues, this.heaterValues, this.fanValues,],};
-        let options:chrtst.ILineChartOptions={
-            axisX:{
-                labelInterpolationFnc:(value:any, index:number)=>{return index % 5 === 0 ? value : null;}
-            }
-        };
-        this.chart= new chrtst.Line('#experiment_chart', this.chartData, options);
-        */
-        this.chartConfig = {
+        let ctx = <HTMLCanvasElement>document.getElementById('heaterexperiment_chart')!;
+        this.chart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: [],
@@ -243,26 +231,17 @@ export class HeaterExperimentController extends ScreenController {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
-                },
                 hover: {
                     mode: 'nearest',
                     intersect: true
                 },
                 scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true
-                        }
-                    }]
+                    y: {
+                        beginAtZero: true
+                    } 
                 }
             }
-        };
-
-        let ctx = <HTMLCanvasElement>document.getElementById('heaterexperiment_chart')!;
-        this.chart = new Chart(ctx, this.chartConfig);
+        });
 
 
         document.querySelectorAll('input[name="heaterexperiment_mode"]').forEach((v, k) => {
@@ -285,7 +264,7 @@ export class HeaterExperimentController extends ScreenController {
             bubble.style.left = `calc(${newVal}% + (${8 - newVal * 0.15}px))`;
         };
 
-        document.querySelectorAll(".range-wrap").forEach(wrap => {
+        document.querySelectorAll(".range-wrap.heaterexperiment").forEach(wrap => {
             let range = <HTMLInputElement>wrap.querySelector("input[type='range']")!;
             let bubble = <HTMLOutputElement>wrap.querySelector("output.bubble")!;
             range.oninput = (e) => setBubble(range, bubble);

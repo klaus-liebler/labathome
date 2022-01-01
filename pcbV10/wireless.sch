@@ -3,7 +3,7 @@ EELAYER 30 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 3 4
+Sheet 3 5
 Title ""
 Date ""
 Rev ""
@@ -269,4 +269,140 @@ Wire Wire Line
 	1000 1050 1300 1050
 Text Label 1000 1050 0    50   ~ 0
 SPI_CLKx
+$Comp
+L RF_Module:DWM1000 DWM?
+U 1 1 61C6ED51
+P 4900 3100
+AR Path="/61D72F6F/61C6ED51" Ref="DWM?"  Part="1" 
+AR Path="/622D65C1/61C6ED51" Ref="DWM1"  Part="1" 
+F 0 "DWM1" H 4900 4381 50  0000 C CNN
+F 1 "DWM1000" H 4900 4290 50  0000 C CNN
+F 2 "RF_Module:DWM1000" H 5600 2100 50  0001 C CNN
+F 3 "https://www.decawave.com/sites/default/files/resources/dwm1000-datasheet-v1.3.pdf" H 7300 2000 50  0001 C CNN
+	1    4900 3100
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3V3 #PWR?
+U 1 1 61C6ED57
+P 5200 2000
+AR Path="/61D72F6F/61C6ED57" Ref="#PWR?"  Part="1" 
+AR Path="/622D65C1/61C6ED57" Ref="#PWR0136"  Part="1" 
+F 0 "#PWR0136" H 5200 1850 50  0001 C CNN
+F 1 "+3V3" H 5250 2100 50  0000 L CNN
+F 2 "" H 5200 2000 50  0001 C CNN
+F 3 "" H 5200 2000 50  0001 C CNN
+	1    5200 2000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4800 2000 4900 2000
+Connection ~ 4900 2000
+Wire Wire Line
+	4900 2000 5000 2000
+Connection ~ 5000 2000
+Wire Wire Line
+	5000 2000 5200 2000
+Text GLabel 5800 2600 2    50   Input ~ 0
+SPI_MOSIx
+Text GLabel 5800 2500 2    50   Output ~ 0
+SPI_MISO
+Text Label 5850 2400 0    50   ~ 0
+SPI_CLKx
+Wire Wire Line
+	5800 2400 5850 2400
+Text GLabel 5800 2700 2    50   Input ~ 0
+SPI_IO1
+Text GLabel 4000 3100 0    50   Input ~ 0
+SPI_IO2
+NoConn ~ 4000 2900
+NoConn ~ 4000 3200
+NoConn ~ 5800 2300
+NoConn ~ 5800 3700
+NoConn ~ 5800 3600
+NoConn ~ 5800 3500
+NoConn ~ 5800 3400
+NoConn ~ 5800 3300
+NoConn ~ 5800 3200
+NoConn ~ 5800 3100
+$Comp
+L power:GND #PWR0137
+U 1 1 61C74709
+P 4700 4200
+F 0 "#PWR0137" H 4700 3950 50  0001 C CNN
+F 1 "GND" H 4700 4050 50  0000 C CNN
+F 2 "" H 4700 4200 50  0001 C CNN
+F 3 "" H 4700 4200 50  0001 C CNN
+	1    4700 4200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5100 4200 5000 4200
+Connection ~ 4700 4200
+Connection ~ 4800 4200
+Wire Wire Line
+	4800 4200 4700 4200
+Connection ~ 4900 4200
+Wire Wire Line
+	4900 4200 4800 4200
+Connection ~ 5000 4200
+Wire Wire Line
+	5000 4200 4900 4200
+$Comp
+L power:GND #PWR0139
+U 1 1 61C7544D
+P 4000 3000
+F 0 "#PWR0139" H 4000 2750 50  0001 C CNN
+F 1 "GND" V 4000 2800 50  0000 C CNN
+F 2 "" H 4000 3000 50  0001 C CNN
+F 3 "" H 4000 3000 50  0001 C CNN
+	1    4000 3000
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:C C41
+U 1 1 61C41063
+P 4300 1800
+F 0 "C41" H 4415 1846 50  0000 L CNN
+F 1 "u1" H 4415 1755 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder" H 4338 1650 50  0001 C CNN
+F 3 "~" H 4300 1800 50  0001 C CNN
+	1    4300 1800
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C40
+U 1 1 61C41A80
+P 3950 1800
+F 0 "C40" H 4065 1846 50  0000 L CNN
+F 1 "10u" H 4065 1755 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder" H 3988 1650 50  0001 C CNN
+F 3 "~" H 3950 1800 50  0001 C CNN
+	1    3950 1800
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4800 2000 4650 2000
+Wire Wire Line
+	4650 2000 4650 1650
+Wire Wire Line
+	4650 1650 4300 1650
+Connection ~ 4800 2000
+Wire Wire Line
+	3950 1650 4300 1650
+Connection ~ 4300 1650
+Wire Wire Line
+	3950 1950 4300 1950
+$Comp
+L power:GND #PWR055
+U 1 1 61C42E11
+P 3950 1950
+F 0 "#PWR055" H 3950 1700 50  0001 C CNN
+F 1 "GND" H 4050 1950 50  0000 C CNN
+F 2 "" H 3950 1950 50  0001 C CNN
+F 3 "" H 3950 1950 50  0001 C CNN
+	1    3950 1950
+	1    0    0    -1  
+$EndComp
+Connection ~ 3950 1950
 $EndSCHEMATC

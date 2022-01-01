@@ -1,0 +1,831 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 5 5
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L Sensor:BME680 U?
+U 1 1 61DA96C9
+P 1600 5350
+AR Path="/61DA96C9" Ref="U?"  Part="1" 
+AR Path="/61D72F6F/61DA96C9" Ref="U12"  Part="1" 
+F 0 "U12" H 1171 5396 50  0000 R CNN
+F 1 "BME680" H 1171 5305 50  0000 R CNN
+F 2 "Package_LGA:Bosch_LGA-8_3x3mm_P0.8mm_ClockwisePinNumbering" H 3050 4900 50  0001 C CNN
+F 3 "https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST-BME680-DS001.pdf" H 1600 5150 50  0001 C CNN
+F 4 "BME680" H 1600 5350 50  0001 C CNN "Option"
+	1    1600 5350
+	1    0    0    -1  
+$EndComp
+$Comp
+L smopla:SR602 U22
+U 1 1 61DA96CF
+P 10050 4750
+F 0 "U22" H 10000 5000 50  0000 L CNN
+F 1 "SR602" V 10150 4650 50  0000 L CNN
+F 2 "liebler_MODULES:PIR_Sensor_SR602" H 10050 4750 50  0001 C CNN
+F 3 "" H 10050 4750 50  0001 C CNN
+	1    10050 4750
+	1    0    0    -1  
+$EndComp
+$Comp
+L Sensor_Temperature:DS18B20 U7
+U 1 1 61DA96D5
+P 750 1000
+F 0 "U7" H 650 750 50  0000 R CNN
+F 1 "DS18B20" H 1100 750 50  0000 R CNN
+F 2 "Package_TO_SOT_THT:TO-92_HandSolder" H -250 750 50  0001 C CNN
+F 3 "http://datasheets.maximintegrated.com/en/ds/DS18B20.pdf" H 600 1250 50  0001 C CNN
+	1    750  1000
+	1    0    0    -1  
+$EndComp
+$Comp
+L Sensor_Temperature:DS18B20 U9
+U 1 1 61DA96DB
+P 1350 1000
+F 0 "U9" H 1250 750 50  0000 R CNN
+F 1 "DS18B20" H 1700 750 50  0000 R CNN
+F 2 "Package_TO_SOT_THT:TO-92_HandSolder" H 350 750 50  0001 C CNN
+F 3 "http://datasheets.maximintegrated.com/en/ds/DS18B20.pdf" H 1200 1250 50  0001 C CNN
+	1    1350 1000
+	1    0    0    -1  
+$EndComp
+$Comp
+L Sensor_Temperature:DS18B20 U19
+U 1 1 61DA96E1
+P 1950 1000
+F 0 "U19" H 1850 750 50  0000 R CNN
+F 1 "DS18B20" H 2300 750 50  0000 R CNN
+F 2 "Package_TO_SOT_THT:TO-92_HandSolder" H 950 750 50  0001 C CNN
+F 3 "http://datasheets.maximintegrated.com/en/ds/DS18B20.pdf" H 1800 1250 50  0001 C CNN
+	1    1950 1000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	750  700  1350 700 
+Connection ~ 1350 700 
+Wire Wire Line
+	1350 700  1950 700 
+Wire Wire Line
+	750  1300 1350 1300
+Connection ~ 1350 1300
+Wire Wire Line
+	1350 1300 1950 1300
+Wire Wire Line
+	1050 1000 1650 1000
+Connection ~ 1650 1000
+Wire Wire Line
+	1650 1000 2250 1000
+Text GLabel 2250 1000 2    50   BiDi ~ 0
+1wire
+$Comp
+L power:GND #PWR035
+U 1 1 61DA96F1
+P 2300 1300
+F 0 "#PWR035" H 2300 1050 50  0001 C CNN
+F 1 "GND" V 2300 1100 50  0000 C CNN
+F 2 "" H 2300 1300 50  0001 C CNN
+F 3 "" H 2300 1300 50  0001 C CNN
+	1    2300 1300
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	2300 1300 1950 1300
+Connection ~ 1950 1300
+$Comp
+L power:+3V3 #PWR017
+U 1 1 61DA96F9
+P 1950 700
+F 0 "#PWR017" H 1950 550 50  0001 C CNN
+F 1 "+3V3" V 1965 828 50  0000 L CNN
+F 2 "" H 1950 700 50  0001 C CNN
+F 3 "" H 1950 700 50  0001 C CNN
+	1    1950 700 
+	0    1    1    0   
+$EndComp
+Connection ~ 1950 700 
+Wire Notes Line
+	500  600  2650 600 
+Wire Notes Line
+	2650 600  2650 1400
+Wire Notes Line
+	2650 1400 500  1400
+Wire Notes Line
+	500  1400 500  600 
+Text Notes 500  600  0    50   ~ 0
+1wire Temperature Sensors
+$Comp
+L power:GND #PWR049
+U 1 1 61DA9705
+P 9750 4650
+F 0 "#PWR049" H 9750 4400 50  0001 C CNN
+F 1 "GND" V 9750 4450 50  0000 C CNN
+F 2 "" H 9750 4650 50  0001 C CNN
+F 3 "" H 9750 4650 50  0001 C CNN
+	1    9750 4650
+	0    1    1    0   
+$EndComp
+$Comp
+L power:+3V3 #PWR050
+U 1 1 61DA970B
+P 9750 4750
+F 0 "#PWR050" H 9750 4600 50  0001 C CNN
+F 1 "+3V3" V 9750 4900 50  0000 L CNN
+F 2 "" H 9750 4750 50  0001 C CNN
+F 3 "" H 9750 4750 50  0001 C CNN
+	1    9750 4750
+	0    -1   -1   0   
+$EndComp
+Text GLabel 9750 4850 0    50   Output ~ 0
+MOVE
+$Comp
+L Device:C C?
+U 1 1 61DA9713
+P 1100 4900
+AR Path="/61DA9713" Ref="C?"  Part="1" 
+AR Path="/61D72F6F/61DA9713" Ref="C30"  Part="1" 
+F 0 "C30" H 985 4854 50  0000 R CNN
+F 1 "u1" H 985 4945 50  0000 R CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 1138 4750 50  0001 C CNN
+F 3 "~" H 1100 4900 50  0001 C CNN
+F 4 "BME680" H 1100 4900 50  0001 C CNN "Option"
+	1    1100 4900
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	1700 4750 1500 4750
+Connection ~ 1500 4750
+Wire Wire Line
+	1500 4750 1100 4750
+$Comp
+L power:+3V3 #PWR09
+U 1 1 61DA971C
+P 1700 4750
+F 0 "#PWR09" H 1700 4600 50  0001 C CNN
+F 1 "+3V3" V 1715 4878 50  0000 L CNN
+F 2 "" H 1700 4750 50  0001 C CNN
+F 3 "" H 1700 4750 50  0001 C CNN
+	1    1700 4750
+	0    1    1    0   
+$EndComp
+Connection ~ 1700 4750
+$Comp
+L power:GND #PWR010
+U 1 1 61DA9723
+P 1700 5950
+F 0 "#PWR010" H 1700 5700 50  0001 C CNN
+F 1 "GND" V 1700 5750 50  0000 C CNN
+F 2 "" H 1700 5950 50  0001 C CNN
+F 3 "" H 1700 5950 50  0001 C CNN
+	1    1700 5950
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	1500 5950 1700 5950
+Connection ~ 1700 5950
+$Comp
+L power:+3V3 #PWR030
+U 1 1 61DA972B
+P 2200 5650
+F 0 "#PWR030" H 2200 5500 50  0001 C CNN
+F 1 "+3V3" V 2215 5778 50  0000 L CNN
+F 2 "" H 2200 5650 50  0001 C CNN
+F 3 "" H 2200 5650 50  0001 C CNN
+	1    2200 5650
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 61DA9732
+P 750 4900
+AR Path="/61DA9732" Ref="C?"  Part="1" 
+AR Path="/61D72F6F/61DA9732" Ref="C28"  Part="1" 
+F 0 "C28" H 635 4854 50  0000 R CNN
+F 1 "u1" H 635 4945 50  0000 R CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 788 4750 50  0001 C CNN
+F 3 "~" H 750 4900 50  0001 C CNN
+F 4 "BME680" H 750 4900 50  0001 C CNN "Option"
+	1    750  4900
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	1100 4750 750  4750
+Connection ~ 1100 4750
+$Comp
+L power:GND #PWR08
+U 1 1 61DA973A
+P 750 5050
+F 0 "#PWR08" H 750 4800 50  0001 C CNN
+F 1 "GND" V 750 4850 50  0000 C CNN
+F 2 "" H 750 5050 50  0001 C CNN
+F 3 "" H 750 5050 50  0001 C CNN
+	1    750  5050
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1100 5050 750  5050
+Connection ~ 750  5050
+Text GLabel 2200 5450 2    50   BiDi ~ 0
+SDA
+Text GLabel 2200 5250 2    50   BiDi ~ 0
+SCL
+Text Notes 1900 5850 0    50   ~ 0
+CSB=3V -> I2C
+$Comp
+L power:GND #PWR019
+U 1 1 61DA9745
+P 2200 5050
+F 0 "#PWR019" H 2200 4800 50  0001 C CNN
+F 1 "GND" V 2200 4850 50  0000 C CNN
+F 2 "" H 2200 5050 50  0001 C CNN
+F 3 "" H 2200 5050 50  0001 C CNN
+	1    2200 5050
+	0    -1   -1   0   
+$EndComp
+Text Notes 2050 4950 0    50   ~ 0
+7bit-ADDR=0x76
+$Comp
+L smopla:MS4525DO U?
+U 1 1 61DA974D
+P 1500 6550
+AR Path="/61DA974D" Ref="U?"  Part="1" 
+AR Path="/61D72F6F/61DA974D" Ref="U10"  Part="1" 
+F 0 "U10" H 1500 6925 50  0000 C CNN
+F 1 "MS4525DO" H 1500 6834 50  0000 C CNN
+F 2 "liebler_MODULES:MS4525DO" H 1500 6550 50  0001 C CNN
+F 3 "" H 1500 6550 50  0001 C CNN
+F 4 "MS4525DO" H 1500 6550 50  0001 C CNN "Option"
+	1    1500 6550
+	1    0    0    -1  
+$EndComp
+Text GLabel 1900 6400 2    50   BiDi ~ 0
+SCL
+Text GLabel 1900 6500 2    50   BiDi ~ 0
+SDA
+$Comp
+L Device:C C?
+U 1 1 61DA9756
+P 2050 6750
+AR Path="/61DA9756" Ref="C?"  Part="1" 
+AR Path="/61D72F6F/61DA9756" Ref="C31"  Part="1" 
+F 0 "C31" H 1935 6704 50  0000 R CNN
+F 1 "u1" H 1935 6795 50  0000 R CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 2088 6600 50  0001 C CNN
+F 3 "~" H 2050 6750 50  0001 C CNN
+F 4 "MS4525DO" H 2050 6750 50  0001 C CNN "Option"
+	1    2050 6750
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	1900 6600 2050 6600
+Wire Wire Line
+	1900 6700 1900 6900
+Wire Wire Line
+	1900 6900 2050 6900
+$Comp
+L power:GND #PWR016
+U 1 1 61DA975F
+P 1900 6900
+F 0 "#PWR016" H 1900 6650 50  0001 C CNN
+F 1 "GND" V 1850 6750 50  0000 C CNN
+F 2 "" H 1900 6900 50  0001 C CNN
+F 3 "" H 1900 6900 50  0001 C CNN
+	1    1900 6900
+	0    1    1    0   
+$EndComp
+Connection ~ 1900 6900
+$Comp
+L power:+5V #PWR018
+U 1 1 61DA9766
+P 2150 6600
+F 0 "#PWR018" H 2150 6450 50  0001 C CNN
+F 1 "+5V" V 2150 6800 50  0000 C CNN
+F 2 "" H 2150 6600 50  0001 C CNN
+F 3 "" H 2150 6600 50  0001 C CNN
+	1    2150 6600
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2150 6600 2050 6600
+Connection ~ 2050 6600
+NoConn ~ 1100 6400
+$Comp
+L smopla:GY-302 U20
+U 1 1 61DA976F
+P 5750 2100
+F 0 "U20" H 5750 2300 50  0000 L CNN
+F 1 "BH1750_Module" H 5450 1700 50  0000 L CNN
+F 2 "liebler_MODULES:GY-302" H 5750 2100 50  0001 C CNN
+F 3 "" H 5750 2100 50  0001 C CNN
+	1    5750 2100
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3V3 #PWR041
+U 1 1 61DA9775
+P 5400 1900
+F 0 "#PWR041" H 5400 1750 50  0001 C CNN
+F 1 "+3V3" V 5500 1850 50  0000 L CNN
+F 2 "" H 5400 1900 50  0001 C CNN
+F 3 "" H 5400 1900 50  0001 C CNN
+	1    5400 1900
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:GND #PWR042
+U 1 1 61DA977B
+P 5400 2000
+F 0 "#PWR042" H 5400 1750 50  0001 C CNN
+F 1 "GND" V 5400 1800 50  0000 C CNN
+F 2 "" H 5400 2000 50  0001 C CNN
+F 3 "" H 5400 2000 50  0001 C CNN
+	1    5400 2000
+	0    1    1    0   
+$EndComp
+Text GLabel 5400 2100 0    50   BiDi ~ 0
+SCL
+Text GLabel 5400 2200 0    50   BiDi ~ 0
+SDA
+$Comp
+L power:GND #PWR043
+U 1 1 61DA9783
+P 5400 2300
+F 0 "#PWR043" H 5400 2050 50  0001 C CNN
+F 1 "GND" H 5300 2300 50  0000 C CNN
+F 2 "" H 5400 2300 50  0001 C CNN
+F 3 "" H 5400 2300 50  0001 C CNN
+	1    5400 2300
+	1    0    0    -1  
+$EndComp
+$Comp
+L Sensor_Gas:CCS811 U?
+U 1 1 61DA978A
+P 1800 3850
+AR Path="/61DA978A" Ref="U?"  Part="1" 
+AR Path="/61D72F6F/61DA978A" Ref="U15"  Part="1" 
+F 0 "U15" H 1550 4400 50  0000 C CNN
+F 1 "CCS811" H 1550 4300 50  0000 C CNN
+F 2 "liebler_SEMICONDUCTORS:AMS_LGA-10-1EP_2.7x4mm_P0.6mm" H 1800 3250 50  0001 C CNN
+F 3 "http://ams.com/eng/Products/Environmental-Sensors/Air-Quality-Sensors/CCS811" H 1800 3650 50  0001 C CNN
+F 4 "CCS811" H 1800 3850 50  0001 C CNN "Option"
+	1    1800 3850
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1400 4150 1400 4350
+Wire Wire Line
+	1400 4350 1800 4350
+NoConn ~ 1400 3650
+$Comp
+L Device:R R?
+U 1 1 61DA9794
+P 750 3750
+AR Path="/61DA9794" Ref="R?"  Part="1" 
+AR Path="/61D72F6F/61DA9794" Ref="R28"  Part="1" 
+F 0 "R28" V 650 3750 50  0000 C CNN
+F 1 "4k7" V 750 3750 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 680 3750 50  0001 C CNN
+F 3 "~" H 750 3750 50  0001 C CNN
+F 4 "CCS811" V 750 3750 50  0001 C CNN "Option"
+	1    750  3750
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:+3V3 #PWR013
+U 1 1 61DA979A
+P 1800 3350
+F 0 "#PWR013" H 1800 3200 50  0001 C CNN
+F 1 "+3V3" H 1850 3450 50  0000 L CNN
+F 2 "" H 1800 3350 50  0001 C CNN
+F 3 "" H 1800 3350 50  0001 C CNN
+	1    1800 3350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	750  4050 750  3900
+Wire Wire Line
+	750  4050 1400 4050
+$Comp
+L power:+3V3 #PWR07
+U 1 1 61DA97A2
+P 750 3600
+F 0 "#PWR07" H 750 3450 50  0001 C CNN
+F 1 "+3V3" H 650 3750 50  0000 L CNN
+F 2 "" H 750 3600 50  0001 C CNN
+F 3 "" H 750 3600 50  0001 C CNN
+	1    750  3600
+	1    0    0    -1  
+$EndComp
+Text GLabel 1400 3850 0    50   BiDi ~ 0
+SCL
+Text GLabel 1400 3750 0    50   BiDi ~ 0
+SDA
+Wire Wire Line
+	2200 3750 2200 3650
+Wire Wire Line
+	1400 4150 1100 4150
+Wire Wire Line
+	1100 4150 1100 3550
+Wire Wire Line
+	1100 3550 1400 3550
+Connection ~ 1400 4150
+NoConn ~ 2200 3950
+$Comp
+L Device:C C?
+U 1 1 61DA97B1
+P 2300 3500
+AR Path="/61DA97B1" Ref="C?"  Part="1" 
+AR Path="/61D72F6F/61DA97B1" Ref="C38"  Part="1" 
+F 0 "C38" H 2415 3546 50  0000 L CNN
+F 1 "1u" H 2415 3455 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 2338 3350 50  0001 C CNN
+F 3 "~" H 2300 3500 50  0001 C CNN
+F 4 "CCS811" H 2300 3500 50  0001 C CNN "Option"
+	1    2300 3500
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2300 3350 1800 3350
+Connection ~ 1800 3350
+$Comp
+L power:GND #PWR015
+U 1 1 61DA97B9
+P 1800 4350
+F 0 "#PWR015" H 1800 4100 50  0001 C CNN
+F 1 "GND" V 1800 4150 50  0000 C CNN
+F 2 "" H 1800 4350 50  0001 C CNN
+F 3 "" H 1800 4350 50  0001 C CNN
+	1    1800 4350
+	0    -1   -1   0   
+$EndComp
+Connection ~ 1800 4350
+$Comp
+L power:GND #PWR038
+U 1 1 61DA97C0
+P 2300 3650
+F 0 "#PWR038" H 2300 3400 50  0001 C CNN
+F 1 "GND" V 2300 3450 50  0000 C CNN
+F 2 "" H 2300 3650 50  0001 C CNN
+F 3 "" H 2300 3650 50  0001 C CNN
+	1    2300 3650
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Sensor:BME280 U?
+U 1 1 61DA97C7
+P 1700 2300
+AR Path="/61DA97C7" Ref="U?"  Part="1" 
+AR Path="/61D72F6F/61DA97C7" Ref="U13"  Part="1" 
+F 0 "U13" H 1271 2346 50  0000 R CNN
+F 1 "BME280" H 1271 2255 50  0000 R CNN
+F 2 "Package_LGA:Bosch_LGA-8_2.5x2.5mm_P0.65mm_ClockwisePinNumbering" H 3200 1850 50  0001 C CNN
+F 3 "https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST-BME280-DS002.pdf" H 1700 2100 50  0001 C CNN
+F 4 "BME280" H 1700 2300 50  0001 C CNN "Option"
+	1    1700 2300
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR036
+U 1 1 61DA97CD
+P 2300 2000
+F 0 "#PWR036" H 2300 1750 50  0001 C CNN
+F 1 "GND" V 2300 1800 50  0000 C CNN
+F 2 "" H 2300 2000 50  0001 C CNN
+F 3 "" H 2300 2000 50  0001 C CNN
+	1    2300 2000
+	0    -1   -1   0   
+$EndComp
+Text GLabel 2300 2200 2    50   BiDi ~ 0
+SCL
+Text GLabel 2300 2400 2    50   BiDi ~ 0
+SDA
+$Comp
+L power:+3V3 #PWR037
+U 1 1 61DA97D5
+P 2300 2600
+F 0 "#PWR037" H 2300 2450 50  0001 C CNN
+F 1 "+3V3" V 2315 2728 50  0000 L CNN
+F 2 "" H 2300 2600 50  0001 C CNN
+F 3 "" H 2300 2600 50  0001 C CNN
+	1    2300 2600
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR012
+U 1 1 61DA97DB
+P 1800 2900
+F 0 "#PWR012" H 1800 2650 50  0001 C CNN
+F 1 "GND" V 1800 2700 50  0000 C CNN
+F 2 "" H 1800 2900 50  0001 C CNN
+F 3 "" H 1800 2900 50  0001 C CNN
+	1    1800 2900
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 61DA97E2
+P 1050 1850
+AR Path="/61DA97E2" Ref="C?"  Part="1" 
+AR Path="/61D72F6F/61DA97E2" Ref="C29"  Part="1" 
+F 0 "C29" H 935 1804 50  0000 R CNN
+F 1 "u1" H 935 1895 50  0000 R CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 1088 1700 50  0001 C CNN
+F 3 "~" H 1050 1850 50  0001 C CNN
+F 4 "BME280" H 1050 1850 50  0001 C CNN "Option"
+	1    1050 1850
+	-1   0    0    1   
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 61DA97E9
+P 700 1850
+AR Path="/61DA97E9" Ref="C?"  Part="1" 
+AR Path="/61D72F6F/61DA97E9" Ref="C15"  Part="1" 
+F 0 "C15" H 585 1804 50  0000 R CNN
+F 1 "u1" H 585 1895 50  0000 R CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 738 1700 50  0001 C CNN
+F 3 "~" H 700 1850 50  0001 C CNN
+F 4 "BME280" H 700 1850 50  0001 C CNN "Option"
+	1    700  1850
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:GND #PWR06
+U 1 1 61DA97EF
+P 700 2000
+F 0 "#PWR06" H 700 1750 50  0001 C CNN
+F 1 "GND" V 700 1800 50  0000 C CNN
+F 2 "" H 700 2000 50  0001 C CNN
+F 3 "" H 700 2000 50  0001 C CNN
+	1    700  2000
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3V3 #PWR011
+U 1 1 61DA97F5
+P 1800 1700
+F 0 "#PWR011" H 1800 1550 50  0001 C CNN
+F 1 "+3V3" V 1815 1828 50  0000 L CNN
+F 2 "" H 1800 1700 50  0001 C CNN
+F 3 "" H 1800 1700 50  0001 C CNN
+	1    1800 1700
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	1800 1700 1600 1700
+Connection ~ 1800 1700
+Connection ~ 1050 1700
+Wire Wire Line
+	1050 1700 700  1700
+Connection ~ 1600 1700
+Wire Wire Line
+	1600 1700 1050 1700
+Wire Wire Line
+	700  2000 1050 2000
+Connection ~ 700  2000
+$Comp
+L liebler_SEMICONDUCTORS:ICS-43434 MK1
+U 1 1 61DA9809
+P 9400 2200
+F 0 "MK1" H 9400 2867 50  0000 C CNN
+F 1 "ICS-43434" H 9400 2776 50  0000 C CNN
+F 2 "liebler_SEMICONDUCTORS:MIC_ICS-43434" H 9400 2200 50  0001 L BNN
+F 3 "" H 9400 2200 50  0001 L BNN
+F 4 "LGA-6 TDK-InvenSense" H 9400 2200 50  0001 L BNN "PACKAGE"
+F 5 "ICS-43434" H 9400 2200 50  0001 L BNN "MP"
+F 6 "TDK-InvenSense" H 9400 2200 50  0001 L BNN "MF"
+F 7 "Bad" H 9400 2200 50  0001 L BNN "AVAILABILITY"
+F 8 "2.43 USD" H 9400 2200 50  0001 L BNN "PRICE"
+F 9 "Multi-Mode Microphone with I2S Digital Output" H 9400 2200 50  0001 L BNN "DESCRIPTION"
+	1    9400 2200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C39
+U 1 1 61DA980F
+P 9900 1950
+F 0 "C39" H 9785 1904 50  0000 R CNN
+F 1 "u1" H 9785 1995 50  0000 R CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 9938 1800 50  0001 C CNN
+F 3 "~" H 9900 1950 50  0001 C CNN
+	1    9900 1950
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	9900 2100 9900 2600
+$Comp
+L power:GND #PWR052
+U 1 1 61DA9816
+P 9900 2600
+F 0 "#PWR052" H 9900 2350 50  0001 C CNN
+F 1 "GND" V 9900 2400 50  0000 C CNN
+F 2 "" H 9900 2600 50  0001 C CNN
+F 3 "" H 9900 2600 50  0001 C CNN
+	1    9900 2600
+	0    -1   -1   0   
+$EndComp
+Connection ~ 9900 2600
+$Comp
+L power:GND #PWR047
+U 1 1 61DA981D
+P 8900 2000
+F 0 "#PWR047" H 8900 1750 50  0001 C CNN
+F 1 "GND" V 8900 1800 50  0000 C CNN
+F 2 "" H 8900 2000 50  0001 C CNN
+F 3 "" H 8900 2000 50  0001 C CNN
+	1    8900 2000
+	0    1    1    0   
+$EndComp
+Text GLabel 8900 2200 0    50   Input ~ 0
+I2S_WS
+Text GLabel 8900 2300 0    50   Input ~ 0
+I2S_SCK
+Text GLabel 8900 2400 0    50   Input ~ 0
+I2S_SD
+$Comp
+L power:+3V3 #PWR051
+U 1 1 61DA9826
+P 9900 1800
+F 0 "#PWR051" H 9900 1650 50  0001 C CNN
+F 1 "+3V3" V 9900 1950 50  0000 L CNN
+F 2 "" H 9900 1800 50  0001 C CNN
+F 3 "" H 9900 1800 50  0001 C CNN
+	1    9900 1800
+	0    1    1    0   
+$EndComp
+Connection ~ 9900 1800
+$Comp
+L Device:R R29
+U 1 1 61DA982D
+P 8900 2550
+F 0 "R29" V 8800 2550 50  0000 C CNN
+F 1 "M1" V 8900 2550 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 8830 2550 50  0001 C CNN
+F 3 "~" H 8900 2550 50  0001 C CNN
+	1    8900 2550
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:GND #PWR048
+U 1 1 61DA9833
+P 8900 2700
+F 0 "#PWR048" H 8900 2450 50  0001 C CNN
+F 1 "GND" V 8900 2500 50  0000 C CNN
+F 2 "" H 8900 2700 50  0001 C CNN
+F 3 "" H 8900 2700 50  0001 C CNN
+	1    8900 2700
+	0    1    1    0   
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x06 J16
+U 1 1 61DA9839
+P 5350 1200
+F 0 "J16" H 5430 1192 50  0000 L CNN
+F 1 "BME280" H 5430 1101 50  0000 L CNN
+F 2 "Connector_PinSocket_2.54mm:PinSocket_1x06_P2.54mm_Vertical" H 5350 1200 50  0001 C CNN
+F 3 "~" H 5350 1200 50  0001 C CNN
+	1    5350 1200
+	1    0    0    -1  
+$EndComp
+Text GLabel 5150 1300 0    50   BiDi ~ 0
+SDA
+Text GLabel 5150 1200 0    50   BiDi ~ 0
+SCL
+$Comp
+L power:GND #PWR040
+U 1 1 61DA9841
+P 5150 1100
+F 0 "#PWR040" H 5150 850 50  0001 C CNN
+F 1 "GND" V 5150 900 50  0000 C CNN
+F 2 "" H 5150 1100 50  0001 C CNN
+F 3 "" H 5150 1100 50  0001 C CNN
+	1    5150 1100
+	0    1    1    0   
+$EndComp
+$Comp
+L power:+3V3 #PWR039
+U 1 1 61DA9847
+P 5150 1000
+F 0 "#PWR039" H 5150 850 50  0001 C CNN
+F 1 "+3V3" V 5165 1128 50  0000 L CNN
+F 2 "" H 5150 1000 50  0001 C CNN
+F 3 "" H 5150 1000 50  0001 C CNN
+	1    5150 1000
+	0    -1   -1   0   
+$EndComp
+NoConn ~ 6050 1700
+Text GLabel 6050 1300 0    50   BiDi ~ 0
+SDA
+Text GLabel 6050 1200 0    50   BiDi ~ 0
+SCL
+$Comp
+L power:GND #PWR045
+U 1 1 61DA9850
+P 6050 1100
+F 0 "#PWR045" H 6050 850 50  0001 C CNN
+F 1 "GND" V 6050 900 50  0000 C CNN
+F 2 "" H 6050 1100 50  0001 C CNN
+F 3 "" H 6050 1100 50  0001 C CNN
+	1    6050 1100
+	0    1    1    0   
+$EndComp
+$Comp
+L power:+3V3 #PWR044
+U 1 1 61DA9856
+P 6050 1000
+F 0 "#PWR044" H 6050 850 50  0001 C CNN
+F 1 "+3V3" V 6065 1128 50  0000 L CNN
+F 2 "" H 6050 1000 50  0001 C CNN
+F 3 "" H 6050 1000 50  0001 C CNN
+	1    6050 1000
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:GND #PWR046
+U 1 1 61DA985C
+P 6050 1400
+F 0 "#PWR046" H 6050 1150 50  0001 C CNN
+F 1 "GND" V 6050 1200 50  0000 C CNN
+F 2 "" H 6050 1400 50  0001 C CNN
+F 3 "" H 6050 1400 50  0001 C CNN
+	1    6050 1400
+	0    1    1    0   
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x08 J17
+U 1 1 61DA9862
+P 6250 1300
+F 0 "J17" H 6330 1292 50  0000 L CNN
+F 1 "CCS811" H 6330 1201 50  0000 L CNN
+F 2 "Connector_PinSocket_2.54mm:PinSocket_1x08_P2.54mm_Vertical" H 6250 1300 50  0001 C CNN
+F 3 "~" H 6250 1300 50  0001 C CNN
+	1    6250 1300
+	1    0    0    -1  
+$EndComp
+NoConn ~ 5150 1400
+NoConn ~ 5150 1500
+NoConn ~ 6050 1600
+NoConn ~ 6050 1500
+Wire Wire Line
+	1600 2900 1800 2900
+Connection ~ 1800 2900
+Wire Notes Line
+	500  1550 2650 1550
+Wire Notes Line
+	2650 1550 2650 7000
+Wire Notes Line
+	2650 7000 500  7000
+Wire Notes Line
+	500  7000 500  1550
+Text Notes 500  1550 0    50   ~ 0
+OnBoard I2C
+$Comp
+L Connector_Generic:Conn_01x04 J21
+U 1 1 61C3DFC5
+P 5350 3250
+F 0 "J21" H 5430 3242 50  0000 L CNN
+F 1 "QWIIC" H 5430 3151 50  0000 L CNN
+F 2 "Connector_JST:JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal" H 5350 3250 50  0001 C CNN
+F 3 "~" H 5350 3250 50  0001 C CNN
+	1    5350 3250
+	1    0    0    -1  
+$EndComp
+Text GLabel 5150 3450 0    50   BiDi ~ 0
+SCL
+Text GLabel 5150 3350 0    50   BiDi ~ 0
+SDA
+$Comp
+L power:+3V3 #PWR054
+U 1 1 61C3EFC9
+P 5150 3250
+F 0 "#PWR054" H 5150 3100 50  0001 C CNN
+F 1 "+3V3" V 5150 3400 50  0000 L CNN
+F 2 "" H 5150 3250 50  0001 C CNN
+F 3 "" H 5150 3250 50  0001 C CNN
+	1    5150 3250
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:GND #PWR053
+U 1 1 61C3FAE2
+P 5150 3150
+F 0 "#PWR053" H 5150 2900 50  0001 C CNN
+F 1 "GND" V 5150 2950 50  0000 C CNN
+F 2 "" H 5150 3150 50  0001 C CNN
+F 3 "" H 5150 3150 50  0001 C CNN
+	1    5150 3150
+	0    1    1    0   
+$EndComp
+Text Notes 4000 3600 0    50   ~ 0
+According to https://cdn.sparkfun.com/assets/2/4/7/e/6/SparkFun_Qwiic_Adapter.pdf
+$EndSCHEMATC

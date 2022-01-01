@@ -246,6 +246,39 @@ esp_err_t handle_get_adcexperiment(httpd_req_t *req)
     httpd_resp_send(req, (char *)buf, 4*sizeof(float));
     return ESP_OK;
 }
+esp_err_t handle_put_fftexperiment(httpd_req_t *req){
+    PLCManager *plcmanager = (PLCManager *)(req->user_ctx);
+    int ret=0;
+    int remaining = req->content_len;
+    if(remaining!=32){
+        ESP_LOGE(TAG, "Unexpected data length %d in handle_put_fft_experiment", remaining);
+        return ESP_FAIL;
+    }
+    uint8_t bufU8[remaining] ALL4;
+    while (remaining > 0) {
+        if ((ret = httpd_req_recv(req, (char*)bufU8,  MIN(remaining, sizeof(bufU8)))) <= 0) {
+            if (ret == HTTPD_SOCK_ERR_TIMEOUT) continue;
+            return ESP_FAIL;
+        }
+        remaining -= ret;
+    }
+    float *bufF32 = (float*)bufU8;
+    //uint32_t *bufU32 = (uint32_t*)bufU8;
+    float setpointFan = bufF32[0];
+
+    
+    ESP_LOGI(TAG, "Fetching FFT data");
+    float magnitudes[64];
+    plcmanager->GetHAL()->SetFan1State(setpointFan);
+    plcmanager->GetHAL()->SetFan2State(setpointFan);
+    plcmanager->GetHAL()->GetFFT64(magnitudes);
+    
+    httpd_resp_set_type(req, "application/octet-stream");
+    httpd_resp_send(req, (const char*)magnitudes, sizeof(magnitudes));
+    return ESP_OK;
+}
+
+
 esp_err_t handle_put_heaterexperiment(httpd_req_t *req)
 {    
     PLCManager *plcmanager = (PLCManager *)(req->user_ctx);
@@ -255,10 +288,10 @@ esp_err_t handle_put_heaterexperiment(httpd_req_t *req)
         ESP_LOGE(TAG, "Unexpected Data length %d in experiment_put_handler", remaining);
         return ESP_FAIL;
     }
-    uint8_t buf[remaining];
+    uint8_t bufU8[remaining] ALL4;
     while (remaining > 0) {
         /* Read the data for the request */
-        if ((ret = httpd_req_recv(req, (char*)buf,  MIN(remaining, sizeof(buf)))) <= 0) {
+        if ((ret = httpd_req_recv(req, (char*)bufU8,  MIN(remaining, sizeof(bufU8)))) <= 0) {
             if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
                 /* Retry receiving if timeout occurred */
                 continue;
@@ -268,8 +301,8 @@ esp_err_t handle_put_heaterexperiment(httpd_req_t *req)
         remaining -= ret;
     }
     // End response
-    float *bufF32 = (float*)buf;
-    uint32_t *bufU32 = (uint32_t*)buf;
+    float *bufF32 = (float*)bufU8;
+    uint32_t *bufU32 = (uint32_t*)bufU8;
     uint32_t modeU32 = bufU32[0];
     float setpointTempOrHeater = bufF32[1];
     float setpointFan = bufF32[2];

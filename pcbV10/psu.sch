@@ -3,7 +3,7 @@ EELAYER 30 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 4 4
+Sheet 4 5
 Title ""
 Date ""
 Rev ""
@@ -193,17 +193,6 @@ F 3 "~" H 3650 2500 50  0001 C CNN
 	1    3650 2500
 	-1   0    0    1   
 $EndComp
-$Comp
-L Device:R R32
-U 1 1 618C9B20
-P 3350 2500
-F 0 "R32" H 3420 2546 50  0000 L CNN
-F 1 "22R" H 3420 2455 50  0000 L CNN
-F 2 "Resistor_SMD:R_0603_1608Metric" V 3280 2500 50  0001 C CNN
-F 3 "~" H 3350 2500 50  0001 C CNN
-	1    3350 2500
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	3050 2650 3350 2650
 Wire Wire Line
@@ -288,7 +277,7 @@ L Switch:SW_SPDT SW11
 U 1 1 619A56E0
 P 5550 2650
 F 0 "SW11" H 5550 2935 50  0000 C CNN
-F 1 "24V->5V" H 5550 2844 50  0000 C CNN
+F 1 "ON 24V->5V" H 5550 2844 50  0000 C CNN
 F 2 "liebler_MECH:Switch_SS12D00" H 5550 2650 50  0001 C CNN
 F 3 "~" H 5550 2650 50  0001 C CNN
 	1    5550 2650
@@ -318,4 +307,17 @@ Wire Wire Line
 Wire Wire Line
 	3350 3050 3750 3050
 Connection ~ 3750 3050
+Text Label 3400 2750 0    50   ~ 0
+SW
+$Comp
+L Device:R R32
+U 1 1 618C9B20
+P 3350 2500
+F 0 "R32" H 3420 2546 50  0000 L CNN
+F 1 "22R" H 3420 2455 50  0000 L CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 3280 2500 50  0001 C CNN
+F 3 "~" H 3350 2500 50  0001 C CNN
+	1    3350 2500
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC

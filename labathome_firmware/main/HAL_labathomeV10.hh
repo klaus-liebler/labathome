@@ -3,12 +3,16 @@
 #include "HAL.hh"
 
 #include <inttypes.h>
+#include <algorithm>
 
 #include <driver/mcpwm.h>
 #include <driver/ledc.h>
 #include <driver/adc.h>
 #include <driver/i2c.h>
 #include <driver/rmt.h>
+#include <driver/i2s.h>
+#include <arduinoFFT.h>
+
 #include "errorcodes.hh"
 #include "ws2812_strip.hh"
 #include <bh1750.hh>
@@ -22,47 +26,45 @@
 #include <i2c.hh>
 
 typedef gpio_num_t Pintype;
-//36=VP, 39=VN
-constexpr Pintype PIN_R3_1 = (Pintype)34;//
-constexpr Pintype PIN_MOVEMENT = (Pintype)35;
-constexpr Pintype PIN_SW = (Pintype)36;
-constexpr adc1_channel_t PIN_SW_CHANNEL = ADC1_CHANNEL_6;
-constexpr Pintype PIN_ROTENC_A = (Pintype)39;
-constexpr Pintype PIN_FAN2_DRIVE = (Pintype)2;
-constexpr Pintype PIN_FAN1_SENSE = (Pintype)17;
-constexpr Pintype PIN_SERVO2 = (Pintype)17;
-constexpr Pintype PIN_SPEAKER = (Pintype)25;
-constexpr Pintype PIN_LED_STRIP = (Pintype)15;
 
-constexpr Pintype PIN_MULTI1 = (Pintype)27;
-constexpr Pintype PIN_ONEWIRE = (Pintype)14;
-constexpr Pintype PIN_FAN1_DRIVE = (Pintype)18;
-constexpr Pintype PIN_LED_POWER_WHITE = (Pintype)13;
 
-constexpr Pintype PIN_SPI_MOSI = (Pintype)21;
-constexpr Pintype PIN_I2C_SDA = (Pintype)19;
-constexpr Pintype PIN_I2C_SCL = (Pintype)22;
-constexpr Pintype PIN_SPI_MISO = (Pintype)16;
-constexpr Pintype PIN_SPI_CLK = (Pintype)23;
-constexpr Pintype PIN_SPI_IO1 = (Pintype)4;
-constexpr Pintype PIN_HEATER = (Pintype)12;
-constexpr Pintype PIN_MULTI3 = (Pintype)33;
-constexpr Pintype PIN_MULTI2 = (Pintype)26;
 constexpr Pintype PIN_SPI_IO2 = (Pintype)0;
-constexpr Pintype PIN_R3_ON = (Pintype)32;
-constexpr Pintype PIN_ROTENC_B = (Pintype)5;
+constexpr Pintype PIN_TXD0 = (Pintype)1;
+constexpr Pintype PIN_FAN2_DRIVE = (Pintype)2;
+constexpr Pintype PIN_RXD0 = (Pintype)3;
+constexpr Pintype PIN_SPI_IO1_OR_SERVO2 = (Pintype)4;
+constexpr Pintype PIN_I2S_SD = (Pintype)5; //in November-Version , dann 17
+constexpr Pintype PIN_HEATER_OR_LED_POWER = (Pintype)12;
+constexpr Pintype PIN_I2S_SCK = (Pintype)13;
+constexpr Pintype PIN_ONEWIRE = (Pintype)14;
+constexpr Pintype PIN_LED_WS2812 = (Pintype)15;
+constexpr Pintype PIN_SPI_MISO = (Pintype)16;
+constexpr Pintype PIN_I2S_WS = (Pintype)17; //in November-Version, dann 5
+constexpr Pintype PIN_FAN1_DRIVE_OR_SERVO1 = (Pintype)18;
+constexpr Pintype PIN_I2C_SDA = (Pintype)19;
+constexpr Pintype PIN_SPI_MOSI = (Pintype)21;
+constexpr Pintype PIN_I2C_SCL = (Pintype)22;
+constexpr Pintype PIN_SPI_CLK = (Pintype)23;
+constexpr Pintype PIN_SPEAKER = (Pintype)25;
+constexpr Pintype PIN_MULTI2 = (Pintype)26;
+constexpr Pintype PIN_MULTI1 = (Pintype)27;
+constexpr Pintype PIN_K3_ON = (Pintype)32;
+constexpr Pintype PIN_MULTI3 = (Pintype)33;
+constexpr Pintype PIN_K3A1_OR_ROTB = (Pintype)34;//
+//36=VP, 39=VN
+constexpr Pintype PIN_MOVEMENT_OR_FAN1SENSE = (Pintype)35;
+constexpr Pintype PIN_SW = (Pintype)36;
+constexpr adc1_channel_t PIN_SW_CHANNEL = ADC1_CHANNEL_0;
+constexpr Pintype PIN_ROTENC_A = (Pintype)39;
 
-constexpr Pintype PIN_SERVO1 = PIN_MULTI1;
-constexpr Pintype PIN_I2S_SD = PIN_MULTI1;
+
 constexpr Pintype PIN_485_DI = PIN_MULTI1;
 constexpr Pintype PIN_EXT1 = PIN_MULTI1;
 
 constexpr Pintype PN_485_DE = PIN_MULTI2;
 constexpr Pintype PN_EXT2 = PIN_MULTI2;
-constexpr Pintype PN_I2S_WS = PIN_MULTI2;
 
 constexpr Pintype PN_485_RO = PIN_MULTI3;
-constexpr Pintype PN_I2S_SCK = PIN_MULTI3;
 constexpr Pintype PN_EXT3 = PIN_MULTI3;
 
 struct Note
@@ -73,25 +75,36 @@ struct Note
 
 #include "songs.hh"
 
-enum class MODE_IO33
+enum class MODE_SPI_IO1_OR_SERVO2
 {
+    SPI_IO1,
     SERVO2,
-    FAN1_SENSE,
 };
 
-enum class MODE_MULTI1_PIN
-{
-    I2S,
-    RS485,
+enum class MODE_HEATER_OR_LED_POWER{
+    HEATER,
+    LED_POWER,
+};
+
+enum class MODE_K3A1_OR_ROTB{
+    K3A1,
+    ROTB,
+};
+
+enum class MODE_MOVEMENT_OR_FAN1SENSE{
+    MOVEMENT_SENSOR,
+    FAN1SENSE,
+};
+
+enum class MODE_FAN1_DRIVE_OR_SERVO1{
+    FAN1_DRIVE,
     SERVO1,
-    EXT,
 };
 
-enum class MODE_MULTI_2_3_PINS
+enum class MODE_RS485_OR_EXT
 {
-    I2S,
+
     RS485,
-    CAN,
     EXT,
 };
 
@@ -114,7 +127,19 @@ constexpr uint16_t sw_limits[7] = {160, 480, 1175, 1762, 2346, 2779, 3202};
 constexpr int SERVO_MIN_PULSEWIDTH = 500;  //Minimum pulse width in microsecond
 constexpr int SERVO_MAX_PULSEWIDTH = 2400; //Maximum pulse width in microsecond
 constexpr int SERVO_MAX_DEGREE = 180;      //Maximum angle in degree upto which servo can rotate
+constexpr ledc_timer_bit_t power_ledc_timer_duty_resolution = LEDC_TIMER_10_BIT;
 
+constexpr i2s_port_t I2S_PORT{I2S_NUM_1};
+constexpr int average_over_N_measurements{10};
+constexpr int SAMPLES {2048};
+constexpr int SAMPLE_RATE{22050};
+constexpr uint8_t AMPLITUDE = 150;
+constexpr uint16_t FREQUENCIES[]{11,22,32,43,54,65,75,97,118,140,161,183,205,226,258,291,323,355,388,431,474,517,560,614,668,721,786,851,915,991,1066,1152,1238,1335,1443,1550,1669,1798,1938,2089,2239,2401,2584,2778,2982,3198,3435,3682,3951,4231,4533,4856,5200,5566,5965,6385,6837,7321,7838,8398,8990,9625,10304,11025};
+constexpr uint16_t BUCKET_INDICES[]{1,2,3,4,5,6,7,9,11,13,15,17,19,21,24,27,30,33,36,40,44,48,52,57,62,67,73,79,85,92,99,107,115,124,134,144,155,167,180,194,208,223,240,258,277,297,319,342,367,393,421,451,483,517,554,593,635,680,728,780,835,894,957,1024};
+int32_t samplesI32[SAMPLES]; //The slave serial-data port’s format is I²S, 24-bit, twos complement, There must be 64 SCK cycles in each WS stereo frame, or 32 SCK cycles per data-word.
+double real[SAMPLES];
+double imag[SAMPLES];
+arduinoFFT fft(real, imag, SAMPLES, SAMPLE_RATE);
 extern "C" void sensorTask(void *pvParameters);
 
 class HAL_labathome : public HAL
@@ -122,9 +147,12 @@ class HAL_labathome : public HAL
 private:
     bool movementIsDetected = false;
     esp_adc_cal_characteristics_t *adc_chars;
-    MODE_IO33 mode_io33;
-    MODE_MULTI1_PIN mode_multi1;
-    MODE_MULTI_2_3_PINS mode_multi23;
+    MODE_SPI_IO1_OR_SERVO2 mode_SPI_IO1_OR_SERVO2;
+    MODE_HEATER_OR_LED_POWER mode_HEATER_OR_LED_POWER;
+    MODE_K3A1_OR_ROTB mode_K3A1_OR_ROTB;
+    MODE_MOVEMENT_OR_FAN1SENSE mode_MOVEMENT_OR_FAN1SENSE;
+    MODE_FAN1_DRIVE_OR_SERVO1 mode_FAN1_DRIVE_OR_SERVO1;
+    MODE_RS485_OR_EXT mode_RS485_OR_EXT;
     bool needLedStripUpdate = false;
     uint32_t songNumber = 0;
     int32_t song_nextNoteIndex = 0;
@@ -148,7 +176,7 @@ private:
     //Actor Values
     uint16_t pca9685Values[16];
 public:
-    HAL_labathome(MODE_IO33 mode_io33, MODE_MULTI1_PIN mode_multi1, MODE_MULTI_2_3_PINS mode_multi23) : mode_io33(mode_io33), mode_multi1(mode_multi1), mode_multi23(mode_multi23)
+    HAL_labathome(MODE_SPI_IO1_OR_SERVO2 mode_SPI_IO1_OR_SERVO2, MODE_HEATER_OR_LED_POWER mode_HEATER_OR_LED_POWER, MODE_K3A1_OR_ROTB mode_K3A1_OR_ROTB, MODE_MOVEMENT_OR_FAN1SENSE mode_MOVEMENT_OR_FAN1SENSE, MODE_FAN1_DRIVE_OR_SERVO1 mode_FAN1_DRIVE_OR_SERVO1, MODE_RS485_OR_EXT mode_RS485_OR_EXT) : mode_SPI_IO1_OR_SERVO2(mode_SPI_IO1_OR_SERVO2), mode_HEATER_OR_LED_POWER(mode_HEATER_OR_LED_POWER), mode_K3A1_OR_ROTB(mode_K3A1_OR_ROTB), mode_MOVEMENT_OR_FAN1SENSE(mode_MOVEMENT_OR_FAN1SENSE),  mode_FAN1_DRIVE_OR_SERVO1(mode_FAN1_DRIVE_OR_SERVO1), mode_RS485_OR_EXT(mode_RS485_OR_EXT)
     {
     }
 
@@ -270,7 +298,7 @@ public:
 
         while (true)
         {
-            this->movementIsDetected = gpio_get_level(PIN_MOVEMENT);
+            this->movementIsDetected = gpio_get_level(PIN_MOVEMENT_OR_FAN1SENSE);
             int adc_reading = adc1_get_raw(PIN_SW_CHANNEL);
             //uint32_t voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
             //printf("Raw: %d\tVoltage: %dmV\n", adc_reading, voltage);
@@ -366,20 +394,89 @@ public:
         return ErrorCode::OK;
     }
 
-    static constexpr auto power_ledc_timer_duty_resolution = LEDC_TIMER_10_BIT;
+
+    //see https://github.com/squix78/esp32-mic-fft/blob/master/esp32-mic-fft.ino
+    ErrorCode GetFFT64(float *magnitudes64_param){
+        for (int i = 1; i < 64; i++){
+            magnitudes64_param[i]=0;
+        }
+        int32_t minimum{INT32_MAX};
+        int32_t maximum{INT32_MIN};      
+        for(int cnt=0;cnt<average_over_N_measurements;cnt++){
+            float magnitudes64[64];
+            size_t num_bytes_read{0};
+            if (ESP_OK != i2s_read(I2S_PORT, samplesI32, sizeof(uint32_t) * SAMPLES, &num_bytes_read, portMAX_DELAY)){
+                ESP_LOGE(TAG, "ESP_OK!=i2s_read");
+                return ErrorCode::GENERIC_ERROR;
+            }
+            int samples_read = num_bytes_read / sizeof(int32_t);
+
+            for (int i = 0; i < samples_read; i++){
+                
+                minimum = std::min(minimum, samplesI32[i]);
+                maximum = std::max(maximum, samplesI32[i]);
+                int16_t sample = samplesI32[i] >> 14; //>>16 to be on the veeeeery safe side, but then "normal" voice is even tooo quiet in replay
+                real[i] = sample;
+                imag[i]=0.0;
+            }
+            fft.Windowing(FFT_WIN_TYP_HANN, FFT_FORWARD);
+            fft.Compute(FFT_FORWARD);
+            fft.ComplexToMagnitude();
+            size_t resultPointer = 1;
+            magnitudes64[0]= (float)std::max({real[2],real[3], real[4], real[5], real[6], real[7]});
+            for (int i = 1; i < 64; i++){
+                while(resultPointer<BUCKET_INDICES[i]){
+                    magnitudes64[i]=std::max(magnitudes64[i], (float)real[resultPointer]);
+                    resultPointer++;
+                }
+                magnitudes64_param[i]+=magnitudes64[i];
+            }
+        }
+        for (int i = 1; i < 64; i++){
+            magnitudes64_param[i]/=average_over_N_measurements;
+        }
+        ESP_LOGI(TAG, "Microphone MAX %d an MIN %d", maximum, minimum);
+        return ErrorCode::OK;
+    }
+
+
 
     ErrorCode Init()
     {
-        if (mode_io33 == MODE_IO33::FAN1_SENSE)
+        if(mode_SPI_IO1_OR_SERVO2!=MODE_SPI_IO1_OR_SERVO2::SERVO2
+            || mode_HEATER_OR_LED_POWER != MODE_HEATER_OR_LED_POWER::LED_POWER
+            || mode_K3A1_OR_ROTB!=MODE_K3A1_OR_ROTB::ROTB
+            || mode_MOVEMENT_OR_FAN1SENSE!=MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR
+            || mode_FAN1_DRIVE_OR_SERVO1!=MODE_FAN1_DRIVE_OR_SERVO1::FAN1_DRIVE
+            || mode_RS485_OR_EXT!=MODE_RS485_OR_EXT::RS485){
             return ErrorCode::NOT_YET_IMPLEMENTED;
+        }
 
-        gpio_pad_select_gpio((uint8_t)PIN_R3_1);
-        gpio_set_direction(PIN_R3_1, GPIO_MODE_INPUT);
-        gpio_set_pull_mode(PIN_R3_1, GPIO_FLOATING);
+        // i2s config for reading from left channel of I2S - this is standard for microphones
+        i2s_config_t i2sMemsConfigLeftChannel = {};
+        i2sMemsConfigLeftChannel.mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX);
+        i2sMemsConfigLeftChannel.sample_rate = SAMPLE_RATE;
+        i2sMemsConfigLeftChannel.bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT;
+        i2sMemsConfigLeftChannel.channel_format = I2S_CHANNEL_FMT_ONLY_LEFT;
+        i2sMemsConfigLeftChannel.communication_format = I2S_COMM_FORMAT_STAND_I2S;
+        i2sMemsConfigLeftChannel.intr_alloc_flags = ESP_INTR_FLAG_LEVEL1;
+        i2sMemsConfigLeftChannel.dma_buf_count = 4;
+        i2sMemsConfigLeftChannel.dma_buf_len = 1024;
+        i2sMemsConfigLeftChannel.use_apll = false;
+        i2sMemsConfigLeftChannel.tx_desc_auto_clear = false;
+        i2sMemsConfigLeftChannel.fixed_mclk = 0;
+        i2s_pin_config_t i2sPins = {};
+        i2sPins.bck_io_num = PIN_I2S_SCK;
+        i2sPins.ws_io_num = PIN_I2S_WS;
+        i2sPins.data_out_num = I2S_PIN_NO_CHANGE;
+        i2sPins.data_in_num = PIN_I2S_SD;
+        i2s_driver_install(I2S_PORT, &i2sMemsConfigLeftChannel, 0, NULL);
+        i2s_set_pin(I2S_PORT, &i2sPins);
 
-        gpio_pad_select_gpio((uint8_t)PIN_MOVEMENT);
-        gpio_set_direction(PIN_MOVEMENT, GPIO_MODE_INPUT);
-        gpio_set_pull_mode(PIN_MOVEMENT, GPIO_FLOATING);
+        gpio_pad_select_gpio((uint8_t)PIN_K3A1_OR_ROTB);
+        gpio_set_direction(PIN_K3A1_OR_ROTB, GPIO_MODE_INPUT);
+        gpio_set_pull_mode(PIN_K3A1_OR_ROTB, GPIO_FLOATING);
+
 
         adc_chars = (esp_adc_cal_characteristics_t *)calloc(1, sizeof(esp_adc_cal_characteristics_t));
         esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_0db, ADC_WIDTH_BIT_12, DEFAULT_VREF, adc_chars);
@@ -390,20 +487,18 @@ public:
         gpio_set_direction(PIN_ROTENC_A, GPIO_MODE_INPUT);
         gpio_set_pull_mode(PIN_ROTENC_A, GPIO_FLOATING);
 
-        gpio_pad_select_gpio((uint8_t)PIN_ROTENC_B);
-        gpio_set_direction(PIN_ROTENC_B, GPIO_MODE_INPUT);
-        gpio_set_pull_mode(PIN_ROTENC_B, GPIO_PULLUP_ONLY);
-
-        gpio_set_level(PIN_R3_ON, 0);
-        gpio_pad_select_gpio((uint8_t)PIN_R3_ON);
-        gpio_set_direction(PIN_R3_ON, GPIO_MODE_OUTPUT);
-        gpio_set_pull_mode(PIN_R3_ON, GPIO_FLOATING);
+        gpio_set_level(PIN_K3_ON, 0);
+        gpio_pad_select_gpio((uint8_t)PIN_K3_ON);
+        gpio_set_direction(PIN_K3_ON, GPIO_MODE_OUTPUT);
+        gpio_set_pull_mode(PIN_K3_ON, GPIO_FLOATING);
 
         //Servos
-        mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0A, PIN_SERVO1);
-        if (mode_io33 == MODE_IO33::SERVO2)
+        if(mode_FAN1_DRIVE_OR_SERVO1==MODE_FAN1_DRIVE_OR_SERVO1::SERVO1){
+            mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0A, PIN_FAN1_DRIVE_OR_SERVO1);
+        }
+        if (mode_SPI_IO1_OR_SERVO2==MODE_SPI_IO1_OR_SERVO2::SERVO2)
         {
-            mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0B, PIN_SERVO2);
+            mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0B, PIN_SPI_IO1_OR_SERVO2);
         }
         mcpwm_config_t pwm_config;
         pwm_config.frequency = 50; //frequency = 50Hz, i.e. for every servo motor time period should be 20ms
@@ -414,7 +509,9 @@ public:
         ESP_ERROR_CHECK(mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_0, &pwm_config)); //Configure PWM0A & PWM0B with above settings
 
         //Fans
-        mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM1A, PIN_FAN1_DRIVE);
+        if(mode_FAN1_DRIVE_OR_SERVO1==MODE_FAN1_DRIVE_OR_SERVO1::FAN1_DRIVE){
+            mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM1A, PIN_FAN1_DRIVE_OR_SERVO1);
+        }
         mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM1B, PIN_FAN2_DRIVE);
         pwm_config.frequency = 50;
         pwm_config.cmpr_a = 0; //duty cycle of PWMxA = 0
@@ -424,32 +521,38 @@ public:
         ESP_ERROR_CHECK(mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_1, &pwm_config));
 
         //Heater
-        mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM2A, PIN_HEATER);
-        pwm_config.frequency = 20;
-        pwm_config.cmpr_a = 0; //duty cycle of PWMxA = 0
-        pwm_config.cmpr_b = 0; //duty cycle of PWMxb = 0
-        pwm_config.counter_mode = MCPWM_UP_COUNTER;
-        pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
-        ESP_ERROR_CHECK(mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_2, &pwm_config));
+        if(mode_HEATER_OR_LED_POWER==MODE_HEATER_OR_LED_POWER::HEATER){
+            mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM2A, PIN_HEATER_OR_LED_POWER);
+            pwm_config.frequency = 20;
+            pwm_config.cmpr_a = 0; //duty cycle of PWMxA = 0
+            pwm_config.cmpr_b = 0; //duty cycle of PWMxb = 0
+            pwm_config.counter_mode = MCPWM_UP_COUNTER;
+            pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
+            ESP_ERROR_CHECK(mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_2, &pwm_config));
+        }
+        else if(mode_HEATER_OR_LED_POWER==MODE_HEATER_OR_LED_POWER::LED_POWER){
+            //White Power LED
+            ledc_timer_config_t power_ledc_timer;
+            power_ledc_timer.duty_resolution = power_ledc_timer_duty_resolution; // resolution of PWM duty
+            power_ledc_timer.freq_hz = 500;                                      // frequency of PWM signal
+            power_ledc_timer.speed_mode = LEDC_HIGH_SPEED_MODE;                  // timer mode
+            power_ledc_timer.timer_num = LEDC_TIMER_0;                           // timer index
+            power_ledc_timer.clk_cfg = LEDC_AUTO_CLK;
+            ESP_ERROR_CHECK(ledc_timer_config(&power_ledc_timer));
 
-        //White Power LED
-        ledc_timer_config_t power_ledc_timer;
-        power_ledc_timer.duty_resolution = power_ledc_timer_duty_resolution; // resolution of PWM duty
-        power_ledc_timer.freq_hz = 500;                                      // frequency of PWM signal
-        power_ledc_timer.speed_mode = LEDC_HIGH_SPEED_MODE;                  // timer mode
-        power_ledc_timer.timer_num = LEDC_TIMER_0;                           // timer index
-        power_ledc_timer.clk_cfg = LEDC_AUTO_CLK;
-        ESP_ERROR_CHECK(ledc_timer_config(&power_ledc_timer));
+            ledc_channel_config_t ledc_channel;
+            ledc_channel.channel = LEDC_CHANNEL_0;
+            ledc_channel.duty = 0;
+            ledc_channel.gpio_num = PIN_HEATER_OR_LED_POWER;
+            ledc_channel.speed_mode = LEDC_HIGH_SPEED_MODE;
+            ledc_channel.hpoint = 0;
+            ledc_channel.timer_sel = LEDC_TIMER_0;
+            ledc_channel.intr_type=LEDC_INTR_DISABLE;
+            ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
+        }
 
-        ledc_channel_config_t ledc_channel;
-        ledc_channel.channel = LEDC_CHANNEL_0;
-        ledc_channel.duty = 0;
-        ledc_channel.gpio_num = PIN_LED_POWER_WHITE;
-        ledc_channel.speed_mode = LEDC_HIGH_SPEED_MODE;
-        ledc_channel.hpoint = 0;
-        ledc_channel.timer_sel = LEDC_TIMER_0;
-        ledc_channel.intr_type=LEDC_INTR_DISABLE;
-        ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
+
+
         
         //Buzzer
         ledc_timer_config_t buzzer_timer;
@@ -486,12 +589,13 @@ public:
 
         //LED Strip
         strip = new WS2812_Strip<LED_NUMBER>();
-        ESP_ERROR_CHECK(strip->Init(VSPI_HOST, PIN_LED_STRIP, 2 ));
+        ESP_ERROR_CHECK(strip->Init(VSPI_HOST, PIN_LED_WS2812, 2 ));
         ESP_ERROR_CHECK(strip->Clear(100));
-
-        rotenc=new cRotaryEncoder((pcnt_unit_t)0, PIN_ROTENC_A, PIN_ROTENC_B, -100, 100);
-        rotenc->Init();
-        rotenc->Start();
+        if(mode_K3A1_OR_ROTB==MODE_K3A1_OR_ROTB::ROTB){
+            rotenc=new cRotaryEncoder((pcnt_unit_t)0, PIN_ROTENC_A, PIN_K3A1_OR_ROTB, -100, 100);
+            rotenc->Init();
+            rotenc->Start();
+        }
 
         xTaskCreate(sensorTask, "sensorTask", 4096 * 4, this, 6, NULL);
 
@@ -588,7 +692,7 @@ public:
 
     ErrorCode SetRelayState(bool state)
     {
-        gpio_set_level(PIN_R3_ON, state);
+        gpio_set_level(PIN_K3_ON, state);
         return ErrorCode::OK;
     }
 

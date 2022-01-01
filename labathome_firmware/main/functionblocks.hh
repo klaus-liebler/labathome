@@ -5,6 +5,29 @@
 #include "math.h"
 #include "crgb.hh"
 
+class FB_ConstTrue: public FunctionBlock{
+    size_t output;
+    public:
+        ErrorCode execute(FBContext *ctx){
+            ctx->SetBinary(output, true);
+            return ErrorCode::OK;
+        }
+        FB_ConstTrue(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
+        ~FB_ConstTrue(){}
+};
+
+class FB_ConstFalse: public FunctionBlock{
+    size_t output;
+    public:
+        ErrorCode execute(FBContext *ctx){
+            ctx->SetBinary(output, false);
+            return ErrorCode::OK;
+        }
+        FB_ConstFalse(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
+        ~FB_ConstFalse(){}
+};
+
+
 class FB_GreenButton: public FunctionBlock{
     size_t output;
     public:
@@ -54,7 +77,7 @@ class FB_AmbientBrigthnessSensor:public FunctionBlock{
         ~FB_AmbientBrigthnessSensor(){}
 };
 
-class FB_AirTemperatureSensor:public FunctionBlock{
+class FB_AirTemperatureBMESensor:public FunctionBlock{
     size_t output;
     public:
         ErrorCode execute(FBContext *ctx){
@@ -64,8 +87,8 @@ class FB_AirTemperatureSensor:public FunctionBlock{
             ctx->SetInteger(output, int_value);
             return ErrorCode::OK;
         }
-        FB_AirTemperatureSensor(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
-        ~FB_AirTemperatureSensor(){}
+        FB_AirTemperatureBMESensor(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
+        ~FB_AirTemperatureBMESensor(){}
 };
 
 
@@ -212,6 +235,28 @@ class FB_Relay: public FunctionBlock{
         ~FB_Relay(){}
 };
 
+class FB_FAN1: public FunctionBlock{
+    size_t input;
+    public:
+        ErrorCode execute(FBContext *ctx){
+            ctx->GetHAL()->SetFan1State(ctx->GetInteger(input));
+            return ErrorCode::OK;;
+        }
+        FB_FAN1(uint32_t IdOnWebApp, size_t input):FunctionBlock(IdOnWebApp), input(input){}
+        ~FB_FAN1(){}
+};
+
+class FB_FAN2: public FunctionBlock{
+    size_t input;
+    public:
+        ErrorCode execute(FBContext *ctx){
+            ctx->GetHAL()->SetFan2State(ctx->GetInteger(input));
+            return ErrorCode::OK;;
+        }
+        FB_FAN2(uint32_t IdOnWebApp, size_t input):FunctionBlock(IdOnWebApp), input(input){}
+        ~FB_FAN2(){}
+};
+
 class FB_Bool2ColorConverter: public FunctionBlock{
     size_t input;
     size_t output;
@@ -261,6 +306,111 @@ class FB_OR2: public FunctionBlock{
         ~FB_OR2(){}
 };
 
+class FB_XOR2: public FunctionBlock{
+    size_t inputA;
+    size_t inputB;
+    size_t output;
+    
+    public:
+        ErrorCode execute(FBContext *ctx)
+        {
+            ctx->SetBinary(this->output, ctx->GetBinary(inputA) != ctx->GetBinary(inputB));
+            return ErrorCode::OK;;
+        }
+        FB_XOR2(uint32_t IdOnWebApp, size_t inputA, size_t inputB, size_t output):FunctionBlock(IdOnWebApp), inputA(inputA), inputB(inputB), output(output){}
+        ~FB_XOR2(){}
+};
+
+class FB_ADD2: public FunctionBlock{
+    size_t inputA;
+    size_t inputB;
+    size_t output;
+    
+    public:
+        ErrorCode execute(FBContext *ctx)
+        {
+            ctx->SetInteger(this->output, ctx->GetInteger(inputA) + ctx->GetInteger(inputB));
+            return ErrorCode::OK;;
+        }
+        FB_ADD2(uint32_t IdOnWebApp, size_t inputA, size_t inputB, size_t output):FunctionBlock(IdOnWebApp), inputA(inputA), inputB(inputB), output(output){}
+        ~FB_ADD2(){}
+};
+
+class FB_SUB2: public FunctionBlock{
+    size_t inputA;
+    size_t inputB;
+    size_t output;
+    
+    public:
+        ErrorCode execute(FBContext *ctx)
+        {
+            ctx->SetInteger(this->output, ctx->GetInteger(inputA) - ctx->GetInteger(inputB));
+            return ErrorCode::OK;;
+        }
+        FB_SUB2(uint32_t IdOnWebApp, size_t inputA, size_t inputB, size_t output):FunctionBlock(IdOnWebApp), inputA(inputA), inputB(inputB), output(output){}
+        ~FB_SUB2(){}
+};
+
+class FB_MULTIPLY: public FunctionBlock{
+    size_t inputA;
+    size_t inputB;
+    size_t output;
+    
+    public:
+        ErrorCode execute(FBContext *ctx)
+        {
+            ctx->SetInteger(this->output, ctx->GetInteger(inputA) * ctx->GetInteger(inputB));
+            return ErrorCode::OK;;
+        }
+        FB_MULTIPLY(uint32_t IdOnWebApp, size_t inputA, size_t inputB, size_t output):FunctionBlock(IdOnWebApp), inputA(inputA), inputB(inputB), output(output){}
+        ~FB_MULTIPLY(){}
+};
+
+class FB_DIVIDE: public FunctionBlock{
+    size_t inputA;
+    size_t inputB;
+    size_t output;
+    
+    public:
+        ErrorCode execute(FBContext *ctx)
+        {
+            ctx->SetInteger(this->output, ctx->GetInteger(inputA) / ctx->GetInteger(inputB));
+            return ErrorCode::OK;;
+        }
+        FB_DIVIDE(uint32_t IdOnWebApp, size_t inputA, size_t inputB, size_t output):FunctionBlock(IdOnWebApp), inputA(inputA), inputB(inputB), output(output){}
+        ~FB_DIVIDE(){}
+};
+
+class FB_MAX: public FunctionBlock{
+    size_t inputA;
+    size_t inputB;
+    size_t output;
+    
+    public:
+        ErrorCode execute(FBContext *ctx)
+        {
+            ctx->SetInteger(this->output, std::max(ctx->GetInteger(inputA), ctx->GetInteger(inputB)));
+            return ErrorCode::OK;;
+        }
+        FB_MAX(uint32_t IdOnWebApp, size_t inputA, size_t inputB, size_t output):FunctionBlock(IdOnWebApp), inputA(inputA), inputB(inputB), output(output){}
+        ~FB_MAX(){}
+};
+
+class FB_MIN: public FunctionBlock{
+    size_t inputA;
+    size_t inputB;
+    size_t output;
+    
+    public:
+        ErrorCode execute(FBContext *ctx)
+        {
+            ctx->SetInteger(this->output, std::min(ctx->GetInteger(inputA), ctx->GetInteger(inputB)));
+            return ErrorCode::OK;;
+        }
+        FB_MIN(uint32_t IdOnWebApp, size_t inputA, size_t inputB, size_t output):FunctionBlock(IdOnWebApp), inputA(inputA), inputB(inputB), output(output){}
+        ~FB_MIN(){}
+};
+
 class FB_GT: public FunctionBlock{
     size_t inputA;
     size_t inputB;
@@ -307,6 +457,53 @@ class FB_RS: public FunctionBlock{
         }
         FB_RS(uint32_t IdOnWebApp, size_t inputR, size_t inputS, size_t output):FunctionBlock(IdOnWebApp), inputR(inputR), inputS(inputS), output(output), state(false){}
         ~FB_RS(){}
+};
+
+class FB_SR: public FunctionBlock{
+    size_t inputR;
+    size_t inputS;
+    size_t output;
+    bool state;
+    
+    public:
+        ErrorCode execute(FBContext *ctx)
+        {
+            if(ctx->GetBinary(inputS)) state = true;
+            else if(ctx->GetBinary(inputR)) state=false;
+            ctx->SetBinary(this->output, state);
+            return ErrorCode::OK;
+        }
+        FB_SR(uint32_t IdOnWebApp, size_t inputR, size_t inputS, size_t output):FunctionBlock(IdOnWebApp), inputR(inputR), inputS(inputS), output(output), state(false){}
+        ~FB_SR(){}
+};
+
+class FB_CNT: public FunctionBlock{
+    size_t inputTrigger;
+    size_t inputReset;
+    size_t inputPreset;
+    size_t output;
+    size_t outputCurrentValue;
+    
+
+    int _CurrentValue=0;
+    bool lastInputValue=false;
+    
+    public:
+        ErrorCode execute(FBContext *ctx)
+        {
+            bool iv = ctx->GetBinary(this->inputTrigger);
+            bool PV = ctx->GetBinary(this->inputPreset);
+            if(ctx->GetBinary(this->inputReset)){
+                this->_CurrentValue=0;
+            }else if (this->lastInputValue==false && iv==true && this->_CurrentValue<PV){
+                this->_CurrentValue++;
+            }
+            ctx->SetBinary(this->output, this->_CurrentValue>=PV);
+            ctx->SetInteger(this->outputCurrentValue, this->_CurrentValue);
+            return ErrorCode::OK;
+        }
+        FB_CNT(uint32_t IdOnWebApp, size_t inputTrigger, size_t inputReset, size_t inputPreset, size_t output, size_t outputCurrentValue):FunctionBlock(IdOnWebApp), inputTrigger(inputTrigger), inputReset(inputReset), inputPreset(inputPreset), output(output), outputCurrentValue(outputCurrentValue){}
+        ~FB_CNT(){}
 };
 
 class FB_TON: public FunctionBlock{
@@ -377,6 +574,8 @@ class FB_TOF: public FunctionBlock{
         FB_TOF(uint32_t IdOnWebApp, size_t inputTrigger, size_t inputPresetTime_msecs, size_t output, size_t outputElapsedTime_msecs):FunctionBlock(IdOnWebApp), inputTrigger(inputTrigger), inputPresetTime_msecs(inputPresetTime_msecs), output(output), outputElapsedTime_msecs(outputElapsedTime_msecs){}
         ~FB_TOF(){}
 };
+
+
 
 class FB_NOT: public FunctionBlock{
     size_t input;

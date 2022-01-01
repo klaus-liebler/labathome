@@ -1,13 +1,7 @@
 {
 	"folders": [
 		{
-			"path": "doc"
-		},
-		{
 			"path": "labathome_firmware"
-		},
-		{
-			"path": "rtttl2binary"
 		},
 		{
 			"path": "labathome_webui"
@@ -18,86 +12,10 @@
 	],
 	"settings": {
 		"files.associations": {
-			"concepts": "cpp",
-			"cstddef": "cpp",
-			"cstdint": "cpp",
-			"cstdio": "cpp",
-			"cstdlib": "cpp",
-			"cstring": "cpp",
-			"cwchar": "cpp",
-			"exception": "cpp",
-			"initializer_list": "cpp",
-			"limits": "cpp",
-			"new": "cpp",
-			"tuple": "cpp",
-			"type_traits": "cpp",
-			"utility": "cpp",
-			"vector": "cpp",
-			"xmemory": "cpp",
-			"xstddef": "cpp",
-			"xtr1common": "cpp",
-			"xutility": "cpp",
-			"algorithm": "cpp",
-			"array": "cpp",
-			"atomic": "cpp",
-			"cctype": "cpp",
-			"chrono": "cpp",
-			"clocale": "cpp",
-			"cmath": "cpp",
-			"codecvt": "cpp",
-			"condition_variable": "cpp",
-			"csignal": "cpp",
-			"cstdarg": "cpp",
-			"ctime": "cpp",
-			"deque": "cpp",
-			"fstream": "cpp",
-			"functional": "cpp",
-			"future": "cpp",
-			"iomanip": "cpp",
-			"ios": "cpp",
-			"iosfwd": "cpp",
-			"iostream": "cpp",
-			"istream": "cpp",
-			"iterator": "cpp",
-			"list": "cpp",
-			"locale": "cpp",
-			"map": "cpp",
-			"memory": "cpp",
-			"mutex": "cpp",
-			"optional": "cpp",
-			"ostream": "cpp",
-			"queue": "cpp",
-			"random": "cpp",
-			"ratio": "cpp",
-			"set": "cpp",
-			"shared_mutex": "cpp",
-			"sstream": "cpp",
-			"stack": "cpp",
-			"stdexcept": "cpp",
-			"streambuf": "cpp",
-			"string": "cpp",
-			"system_error": "cpp",
-			"thread": "cpp",
-			"typeinfo": "cpp",
-			"unordered_map": "cpp",
-			"unordered_set": "cpp",
-			"xfacet": "cpp",
-			"xhash": "cpp",
-			"xiosbase": "cpp",
-			"xlocale": "cpp",
-			"xlocbuf": "cpp",
-			"xlocinfo": "cpp",
-			"xlocmes": "cpp",
-			"xlocmon": "cpp",
-			"xlocnum": "cpp",
-			"xloctime": "cpp",
-			"xstring": "cpp",
-			"xtree": "cpp",
 			"*.ipp": "cpp",
-			"*.rh": "cpp",
-			"spiffs cc": "cpp"
+			"cmath": "cpp",
+			"algorithm": "cpp"
 		},
-		"liveServer.settings.multiRootWorkspaceName": "webui"
-	},
-	
+		"liveServer.settings.multiRootWorkspaceName": "labathome_webui"
+	}
 }

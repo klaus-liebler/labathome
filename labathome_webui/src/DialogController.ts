@@ -15,16 +15,16 @@ export class DialogController {
     public init() {
 
         document.getElementById('dialog-close')!.onclick = (e) => {
-            this.dialog.close("cancelled");
+            //this.dialog.close("cancelled");
         }
-        this.dialog.oncancel = (e) => {
-            this.dialog.close("cancelled");
-        }
+        //this.dialog.oncancel = (e) => {
+            //this.dialog.close("cancelled");
+        //}
 
         // close when clicking on backdrop
         this.dialog.onclick = (event) => {
             if (event.target === this.dialog) {
-                this.dialog.close('cancelled');
+                //this.dialog.close('cancelled');
             }
         }
     }
@@ -36,10 +36,10 @@ export class DialogController {
         let fileInput= <HTMLInputElement>$.Html(this.dialogBody, "input", ["pattern", "^[A-Za-z0-9]{1,10}$"], []);
         this.dialogFooter.innerText="";
         $.Html(this.dialogFooter, "button", [], [], "OK").onclick=(e)=>{
-            this.dialog.close('OK');
+            //this.dialog.close('OK');
             if(handler!=null) handler(fileInput.value);
         };
-        this.dialog.showModal();
+       // this.dialog.showModal();
     }
 
     public showOKDialog(priority: number, messageText:string, handler: ((a:string)=>any)|null) {
@@ -48,10 +48,10 @@ export class DialogController {
         this.dialogBody.innerText=messageText;
         this.dialogFooter.innerText="";
         $.Html(this.dialogFooter, "button", ["type", "button"], [], "OK").onclick=(e)=>{
-            this.dialog.close('cancelled');
+            //this.dialog.close('cancelled');
             if(handler!=null) handler("OK");
         };
-        this.dialog.showModal();
+        //this.dialog.showModal();
     }
 
     private prepareDialog()
@@ -66,7 +66,7 @@ export class DialogController {
         this.prepareDialog();
         this.dialogHeading.innerText="Please select a file to load"
         $.Html(this.dialogFooter, "button", ["type", "button"], [], "Cancel").onclick=(e)=>{
-            this.dialog.close("cancelled");
+            //this.dialog.close("cancelled");
         };
         let table = <HTMLTableElement>$.Html(this.dialogBody, "table", [], []);
         let thead = <HTMLTableSectionElement>$.Html(table, "thead", [],[]);
@@ -83,18 +83,18 @@ export class DialogController {
             let openButton = $.Html(operationTd, "button", ["type", "button"], []);
             $.SvgIcon(openButton, "folder-open");
             openButton.onclick=(e)=>{
-                this.dialog.close("opened");
+                //this.dialog.close("opened");
                 openhandler(filename);
                 
             };
             let deleteButton=$.Html(operationTd, "button", ["type", "button"], [], );
             $.SvgIcon(deleteButton, "bin2");
             deleteButton.onclick=(e)=>{
-                this.dialog.close("deleted");
+                //this.dialog.close("deleted");
                 deletehandler(filename);
             }
         };
-        this.dialog.showModal();
+        //this.dialog.showModal();
         
     }
 

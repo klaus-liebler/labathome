@@ -5,6 +5,7 @@ import { DialogController } from "./DialogController";
 import { AppManagement } from "./AppManagement";
 import { ADCExperimentController } from "./ADCExperimentController";
 import { AirspeedExperimentController } from "./AirspeedExperimentController";
+import {FFTExperimentController} from "./FFTExperimentController";
 
 class DashboardController extends ScreenController {
     public onFirstStart(): void { }
@@ -84,8 +85,9 @@ class AppController implements AppManagement {
         this.screenControllers.push(new DevelopCFCController(this, <HTMLDivElement>document.getElementById("screen_develop")));
         this.screenControllers.push(new ReportsController(this, <HTMLDivElement>document.getElementById("screen_reports")));
         this.screenControllers.push(new HeaterExperimentController(this, <HTMLDivElement>document.getElementById("screen_heaterexperiment")));
-        this.screenControllers.push(new AirspeedExperimentController(this, <HTMLDivElement>document.getElementById("screen_airspeedexperiment")))
-        this.screenControllers.push(new ADCExperimentController(this, <HTMLDivElement>document.getElementById("screen_adcexperiment")))
+        this.screenControllers.push(new AirspeedExperimentController(this, <HTMLDivElement>document.getElementById("screen_airspeedexperiment")));
+        this.screenControllers.push(new ADCExperimentController(this, <HTMLDivElement>document.getElementById("screen_adcexperiment")));
+        this.screenControllers.push(new FFTExperimentController(this, <HTMLDivElement>document.getElementById("screen_fftexperiment")));
         this.screenControllers.forEach((sc) => sc.onCreate());
 
         this.setActiveScreen(1);

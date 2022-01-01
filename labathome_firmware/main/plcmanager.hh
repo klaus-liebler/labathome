@@ -9,6 +9,8 @@
 #include <vector>
 #include <cstring>
 
+#define ALL4  __attribute__ ((aligned (16)))
+
 
 class FunctionBlock;
 class PIDController;
@@ -93,6 +95,12 @@ struct AirspeedExperimentData{
     float SetpointAirspeed;
     float ActualAirspeed;
 };
+
+struct FFTExperimentData
+{
+    float Magnitudes[64];
+};
+
 
 
 enum class ExperimentMode

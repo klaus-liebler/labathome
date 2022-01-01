@@ -57,15 +57,15 @@ constexpr Pintype PIN_I2S_SCK = PIN_MULTI1;
 constexpr Pintype PIN_485_DE = PIN_MULTI1;
 constexpr Pintype PIN_EXT1 = PIN_MULTI1;
 
-constexpr Pintype PN_485_RO = PIN_MULTI2;
-constexpr Pintype PN_CAN_TX = PIN_MULTI2;
-constexpr Pintype PN_EXT2 = PIN_MULTI2;
-constexpr Pintype PN_I2S_WS = PIN_MULTI2;
+constexpr Pintype PIN_485_RO = PIN_MULTI2;
+constexpr Pintype PIN_CAN_TX = PIN_MULTI2;
+constexpr Pintype PIN_EXT2 = PIN_MULTI2;
+constexpr Pintype PIN_I2S_WS = PIN_MULTI2;
 
-constexpr Pintype PN_485_DI = PIN_MULTI3;
-constexpr Pintype PN_CAN_RX = PIN_MULTI3;
-constexpr Pintype PN_I2S_SD = PIN_MULTI3;
-constexpr Pintype PN_EXT3 = PIN_MULTI3;
+constexpr Pintype PIN_485_DI = PIN_MULTI3;
+constexpr Pintype PIN_CAN_RX = PIN_MULTI3;
+constexpr Pintype PIN_I2S_SD = PIN_MULTI3;
+constexpr Pintype PIN_EXT3 = PIN_MULTI3;
 
 struct Note
 {
@@ -374,6 +374,30 @@ public:
     {
         if (mode_io33 == MODE_IO33::FAN1_SENSE)
             return ErrorCode::NOT_YET_IMPLEMENTED;
+
+        if(mode_multi1!=MODE_MULTI1_PIN::I2S || mode_multi23!=MODE_MULTI_2_3_PINS::I2S)
+            return ErrorCode::NOT_YET_IMPLEMENTED;
+
+        // i2s config for reading from left channel of I2S - this is standard for microphones
+        i2s_config_t i2sMemsConfigLeftChannel = {};
+        i2sMemsConfigLeftChannel.mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX);
+        i2sMemsConfigLeftChannel.sample_rate = SAMPLE_RATE;
+        i2sMemsConfigLeftChannel.bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT;
+        i2sMemsConfigLeftChannel.channel_format = I2S_CHANNEL_FMT_ONLY_RIGHT;
+        i2sMemsConfigLeftChannel.communication_format = I2S_COMM_FORMAT_STAND_I2S;
+        i2sMemsConfigLeftChannel.intr_alloc_flags = ESP_INTR_FLAG_LEVEL1;
+        i2sMemsConfigLeftChannel.dma_buf_count = 4;
+        i2sMemsConfigLeftChannel.dma_buf_len = 1024;
+        i2sMemsConfigLeftChannel.use_apll = false;
+        i2sMemsConfigLeftChannel.tx_desc_auto_clear = false;
+        i2sMemsConfigLeftChannel.fixed_mclk = 0;
+        i2s_pin_config_t i2sPins = {};
+        i2sPins.bck_io_num = PIN_I2S_SCK;
+        i2sPins.ws_io_num = PIN_I2S_WS;
+        i2sPins.data_out_num = I2S_PIN_NO_CHANGE;
+        i2sPins.data_in_num = PIN_I2S_SD;
+        i2s_driver_install(I2S_PORT, &i2sMemsConfigLeftChannel, 0, NULL);
+        i2s_set_pin(I2S_PORT, &i2sPins);
 
         gpio_pad_select_gpio((uint8_t)PIN_R3_1);
         gpio_set_direction(PIN_R3_1, GPIO_MODE_INPUT);

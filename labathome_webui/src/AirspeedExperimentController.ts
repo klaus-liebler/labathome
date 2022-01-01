@@ -1,5 +1,5 @@
 import { $ } from "./utils";
-import Chart from 'chart.js';
+import { Chart} from 'chart.js';
 import { ScreenController } from "./ScreenController";
 import { AppManagement } from "./AppManagement";
 import { SerializeContext } from "./flowchart/SerializeContext";
@@ -22,7 +22,6 @@ export class AirspeedExperimentController extends ScreenController {
     private inputKD: HTMLInputElement;
     private timer: number | undefined;
     private chart: Chart;
-    private chartConfig: Chart.ChartConfiguration;
     private counter = 10 ^ 6;
     private mode: number = 0;
     private seconds = 0;
@@ -47,8 +46,8 @@ export class AirspeedExperimentController extends ScreenController {
     }
 
     private resetData() {
-        this.chartConfig.data!.labels = [];
-        this.chartConfig.data!.datasets!.forEach((dataset) => {
+        this.chart.data!.labels = [];
+        this.chart.data!.datasets!.forEach((dataset) => {
             dataset!.data = [];
         });
         this.chart.update();
@@ -135,17 +134,17 @@ export class AirspeedExperimentController extends ScreenController {
                     $.Html(tr, "td", [], [], this.tfirstRow.children[i].textContent!);
                 }
                 if (this.counter >= CHART_EACH_INTERVAL) {
-                    if (this.chartConfig.data!.labels!.length > 100) {
-                        this.chartConfig.data!.labels?.shift();
-                        this.chartConfig.data!.datasets!.forEach((dataset) => {
+                    if (this.chart.data!.labels!.length > 100) {
+                        this.chart.data!.labels?.shift();
+                        this.chart.data!.datasets!.forEach((dataset) => {
                             dataset!.data!.shift();
                         });
                     }
-                    this.chartConfig.data!.labels!.push(now.toLocaleTimeString("de-DE"));
-                    this.chartConfig.data?.datasets![0].data?.push(SetpointAirspeed);
-                    this.chartConfig.data?.datasets![1].data?.push(ActualAirspeed);
-                    this.chartConfig.data?.datasets![2].data?.push(Fan);
-                    this.chartConfig.data?.datasets![3].data?.push(Servo);
+                    this.chart.data!.labels!.push(now.toLocaleTimeString("de-DE"));
+                    this.chart.data?.datasets![0].data?.push(SetpointAirspeed);
+                    this.chart.data?.datasets![1].data?.push(ActualAirspeed);
+                    this.chart.data?.datasets![2].data?.push(Fan);
+                    this.chart.data?.datasets![3].data?.push(Servo);
                     this.chart.update();
                     this.counter = 0;
                 }
@@ -181,7 +180,8 @@ export class AirspeedExperimentController extends ScreenController {
 
         this.onModeChange(0);
 
-        this.chartConfig = {
+        let ctx = <HTMLCanvasElement>document.getElementById('airspeedexperiment_chart')!;
+        this.chart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: [],
@@ -219,26 +219,17 @@ export class AirspeedExperimentController extends ScreenController {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
-                },
                 hover: {
                     mode: 'nearest',
                     intersect: true
                 },
                 scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true
-                        }
-                    }]
+                    y: {
+                        beginAtZero: true
+                    } 
                 }
             }
-        };
-
-        let ctx = <HTMLCanvasElement>document.getElementById('airspeedexperiment_chart')!;
-        this.chart = new Chart(ctx, this.chartConfig);
+        });
 
 
         document.querySelectorAll('input[name="airspeedexperiment_mode"]').forEach((v, k) => {
@@ -261,7 +252,7 @@ export class AirspeedExperimentController extends ScreenController {
             bubble.style.left = `calc(${newVal}% + (${8 - newVal * 0.15}px))`;
         };
 
-        document.querySelectorAll(".range-wrap").forEach(wrap => {
+        document.querySelectorAll(".range-wrap.airspeedexperiment").forEach(wrap => {
             let range = <HTMLInputElement>wrap.querySelector("input[type='range']")!;
             let bubble = <HTMLOutputElement>wrap.querySelector("output.bubble")!;
             range.oninput = (e) => setBubble(range, bubble);

@@ -22,8 +22,12 @@ static const char *TAG = "main";
 #include "esp_log.h"
 #include "spiffs.hh"
 
-#include "HAL_labathomeV5.hh"
-HAL *hal = new HAL_labathome(MODE_IO33::SERVO2, MODE_MULTI1_PIN::EXT, MODE_MULTI_2_3_PINS::EXT);
+//#include "HAL_labathomeV5.hh"
+//HAL *hal = new HAL_labathome(MODE_IO33::SERVO2, MODE_MULTI1_PIN::I2S, MODE_MULTI_2_3_PINS::I2S);
+#include "HAL_labathomeV10.hh"
+HAL *hal = new HAL_labathome(MODE_SPI_IO1_OR_SERVO2::SERVO2, MODE_HEATER_OR_LED_POWER::LED_POWER, MODE_K3A1_OR_ROTB::ROTB, MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR, MODE_FAN1_DRIVE_OR_SERVO1::FAN1_DRIVE, MODE_RS485_OR_EXT::RS485);
+
+
 //#include "HAL_wroverkit.hh"
 //HAL *hal = new HAL_wroverkit();
 
@@ -186,6 +190,14 @@ static const httpd_uri_t putairspeedexperiment = {
     .user_ctx = plcmanager,
 };
 
+static const httpd_uri_t putfftexperiment = {
+    .uri       = "/fftexperiment",
+    .method    = HTTP_PUT,
+    .handler   = handle_put_fftexperiment,
+    .user_ctx = plcmanager,
+};
+
+
 static const httpd_uri_t getadcexperiment = {
     .uri       = "/adcexperiment",
     .method    = HTTP_GET,
@@ -218,7 +230,8 @@ static httpd_handle_t start_webserver(void)
     
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &putheaterexperiment));
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &putairspeedexperiment));
-    
+    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &putfftexperiment));
+
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &getfbdstorejson));
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &deletefbdstorejson));
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &postfbdstorejson));
@@ -232,7 +245,7 @@ static httpd_handle_t start_webserver(void)
 
 void _lab_error_check_failed(ErrorCode rc, const char *file, int line, const char *function, const char *expression)
 {
-    printf("Error %d occured in File %s in line %d in expression %s", (int)rc, file, line, expression);
+    ESP_LOGE(TAG, "Error %d occured in File %s in line %d in expression %s", (int)rc, file, line, expression);
 }
 
 #ifdef NDEBUG
@@ -289,6 +302,6 @@ void app_main(void)
         ESP_LOGI(TAG, "Run %4d, Heap %6d, RED %d YEL %d ENC %d GRN %d MOV %d HEAT %4.1f AIRT %4.1f PRS %5.0f HUM %3.0f  ", secs, esp_get_free_heap_size(),
             hal->GetButtonRedIsPressed(), hal->GetButtonEncoderIsPressed(), encoderValue, hal->GetButtonGreenIsPressed(),  hal->IsMovementDetected(), heaterTemp, airTemp, airPres, airHumid);
         secs += 5;
-        vTaskDelay(5000 / portTICK_PERIOD_MS);
+        vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }

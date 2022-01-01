@@ -1,5 +1,5 @@
 import { $ } from "./utils";
-import Chart from 'chart.js';
+import { Chart} from 'chart.js';
 import { ScreenController } from "./ScreenController";
 import { AppManagement } from "./AppManagement";
 import { SerializeContext } from "./flowchart/SerializeContext";
@@ -15,7 +15,6 @@ export class ADCExperimentController extends ScreenController {
     private tfirstRow: HTMLTableRowElement;
     private timer: number | undefined;
     private chart: Chart;
-    private chartConfig: Chart.ChartConfiguration;
     private counter = 10 ^ 6;
     private seconds = 0;
 
@@ -38,8 +37,8 @@ export class ADCExperimentController extends ScreenController {
     }
 
     private resetData() {
-        this.chartConfig.data!.labels = [];
-        this.chartConfig.data!.datasets!.forEach((dataset) => {
+        this.chart.data!.labels = [];
+        this.chart.data!.datasets!.forEach((dataset) => {
             dataset!.data = [];
         });
         this.chart.update();
@@ -71,17 +70,17 @@ export class ADCExperimentController extends ScreenController {
                     $.Html(tr, "td", [], [], this.tfirstRow.children[i].textContent!);
                 }
                 if (this.counter >= CHART_EACH_INTERVAL) {
-                    if (this.chartConfig.data!.labels!.length > 100) {
-                        this.chartConfig.data!.labels?.shift();
-                        this.chartConfig.data!.datasets!.forEach((dataset) => {
+                    if (this.chart.data!.labels!.length > 100) {
+                        this.chart.data!.labels?.shift();
+                        this.chart.data!.datasets!.forEach((dataset) => {
                             dataset!.data!.shift();
                         });
                     }
-                    this.chartConfig.data!.labels!.push(now.toLocaleTimeString("de-DE"));
-                    this.chartConfig.data?.datasets![0].data?.push(Values[0]);
-                    this.chartConfig.data?.datasets![1].data?.push(Values[1]);
-                    this.chartConfig.data?.datasets![2].data?.push(Values[2]);
-                    this.chartConfig.data?.datasets![3].data?.push(Values[3]);
+                    this.chart.data!.labels!.push(now.toLocaleTimeString("de-DE"));
+                    this.chart.data?.datasets![0].data?.push(Values[0]);
+                    this.chart.data?.datasets![1].data?.push(Values[1]);
+                    this.chart.data?.datasets![2].data?.push(Values[2]);
+                    this.chart.data?.datasets![3].data?.push(Values[3]);
                     this.chart.update();
                     this.counter = 0;
                 }
@@ -106,8 +105,9 @@ export class ADCExperimentController extends ScreenController {
         this.butDelete = <HTMLButtonElement>document.getElementById("adcexperiment_butDelete")!;
         this.tbody = <HTMLTableSectionElement>document.getElementById("adcexperiment_tabBody")!;
         this.tfirstRow = <HTMLTableRowElement>document.getElementById("adcexperiment_tabFirstRow")!;
-        
-        this.chartConfig = {
+
+        let ctx = <HTMLCanvasElement>document.getElementById('adcexperiment_chart')!;
+        this.chart = new Chart(ctx,{
             type: 'line',
             data: {
                 labels: [],
@@ -145,26 +145,17 @@ export class ADCExperimentController extends ScreenController {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
-                },
                 hover: {
                     mode: 'nearest',
                     intersect: true
                 },
                 scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true
-                        }
-                    }]
+                    y: {
+                        beginAtZero: true
+                    } 
                 }
             }
-        };
-
-        let ctx = <HTMLCanvasElement>document.getElementById('adcexperiment_chart')!;
-        this.chart = new Chart(ctx, this.chartConfig);
+        });
 
         this.butStop.onclick = (e) => {
             this.butStop.hidden = true;

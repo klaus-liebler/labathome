@@ -189,6 +189,7 @@ ErrorCode PLCManager::ParseNewExecutableAndEnqueue(const uint8_t  *buffer, size_
         const uint32_t operatorType = ctx->ReadU32();
         switch (operatorType)
         {
+//#pragma region Basic
         case 1:
         {
             ESP_LOGI(TAG, "Found FB_AND2");
@@ -201,151 +202,248 @@ ErrorCode PLCManager::ParseNewExecutableAndEnqueue(const uint8_t  *buffer, size_
             functionBlocks[cfgIndex] = new FB_OR2(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
         }
         break;
-        case 7:
+        case 3:
         {
-            ESP_LOGI(TAG, "FOUND FB_RS");
-            functionBlocks[cfgIndex] = new FB_RS(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+            ESP_LOGI(TAG, "Found FB_XOR2");
+            functionBlocks[cfgIndex] = new FB_XOR2(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
         }
         break;
-        case 8:
+        case 4:
         {
             ESP_LOGI(TAG, "FOUND FB_NOT");
             functionBlocks[cfgIndex] = new FB_NOT(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
         }
         break;
+        case 5:
+        {
+            ESP_LOGI(TAG, "FOUND FB_RS");
+            functionBlocks[cfgIndex] = new FB_RS(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
+        case 6:
+        {
+            ESP_LOGI(TAG, "FOUND FB_SR");
+            functionBlocks[cfgIndex] = new FB_SR(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
+        case 7:
+        {
+            ESP_LOGI(TAG, "FOUND FB_ConstTrue");
+            functionBlocks[cfgIndex] = new FB_ConstTrue(ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
+        case 8:
+        {
+            ESP_LOGI(TAG, "FOUND FB_ConstFalse");
+            functionBlocks[cfgIndex] = new FB_ConstFalse(ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
         case 9:
         {
-            ESP_LOGI(TAG, "FOUND FB_GreenButton");
-            functionBlocks[cfgIndex] = new FB_GreenButton(ctx->ReadU32(), ctx->ReadU32());
+            ESP_LOGI(TAG, "FOUND FB_CNT");
+            functionBlocks[cfgIndex] = new FB_CNT(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
         }
         break;
-        case 10:
-        {
-            ESP_LOGI(TAG, "FOUND FB_EncoderButton");
-            functionBlocks[cfgIndex] = new FB_EncoderButton(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
+        // case 10:
+        // {
+        //     ESP_LOGI(TAG, "FOUND FB_Timekeeper");
+        //     functionBlocks[cfgIndex] = new FB_Timekeeper(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        // }
+        // break;
         case 11:
-        {
-            ESP_LOGI(TAG, "FOUND FB_RedButton");
-            functionBlocks[cfgIndex] = new FB_RedButton(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 12:
-        {
-            ESP_LOGI(TAG, "FOUND FB_MovementSensor");
-            functionBlocks[cfgIndex] = new FB_MovementSensor(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 13:
-        {
-            ESP_LOGI(TAG, "FOUND FB_AirTemperatureSensor");
-            functionBlocks[cfgIndex] = new FB_AirTemperatureSensor(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 14:
-        {
-            ESP_LOGI(TAG, "FOUND FB_Relay");
-            functionBlocks[cfgIndex] = new FB_Relay(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 15:
-        {
-            ESP_LOGI(TAG, "FOUND FB_RedLED");
-            functionBlocks[cfgIndex] = new FB_RedLED(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 16:
-        {
-            ESP_LOGI(TAG, "FOUND FB_YellowLED");
-            functionBlocks[cfgIndex] = new FB_YellowLED(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 17:
-        {
-            ESP_LOGI(TAG, "FOUND FB_GreenLED");
-            functionBlocks[cfgIndex] = new FB_GreenLED(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 19:
-        {
-            ESP_LOGI(TAG, "FOUND FB_ConstInteger");
-            functionBlocks[cfgIndex] = new FB_ConstInteger(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadS32());
-        }
-        break;
-        case 20:
         {
             ESP_LOGI(TAG, "FOUND FB_TON");
             functionBlocks[cfgIndex] = new FB_TON(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
         }
         break;
-        case 21:
+        case 12:
         {
             ESP_LOGI(TAG, "FOUND FB_TOF");
             functionBlocks[cfgIndex] = new FB_TOF(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
         }
         break;
-        case 22:
+//#pragma endregion Basic
+//#pragma region Arithmetic
+        case 13:
+        {
+            ESP_LOGI(TAG, "Found FB_ADD2");
+            functionBlocks[cfgIndex] = new FB_ADD2(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;   
+        case 14:
+        {
+            ESP_LOGI(TAG, "Found FB_SUB2");
+            functionBlocks[cfgIndex] = new FB_SUB2(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
+        case 15:
+        {
+            ESP_LOGI(TAG, "Found FB_MULTIPLY");
+            functionBlocks[cfgIndex] = new FB_MULTIPLY(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;        
+        case 16:
+        {
+            ESP_LOGI(TAG, "Found FB_DIVIDE");
+            functionBlocks[cfgIndex] = new FB_DIVIDE(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
+        case 17:
+        {
+            ESP_LOGI(TAG, "Found FB_MAX");
+            functionBlocks[cfgIndex] = new FB_MAX(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;        
+        case 18:
+        {
+            ESP_LOGI(TAG, "Found FB_MIN");
+            functionBlocks[cfgIndex] = new FB_MIN(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
+        case 19:
         {
             ESP_LOGI(TAG, "FOUND FB_GT");
             functionBlocks[cfgIndex] = new FB_GT(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
         }
         break;
-        case 23:
+        case 20:
         {
             ESP_LOGI(TAG, "FOUND FB_LT");
             functionBlocks[cfgIndex] = new FB_LT(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
         }
         break;
+        case 21:
+        {
+            ESP_LOGI(TAG, "FOUND FB_ConstInteger");
+            functionBlocks[cfgIndex] = new FB_ConstInteger(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadS32());
+        }
+        break;
+//#pragma endregion Arithmetic
+//#pragma region Converter
         case 24:
+        {
+            ESP_LOGI(TAG, "FOUND FB_Bool2ColorConverter");
+            functionBlocks[cfgIndex] = new FB_Bool2ColorConverter(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;       
+//#pragma endregion Converter
+//#pragma region Input       
+        case 30:
+        {
+            ESP_LOGI(TAG, "FOUND FB_GreenButton");
+            functionBlocks[cfgIndex] = new FB_GreenButton(ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
+        case 31:
+        {
+            ESP_LOGI(TAG, "FOUND FB_EncoderButton");
+            functionBlocks[cfgIndex] = new FB_EncoderButton(ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
+        case 33:
+        {
+            ESP_LOGI(TAG, "FOUND FB_RedButton");
+            functionBlocks[cfgIndex] = new FB_RedButton(ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
+//#pragma endregion Input
+//#pragma region Sensor
+        case 34:
+        {
+            ESP_LOGI(TAG, "FOUND FB_MovementSensor");
+            functionBlocks[cfgIndex] = new FB_MovementSensor(ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
+        case 36:
+        {
+            ESP_LOGI(TAG, "FOUND FB_AirTemperatureBMESensor");
+            functionBlocks[cfgIndex] = new FB_AirTemperatureBMESensor(ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
+        
+        case 41:
         {
             ESP_LOGI(TAG, "FOUND FB_AmbientBrigthnessSensor");
             functionBlocks[cfgIndex] = new FB_AmbientBrigthnessSensor(ctx->ReadU32(), ctx->ReadU32());
         }
         break;
-        case 25:
+        case 44:
         {
             ESP_LOGI(TAG, "FOUND FB_HeaterTemperatureSensor");
             functionBlocks[cfgIndex] = new FB_HeaterTemperatureSensor(ctx->ReadU32(), ctx->ReadU32());
         }
         break;
-        case 26:
+//#pragma endregion Sensor
+//#pragma region Output
+        case 45:
         {
-            ESP_LOGI(TAG, "FOUND FB_Bool2ColorConverter");
-            functionBlocks[cfgIndex] = new FB_Bool2ColorConverter(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+            ESP_LOGI(TAG, "FOUND FB_Relay");
+            functionBlocks[cfgIndex] = new FB_Relay(ctx->ReadU32(), ctx->ReadU32());
         }
         break;
-        case 27:
+        case 46:
+        {
+            ESP_LOGI(TAG, "FOUND FB_RedLED");
+            functionBlocks[cfgIndex] = new FB_RedLED(ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
+        case 47:
+        {
+            ESP_LOGI(TAG, "FOUND FB_YellowLED");
+            functionBlocks[cfgIndex] = new FB_YellowLED(ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
+        case 48:
+        {
+            ESP_LOGI(TAG, "FOUND FB_GreenLED");
+            functionBlocks[cfgIndex] = new FB_GreenLED(ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
+        case 49:
         {
             ESP_LOGI(TAG, "FOUND FB_LED3");
             functionBlocks[cfgIndex] = new FB_LED3(ctx->ReadU32(), ctx->ReadU32());
         }
         break;
-        case 28:
+        case 50:
         {
             ESP_LOGI(TAG, "FOUND FB_LED4");
             functionBlocks[cfgIndex] = new FB_LED4(ctx->ReadU32(), ctx->ReadU32());
         }
         break;
-        case 29:
+        case 51:
         {
             ESP_LOGI(TAG, "FOUND FB_LED5");
             functionBlocks[cfgIndex] = new FB_LED5(ctx->ReadU32(), ctx->ReadU32());
         }
         break;
-        case 30:
+        case 52:
         {
             ESP_LOGI(TAG, "FOUND FB_LED6");
             functionBlocks[cfgIndex] = new FB_LED6(ctx->ReadU32(), ctx->ReadU32());
         }
         break;
-        case 31:
+        case 53:
         {
             ESP_LOGI(TAG, "FOUND FB_LED7");
             functionBlocks[cfgIndex] = new FB_LED7(ctx->ReadU32(), ctx->ReadU32());
         }
         break;
-        case 32:
+        case 54:
+        {
+            ESP_LOGI(TAG, "FOUND FB_FAN1");
+            functionBlocks[cfgIndex] = new FB_FAN1(ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
+        case 55:
+        {
+            ESP_LOGI(TAG, "FOUND FB_FAN2");
+            functionBlocks[cfgIndex] = new FB_FAN2(ctx->ReadU32(), ctx->ReadU32());
+        }
+        break;
+
+//region Specials
+        case 57:
         {
             ESP_LOGI(TAG, "FOUND FB_Melody");
             functionBlocks[cfgIndex] = new FB_Melody(ctx->ReadU32(), ctx->ReadU32(),ctx->ReadU32());
@@ -359,6 +457,7 @@ ErrorCode PLCManager::ParseNewExecutableAndEnqueue(const uint8_t  *buffer, size_
         }
         break;
 */
+//endregion Specials
         default:
             ESP_LOGE(TAG, "Unknown Operator Type found");
             return ErrorCode::INVALID_NEW_FBD;

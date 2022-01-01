@@ -62,4 +62,5 @@ class HAL
         virtual ErrorCode PlaySong(uint32_t songNumber);
         virtual int64_t GetMicros()=0;
         virtual uint32_t GetMillis()=0; 
+        virtual ErrorCode GetFFT64(float *magnitudes64);
 };
