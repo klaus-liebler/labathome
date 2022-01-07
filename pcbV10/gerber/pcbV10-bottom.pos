@@ -1,0 +1,12 @@
+### Module positions - created on 01/03/22 08:39:41 ###
+### Printed by Pcbnew version kicad (5.1.12)-1
+## Unit = mm, Angle = deg.
+## Side : bottom
+# Ref     Val       Package                                           PosX       PosY       Rot  Side
+C11       u1        C_0805_2012Metric_Pad1.18x1.45mm_HandSolder    71.3525  -123.6345  180.0000  bottom
+C13       u1        C_0805_2012Metric_Pad1.18x1.45mm_HandSolder    61.4680  -129.7940  180.0000  bottom
+C40       10u       C_0805_2012Metric_Pad1.18x1.45mm_HandSolder   117.1575   -65.6590    0.0000  bottom
+C41       u1        C_0805_2012Metric_Pad1.18x1.45mm_HandSolder   117.1575   -63.6270    0.0000  bottom
+DWM1      DWM1000   DWM1000                                       105.1560   -58.0390  180.0000  bottom
+U4        CH340C    SOIC-16_3.9x9.9mm_P1.27mm                      70.9930  -128.3970  270.0000  bottom
+## End

@@ -1,107 +1,117 @@
-Reference, Quantity, Value, Footprint, Datasheet, AVAILABILITY, DESCRIPTION, MF, MP, PACKAGE, PRICE, Option, Description, Height, Manufacturer_Name, Manufacturer_Part_Number
-C1 C8 ,2,"4u7","Capacitor_SMD:C_0603_1608Metric","~"
-C4 C5 C6 C7 C10 C11 C12 C13 C14 C15 C16 C18 C20 C24 C25 C28 C29 C31 C34 C35 ,20,"u1","Capacitor_SMD:C_0603_1608Metric","~"
-C17 C21 ,2,"1u","Capacitor_SMD:C_1206_3216Metric","~"
-C19 C22 C32 ,3,"10u","Capacitor_SMD:C_1206_3216Metric","~"
-C2 C36 C37 ,3,"22u","Capacitor_SMD:C_0805_2012Metric","~"
-C26 ,1,"10u","Capacitor_SMD:C_0603_1608Metric","~","","","","","","","Sound only","","","",""
-C27 ,1,"470u","Capacitor_THT:CP_Radial_D8.0mm_P3.50mm","~"
-C3 C9 C23 C30 ,4,"1u","Capacitor_SMD:C_0603_1608Metric","~"
-C33 ,1,"u1","Capacitor_SMD:C_0805_2012Metric","~"
-D1 D2 D3 D15 ,4,"WS2812B","LED_SMD:LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm","https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf"
-D16 ,1,"Schttky","Diode_SMD:D_SOD-123","~"
-D4 ,1,"PSM712","Package_TO_SOT_SMD:SOT-23","http://www.onsemi.com/pub_link/Collateral/NUP2105L-D.PDF"
-D5 ,1,"1N4007","Diode_SMD:D_SOD-123","~"
-D6 ,1,"HEATER ON","liebler_OPTO:LED_PLCC_2835","~"
-D7 D10 D11 D12 D13 D14 ,6,"WHITE","liebler_OPTO:LED_PLCC_2835","~"
-D8 ,1,"BLUE","liebler_OPTO:LED_PLCC_2835","~"
-D9 ,1,"10V","Diode_SMD:D_MiniMELF","~"
-FID1 FID2 ,2,"Fiducial","Fiducial:Fiducial_1mm_Mask2mm","~"
-GSM_Module1 ,1,"SIM800L","liebler_MODULES:SIM800L",""
-IMG1 ,1,"Speaker","liebler_DRAWINGS:speaker","~"
-IMG2 ,1,"Augenschutz","liebler_DRAWINGS:augenschutz","~"
-IMG3 ,1,"HOT","liebler_DRAWINGS:hot","~"
-IMG4 ,1,"WHS","liebler_DRAWINGS:LOGO_WHS","~"
-J1 ,1,"PROG","liebler_CONN:USB_C_Receptacle_HRO_TYPE-C-31-M-12_IMPROVED","https://www.usb.org/sites/default/files/documents/usb_type-c.zip"
-J10 ,1,"Fan1","Connector:FanPinHeader_1x03_P2.54mm_Vertical","~"
-J11 ,1,"Fan2","Connector:FanPinHeader_1x03_P2.54mm_Vertical","~"
-J12 ,1,"VPS","Connector_PinSocket_2.54mm:PinSocket_2x25_P2.54mm_Vertical","~"
-J13 ,1,"SPK","Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical","~"
-J14 ,1,"LoRa","Connector_Coaxial:SMA_Samtec_SMA-J-P-X-ST-EM1_EdgeMount"," ~"
-J15 ,1,"1B 2A","Connector_Phoenix_MC:PhoenixContact_MCV_1,5_2-G-3.81_1x02_P3.81mm_Vertical","~"
-J16 ,1,"BME280","Connector_PinSocket_2.54mm:PinSocket_1x06_P2.54mm_Vertical","~"
-J17 ,1,"CCS811","Connector_PinSocket_2.54mm:PinSocket_1x08_P2.54mm_Vertical","~"
-J2 ,1,"Servo","Connector_PinHeader_2.54mm:PinHeader_2x03_P2.54mm_Vertical","~"
-J3 ,1,"I2C","Connector_JST:JST_XH_B5B-XH-AM_1x05_P2.50mm_Vertical","~"
-J4 ,1,"1wire","Connector_JST:JST_XH_B4B-XH-AM_1x04_P2.50mm_Vertical","~"
-J5 ,1,"EXT","Connector_JST:JST_XH_B6B-XH-AM_1x06_P2.50mm_Vertical","~"
-J6 ,1,"5V 3V GN 24","Connector_JST:JST_XH_B4B-XH-AM_1x04_P2.50mm_Vertical","~"
-J7 ,1,"485","liebler_CONN:WR_MJ_Modular_Jack_Vertical_Plastic_6P6C","~"
-J8 ,1,"POWER","liebler_CONN:USB_C_Receptacle_HRO_TYPE-C-31-M-12_IMPROVED","https://www.usb.org/sites/default/files/documents/usb_type-c.zip"
-J9 ,1,"RGB","Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical","~"
-JP3 JP4 ,2,"1I2C_3SPI","Jumper:SolderJumper-3_P1.3mm_Open_RoundedPad1.0x1.5mm_NumberLabels","~"
-JP6 ,1,"MOSI_LORA","Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm","~"
-JP7 ,1,"CLK_LORA","Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm","~"
-K1 K2 K3 ,3,"G6K-2","Relay_SMD:Relay_DPDT_Omron_G6K-2F-Y","http://omronfs.omron.com/en_US/ecb/products/pdf/en-g6k.pdf"
-L1 ,1,"47u","Inductor_SMD:L_Wuerth_HCI-7030","~"
-L2 ,1,"10uH","liebler_PASSIVES:ASPIAIG-Q8080","~"
-MK1 ,1,"ICS-43434","liebler_SEMICONDUCTORS:MIC_ICS-43434","","Bad","Multi-Mode Microphone with I2S Digital Output","TDK-InvenSense","ICS-43434","LGA-6 TDK-InvenSense","2.43 USD","","","","",""
-Q1 Q2 Q4 Q6 ,4,"BC817","Package_TO_SOT_SMD:SOT-23","https://www.onsemi.com/pub/Collateral/BC818-D.pdf"
-Q3 ,1,"AO3400A","Package_TO_SOT_SMD:SOT-23","http://www.aosmd.com/pdfs/datasheet/AO3400A.pdf"
-Q5 Q9 ,2,"IRLML6344","Package_TO_SOT_SMD:SOT-23","https://www.infineon.com/dgdl/irlml0030pbf.pdf?fileId=5546d462533600a401535664773825df"
-Q7 ,1,"IRLML5203","Package_TO_SOT_SMD:SOT-23","https://www.infineon.com/dgdl/irlml5203pbf.pdf?fileId=5546d462533600a40153566868da261d"
-R13 ,1,"120R","Resistor_SMD:R_0603_1608Metric","~"
-R1 R4 R11 R12 R14 R15 R17 R23 R28 R29 R34 R44 ,12,"1k","Resistor_SMD:R_0603_1608Metric","~"
-R18 ,1,"22R","liebler_PASSIVES:Resistor_100W","~"
-R19 ,1,"3k3","Resistor_SMD:R_1206_3216Metric","~"
-R20 ,1,"22k","Resistor_SMD:R_0603_1608Metric","~"
-R5 R8 R21 R40 ,4,"4k7","Resistor_SMD:R_0603_1608Metric","~"
-R22 R37 ,2,"2k2","Resistor_SMD:R_0603_1608Metric","~"
-R24 R25 ,2,"k1","Resistor_SMD:R_0603_1608Metric","~"
-R27 ,1,"1M","Resistor_SMD:R_0603_1608Metric","~"
-R30 ,1,"220R","Resistor_SMD:R_1206_3216Metric","~"
-R31 ,1,"51k","Resistor_SMD:R_0603_1608Metric","~"
-R32 ,1,"22R","Resistor_SMD:R_0603_1608Metric","~"
-R33 ,1,"R68","Resistor_SMD:R_1206_3216Metric","~"
-R36 ,1,"3k3","Resistor_SMD:R_0603_1608Metric","~"
-R38 ,1,"10k","Capacitor_SMD:C_0603_1608Metric","~","","","","","","","Sound only","","","",""
-R39 ,1,"22k","Capacitor_SMD:C_0603_1608Metric","~","","","","","","","Sound only","","","",""
-R41 R43 ,2,"M1","Resistor_SMD:R_0603_1608Metric","~"
-R42 ,1,"2k2","Capacitor_SMD:C_0603_1608Metric","~","","","","","","","Sound only","","","",""
-R45 ,1,"6k8","Resistor_SMD:R_0603_1608Metric","~"
-R46 ,1,"39k","Resistor_SMD:R_0603_1608Metric","~"
-R47 ,1,"k47","Resistor_SMD:R_0603_1608Metric","~"
-R6 R7 R16 R26 R35 ,5,"10k","Resistor_SMD:R_0603_1608Metric","~"
-R2 R3 R9 R10 ,4,"5k1","Resistor_SMD:R_0603_1608Metric","~"
-RV1 ,1,"1k","Potentiometer_THT:Potentiometer_Alps_RK09K_Single_Vertical","~","","","","","","","Sound only","","","",""
-SP1 ,1,"Speaker","liebler_MECH:SPEAKER_2415","~"
-SW1 ,1,"BTN BLUE","liebler_MECH:SW_Push_1P1T_NO_CK_PTS125Sx43PSMTR","~"
-SW10 ,1,"5V FAN 24V","liebler_MECH:Switch_SS12D00","~"
-SW11 ,1,"24V->5V","liebler_MECH:Switch_SS12D00","~"
-SW2 ,1,"YELLOW","liebler_MECH:RotaryEncoder_Alps_EC11E-Switch_Vertical_H20mm","~"
-SW3 ,1,"GREEN","liebler_MECH:SW_Push_1P1T_NO_CK_PTS125Sx43PSMTR","~"
-SW4 ,1,"RED","liebler_MECH:SW_Push_1P1T_NO_CK_PTS125Sx43PSMTR","~"
-SW5 ,1,"BTN WHITE","liebler_MECH:SW_Push_1P1T_NO_CK_PTS125Sx43PSMTR","~"
-SW6 ,1,"TERM ON","liebler_MECH:Switch_SS12D00","~"
-SW7 ,1,"LED HEATER","liebler_MECH:Switch_SS12D00","~"
-SW8 ,1,"REL_ROT","liebler_MECH:Switch_SS12D00","~"
-SW9 ,1,"SNS MOV","liebler_MECH:Switch_SS12D00","~"
-U1 ,1,"AMS1117-3.3","Package_TO_SOT_SMD:SOT-223-3_TabPin2","http://www.advanced-monolithic.com/pdf/ds1117.pdf"
-U10 ,1,"SR602","liebler_MODULES:PIR_Sensor_SR602",""
-U11 ,1,"MP4420","Package_TO_SOT_SMD:TSOT-23-8",""
-U12 U13 U15 ,3,"DS18B20","Package_TO_SOT_THT:TO-92_HandSolder","http://datasheets.maximintegrated.com/en/ds/DS18B20.pdf"
-U14 ,1,"IPS_240_240","liebler_OPTO:IPS_240_240_1.3",""
-U16 ,1,"MODULE_STEPDOWN","liebler_MODULES:MODULE_STEPDOWN",""
-U17 ,1,"RFM95W-868S2","RF_Module:HOPERF_RFM9XW_SMD","https://www.hoperf.com/data/upload/portal/20181127/5bfcbea20e9ef.pdf"
-U18 ,1,"MD8002A","Package_SO:SOIC-8_3.9x4.9mm_P1.27mm","https://www.sunrom.com/get/408862","","","","","","","","Audio Amplifier, SOP8","1.75","Sunrom","MD8002A"
-U19 ,1,"BME280","Package_LGA:Bosch_LGA-8_2.5x2.5mm_P0.65mm_ClockwisePinNumbering","https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST-BME280-DS002.pdf"
-U2 ,1,"ESP32-WROOM-32","RF_Module:ESP32-WROOM-32","https://www.espressif.com/sites/default/files/documentation/esp32-wroom-32_datasheet_en.pdf"
-U20 ,1,"CCS811","liebler_SEMICONDUCTORS:AMS_LGA-10-1EP_2.7x4mm_P0.6mm","http://ams.com/eng/Products/Environmental-Sensors/Air-Quality-Sensors/CCS811"
-U3 ,1,"CH340K","liebler_SEMICONDUCTORS:SSOP-10_3.9x4.9mm_P1.00mm_EP",""
-U4 ,1,"MS4525DO","liebler_MODULES:MS4525DO",""
-U5 ,1,"ZXLD1350","Package_TO_SOT_SMD:SOT-23-5",""
-U6 ,1,"MAX3485","Package_SO:SOIC-8_3.9x4.9mm_P1.27mm","https://datasheets.maximintegrated.com/en/ds/MAX3483-MAX3491.pdf"
-U7 ,1,"BME680","Package_LGA:Bosch_LGA-8_3x3mm_P0.8mm_ClockwisePinNumbering","https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST-BME680-DS001.pdf"
-U8 ,1,"IP2721","Package_SO:TSSOP-16_4.4x5mm_P0.65mm",""
-U9 ,1,"BH1750_Module","liebler_MODULES:GY-302",""
-X1 ,1,"FAN_6024","liebler_MECH:FAN_6024",""
+"ID";"Bezeichner";"Gehäuse";"Stückzahl";"Bezeichnung";"Anbieter und Referenz";
+1;"R18";"Resistor_100W";1;"22R";;;
+2;"IMG9";"qwiic";1;"Augenschutz";;;
+3;"IMG2";"googles";1;"Augenschutz";;;
+4;"C41,C13,C11";"C_0805_2012Metric_Pad1.18x1.45mm_HandSolder";3;"u1";;;
+5;"C40";"C_0805_2012Metric_Pad1.18x1.45mm_HandSolder";1;"10u";;;
+6;"DWM1";"DWM1000";1;"DWM1000";;;
+7;"U16";"MODULE_STEPDOWN";1;"MODULE_STEPDOWN";;;
+8;"U22";"PIR_Sensor_SR602";1;"SR602";;;
+9;"J21";"JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal";1;"QWIIC";;;
+10;"MK1";"MIC_ICS-43434";1;"ICS-43434";;;
+11;"R39,R20";"R_0603_1608Metric";2;"22k";;;
+12;"R38,R26,R7,R35,R16,R6";"R_0603_1608Metric";6;"10k";;;
+13;"R30,R22";"R_0603_1608Metric";2;"2k2";;;
+14;"U20";"GY-302";1;"BH1750_Module";;;
+15;"U19,U9,U7";"TO-92_HandSolder";3;"DS18B20";;;
+16;"U15";"AMS_LGA-10-1EP_2.7x4mm_P0.6mm";1;"CCS811";;;
+17;"U13";"Bosch_LGA-8_2.5x2.5mm_P0.65mm_ClockwisePinNumbering";1;"BME280";;;
+18;"U12";"Bosch_LGA-8_3x3mm_P0.8mm_ClockwisePinNumbering";1;"BME680";;;
+19;"U10";"MS4525DO";1;"MS4525DO";;;
+20;"U4";"SOIC-16_3.9x9.9mm_P1.27mm";1;"CH340C";;;
+21;"R29,R41";"R_0603_1608Metric";2;"M1";;;
+22;"R28,R21,R8,R5";"R_0603_1608Metric";4;"4k7";;;
+23;"J17";"PinSocket_1x08_P2.54mm_Vertical";1;"CCS811";;;
+24;"J16";"PinSocket_1x06_P2.54mm_Vertical";1;"BME280";;;
+25;"C39,C31,C30,C29,C28,C15,C35,C34,C20,C12,C7,C25,C24,C6,C10,C18,C16,C14,C5,C4";"C_0603_1608Metric";20;"u1";;;
+26;"C38,C9,C3,C23";"C_0603_1608Metric";4;"1u";;;
+27;"J20";"JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical";1;"FAN5V";;;
+28;"J13";"SolderWire-0.1sqmm_1x02_P3.6mm_D0.4mm_OD1mm";1;"SPK";;;
+29;"IMG8";"hot_big";1;"HOT_BIG";;;
+30;"IMG7,IMG3";"hot";2;"HOT";;;
+31;"SW12";"SW_Push_1P1T_NO_6x6mm_H9.5mm";1;"RESET";;;
+32;"D16";"D_SMA";1;"D";;;
+33;"U21";"TO-252-5_TabPin3";1;"BTS462T";;;
+34;"J12";"PinHeader_2x25_P2.54mm_Vertical";1;"VPS";;;
+35;"J19";"PinHeader_2x04_P2.54mm_Vertical";1;"Supply";;;
+36;"J18";"BarrelJack_Horizontal";1;"Power";;;
+37;"IMG6";"OSHW-Logo2_7.3x6mm_SilkScreen";1;"OPEN Hardware";;;
+38;"IMG5";"QR_CODE_smopla_de";1;"QR-CODE";;;
+39;"L2";"L_Abracon_ASPI-0630LR";1;"10uH";;;
+40;"L1";"L_Abracon_ASPI-0630LR";1;"68u";;;
+41;"SP1";"SPEAKER_2415";1;"Speaker";;;
+42;"C2";"C_0603_1608Metric";1;"22u";;;
+43;"R47";"R_0603_1608Metric";1;"k47";;;
+44;"C32,C22,C19";"C_1206_3216Metric";3;"10u";;;
+45;"SW11";"Switch_SS12D00";1;"ON 24V->5V";;;
+46;"U11";"TSOT-23-8";1;"MP4420";;;
+47;"R46";"R_0603_1608Metric";1;"39k";;;
+48;"R45";"R_0603_1608Metric";1;"6k8";;;
+49;"R32";"R_0603_1608Metric";1;"22R";;;
+50;"R31";"R_0603_1608Metric";1;"51k";;;
+51;"R27";"R_0603_1608Metric";1;"1M";;;
+52;"C37,C36";"C_0805_2012Metric";2;"22u";;;
+53;"C33";"C_0805_2012Metric";1;"u1";;;
+54;"IMG4";"LOGO_WHS";1;"WHS";;;
+55;"SW10";"Switch_SS12D00";1;"5V FAN 24V";;;
+56;"J15";"PhoenixContact_MCV_1,5_2-G-3.81_1x02_P3.81mm_Vertical";1;"1B 2A";;;
+57;"IMG1";"speaker";1;"Speaker";;;
+58;"FID2,FID1";"Fiducial_1mm_Mask2mm";2;"Fiducial";;;
+59;"U14";"IPS_240_240_1.3";1;"IPS_240_240";;;
+60;"U5";"SOT-23-5";1;"ZXLD1350";;;
+61;"C21,C17";"C_1206_3216Metric";2;"1u";;;
+62;"SW5";"SW_Push_1P1T_NO_CK_PTS125Sx43PSMTR";1;"BTN WHITE";;;
+63;"SW4";"SW_Push_1P1T_NO_CK_PTS125Sx43PSMTR";1;"RED";;;
+64;"SW3";"SW_Push_1P1T_NO_CK_PTS125Sx43PSMTR";1;"GREEN";;;
+65;"SW1";"SW_Push_1P1T_NO_CK_PTS125Sx43PSMTR";1;"BTN BLUE";;;
+66;"SW9";"Switch_SS12D00";1;"SNS MOV";;;
+67;"R44,R1,R11,R34,R23,R17,R15,R14,R12,R4";"R_0603_1608Metric";10;"1k";;;
+68;"SW8";"Switch_SS12D00";1;"REL ROT";;;
+69;"SW7";"Switch_SS12D00";1;"LED HEATER";;;
+70;"SW6";"Switch_SS12D00";1;"TERM ON";;;
+71;"U3";"SSOP-10_3.9x4.9mm_P1.00mm_EP";1;"CH340K";;;
+72;"U18";"SOIC-8_3.9x4.9mm_P1.27mm";1;"MD8002A";;;
+73;"U6";"SOIC-8_3.9x4.9mm_P1.27mm";1;"MAX3485";;;
+74;"D14,D13,D12,D11,D10,D7";"LED_PLCC_2835";6;"WHITE";;;
+75;"D8";"LED_PLCC_2835";1;"BLUE";;;
+76;"D6";"LED_PLCC_2835";1;"HEATER ON";;;
+77;"J1";"USB_C_Receptacle_HRO_TYPE-C-31-M-12_IMPROVED";1;"PROG";;;
+78;"J8";"USB_C_Receptacle_HRO_TYPE-C-31-M-12_IMPROVED";1;"POWER";;;
+79;"JP3,JP4";"SolderJumper-3_P1.3mm_Open_RoundedPad1.0x1.5mm_NumberLabels";2;"SPI-I2C";;;
+80;"J5";"JST_XH_B6B-XH-AM_1x06_P2.50mm_Vertical";1;"EXT";;;
+81;"J4";"JST_XH_B4B-XH-AM_1x04_P2.50mm_Vertical";1;"1wire";;;
+82;"J7";"WR_MJ_Modular_Jack_Vertical_Plastic_6P6C";1;"485";;;
+83;"R33";"R_1206_3216Metric";1;"R68";;;
+84;"R10,R2,R3,R9";"R_0603_1608Metric";4;"5k1";;;
+85;"D15,D3,D2,D1";"LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm";4;"WS2812B";;;
+86;"K2,K3,K1";"Relay_DPDT_Omron_G6K-2F-Y";3;"G6K-2";;;
+87;"X1";"FAN_6024";1;"FAN_6024";;;
+88;"C26";"C_0603_1608Metric";1;"10u";;;
+89;"Q2,Q4,Q1";"SOT-23";3;"BC817";;;
+90;"U17";"HOPERF_RFM9XW_SMD";1;"RFM95W-868S2";;;
+91;"U8";"TSSOP-16_4.4x5mm_P0.65mm";1;"IP2721";;;
+92;"U2";"ESP32-WROOM-32";1;"ESP32-WROOM-32";;;
+93;"U1";"SOT-223-3_TabPin2";1;"AMS1117";;;
+94;"SW2";"RotaryEncoder_Alps_EC11E-Switch_Vertical_H20mm";1;"YELLOW";;;
+95;"RV1";"Potentiometer_Alps_RK09K_Single_Vertical";1;"1k";;;
+96;"R37";"R_0603_1608Metric";1;"2k2?";;;
+97;"R36";"R_0603_1608Metric";1;"3k3";;;
+98;"R25,R24";"R_0603_1608Metric";2;"k1";;;
+99;"R19";"R_1206_3216Metric";1;"3k3";;;
+100;"R13";"R_0603_1608Metric";1;"K12";;;
+101;"Q9,Q5";"SOT-23";2;"IRLML6344";;;
+102;"Q3";"SOT-23";1;"AO3400A";;;
+103;"JP7";"SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm";1;"CLK_LORA";;;
+104;"JP6";"SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm";1;"MOSI_LORA";;;
+105;"J14";"SMA_Samtec_SMA-J-P-X-ST-EM1_EdgeMount";1;"LoRa Antenna";;;
+106;"J11";"FanPinHeader_1x03_P2.54mm_Vertical";1;"Fan2";;;
+107;"J10";"FanPinHeader_1x03_P2.54mm_Vertical";1;"Fan1";;;
+108;"J9";"PinHeader_1x04_P2.54mm_Vertical";1;"GN 5V RGB GN";;;
+109;"J6";"JST_XH_B4B-XH-AM_1x04_P2.50mm_Vertical";1;"5V 3V GN 24";;;
+110;"J3";"JST_XH_B5B-XH-AM_1x05_P2.50mm_Vertical";1;"I2C";;;
+111;"J2";"PinHeader_2x03_P2.54mm_Vertical";1;"Servo";;;
+112;"GSM_Module1";"SIM800L";1;"SIM800L";;;
+113;"D5";"D_SOD-123";1;"1N4007";;;
+114;"D4";"SOT-23";1;"PSM712";;;
+115;"C27";"CP_Radial_D8.0mm_P3.50mm";1;"470u";;;
+116;"C8,C1";"C_0603_1608Metric";2;"4u7";;;

@@ -4,6 +4,7 @@
 
 #include <inttypes.h>
 #include <algorithm>
+#include <common.hh>
 
 #include <driver/mcpwm.h>
 #include <driver/ledc.h>
@@ -13,17 +14,24 @@
 #include <driver/i2s.h>
 #include <arduinoFFT.h>
 
-#include "errorcodes.hh"
-#include "ws2812_strip.hh"
+#include <errorcodes.hh>
+#include <ws2812.hh>
 #include <bh1750.hh>
 #include <ms4525.hh>
 #include <bme280.hh>
 #include <ads1115.hh>
+#include <ccs811.hh>
 #include <owb.h>
 #include <owb_rmt.h>
 #include <ds18b20.h>
 #include <rotenc.hh>
 #include <i2c.hh>
+#include <MP3Player.hh>
+#include <Alarm.mp3.h>
+
+const uint8_t *SONGS[] = {Alarm_ding_mp3, Alarm_heule_mp3, Alarm_hupe_mp3};
+const size_t SONGS_LEN[] = {sizeof(Alarm_ding_mp3), sizeof(Alarm_heule_mp3), sizeof(Alarm_hupe_mp3)};
+
 
 typedef gpio_num_t Pintype;
 
@@ -33,13 +41,13 @@ constexpr Pintype PIN_TXD0 = (Pintype)1;
 constexpr Pintype PIN_FAN2_DRIVE = (Pintype)2;
 constexpr Pintype PIN_RXD0 = (Pintype)3;
 constexpr Pintype PIN_SPI_IO1_OR_SERVO2 = (Pintype)4;
-constexpr Pintype PIN_I2S_SD = (Pintype)5; //in November-Version , dann 17
+constexpr Pintype PIN_I2S_SCK = (Pintype)5;
 constexpr Pintype PIN_HEATER_OR_LED_POWER = (Pintype)12;
-constexpr Pintype PIN_I2S_SCK = (Pintype)13;
+constexpr Pintype PIN_I2S_WS = (Pintype)13; 
 constexpr Pintype PIN_ONEWIRE = (Pintype)14;
 constexpr Pintype PIN_LED_WS2812 = (Pintype)15;
 constexpr Pintype PIN_SPI_MISO = (Pintype)16;
-constexpr Pintype PIN_I2S_WS = (Pintype)17; //in November-Version, dann 5
+constexpr Pintype PIN_I2S_SD = (Pintype)17;
 constexpr Pintype PIN_FAN1_DRIVE_OR_SERVO1 = (Pintype)18;
 constexpr Pintype PIN_I2C_SDA = (Pintype)19;
 constexpr Pintype PIN_SPI_MOSI = (Pintype)21;
@@ -73,7 +81,6 @@ struct Note
     uint16_t durationMs;
 };
 
-#include "songs.hh"
 
 enum class MODE_SPI_IO1_OR_SERVO2
 {
@@ -110,12 +117,12 @@ enum class MODE_RS485_OR_EXT
 
 enum class Button : uint8_t
 {
-    BUT_GREEN = 1,
-    BUT_ENCODER = 0,
-    BUT_RED = 2,
+    BUT_ENCODER = 1,
+    BUT_RED = 0,
+    BUT_GREEN = 2,
 };
 
-#define CHECK_BIT(var, pos) ((var) & (1 << (pos)))
+
 
 constexpr size_t LED_NUMBER = 4;
 constexpr rmt_channel_t CHANNEL_WS2812 = RMT_CHANNEL_0;
@@ -132,15 +139,22 @@ constexpr ledc_timer_bit_t power_ledc_timer_duty_resolution = LEDC_TIMER_10_BIT;
 constexpr i2s_port_t I2S_PORT{I2S_NUM_1};
 constexpr int average_over_N_measurements{10};
 constexpr int SAMPLES {2048};
+constexpr size_t SAMPLES_IN_BYTES = SAMPLES*4;
 constexpr int SAMPLE_RATE{22050};
 constexpr uint8_t AMPLITUDE = 150;
 constexpr uint16_t FREQUENCIES[]{11,22,32,43,54,65,75,97,118,140,161,183,205,226,258,291,323,355,388,431,474,517,560,614,668,721,786,851,915,991,1066,1152,1238,1335,1443,1550,1669,1798,1938,2089,2239,2401,2584,2778,2982,3198,3435,3682,3951,4231,4533,4856,5200,5566,5965,6385,6837,7321,7838,8398,8990,9625,10304,11025};
 constexpr uint16_t BUCKET_INDICES[]{1,2,3,4,5,6,7,9,11,13,15,17,19,21,24,27,30,33,36,40,44,48,52,57,62,67,73,79,85,92,99,107,115,124,134,144,155,167,180,194,208,223,240,258,277,297,319,342,367,393,421,451,483,517,554,593,635,680,728,780,835,894,957,1024};
+
+
 int32_t samplesI32[SAMPLES]; //The slave serial-data port’s format is I²S, 24-bit, twos complement, There must be 64 SCK cycles in each WS stereo frame, or 32 SCK cycles per data-word.
 double real[SAMPLES];
 double imag[SAMPLES];
 arduinoFFT fft(real, imag, SAMPLES, SAMPLE_RATE);
+
+MP3Player mp3player;
+
 extern "C" void sensorTask(void *pvParameters);
+extern "C" void mp3Task(void *pvParameters);
 
 class HAL_labathome : public HAL
 {
@@ -154,12 +168,10 @@ private:
     MODE_FAN1_DRIVE_OR_SERVO1 mode_FAN1_DRIVE_OR_SERVO1;
     MODE_RS485_OR_EXT mode_RS485_OR_EXT;
     bool needLedStripUpdate = false;
-    uint32_t songNumber = 0;
-    int32_t song_nextNoteIndex = 0;
-    uint32_t song_nextNoteTimeMs = UINT32_MAX;
 
     WS2812_Strip<LED_NUMBER> *strip = NULL;
     cRotaryEncoder *rotenc = NULL;
+    
 
     uint32_t buttonState = 0;
 
@@ -170,6 +182,7 @@ private:
     float airPressurePa = 0.0;
     float airRelHumidityPercent = 0.0;
     float ambientBrightnessLux = 0.0;
+    uint16_t co2PPM=0;
     float ADS1115Values[4];
     float airSpeedMeterPerSecond;
     uint16_t ds4525doPressure;
@@ -214,6 +227,7 @@ public:
         int64_t nextOneWireReadout = INT64_MAX;
         int64_t nextBME280Readout = INT64_MAX;
         int64_t nextBH1750Readout = INT64_MAX;
+        int64_t nextCCS811Readout = INT64_MAX;
         int64_t nextMS4525Readout = INT64_MAX;
         TickType_t nextADS1115Readout = UINT32_MAX;
         uint16_t nextADS1115Mux = 0b100; //100...111
@@ -221,6 +235,7 @@ public:
         uint32_t oneWireReadoutIntervalMs = 800; //10bit -->187ms Conversion time, 12bit--> 750ms
         uint32_t bme280ReadoutIntervalMs = UINT32_MAX;
         uint32_t bh1750ReadoutIntervalMs = 200;
+        uint32_t ccs811ReadoutIntervalMs = 1100;
         TickType_t ads1115ReadoutInterval = portMAX_DELAY;
         uint32_t ms4525ReadoutInterval = 200;
 
@@ -289,6 +304,19 @@ public:
             ESP_LOGW(TAG, "I2C: ADS1115 not found");
         }
 
+        //CCS811
+        CCS811Manager *ccs811 = new CCS811Manager(I2C_PORT);
+        if (ccs811->Init()==ESP_OK)
+        {
+            ccs811->Start(CCS811::MODE::_1SEC);
+            nextCCS811Readout = GetMillis() + ccs811ReadoutIntervalMs;
+            ESP_LOGI(TAG, "I2C: CCS811 successfully initialized.");
+        }
+        else
+        {
+            ESP_LOGW(TAG, "I2C: CCS811 not found");
+        }
+
         MS4525DO *ms4525 = new MS4525DO(I2C_PORT, MS4523_Adress::I);
         if(ms4525->Init()==ESP_OK){
             nextMS4525Readout = GetMillis() + ms4525ReadoutInterval;
@@ -298,6 +326,7 @@ public:
 
         while (true)
         {
+             
             this->movementIsDetected = gpio_get_level(PIN_MOVEMENT_OR_FAN1SENSE);
             int adc_reading = adc1_get_raw(PIN_SW_CHANNEL);
             //uint32_t voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
@@ -334,6 +363,16 @@ public:
                 nextMS4525Readout = GetMillis64() + ms4525ReadoutInterval;
             }
 
+            if (GetMillis64() > nextCCS811Readout)
+            {
+                uint16_t value;
+                ccs811->Read(&value, NULL, NULL, NULL);
+                if(value<4000){ //sometimes, the sensor return strange large numbers...
+                    co2PPM=value;
+                }
+                nextCCS811Readout = GetMillis64() + ccs811ReadoutIntervalMs;
+            }
+
             if (xTaskGetTickCount() >= nextADS1115Readout)
             {
                 ads1115->GetVoltage(&ADS1115Values[nextADS1115Mux & 0b11]);
@@ -343,19 +382,24 @@ public:
                 ads1115->TriggerMeasurement((ads1115_mux_t)nextADS1115Mux);
                 nextADS1115Readout = xTaskGetTickCount() + ads1115ReadoutInterval;
             }
-            vTaskDelay(100/portTICK_PERIOD_MS);
+            vTaskDelay(pdMS_TO_TICKS(100));
+            
         }
         
     }
 
     ErrorCode PlaySong(uint32_t songNumber)
     {
-        if (songNumber >= sizeof(SONGS) / sizeof(Note))
+        if (songNumber >= sizeof(SONGS) / sizeof(uint8_t*))
             songNumber = 0;
-        this->song_nextNoteIndex = 0;
-        this->song_nextNoteTimeMs = GetMillis();
-        this->songNumber = songNumber;
+        mp3player.Play(SONGS[songNumber], SONGS_LEN[songNumber]);
         ESP_LOGI(TAG, "Set Song to %d", songNumber);
+        return ErrorCode::OK;
+    }
+
+    
+    ErrorCode GetCO2PPM(uint16_t *co2PPM){
+        *co2PPM=this->co2PPM;
         return ErrorCode::OK;
     }
 
@@ -405,16 +449,15 @@ public:
         for(int cnt=0;cnt<average_over_N_measurements;cnt++){
             float magnitudes64[64];
             size_t num_bytes_read{0};
-            if (ESP_OK != i2s_read(I2S_PORT, samplesI32, sizeof(uint32_t) * SAMPLES, &num_bytes_read, portMAX_DELAY)){
+            if (ESP_OK != i2s_read(I2S_PORT, samplesI32, SAMPLES_IN_BYTES, &num_bytes_read, portMAX_DELAY)){
                 ESP_LOGE(TAG, "ESP_OK!=i2s_read");
                 return ErrorCode::GENERIC_ERROR;
             }
-            int samples_read = num_bytes_read / sizeof(int32_t);
-
-            for (int i = 0; i < samples_read; i++){
-                
-                minimum = std::min(minimum, samplesI32[i]);
-                maximum = std::max(maximum, samplesI32[i]);
+            if(num_bytes_read!=SAMPLES_IN_BYTES){
+                ESP_LOGE(TAG, "num_bytes_read!=SAMPLES_IN_BYTES");
+                return ErrorCode::GENERIC_ERROR;
+            }
+            for (int i = 0; i < SAMPLES; i++){
                 int16_t sample = samplesI32[i] >> 14; //>>16 to be on the veeeeery safe side, but then "normal" voice is even tooo quiet in replay
                 real[i] = sample;
                 imag[i]=0.0;
@@ -423,19 +466,19 @@ public:
             fft.Compute(FFT_FORWARD);
             fft.ComplexToMagnitude();
             size_t resultPointer = 1;
-            magnitudes64[0]= (float)std::max({real[2],real[3], real[4], real[5], real[6], real[7]});
+            magnitudes64[0]=0;
             for (int i = 1; i < 64; i++){
                 while(resultPointer<BUCKET_INDICES[i]){
                     magnitudes64[i]=std::max(magnitudes64[i], (float)real[resultPointer]);
                     resultPointer++;
                 }
-                magnitudes64_param[i]+=magnitudes64[i];
+                //magnitudes64_param[i]+=magnitudes64[i];
+                magnitudes64_param[i] = std::max(magnitudes64_param[i], magnitudes64[i]);
             }
         }
         for (int i = 1; i < 64; i++){
-            magnitudes64_param[i]/=average_over_N_measurements;
+            //magnitudes64_param[i]/=average_over_N_measurements;
         }
-        ESP_LOGI(TAG, "Microphone MAX %d an MIN %d", maximum, minimum);
         return ErrorCode::OK;
     }
 
@@ -555,6 +598,7 @@ public:
 
         
         //Buzzer
+        /*
         ledc_timer_config_t buzzer_timer;
         buzzer_timer.duty_resolution = LEDC_TIMER_10_BIT; // resolution of PWM duty
         buzzer_timer.freq_hz = 440;                       // frequency of PWM signal
@@ -572,6 +616,9 @@ public:
         buzzer_channel.timer_sel = LEDC_TIMER_2;
         buzzer_channel.intr_type=LEDC_INTR_DISABLE;
         ESP_ERROR_CHECK(ledc_channel_config(&buzzer_channel));
+        */
+
+        mp3player.InitInternalDAC(I2S_DAC_CHANNEL_BOTH_EN); //TODO: Check, whether I2S_DAC_CHANNEL_RIGHT_EN fpor GPIO25 works as well
 
         //I2C Master
         i2c_config_t conf;
@@ -598,6 +645,8 @@ public:
         }
 
         xTaskCreate(sensorTask, "sensorTask", 4096 * 4, this, 6, NULL);
+        xTaskCreate(mp3Task, "mp3task", 16384 * 4, this, 16, NULL);
+        
 
         return ErrorCode::OK;
     }
@@ -620,41 +669,12 @@ public:
             strip->Refresh(100);
             needLedStripUpdate = false;
         }
-        if (songNumber != 0)
-        {
-            if (GetMillis() > song_nextNoteTimeMs)
-            {
-                const Note note = SONGS[songNumber][song_nextNoteIndex];
-                if (note.freq == 0)
-                {
-                    ESP_LOGI(TAG, "Mute Note and wait %d", note.durationMs);
-                    EndBuzzer();
-                    if (note.durationMs == 0)
-                    {
-                        songNumber = 0;
-                        song_nextNoteTimeMs = UINT32_MAX;
-                        song_nextNoteIndex = 0;
-                    }
-                    else
-                    {
-                        song_nextNoteTimeMs += note.durationMs;
-                        song_nextNoteIndex++;
-                    }
-                }
-                else
-                {
-                    ESP_LOGI(TAG, "Set Note to Frequency %d and wait %d", note.freq, note.durationMs);
-                    StartBuzzer(note.freq);
-                    song_nextNoteTimeMs += note.durationMs;
-                    song_nextNoteIndex++;
-                }
-            }
-        }
         return ErrorCode::OK;
     }
 
     ErrorCode StartBuzzer(double freqHz)
     {
+        return ErrorCode::PIN_DOES_NOT_SUPPORT_MODE;
         ledc_timer_config_t buzzer_timer;
         buzzer_timer.duty_resolution = LEDC_TIMER_10_BIT; // resolution of PWM duty
         buzzer_timer.freq_hz = freqHz;                    // frequency of PWM signal
@@ -669,6 +689,7 @@ public:
 
     ErrorCode EndBuzzer()
     {
+        return ErrorCode::PIN_DOES_NOT_SUPPORT_MODE;
         ledc_set_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_2, 0);
         ledc_update_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_2);
         return ErrorCode::OK;
@@ -773,10 +794,22 @@ public:
         esp_err_t err =  mcpwm_set_duty_in_us(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM_OPR_B, cal_pulsewidth);
         return err==ESP_OK?ErrorCode::OK:ErrorCode::GENERIC_ERROR;
     }
+
+    ErrorCode MP3Loop_ForInternalUseOnly(){
+        while(true){
+            mp3player.Loop();
+        }
+    }
 };
 
 void sensorTask(void *pvParameters)
 {
     HAL_labathome *hal = (HAL_labathome *)pvParameters;
     hal->SensorLoop_ForInternalUseOnly();
+}
+
+void mp3Task(void *pvParameters)
+{
+    HAL_labathome *hal = (HAL_labathome *)pvParameters;
+    hal->MP3Loop_ForInternalUseOnly();
 }

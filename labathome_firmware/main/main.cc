@@ -18,7 +18,7 @@
 static const char *TAG = "main";
 #include "HAL.hh"
 #include "functionblocks.hh"
-#include "WS2812_strip.hh"
+#include "WS2812.hh"
 #include "esp_log.h"
 #include "spiffs.hh"
 
@@ -26,8 +26,6 @@ static const char *TAG = "main";
 //HAL *hal = new HAL_labathome(MODE_IO33::SERVO2, MODE_MULTI1_PIN::I2S, MODE_MULTI_2_3_PINS::I2S);
 #include "HAL_labathomeV10.hh"
 HAL *hal = new HAL_labathome(MODE_SPI_IO1_OR_SERVO2::SERVO2, MODE_HEATER_OR_LED_POWER::LED_POWER, MODE_K3A1_OR_ROTB::ROTB, MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR, MODE_FAN1_DRIVE_OR_SERVO1::FAN1_DRIVE, MODE_RS485_OR_EXT::RS485);
-
-
 //#include "HAL_wroverkit.hh"
 //HAL *hal = new HAL_wroverkit();
 
@@ -48,6 +46,7 @@ void plcTask(void *pvParameters)
     // Initialise the xLastWakeTime variable with the current time.
     xLastWakeTime = xTaskGetTickCount();
     plcmanager->Init();
+    /*
     for(int i=0;i<3;i++)
     {
         hal->ColorizeLed(LED::LED_RED, CRGB::DarkRed);
@@ -63,6 +62,7 @@ void plcTask(void *pvParameters)
         hal->AfterLoop();
         vTaskDelay(pdMS_TO_TICKS(150));
     }
+    */
     // hal->SetFan1State(30);
     // hal->SetFan2State(30);
     // while (true)
@@ -102,7 +102,8 @@ void plcTask(void *pvParameters)
     //     }
     // }
     
-    hal->PlaySong(1);
+    
+    hal->PlaySong(0);
     ESP_LOGI(TAG, "plcmanager main loop starts");
     while (true)
     {
@@ -270,6 +271,7 @@ void _lab_error_check_failed(ErrorCode rc, const char *file, int line, const cha
     } while(0)
 #endif
 
+
 void app_main(void)
 {
     esp_log_level_set(TAG, ESP_LOG_INFO);
@@ -277,15 +279,15 @@ void app_main(void)
     LAB_ERROR_CHECK(hal->Init());
 
     ESP_ERROR_CHECK(nvs_flash_init());
-    connectSTA2AP(false);
-    xSemaphoreTake( connectSemaphore, portMAX_DELAY);
-    //startAP();
+    //connectSTA2AP(false);
+    //xSemaphoreTake( connectSemaphore, portMAX_DELAY);
+    startAP();
     start_webserver(); 
 
     //xTaskCreate(experimentTask, "experimentTask", 1024 * 2, NULL, 5, NULL);
     xTaskCreate(plcTask, "plcTask", 4096 * 4, NULL, 6, NULL);
     int secs = 0;
-
+    bool hasAlreadyPlayedTheWarnSound = false;
     while (true)
     {
         float heaterTemp{0.f};
@@ -298,9 +300,30 @@ void app_main(void)
         hal->GetAirRelHumidity(&airHumid);
         int16_t encoderValue{0};
         hal->GetEncoderValue(&encoderValue);
+        uint16_t co2{0};
+        hal->GetCO2PPM(&co2);
+        if(co2<800){
+            hal->ColorizeLed(LED::LED_YELLOW, CRGB::Green);            
+            hal->ColorizeLed(LED::LED_GREEN, CRGB::Green);
+            hal->ColorizeLed(LED::LED_3, CRGB::Green); 
+            hasAlreadyPlayedTheWarnSound=false;
+        }else if(co2<1000){
+            hal->ColorizeLed(LED::LED_YELLOW, CRGB::Yellow);
+            hal->ColorizeLed(LED::LED_GREEN, CRGB::Yellow);
+            hal->ColorizeLed(LED::LED_3, CRGB::Yellow);
+            hasAlreadyPlayedTheWarnSound=false;
+        }else{
+            hal->ColorizeLed(LED::LED_YELLOW, CRGB::Red);
+            hal->ColorizeLed(LED::LED_GREEN, CRGB::Red);
+            hal->ColorizeLed(LED::LED_3, CRGB::Red);
+            if(!hasAlreadyPlayedTheWarnSound){
+                hal->PlaySong(2);
+            }   
+            hasAlreadyPlayedTheWarnSound=true;       
+        }
         
-        ESP_LOGI(TAG, "Run %4d, Heap %6d, RED %d YEL %d ENC %d GRN %d MOV %d HEAT %4.1f AIRT %4.1f PRS %5.0f HUM %3.0f  ", secs, esp_get_free_heap_size(),
-            hal->GetButtonRedIsPressed(), hal->GetButtonEncoderIsPressed(), encoderValue, hal->GetButtonGreenIsPressed(),  hal->IsMovementDetected(), heaterTemp, airTemp, airPres, airHumid);
+        ESP_LOGI(TAG, "Run %4d, Heap %6d, RED %d YEL %d ENC %d GRN %d MOV %d HEAT %4.1f AIRT %4.1f PRS %5.0f HUM %3.0f  CO2 %d", secs, esp_get_free_heap_size(),
+            hal->GetButtonRedIsPressed(), hal->GetButtonEncoderIsPressed(), encoderValue, hal->GetButtonGreenIsPressed(),  hal->IsMovementDetected(), heaterTemp, airTemp, airPres, airHumid, co2);
         secs += 5;
         vTaskDelay(pdMS_TO_TICKS(5000));
     }

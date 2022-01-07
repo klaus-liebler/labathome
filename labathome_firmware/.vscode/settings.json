@@ -82,5 +82,7 @@
     "*.tcc": "cpp",
     "memory_resource": "cpp",
     "cinttypes": "cpp"
-  }
+  },
+  "idf.adapterTargetName": "esp32",
+  "idf.portWin": "COM7"
 }

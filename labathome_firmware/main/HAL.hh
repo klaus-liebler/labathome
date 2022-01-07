@@ -7,14 +7,14 @@
 
 enum class LED : uint8_t
 {
-    LED_RED,
-    LED_YELLOW,
-    LED_GREEN,
-    LED_3,
-    LED_4,
-    LED_5,
-    LED_6,
-    LED_7,
+    LED_RED=0,
+    LED_YELLOW=1,
+    LED_GREEN=2,
+    LED_3=3,
+    LED_4=4,
+    LED_5=5,
+    LED_6=6,
+    LED_7=7,
 };
 
 
@@ -52,6 +52,7 @@ class HAL
         virtual ErrorCode SetServo2Position(uint32_t angle_0_to_180)=0;
         virtual ErrorCode BeforeLoop()=0;
         virtual ErrorCode AfterLoop()=0;
+        virtual ErrorCode GetCO2PPM(uint16_t *co2PPM);
         virtual ErrorCode GetHeaterTemperature(float *degreesCelcius);
         virtual ErrorCode GetAmbientBrightness(float *lux);
         virtual ErrorCode GetAirTemperature(float *degreesCelcius);
