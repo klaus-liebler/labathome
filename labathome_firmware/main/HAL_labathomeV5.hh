@@ -14,8 +14,8 @@
 #include <arduinoFFT.h>
 
 
-#include "errorcodes.hh"
-#include "ws2812_strip.hh"
+#include <errorcodes.hh>
+#include <ws2812.hh>
 #include <bh1750.hh>
 #include <ms4525.hh>
 #include <bme280.hh>
@@ -348,6 +348,12 @@ public:
         this->songNumber = songNumber;
         ESP_LOGI(TAG, "Set Song to %d", songNumber);
         return ErrorCode::OK;
+    }
+
+    ErrorCode GetCO2PPM(uint16_t *co2PPM){
+        
+        *co2PPM=0;
+        return ErrorCode::NOT_YET_IMPLEMENTED;
     }
 
     ErrorCode GetHeaterTemperature(float *degreesCelcius)

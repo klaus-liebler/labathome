@@ -21,6 +21,7 @@
 #include <bme280.hh>
 #include <ads1115.hh>
 #include <ccs811.hh>
+#include <hdc1080.hh>
 #include <owb.h>
 #include <owb_rmt.h>
 #include <ds18b20.h>
@@ -28,6 +29,7 @@
 #include <i2c.hh>
 #include <MP3Player.hh>
 #include <Alarm.mp3.h>
+#include <PD_UFP.h>
 
 const uint8_t *SONGS[] = {Alarm_ding_mp3, Alarm_heule_mp3, Alarm_hupe_mp3};
 const size_t SONGS_LEN[] = {sizeof(Alarm_ding_mp3), sizeof(Alarm_heule_mp3), sizeof(Alarm_hupe_mp3)};
@@ -74,6 +76,8 @@ constexpr Pintype PN_EXT2 = PIN_MULTI2;
 
 constexpr Pintype PN_485_RO = PIN_MULTI3;
 constexpr Pintype PN_EXT3 = PIN_MULTI3;
+
+constexpr Pintype FUSB302_INT = PIN_SPI_CLK;
 
 struct Note
 {
@@ -128,7 +132,7 @@ constexpr size_t LED_NUMBER = 4;
 constexpr rmt_channel_t CHANNEL_WS2812 = RMT_CHANNEL_0;
 constexpr rmt_channel_t CHANNEL_ONEWIRE_TX = RMT_CHANNEL_1;
 constexpr rmt_channel_t CHANNEL_ONEWIRE_RX = RMT_CHANNEL_2;
-constexpr i2c_port_t I2C_PORT = I2C_NUM_1;
+constexpr i2c_port_t I2C_PORT{I2C_NUM_1};
 constexpr uint32_t DEFAULT_VREF = 1100; //Use adc2_vref_to_gpio() to obtain a better estimate
 constexpr uint16_t sw_limits[7] = {160, 480, 1175, 1762, 2346, 2779, 3202};
 constexpr int SERVO_MIN_PULSEWIDTH = 500;  //Minimum pulse width in microsecond
@@ -141,7 +145,7 @@ constexpr int average_over_N_measurements{10};
 constexpr int SAMPLES {2048};
 constexpr size_t SAMPLES_IN_BYTES = SAMPLES*4;
 constexpr int SAMPLE_RATE{22050};
-constexpr uint8_t AMPLITUDE = 150;
+constexpr int AMPLITUDE = 150;
 constexpr uint16_t FREQUENCIES[]{11,22,32,43,54,65,75,97,118,140,161,183,205,226,258,291,323,355,388,431,474,517,560,614,668,721,786,851,915,991,1066,1152,1238,1335,1443,1550,1669,1798,1938,2089,2239,2401,2584,2778,2982,3198,3435,3682,3951,4231,4533,4856,5200,5566,5965,6385,6837,7321,7838,8398,8990,9625,10304,11025};
 constexpr uint16_t BUCKET_INDICES[]{1,2,3,4,5,6,7,9,11,13,15,17,19,21,24,27,30,33,36,40,44,48,52,57,62,67,73,79,85,92,99,107,115,124,134,144,155,167,180,194,208,223,240,258,277,297,319,342,367,393,421,451,483,517,554,593,635,680,728,780,835,894,957,1024};
 
@@ -171,9 +175,12 @@ private:
 
     WS2812_Strip<LED_NUMBER> *strip = NULL;
     cRotaryEncoder *rotenc = NULL;
-    
+    PD_UFP_core_c PD_UFP;
 
     uint32_t buttonState = 0;
+
+    //Sensors
+    hdc1080::M *hdc1080dev;
 
     //SensorValues
     float heaterTemperatureDegCel = 0.0;
@@ -186,6 +193,8 @@ private:
     float ADS1115Values[4];
     float airSpeedMeterPerSecond;
     uint16_t ds4525doPressure;
+    
+
     //Actor Values
     uint16_t pca9685Values[16];
 public:
@@ -222,6 +231,7 @@ public:
         return this->rotenc->GetValue(value)==ESP_OK?ErrorCode::OK:ErrorCode::GENERIC_ERROR;
     }
 
+
     void SensorLoop_ForInternalUseOnly()
     {
         int64_t nextOneWireReadout = INT64_MAX;
@@ -229,6 +239,7 @@ public:
         int64_t nextBH1750Readout = INT64_MAX;
         int64_t nextCCS811Readout = INT64_MAX;
         int64_t nextMS4525Readout = INT64_MAX;
+        int64_t nextButtonReadout = 0;
         TickType_t nextADS1115Readout = UINT32_MAX;
         uint16_t nextADS1115Mux = 0b100; //100...111
 
@@ -238,6 +249,12 @@ public:
         uint32_t ccs811ReadoutIntervalMs = 1100;
         TickType_t ads1115ReadoutInterval = portMAX_DELAY;
         uint32_t ms4525ReadoutInterval = 200;
+
+        
+
+        //USB-PD
+        //Power Delivery USB-C
+        PD_UFP.init_PPS(PPS_V(10), PPS_A(2.0));
 
         //OneWire
         DS18B20_Info *ds18b20_info = NULL;
@@ -322,23 +339,34 @@ public:
             nextMS4525Readout = GetMillis() + ms4525ReadoutInterval;
         }
 
-
+        //CCS811
+        hdc1080dev = new hdc1080::M(I2C_PORT);
 
         while (true)
         {
-             
-            this->movementIsDetected = gpio_get_level(PIN_MOVEMENT_OR_FAN1SENSE);
-            int adc_reading = adc1_get_raw(PIN_SW_CHANNEL);
-            //uint32_t voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
-            //printf("Raw: %d\tVoltage: %dmV\n", adc_reading, voltage);
-            int i = 0;
-            for (i = 0; i < sizeof(sw_limits) / sizeof(uint16_t); i++)
-            {
-                if (adc_reading < sw_limits[i])
-                    break;
+            PD_UFP.run();
+            if (PD_UFP.is_PPS_ready()) {          
+                ESP_LOGI(TAG, "PPS Power from USB-C is ready");
             }
-            i = ~i;
-            this->buttonState = i;
+            else if (PD_UFP.is_power_ready())
+            {
+                ESP_LOGI(TAG, "Normal Power from USB-C is ready");
+            }
+            if(GetMillis64() > nextButtonReadout){
+                this->movementIsDetected = gpio_get_level(PIN_MOVEMENT_OR_FAN1SENSE);
+                int adc_reading = adc1_get_raw(PIN_SW_CHANNEL);
+                //uint32_t voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
+                //printf("Raw: %d\tVoltage: %dmV\n", adc_reading, voltage);
+                int i = 0;
+                for (i = 0; i < sizeof(sw_limits) / sizeof(uint16_t); i++)
+                {
+                    if (adc_reading < sw_limits[i])
+                        break;
+                }
+                i = ~i;
+                this->buttonState = i;
+                nextButtonReadout = GetMillis64()+100;
+            }
 
             if (GetMillis64() > nextOneWireReadout)
             {
@@ -372,6 +400,7 @@ public:
                 }
                 nextCCS811Readout = GetMillis64() + ccs811ReadoutIntervalMs;
             }
+            hdc1080dev->Loop(GetMillis64());
 
             if (xTaskGetTickCount() >= nextADS1115Readout)
             {
@@ -382,8 +411,6 @@ public:
                 ads1115->TriggerMeasurement((ads1115_mux_t)nextADS1115Mux);
                 nextADS1115Readout = xTaskGetTickCount() + ads1115ReadoutInterval;
             }
-            vTaskDelay(pdMS_TO_TICKS(100));
-            
         }
         
     }
@@ -438,14 +465,12 @@ public:
         return ErrorCode::OK;
     }
 
-
+    
     //see https://github.com/squix78/esp32-mic-fft/blob/master/esp32-mic-fft.ino
     ErrorCode GetFFT64(float *magnitudes64_param){
         for (int i = 1; i < 64; i++){
             magnitudes64_param[i]=0;
-        }
-        int32_t minimum{INT32_MAX};
-        int32_t maximum{INT32_MIN};      
+        }    
         for(int cnt=0;cnt<average_over_N_measurements;cnt++){
             float magnitudes64[64];
             size_t num_bytes_read{0};
@@ -458,8 +483,7 @@ public:
                 return ErrorCode::GENERIC_ERROR;
             }
             for (int i = 0; i < SAMPLES; i++){
-                int16_t sample = samplesI32[i] >> 14; //>>16 to be on the veeeeery safe side, but then "normal" voice is even tooo quiet in replay
-                real[i] = sample;
+                real[i] = samplesI32[i];
                 imag[i]=0.0;
             }
             fft.Windowing(FFT_WIN_TYP_HANN, FFT_FORWARD);
@@ -469,16 +493,18 @@ public:
             magnitudes64[0]=0;
             for (int i = 1; i < 64; i++){
                 while(resultPointer<BUCKET_INDICES[i]){
-                    magnitudes64[i]=std::max(magnitudes64[i], (float)real[resultPointer]);
+                    //if(magnitudes64[i] > 13*AMPLITUDE){
+                        magnitudes64[i]=std::max(magnitudes64[i], (float)(real[resultPointer]/AMPLITUDE));
+                    //}
                     resultPointer++;
                 }
                 //magnitudes64_param[i]+=magnitudes64[i];
                 magnitudes64_param[i] = std::max(magnitudes64_param[i], magnitudes64[i]);
             }
         }
-        for (int i = 1; i < 64; i++){
+        //for (int i = 1; i < 64; i++){
             //magnitudes64_param[i]/=average_over_N_measurements;
-        }
+        //}
         return ErrorCode::OK;
     }
 
@@ -487,13 +513,14 @@ public:
     ErrorCode Init()
     {
         if(mode_SPI_IO1_OR_SERVO2!=MODE_SPI_IO1_OR_SERVO2::SERVO2
-            || mode_HEATER_OR_LED_POWER != MODE_HEATER_OR_LED_POWER::LED_POWER
             || mode_K3A1_OR_ROTB!=MODE_K3A1_OR_ROTB::ROTB
             || mode_MOVEMENT_OR_FAN1SENSE!=MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR
             || mode_FAN1_DRIVE_OR_SERVO1!=MODE_FAN1_DRIVE_OR_SERVO1::FAN1_DRIVE
             || mode_RS485_OR_EXT!=MODE_RS485_OR_EXT::RS485){
             return ErrorCode::NOT_YET_IMPLEMENTED;
         }
+
+       
 
         // i2s config for reading from left channel of I2S - this is standard for microphones
         i2s_config_t i2sMemsConfigLeftChannel = {};
@@ -566,7 +593,7 @@ public:
         //Heater
         if(mode_HEATER_OR_LED_POWER==MODE_HEATER_OR_LED_POWER::HEATER){
             mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM2A, PIN_HEATER_OR_LED_POWER);
-            pwm_config.frequency = 20;
+            pwm_config.frequency = 200;
             pwm_config.cmpr_a = 0; //duty cycle of PWMxA = 0
             pwm_config.cmpr_b = 0; //duty cycle of PWMxb = 0
             pwm_config.counter_mode = MCPWM_UP_COUNTER;
@@ -633,6 +660,8 @@ public:
         ESP_ERROR_CHECK(i2c_driver_install(I2C_PORT, conf.mode, 0, 0, 0));
 
         ESP_ERROR_CHECK(I2C::Init());
+
+
 
         //LED Strip
         strip = new WS2812_Strip<LED_NUMBER>();
@@ -763,17 +792,17 @@ public:
 
     bool GetButtonRedIsPressed()
     {
-        return CHECK_BIT(this->buttonState, (uint8_t)Button::BUT_RED);
+        return GetBitIdx(this->buttonState, (uint8_t)Button::BUT_RED);
     }
 
     bool GetButtonEncoderIsPressed()
     {
-        return CHECK_BIT(this->buttonState, (uint8_t)Button::BUT_ENCODER);
+        return GetBitIdx(this->buttonState, (uint8_t)Button::BUT_ENCODER);
     }
 
     bool GetButtonGreenIsPressed()
     {
-        return CHECK_BIT(this->buttonState, (uint8_t)Button::BUT_GREEN);
+        return GetBitIdx(this->buttonState, (uint8_t)Button::BUT_GREEN);
     }
 
     bool IsMovementDetected()
@@ -813,3 +842,4 @@ void mp3Task(void *pvParameters)
     HAL_labathome *hal = (HAL_labathome *)pvParameters;
     hal->MP3Loop_ForInternalUseOnly();
 }
+
