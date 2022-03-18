@@ -128,24 +128,23 @@ enum class Button : uint8_t
 
 
 
-constexpr size_t LED_NUMBER = 4;
-constexpr rmt_channel_t CHANNEL_WS2812 = RMT_CHANNEL_0;
-constexpr rmt_channel_t CHANNEL_ONEWIRE_TX = RMT_CHANNEL_1;
-constexpr rmt_channel_t CHANNEL_ONEWIRE_RX = RMT_CHANNEL_2;
+constexpr size_t LED_NUMBER{4};
+constexpr rmt_channel_t CHANNEL_ONEWIRE_TX{RMT_CHANNEL_1};
+constexpr rmt_channel_t CHANNEL_ONEWIRE_RX{RMT_CHANNEL_2};
 constexpr i2c_port_t I2C_PORT{I2C_NUM_1};
-constexpr uint32_t DEFAULT_VREF = 1100; //Use adc2_vref_to_gpio() to obtain a better estimate
-constexpr uint16_t sw_limits[7] = {160, 480, 1175, 1762, 2346, 2779, 3202};
-constexpr int SERVO_MIN_PULSEWIDTH = 500;  //Minimum pulse width in microsecond
-constexpr int SERVO_MAX_PULSEWIDTH = 2400; //Maximum pulse width in microsecond
-constexpr int SERVO_MAX_DEGREE = 180;      //Maximum angle in degree upto which servo can rotate
-constexpr ledc_timer_bit_t power_ledc_timer_duty_resolution = LEDC_TIMER_10_BIT;
+constexpr uint32_t DEFAULT_VREF{1100}; //Use adc2_vref_to_gpio() to obtain a better estimate
+constexpr uint16_t sw_limits[]{160, 480, 1175, 1762, 2346, 2779, 3202};
+constexpr int SERVO_MIN_PULSEWIDTH{500};  //Minimum pulse width in microsecond
+constexpr int SERVO_MAX_PULSEWIDTH{2400}; //Maximum pulse width in microsecond
+constexpr int SERVO_MAX_DEGREE{180};      //Maximum angle in degree upto which servo can rotate
+constexpr ledc_timer_bit_t power_ledc_timer_duty_resolution{LEDC_TIMER_10_BIT};
 
 constexpr i2s_port_t I2S_PORT{I2S_NUM_1};
 constexpr int average_over_N_measurements{10};
 constexpr int SAMPLES {2048};
-constexpr size_t SAMPLES_IN_BYTES = SAMPLES*4;
+constexpr size_t SAMPLES_IN_BYTES{SAMPLES*4};
 constexpr int SAMPLE_RATE{22050};
-constexpr int AMPLITUDE = 150;
+constexpr int AMPLITUDE{150};
 constexpr uint16_t FREQUENCIES[]{11,22,32,43,54,65,75,97,118,140,161,183,205,226,258,291,323,355,388,431,474,517,560,614,668,721,786,851,915,991,1066,1152,1238,1335,1443,1550,1669,1798,1938,2089,2239,2401,2584,2778,2982,3198,3435,3682,3951,4231,4533,4856,5200,5566,5965,6385,6837,7321,7838,8398,8990,9625,10304,11025};
 constexpr uint16_t BUCKET_INDICES[]{1,2,3,4,5,6,7,9,11,13,15,17,19,21,24,27,30,33,36,40,44,48,52,57,62,67,73,79,85,92,99,107,115,124,134,144,155,167,180,194,208,223,240,258,277,297,319,342,367,393,421,451,483,517,554,593,635,680,728,780,835,894,957,1024};
 
@@ -339,7 +338,7 @@ public:
             nextMS4525Readout = GetMillis() + ms4525ReadoutInterval;
         }
 
-        //CCS811
+        //HDC1080
         hdc1080dev = new hdc1080::M(I2C_PORT);
 
         while (true)

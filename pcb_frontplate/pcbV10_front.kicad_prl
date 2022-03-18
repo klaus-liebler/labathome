@@ -1,8 +1,8 @@
 {
   "board": {
     "active_layer": 0,
-    "active_layer_preset": "",
-    "auto_track_width": false,
+    "active_layer_preset": "Alle Lagen",
+    "auto_track_width": true,
     "hidden_nets": [],
     "high_contrast_mode": 0,
     "net_color_mode": 1,
@@ -33,7 +33,6 @@
       3,
       4,
       5,
-      6,
       8,
       9,
       10,
@@ -63,11 +62,11 @@
       35,
       36
     ],
-    "visible_layers": "0008060_00000001",
+    "visible_layers": "fffffff_ffffffff",
     "zone_display_mode": 0
   },
   "meta": {
-    "filename": "pcbV10.kicad_prl",
+    "filename": "pcbV10_front.kicad_prl",
     "version": 3
   },
   "project": {

@@ -9987,6 +9987,9 @@
     (path "/00000000-0000-0000-0000-0000619d0503/31995acd-80df-4908-80d1-82c6b238f1ef"
       (reference "#PWR0113") (unit 1) (value "GND") (footprint "")
     )
+    (path "/00000000-0000-0000-0000-0000619d0503/0acacbe9-c251-4c47-bb46-c1e2da64e69f"
+      (reference "#PWR0114") (unit 1) (value "+3V3") (footprint "")
+    )
     (path "/00000000-0000-0000-0000-0000619d0503/a565e2bc-f949-4330-acf1-7801f95d22d9"
       (reference "#PWR0115") (unit 1) (value "GND") (footprint "")
     )
