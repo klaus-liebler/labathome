@@ -1,3 +1,0 @@
-Mittleren Taster und Trimmwiderstand und Drehwiderstand durch RotaryEncoder ersetzen. Verzögerungszeit des Zeitrelay nicht per Trimmwiderstand einstellbar machen
-Unmittelbare Kontroll-LED für Heizwiderstand
-Unnötige Durchkontaktierungen bei I2S_SCK (bereits entfernt!)
