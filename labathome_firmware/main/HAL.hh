@@ -45,7 +45,7 @@ class HAL
         virtual ErrorCode SetLedPowerWhiteState(uint8_t dutyInpercent)=0;
         virtual bool GetButtonRedIsPressed()=0;
         virtual bool GetButtonEncoderIsPressed()=0;
-        virtual ErrorCode GetEncoderValue(int16_t *value);
+        virtual ErrorCode GetEncoderValue(int *value);
         virtual bool GetButtonGreenIsPressed()=0;
         virtual bool IsMovementDetected()=0;
         virtual ErrorCode SetServo1Position(uint32_t angle_0_to_180)=0;

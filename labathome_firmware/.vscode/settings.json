@@ -1,9 +1,5 @@
 {
   "C_Cpp.intelliSenseEngine": "Default",
-  "idf.adapterTargetName": "esp32",
-  "files.associations": {
-    "*.ipp": "cpp",
-    "cmath": "cpp",
-    "complex": "cpp"
-  }
+  "idf.portWin": "COM8",
+  "idf.adapterTargetName": "esp32"
 }

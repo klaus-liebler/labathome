@@ -12,7 +12,7 @@
 #include <sys/param.h>
 #include <nvs_flash.h>
 #include <esp_netif.h>
-#include "connect.hh"
+#include <network.hh>
 #include <esp_http_server.h>
 #include "http_handlers.hh"
 static const char *TAG = "main";
@@ -103,7 +103,7 @@ void plcTask(void *pvParameters)
     // }
     
     
-    hal->PlaySong(0);
+    hal->PlaySong(1);
     ESP_LOGI(TAG, "plcmanager main loop starts");
     while (true)
     {
@@ -220,9 +220,8 @@ static httpd_handle_t start_webserver(void)
     }
 
     const char *hostnameptr;
-    if(tcpip_adapter_get_hostname(TCPIP_ADAPTER_IF_STA, &hostnameptr)!=ESP_OK || hostnameptr==NULL){
-        ESP_ERROR_CHECK(tcpip_adapter_get_hostname(TCPIP_ADAPTER_IF_AP, &hostnameptr));
-    }
+    
+    ESP_ERROR_CHECK(esp_netif_get_hostname(wifi_netif, &hostnameptr));
 
     ESP_LOGI(TAG, "HTTPd successfully started for website http://%s:%d", hostnameptr, config.server_port);
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &getroot));
@@ -281,7 +280,8 @@ void app_main(void)
     ESP_ERROR_CHECK(nvs_flash_init());
     //connectSTA2AP(false);
     //xSemaphoreTake( connectSemaphore, portMAX_DELAY);
-    startAP();
+    initNetIfandEventLoop();
+    connectSTA2AP(CONFIG_NETWORK_WIFI_SSID, CONFIG_NETWORK_WIFI_PASSWORD, CONFIG_NETWORK_HOSTNAME_PATTERN);
     start_webserver(); 
 
     //xTaskCreate(experimentTask, "experimentTask", 1024 * 2, NULL, 5, NULL);
@@ -298,7 +298,7 @@ void app_main(void)
         hal->GetAirPressure(&airPres);
         float airHumid{0.f};
         hal->GetAirRelHumidity(&airHumid);
-        int16_t encoderValue{0};
+        int encoderValue{0};
         hal->GetEncoderValue(&encoderValue);
         uint16_t co2{0};
         hal->GetCO2PPM(&co2);

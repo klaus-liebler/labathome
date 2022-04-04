@@ -139,11 +139,13 @@ constexpr int SERVO_MAX_PULSEWIDTH{2400}; //Maximum pulse width in microsecond
 constexpr int SERVO_MAX_DEGREE{180};      //Maximum angle in degree upto which servo can rotate
 constexpr ledc_timer_bit_t power_ledc_timer_duty_resolution{LEDC_TIMER_10_BIT};
 
-constexpr i2s_port_t I2S_PORT{I2S_NUM_1};
+constexpr i2s_port_t I2S_PORT_MICROPHONE{I2S_NUM_1};
+constexpr i2s_port_t I2S_PORT_LOUDSPEAKER{I2S_NUM_0};
+
 constexpr int average_over_N_measurements{10};
 constexpr int SAMPLES {2048};
 constexpr size_t SAMPLES_IN_BYTES{SAMPLES*4};
-constexpr int SAMPLE_RATE{22050};
+constexpr int SAMPLE_RATE_MICROPHONE{22050};
 constexpr int AMPLITUDE{150};
 constexpr uint16_t FREQUENCIES[]{11,22,32,43,54,65,75,97,118,140,161,183,205,226,258,291,323,355,388,431,474,517,560,614,668,721,786,851,915,991,1066,1152,1238,1335,1443,1550,1669,1798,1938,2089,2239,2401,2584,2778,2982,3198,3435,3682,3951,4231,4533,4856,5200,5566,5965,6385,6837,7321,7838,8398,8990,9625,10304,11025};
 constexpr uint16_t BUCKET_INDICES[]{1,2,3,4,5,6,7,9,11,13,15,17,19,21,24,27,30,33,36,40,44,48,52,57,62,67,73,79,85,92,99,107,115,124,134,144,155,167,180,194,208,223,240,258,277,297,319,342,367,393,421,451,483,517,554,593,635,680,728,780,835,894,957,1024};
@@ -152,7 +154,7 @@ constexpr uint16_t BUCKET_INDICES[]{1,2,3,4,5,6,7,9,11,13,15,17,19,21,24,27,30,3
 int32_t samplesI32[SAMPLES]; //The slave serial-data port’s format is I²S, 24-bit, twos complement, There must be 64 SCK cycles in each WS stereo frame, or 32 SCK cycles per data-word.
 double real[SAMPLES];
 double imag[SAMPLES];
-arduinoFFT fft(real, imag, SAMPLES, SAMPLE_RATE);
+arduinoFFT fft(real, imag, SAMPLES, SAMPLE_RATE_MICROPHONE);
 
 MP3Player mp3player;
 
@@ -180,6 +182,7 @@ private:
 
     //Sensors
     hdc1080::M *hdc1080dev;
+    CCS811::M *ccs811dev;
 
     //SensorValues
     float heaterTemperatureDegCel = 0.0;
@@ -193,9 +196,6 @@ private:
     float airSpeedMeterPerSecond;
     uint16_t ds4525doPressure;
     
-
-    //Actor Values
-    uint16_t pca9685Values[16];
 public:
     HAL_labathome(MODE_SPI_IO1_OR_SERVO2 mode_SPI_IO1_OR_SERVO2, MODE_HEATER_OR_LED_POWER mode_HEATER_OR_LED_POWER, MODE_K3A1_OR_ROTB mode_K3A1_OR_ROTB, MODE_MOVEMENT_OR_FAN1SENSE mode_MOVEMENT_OR_FAN1SENSE, MODE_FAN1_DRIVE_OR_SERVO1 mode_FAN1_DRIVE_OR_SERVO1, MODE_RS485_OR_EXT mode_RS485_OR_EXT) : mode_SPI_IO1_OR_SERVO2(mode_SPI_IO1_OR_SERVO2), mode_HEATER_OR_LED_POWER(mode_HEATER_OR_LED_POWER), mode_K3A1_OR_ROTB(mode_K3A1_OR_ROTB), mode_MOVEMENT_OR_FAN1SENSE(mode_MOVEMENT_OR_FAN1SENSE),  mode_FAN1_DRIVE_OR_SERVO1(mode_FAN1_DRIVE_OR_SERVO1), mode_RS485_OR_EXT(mode_RS485_OR_EXT)
     {
@@ -226,34 +226,32 @@ public:
         return ErrorCode::OK;
     }
 
-    ErrorCode GetEncoderValue(int16_t *value){
+    ErrorCode GetEncoderValue(int *value){
         return this->rotenc->GetValue(value)==ESP_OK?ErrorCode::OK:ErrorCode::GENERIC_ERROR;
     }
 
 
     void SensorLoop_ForInternalUseOnly()
     {
-        int64_t nextOneWireReadout = INT64_MAX;
-        int64_t nextBME280Readout = INT64_MAX;
-        int64_t nextBH1750Readout = INT64_MAX;
-        int64_t nextCCS811Readout = INT64_MAX;
-        int64_t nextMS4525Readout = INT64_MAX;
-        int64_t nextButtonReadout = 0;
-        TickType_t nextADS1115Readout = UINT32_MAX;
-        uint16_t nextADS1115Mux = 0b100; //100...111
+        int64_t nextOneWireReadout{INT64_MAX};
+        int64_t nextBME280Readout{INT64_MAX};
+        int64_t nextBH1750Readout{INT64_MAX};
+        int64_t nextButtonReadout{0};
+        TickType_t nextADS1115Readout{UINT32_MAX};
+        uint16_t nextADS1115Mux{0b100}; //100...111
 
-        uint32_t oneWireReadoutIntervalMs = 800; //10bit -->187ms Conversion time, 12bit--> 750ms
-        uint32_t bme280ReadoutIntervalMs = UINT32_MAX;
-        uint32_t bh1750ReadoutIntervalMs = 200;
-        uint32_t ccs811ReadoutIntervalMs = 1100;
-        TickType_t ads1115ReadoutInterval = portMAX_DELAY;
-        uint32_t ms4525ReadoutInterval = 200;
+        uint32_t oneWireReadoutIntervalMs{800}; //10bit -->187ms Conversion time, 12bit--> 750ms
+        uint32_t bme280ReadoutIntervalMs{UINT32_MAX};
+        uint32_t bh1750ReadoutIntervalMs{200};
+        TickType_t ads1115ReadoutInterval{portMAX_DELAY};
+
+        uint16_t voltagePrevious{0};
 
         
 
         //USB-PD
         //Power Delivery USB-C
-        PD_UFP.init_PPS(PPS_V(10), PPS_A(2.0));
+        PD_UFP.init_PPS(PPS_V(16), PPS_A(2.8), PD_POWER_OPTION_MAX_20V);
 
         //OneWire
         DS18B20_Info *ds18b20_info = NULL;
@@ -265,7 +263,6 @@ public:
         owb_status status = owb_read_rom(owb, &rom_code);
         if (status == OWB_STATUS_OK)
         {
-
             ds18b20_info = ds18b20_malloc();                                 // heap allocation
             ds18b20_init_solo(ds18b20_info, owb);                            // only one device on bus
             ds18b20_use_crc(ds18b20_info, true);                             // enable CRC check on all reads
@@ -321,22 +318,7 @@ public:
         }
 
         //CCS811
-        CCS811Manager *ccs811 = new CCS811Manager(I2C_PORT);
-        if (ccs811->Init()==ESP_OK)
-        {
-            ccs811->Start(CCS811::MODE::_1SEC);
-            nextCCS811Readout = GetMillis() + ccs811ReadoutIntervalMs;
-            ESP_LOGI(TAG, "I2C: CCS811 successfully initialized.");
-        }
-        else
-        {
-            ESP_LOGW(TAG, "I2C: CCS811 not found");
-        }
-
-        MS4525DO *ms4525 = new MS4525DO(I2C_PORT, MS4523_Adress::I);
-        if(ms4525->Init()==ESP_OK){
-            nextMS4525Readout = GetMillis() + ms4525ReadoutInterval;
-        }
+        ccs811dev = new CCS811::M(I2C_PORT);
 
         //HDC1080
         hdc1080dev = new hdc1080::M(I2C_PORT);
@@ -344,12 +326,20 @@ public:
         while (true)
         {
             PD_UFP.run();
-            if (PD_UFP.is_PPS_ready()) {          
-                ESP_LOGI(TAG, "PPS Power from USB-C is ready");
+            if (PD_UFP.is_PPS_ready()) {
+                u16 voltage = PD_UFP.get_voltage();
+                if(voltage != voltagePrevious){
+                    ESP_LOGI(TAG, "PPS Power from USB-C is ready with %f Volts", voltage*0.02);
+                    voltagePrevious=voltage;
+                }      
             }
             else if (PD_UFP.is_power_ready())
             {
-                ESP_LOGI(TAG, "Normal Power from USB-C is ready");
+                u16 voltage = PD_UFP.get_voltage();
+                if(voltage != voltagePrevious){
+                    ESP_LOGI(TAG, "Normal Power from USB-C is ready with %f Volts", voltage*0.05);
+                    voltagePrevious=voltage;
+                }
             }
             if(GetMillis64() > nextButtonReadout){
                 this->movementIsDetected = gpio_get_level(PIN_MOVEMENT_OR_FAN1SENSE);
@@ -383,23 +373,10 @@ public:
                 bh1750->Read(&(this->ambientBrightnessLux));
                 nextBH1750Readout = GetMillis64() + bh1750ReadoutIntervalMs;
             }
-            if (GetMillis64() > nextMS4525Readout)
-            {
-                ms4525->Read();
-                this->airSpeedMeterPerSecond=ms4525->GetAirSpeedMetersPerSecond();
-                nextMS4525Readout = GetMillis64() + ms4525ReadoutInterval;
-            }
+  
 
-            if (GetMillis64() > nextCCS811Readout)
-            {
-                uint16_t value;
-                ccs811->Read(&value, NULL, NULL, NULL);
-                if(value<4000){ //sometimes, the sensor return strange large numbers...
-                    co2PPM=value;
-                }
-                nextCCS811Readout = GetMillis64() + ccs811ReadoutIntervalMs;
-            }
             hdc1080dev->Loop(GetMillis64());
+            ccs811dev->Loop(GetMillis64());
 
             if (xTaskGetTickCount() >= nextADS1115Readout)
             {
@@ -410,7 +387,9 @@ public:
                 ads1115->TriggerMeasurement((ads1115_mux_t)nextADS1115Mux);
                 nextADS1115Readout = xTaskGetTickCount() + ads1115ReadoutInterval;
             }
+            vTaskDelay(1);
         }
+        
         
     }
 
@@ -473,7 +452,7 @@ public:
         for(int cnt=0;cnt<average_over_N_measurements;cnt++){
             float magnitudes64[64];
             size_t num_bytes_read{0};
-            if (ESP_OK != i2s_read(I2S_PORT, samplesI32, SAMPLES_IN_BYTES, &num_bytes_read, portMAX_DELAY)){
+            if (ESP_OK != i2s_read(I2S_PORT_MICROPHONE, samplesI32, SAMPLES_IN_BYTES, &num_bytes_read, portMAX_DELAY)){
                 ESP_LOGE(TAG, "ESP_OK!=i2s_read");
                 return ErrorCode::GENERIC_ERROR;
             }
@@ -520,17 +499,17 @@ public:
         }
 
        
-
+    
         // i2s config for reading from left channel of I2S - this is standard for microphones
         i2s_config_t i2sMemsConfigLeftChannel = {};
         i2sMemsConfigLeftChannel.mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX);
-        i2sMemsConfigLeftChannel.sample_rate = SAMPLE_RATE;
+        i2sMemsConfigLeftChannel.sample_rate = SAMPLE_RATE_MICROPHONE;
         i2sMemsConfigLeftChannel.bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT;
         i2sMemsConfigLeftChannel.channel_format = I2S_CHANNEL_FMT_ONLY_LEFT;
         i2sMemsConfigLeftChannel.communication_format = I2S_COMM_FORMAT_STAND_I2S;
         i2sMemsConfigLeftChannel.intr_alloc_flags = ESP_INTR_FLAG_LEVEL1;
-        i2sMemsConfigLeftChannel.dma_buf_count = 4;
-        i2sMemsConfigLeftChannel.dma_buf_len = 1024;
+        i2sMemsConfigLeftChannel.dma_desc_num = 8;
+        i2sMemsConfigLeftChannel.dma_frame_num = 64;
         i2sMemsConfigLeftChannel.use_apll = false;
         i2sMemsConfigLeftChannel.tx_desc_auto_clear = false;
         i2sMemsConfigLeftChannel.fixed_mclk = 0;
@@ -539,10 +518,10 @@ public:
         i2sPins.ws_io_num = PIN_I2S_WS;
         i2sPins.data_out_num = I2S_PIN_NO_CHANGE;
         i2sPins.data_in_num = PIN_I2S_SD;
-        i2s_driver_install(I2S_PORT, &i2sMemsConfigLeftChannel, 0, NULL);
-        i2s_set_pin(I2S_PORT, &i2sPins);
+        i2s_driver_install(I2S_PORT_MICROPHONE, &i2sMemsConfigLeftChannel, 0, NULL);
+        i2s_set_pin(I2S_PORT_MICROPHONE, &i2sPins);
 
-        gpio_pad_select_gpio((uint8_t)PIN_K3A1_OR_ROTB);
+        gpio_reset_pin(PIN_K3A1_OR_ROTB);
         gpio_set_direction(PIN_K3A1_OR_ROTB, GPIO_MODE_INPUT);
         gpio_set_pull_mode(PIN_K3A1_OR_ROTB, GPIO_FLOATING);
 
@@ -552,14 +531,19 @@ public:
         adc1_config_width(ADC_WIDTH_BIT_12);
         adc1_config_channel_atten(PIN_SW_CHANNEL, ADC_ATTEN_0db);
 
-        gpio_pad_select_gpio((uint8_t)PIN_ROTENC_A);
+        gpio_reset_pin(PIN_ROTENC_A);
         gpio_set_direction(PIN_ROTENC_A, GPIO_MODE_INPUT);
         gpio_set_pull_mode(PIN_ROTENC_A, GPIO_FLOATING);
 
         gpio_set_level(PIN_K3_ON, 0);
-        gpio_pad_select_gpio((uint8_t)PIN_K3_ON);
+        gpio_reset_pin(PIN_K3_ON);
         gpio_set_direction(PIN_K3_ON, GPIO_MODE_OUTPUT);
         gpio_set_pull_mode(PIN_K3_ON, GPIO_FLOATING);
+
+        //MovementSensor
+        gpio_reset_pin(PIN_MOVEMENT_OR_FAN1SENSE);
+        gpio_set_direction(PIN_MOVEMENT_OR_FAN1SENSE, GPIO_MODE_INPUT);
+
 
         //Servos
         if(mode_FAN1_DRIVE_OR_SERVO1==MODE_FAN1_DRIVE_OR_SERVO1::SERVO1){
@@ -644,7 +628,7 @@ public:
         ESP_ERROR_CHECK(ledc_channel_config(&buzzer_channel));
         */
 
-        mp3player.InitInternalDAC(I2S_DAC_CHANNEL_BOTH_EN); //TODO: Check, whether I2S_DAC_CHANNEL_RIGHT_EN fpor GPIO25 works as well
+        mp3player.InitInternalDACMonoRightPin25();
 
         //I2C Master
         i2c_config_t conf;
@@ -667,7 +651,7 @@ public:
         ESP_ERROR_CHECK(strip->Init(VSPI_HOST, PIN_LED_WS2812, 2 ));
         ESP_ERROR_CHECK(strip->Clear(100));
         if(mode_K3A1_OR_ROTB==MODE_K3A1_OR_ROTB::ROTB){
-            rotenc=new cRotaryEncoder((pcnt_unit_t)0, PIN_ROTENC_A, PIN_K3A1_OR_ROTB, -100, 100);
+            rotenc=new cRotaryEncoder(PIN_ROTENC_A, PIN_K3A1_OR_ROTB, -100, 100);
             rotenc->Init();
             rotenc->Start();
         }
