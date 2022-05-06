@@ -123,17 +123,21 @@ constexpr int SERVO_MAX_PULSEWIDTH = 2400; //Maximum pulse width in microsecond
 constexpr int SERVO_MAX_DEGREE = 180;      //Maximum angle in degree upto which servo can rotate
 constexpr ledc_timer_bit_t power_ledc_timer_duty_resolution = LEDC_TIMER_10_BIT;
 
-constexpr i2s_port_t I2S_PORT = I2S_NUM_0;
+constexpr i2s_port_t I2S_PORT_MICROPHONE{I2S_NUM_1};
+constexpr i2s_port_t I2S_PORT_LOUDSPEAKER{I2S_NUM_0};
+
 constexpr int average_over_N_measurements{10};
 constexpr int SAMPLES {2048};
-constexpr int SAMPLE_RATE{22050};
-constexpr uint8_t AMPLITUDE = 150;
+constexpr size_t SAMPLES_IN_BYTES{SAMPLES*4};
+constexpr int SAMPLE_RATE_MICROPHONE{22050};
+constexpr int AMPLITUDE{150};
 constexpr uint16_t FREQUENCIES[]{11,22,32,43,54,65,75,97,118,140,161,183,205,226,258,291,323,355,388,431,474,517,560,614,668,721,786,851,915,991,1066,1152,1238,1335,1443,1550,1669,1798,1938,2089,2239,2401,2584,2778,2982,3198,3435,3682,3951,4231,4533,4856,5200,5566,5965,6385,6837,7321,7838,8398,8990,9625,10304,11025};
 constexpr uint16_t BUCKET_INDICES[]{1,2,3,4,5,6,7,9,11,13,15,17,19,21,24,27,30,33,36,40,44,48,52,57,62,67,73,79,85,92,99,107,115,124,134,144,155,167,180,194,208,223,240,258,277,297,319,342,367,393,421,451,483,517,554,593,635,680,728,780,835,894,957,1024};
+
 int32_t samplesI32[SAMPLES]; //The slave serial-data port’s format is I²S, 24-bit, twos complement, There must be 64 SCK cycles in each WS stereo frame, or 32 SCK cycles per data-word.
 double real[SAMPLES];
 double imag[SAMPLES];
-arduinoFFT fft(real, imag, SAMPLES, SAMPLE_RATE);
+arduinoFFT fft(real, imag, SAMPLES, SAMPLE_RATE_MICROPHONE);
 
 extern "C" void sensorTask(void *pvParameters);
 
@@ -196,7 +200,7 @@ public:
         return ErrorCode::OK;
     }
 
-    ErrorCode GetEncoderValue(int16_t *value){
+    ErrorCode GetEncoderValue(int *value){
         return this->rotenc->GetValue(value)==ESP_OK?ErrorCode::OK:ErrorCode::GENERIC_ERROR;
     }
 
@@ -401,7 +405,7 @@ public:
         for(int cnt=0;cnt<average_over_N_measurements;cnt++){
             float magnitudes64[64];
             size_t num_bytes_read{0};
-            if (ESP_OK != i2s_read(I2S_PORT, samplesI32, sizeof(uint32_t) * SAMPLES, &num_bytes_read, portMAX_DELAY)){
+            if (ESP_OK != i2s_read(I2S_PORT_MICROPHONE, samplesI32, sizeof(uint32_t) * SAMPLES, &num_bytes_read, portMAX_DELAY)){
                 ESP_LOGE(TAG, "ESP_OK!=i2s_read");
                 return ErrorCode::GENERIC_ERROR;
             }
@@ -447,13 +451,13 @@ public:
         // i2s config for reading from left channel of I2S - this is standard for microphones
         i2s_config_t i2sMemsConfigLeftChannel = {};
         i2sMemsConfigLeftChannel.mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX);
-        i2sMemsConfigLeftChannel.sample_rate = SAMPLE_RATE;
+        i2sMemsConfigLeftChannel.sample_rate = SAMPLE_RATE_MICROPHONE;
         i2sMemsConfigLeftChannel.bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT;
-        i2sMemsConfigLeftChannel.channel_format = I2S_CHANNEL_FMT_ONLY_RIGHT;
+        i2sMemsConfigLeftChannel.channel_format = I2S_CHANNEL_FMT_ONLY_LEFT;
         i2sMemsConfigLeftChannel.communication_format = I2S_COMM_FORMAT_STAND_I2S;
         i2sMemsConfigLeftChannel.intr_alloc_flags = ESP_INTR_FLAG_LEVEL1;
-        i2sMemsConfigLeftChannel.dma_buf_count = 4;
-        i2sMemsConfigLeftChannel.dma_buf_len = 1024;
+        i2sMemsConfigLeftChannel.dma_desc_num = 8;
+        i2sMemsConfigLeftChannel.dma_frame_num = 64;
         i2sMemsConfigLeftChannel.use_apll = false;
         i2sMemsConfigLeftChannel.tx_desc_auto_clear = false;
         i2sMemsConfigLeftChannel.fixed_mclk = 0;
@@ -462,14 +466,14 @@ public:
         i2sPins.ws_io_num = PIN_I2S_WS;
         i2sPins.data_out_num = I2S_PIN_NO_CHANGE;
         i2sPins.data_in_num = PIN_I2S_SD;
-        i2s_driver_install(I2S_PORT, &i2sMemsConfigLeftChannel, 0, NULL);
-        i2s_set_pin(I2S_PORT, &i2sPins);
+        i2s_driver_install(I2S_PORT_MICROPHONE, &i2sMemsConfigLeftChannel, 0, NULL);
+        i2s_set_pin(I2S_PORT_MICROPHONE, &i2sPins);
 
-        gpio_pad_select_gpio((uint8_t)PIN_R3_1);
+        gpio_reset_pin(PIN_R3_1);
         gpio_set_direction(PIN_R3_1, GPIO_MODE_INPUT);
         gpio_set_pull_mode(PIN_R3_1, GPIO_FLOATING);
 
-        gpio_pad_select_gpio((uint8_t)PIN_MOVEMENT);
+        gpio_reset_pin(PIN_MOVEMENT);
         gpio_set_direction(PIN_MOVEMENT, GPIO_MODE_INPUT);
         gpio_set_pull_mode(PIN_MOVEMENT, GPIO_FLOATING);
 
@@ -478,16 +482,16 @@ public:
         adc1_config_width(ADC_WIDTH_BIT_12);
         adc1_config_channel_atten(PIN_SW_CHANNEL, ADC_ATTEN_0db);
 
-        gpio_pad_select_gpio((uint8_t)PIN_ROTENC_A);
+        gpio_reset_pin(PIN_ROTENC_A);
         gpio_set_direction(PIN_ROTENC_A, GPIO_MODE_INPUT);
         gpio_set_pull_mode(PIN_ROTENC_A, GPIO_FLOATING);
 
-        gpio_pad_select_gpio((uint8_t)PIN_ROTENC_B);
+        gpio_reset_pin(PIN_ROTENC_B);
         gpio_set_direction(PIN_ROTENC_B, GPIO_MODE_INPUT);
         gpio_set_pull_mode(PIN_ROTENC_B, GPIO_PULLUP_ONLY);
 
         gpio_set_level(PIN_R3_ON, 0);
-        gpio_pad_select_gpio((uint8_t)PIN_R3_ON);
+        gpio_reset_pin(PIN_R3_ON);
         gpio_set_direction(PIN_R3_ON, GPIO_MODE_OUTPUT);
         gpio_set_pull_mode(PIN_R3_ON, GPIO_FLOATING);
 
@@ -583,7 +587,7 @@ public:
         ESP_ERROR_CHECK(strip->Init(VSPI_HOST, PIN_LED_STRIP, 2 ));
         ESP_ERROR_CHECK(strip->Clear(100));
 
-        rotenc=new cRotaryEncoder((pcnt_unit_t)0, PIN_ROTENC_A, PIN_ROTENC_B, -100, 100);
+        rotenc=new cRotaryEncoder(PIN_ROTENC_A, PIN_ROTENC_B, -100, 100);
         rotenc->Init();
         rotenc->Start();
 

@@ -1,5 +1,11 @@
 {
   "C_Cpp.intelliSenseEngine": "Default",
   "idf.portWin": "COM8",
-  "idf.adapterTargetName": "esp32"
+  "idf.adapterTargetName": "esp32",
+  "files.associations": {
+    "*.tcc": "cpp",
+    "array": "cpp",
+    "string": "cpp",
+    "string_view": "cpp"
+  }
 }

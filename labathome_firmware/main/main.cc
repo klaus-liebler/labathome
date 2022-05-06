@@ -12,7 +12,7 @@
 #include <sys/param.h>
 #include <nvs_flash.h>
 #include <esp_netif.h>
-#include <network.hh>
+#include <network_manager.hh>
 #include <esp_http_server.h>
 #include "http_handlers.hh"
 static const char *TAG = "main";
@@ -21,6 +21,7 @@ static const char *TAG = "main";
 #include "WS2812.hh"
 #include "esp_log.h"
 #include "spiffs.hh"
+
 
 //#include "HAL_labathomeV5.hh"
 //HAL *hal = new HAL_labathome(MODE_IO33::SERVO2, MODE_MULTI1_PIN::I2S, MODE_MULTI_2_3_PINS::I2S);
@@ -34,7 +35,6 @@ PLCManager *plcmanager = new PLCManager(hal);
 extern "C"
 {
     void app_main();
-    void experimentTask(void *);
     void plcTask(void *);
 }
 
@@ -46,7 +46,7 @@ void plcTask(void *pvParameters)
     // Initialise the xLastWakeTime variable with the current time.
     xLastWakeTime = xTaskGetTickCount();
     plcmanager->Init();
-    /*
+    
     for(int i=0;i<3;i++)
     {
         hal->ColorizeLed(LED::LED_RED, CRGB::DarkRed);
@@ -62,7 +62,7 @@ void plcTask(void *pvParameters)
         hal->AfterLoop();
         vTaskDelay(pdMS_TO_TICKS(150));
     }
-    */
+    
     // hal->SetFan1State(30);
     // hal->SetFan2State(30);
     // while (true)
@@ -92,12 +92,13 @@ void plcTask(void *pvParameters)
 
     // hal->UnColorizeAllLed();
     // #define PI 3.14159265
-    // for(int i=0;i<3;i++)
+    // for(;;)
     // {
+    //     ESP_LOGI(TAG, "LED POWER WHITE cycle");
     //     for(int deg=0;deg<360;deg+=10){
     //         uint8_t result = 50*(sin(deg*PI/180)+1);
-    //         hal->SetLedPowerWhiteState(result);
-    //         ESP_LOGI(TAG, "LED POWER WHITE %d", result);
+    //         hal->SetHeaterState(result);
+            
     //         vTaskDelay(pdMS_TO_TICKS(30));
     //     }
     // }
@@ -211,19 +212,13 @@ static httpd_handle_t start_webserver(void)
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.uri_match_fn = httpd_uri_match_wildcard;
-    config.max_uri_handlers = 12;
+    config.max_uri_handlers = 15;
 
     if (httpd_start(&server, &config) != ESP_OK)
     {
         ESP_LOGE(TAG, "Error starting HTTPd!");
         esp_restart();
     }
-
-    const char *hostnameptr;
-    
-    ESP_ERROR_CHECK(esp_netif_get_hostname(wifi_netif, &hostnameptr));
-
-    ESP_LOGI(TAG, "HTTPd successfully started for website http://%s:%d", hostnameptr, config.server_port);
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &getroot));
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &putfbd));
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &getfbd));
@@ -277,17 +272,23 @@ void app_main(void)
     ESP_ERROR_CHECK(SpiffsManager::Init());
     LAB_ERROR_CHECK(hal->Init());
 
+    vTaskDelay(pdMS_TO_TICKS(5000)); //Give USB-C the chance to deliver power
     ESP_ERROR_CHECK(nvs_flash_init());
     //connectSTA2AP(false);
     //xSemaphoreTake( connectSemaphore, portMAX_DELAY);
-    initNetIfandEventLoop();
-    connectSTA2AP(CONFIG_NETWORK_WIFI_SSID, CONFIG_NETWORK_WIFI_PASSWORD, CONFIG_NETWORK_HOSTNAME_PATTERN);
-    start_webserver(); 
-
-    //xTaskCreate(experimentTask, "experimentTask", 1024 * 2, NULL, 5, NULL);
-    xTaskCreate(plcTask, "plcTask", 4096 * 4, NULL, 6, NULL);
+    //initNetIfandEventLoop();
+    //connectSTA2AP(CONFIG_NETWORK_WIFI_SSID, CONFIG_NETWORK_WIFI_PASSWORD, CONFIG_NETWORK_HOSTNAME_PATTERN);
+    
+    
+    ESP_ERROR_CHECK(wifimgr::wifimanager_start());
+    httpd_handle_t httpd_handle =  start_webserver();
+    wifimgr::RegisterHTTPDHandlers(httpd_handle);
+    const char *hostnameptr;
+    ESP_ERROR_CHECK(esp_netif_get_hostname(wifimgr::wifi_netif_ap, &hostnameptr));
+    ESP_LOGI(TAG, "HTTPd successfully started for website http://%s", hostnameptr);
     int secs = 0;
-    bool hasAlreadyPlayedTheWarnSound = false;
+    xTaskCreate(plcTask, "plcTask", 4096 * 4, NULL, 6, NULL);
+
     while (true)
     {
         float heaterTemp{0.f};
@@ -302,25 +303,25 @@ void app_main(void)
         hal->GetEncoderValue(&encoderValue);
         uint16_t co2{0};
         hal->GetCO2PPM(&co2);
-        if(co2<800){
-            hal->ColorizeLed(LED::LED_YELLOW, CRGB::Green);            
-            hal->ColorizeLed(LED::LED_GREEN, CRGB::Green);
-            hal->ColorizeLed(LED::LED_3, CRGB::Green); 
-            hasAlreadyPlayedTheWarnSound=false;
-        }else if(co2<1000){
-            hal->ColorizeLed(LED::LED_YELLOW, CRGB::Yellow);
-            hal->ColorizeLed(LED::LED_GREEN, CRGB::Yellow);
-            hal->ColorizeLed(LED::LED_3, CRGB::Yellow);
-            hasAlreadyPlayedTheWarnSound=false;
-        }else{
-            hal->ColorizeLed(LED::LED_YELLOW, CRGB::Red);
-            hal->ColorizeLed(LED::LED_GREEN, CRGB::Red);
-            hal->ColorizeLed(LED::LED_3, CRGB::Red);
-            if(!hasAlreadyPlayedTheWarnSound){
-                hal->PlaySong(2);
-            }   
-            hasAlreadyPlayedTheWarnSound=true;       
-        }
+        // if(co2<800){
+        //     hal->ColorizeLed(LED::LED_YELLOW, CRGB::Green);            
+        //     hal->ColorizeLed(LED::LED_GREEN, CRGB::Green);
+        //     hal->ColorizeLed(LED::LED_3, CRGB::Green); 
+        //     hasAlreadyPlayedTheWarnSound=false;
+        // }else if(co2<1000){
+        //     hal->ColorizeLed(LED::LED_YELLOW, CRGB::Yellow);
+        //     hal->ColorizeLed(LED::LED_GREEN, CRGB::Yellow);
+        //     hal->ColorizeLed(LED::LED_3, CRGB::Yellow);
+        //     hasAlreadyPlayedTheWarnSound=false;
+        // }else{
+        //     hal->ColorizeLed(LED::LED_YELLOW, CRGB::Red);
+        //     hal->ColorizeLed(LED::LED_GREEN, CRGB::Red);
+        //     hal->ColorizeLed(LED::LED_3, CRGB::Red);
+        //     if(!hasAlreadyPlayedTheWarnSound){
+        //         hal->PlaySong(2);
+        //     }   
+        //     hasAlreadyPlayedTheWarnSound=true;       
+        // }
         
         ESP_LOGI(TAG, "Run %4d, Heap %6d, RED %d YEL %d ENC %d GRN %d MOV %d HEAT %4.1f AIRT %4.1f PRS %5.0f HUM %3.0f  CO2 %d", secs, esp_get_free_heap_size(),
             hal->GetButtonRedIsPressed(), hal->GetButtonEncoderIsPressed(), encoderValue, hal->GetButtonGreenIsPressed(),  hal->IsMovementDetected(), heaterTemp, airTemp, airPres, airHumid, co2);

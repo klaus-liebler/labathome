@@ -39,39 +39,5 @@ menu "labathome"
         default 0
     config LABATHOME_HW_TEST
         bool "LABATHOME_HW_TEST"
-        default n
-    
-endmenu
-menu "Wifi/Eth Connection Configuration"
-
-
-    config NETWORK_WIFI_SSID
-        string "WiFi SSID"
-        default "myssid"
-        help
-            SSID (network name) for the example to connect to.
-
-    config NETWORK_WIFI_PASSWORD
-        string "WiFi Password"
-        default "mypassword"
-        help
-            WiFi password (WPA or WPA2) for the example to use.
-            Can be left blank if the network has no security set.
-    config NETWORK_WIFI_AP_SSID
-        string "WiFi AP SSID"
-        default "myssid"
-    config NETWORK_WIFI_AP_PASSWORD
-        string "WiFi AP Password"
-        default "mypassword"
-    config NETWORK_WIFI_AP_CHANNEL
-        int "Wifi AP Channel"
-        default 11
-    config NETWORK_AP_MAX_AP_CONN
-        int "Maximal connections to access point"
-        default 2
-    config NETWORK_HOSTNAME_PATTERN
-        string "Hostname pattern"
-        default "labathome-%02X%02X%02X"
-
-
+        default n 
 endmenu

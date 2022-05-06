@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "labathome_firmware"
+		},
+		{
+			"path": "..\\espidf-components\\network"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.tcc": "cpp",
+			"*.ipp": "cpp",
+			"functional": "c",
+			"istream": "c",
+			"ostream": "c",
+			"utility": "c"
+		}
+	}
+}

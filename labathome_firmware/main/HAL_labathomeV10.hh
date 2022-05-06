@@ -140,12 +140,12 @@ constexpr int SERVO_MAX_DEGREE{180};      //Maximum angle in degree upto which s
 constexpr ledc_timer_bit_t power_ledc_timer_duty_resolution{LEDC_TIMER_10_BIT};
 
 constexpr i2s_port_t I2S_PORT_MICROPHONE{I2S_NUM_1};
-constexpr i2s_port_t I2S_PORT_LOUDSPEAKER{I2S_NUM_0};
+constexpr i2s_port_t I2S_PORT_LOUDSPEAKER{I2S_NUM_0};//must be I2S_NUM_0, as only this hat access to internal DAC
 
 constexpr int average_over_N_measurements{10};
 constexpr int SAMPLES {2048};
 constexpr size_t SAMPLES_IN_BYTES{SAMPLES*4};
-constexpr int SAMPLE_RATE_MICROPHONE{22050};
+constexpr int SAMPLE_RATE_MICROPHONE{11025};
 constexpr int AMPLITUDE{150};
 constexpr uint16_t FREQUENCIES[]{11,22,32,43,54,65,75,97,118,140,161,183,205,226,258,291,323,355,388,431,474,517,560,614,668,721,786,851,915,991,1066,1152,1238,1335,1443,1550,1669,1798,1938,2089,2239,2401,2584,2778,2982,3198,3435,3682,3951,4231,4533,4856,5200,5566,5965,6385,6837,7321,7838,8398,8990,9625,10304,11025};
 constexpr uint16_t BUCKET_INDICES[]{1,2,3,4,5,6,7,9,11,13,15,17,19,21,24,27,30,33,36,40,44,48,52,57,62,67,73,79,85,92,99,107,115,124,134,144,155,167,180,194,208,223,240,258,277,297,319,342,367,393,421,451,483,517,554,593,635,680,728,780,835,894,957,1024};
@@ -160,6 +160,7 @@ MP3Player mp3player;
 
 extern "C" void sensorTask(void *pvParameters);
 extern "C" void mp3Task(void *pvParameters);
+extern "C" void usbpdTask(void *pvParameters);
 
 class HAL_labathome : public HAL
 {
@@ -195,6 +196,7 @@ private:
     float ADS1115Values[4];
     float airSpeedMeterPerSecond;
     uint16_t ds4525doPressure;
+    uint16_t voltage_USB_PD{0};
     
 public:
     HAL_labathome(MODE_SPI_IO1_OR_SERVO2 mode_SPI_IO1_OR_SERVO2, MODE_HEATER_OR_LED_POWER mode_HEATER_OR_LED_POWER, MODE_K3A1_OR_ROTB mode_K3A1_OR_ROTB, MODE_MOVEMENT_OR_FAN1SENSE mode_MOVEMENT_OR_FAN1SENSE, MODE_FAN1_DRIVE_OR_SERVO1 mode_FAN1_DRIVE_OR_SERVO1, MODE_RS485_OR_EXT mode_RS485_OR_EXT) : mode_SPI_IO1_OR_SERVO2(mode_SPI_IO1_OR_SERVO2), mode_HEATER_OR_LED_POWER(mode_HEATER_OR_LED_POWER), mode_K3A1_OR_ROTB(mode_K3A1_OR_ROTB), mode_MOVEMENT_OR_FAN1SENSE(mode_MOVEMENT_OR_FAN1SENSE),  mode_FAN1_DRIVE_OR_SERVO1(mode_FAN1_DRIVE_OR_SERVO1), mode_RS485_OR_EXT(mode_RS485_OR_EXT)
@@ -245,13 +247,11 @@ public:
         uint32_t bh1750ReadoutIntervalMs{200};
         TickType_t ads1115ReadoutInterval{portMAX_DELAY};
 
-        uint16_t voltagePrevious{0};
+        
 
         
 
-        //USB-PD
-        //Power Delivery USB-C
-        PD_UFP.init_PPS(PPS_V(16), PPS_A(2.8), PD_POWER_OPTION_MAX_20V);
+  
 
         //OneWire
         DS18B20_Info *ds18b20_info = NULL;
@@ -269,6 +269,7 @@ public:
             ds18b20_set_resolution(ds18b20_info, DS18B20_RESOLUTION_12_BIT); 
             ds18b20_convert_all(owb);
             nextOneWireReadout = GetMillis() + oneWireReadoutIntervalMs;
+            ESP_LOGI(TAG, "OneWire: DS18B20 successfully initialized.");
         }
         else
         {
@@ -318,29 +319,13 @@ public:
         }
 
         //CCS811
-        ccs811dev = new CCS811::M(I2C_PORT);
+        ccs811dev = new CCS811::M(I2C_PORT, CCS811::ADDRESS::ADDR0, CCS811::MODE::_1SEC, (gpio_num_t)GPIO_NUM_NC);
 
         //HDC1080
         hdc1080dev = new hdc1080::M(I2C_PORT);
 
         while (true)
         {
-            PD_UFP.run();
-            if (PD_UFP.is_PPS_ready()) {
-                u16 voltage = PD_UFP.get_voltage();
-                if(voltage != voltagePrevious){
-                    ESP_LOGI(TAG, "PPS Power from USB-C is ready with %f Volts", voltage*0.02);
-                    voltagePrevious=voltage;
-                }      
-            }
-            else if (PD_UFP.is_power_ready())
-            {
-                u16 voltage = PD_UFP.get_voltage();
-                if(voltage != voltagePrevious){
-                    ESP_LOGI(TAG, "Normal Power from USB-C is ready with %f Volts", voltage*0.05);
-                    voltagePrevious=voltage;
-                }
-            }
             if(GetMillis64() > nextButtonReadout){
                 this->movementIsDetected = gpio_get_level(PIN_MOVEMENT_OR_FAN1SENSE);
                 int adc_reading = adc1_get_raw(PIN_SW_CHANNEL);
@@ -498,8 +483,11 @@ public:
             return ErrorCode::NOT_YET_IMPLEMENTED;
         }
 
-       
-    
+        //Debug PIN_SPI_MOSI
+        gpio_reset_pin(PIN_SPI_MOSI);
+        gpio_set_level(PIN_SPI_MOSI, 0);
+        gpio_set_direction(PIN_SPI_MOSI, GPIO_MODE_OUTPUT);
+        
         // i2s config for reading from left channel of I2S - this is standard for microphones
         i2s_config_t i2sMemsConfigLeftChannel = {};
         i2sMemsConfigLeftChannel.mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX);
@@ -543,7 +531,6 @@ public:
         //MovementSensor
         gpio_reset_pin(PIN_MOVEMENT_OR_FAN1SENSE);
         gpio_set_direction(PIN_MOVEMENT_OR_FAN1SENSE, GPIO_MODE_INPUT);
-
 
         //Servos
         if(mode_FAN1_DRIVE_OR_SERVO1==MODE_FAN1_DRIVE_OR_SERVO1::SERVO1){
@@ -605,29 +592,6 @@ public:
         }
 
 
-
-        
-        //Buzzer
-        /*
-        ledc_timer_config_t buzzer_timer;
-        buzzer_timer.duty_resolution = LEDC_TIMER_10_BIT; // resolution of PWM duty
-        buzzer_timer.freq_hz = 440;                       // frequency of PWM signal
-        buzzer_timer.speed_mode = LEDC_HIGH_SPEED_MODE;   // timer mode
-        buzzer_timer.timer_num = LEDC_TIMER_2;            // timer index
-        buzzer_timer.clk_cfg = LEDC_AUTO_CLK;
-        ESP_ERROR_CHECK(ledc_timer_config(&buzzer_timer));
-
-        ledc_channel_config_t buzzer_channel;
-        buzzer_channel.channel = LEDC_CHANNEL_2;
-        buzzer_channel.duty = 0;
-        buzzer_channel.gpio_num = PIN_SPEAKER;
-        buzzer_channel.speed_mode = LEDC_HIGH_SPEED_MODE;
-        buzzer_channel.hpoint = 0;
-        buzzer_channel.timer_sel = LEDC_TIMER_2;
-        buzzer_channel.intr_type=LEDC_INTR_DISABLE;
-        ESP_ERROR_CHECK(ledc_channel_config(&buzzer_channel));
-        */
-
         mp3player.InitInternalDACMonoRightPin25();
 
         //I2C Master
@@ -641,10 +605,7 @@ public:
         conf.clk_flags=0;
         i2c_param_config(I2C_PORT, &conf);
         ESP_ERROR_CHECK(i2c_driver_install(I2C_PORT, conf.mode, 0, 0, 0));
-
         ESP_ERROR_CHECK(I2C::Init());
-
-
 
         //LED Strip
         strip = new WS2812_Strip<LED_NUMBER>();
@@ -657,15 +618,14 @@ public:
         }
 
         xTaskCreate(sensorTask, "sensorTask", 4096 * 4, this, 6, NULL);
+        xTaskCreate(usbpdTask, "usbpdTask", 4096 * 4, this, 16, NULL);
         xTaskCreate(mp3Task, "mp3task", 16384 * 4, this, 16, NULL);
         
-
         return ErrorCode::OK;
     }
 
     ErrorCode BeforeLoop()
     {
-
         if(this->heaterTemperatureDegCel>85){
             ESP_LOGE(TAG, "Emergency Shutdown. Heater Temperature too high!!!");
             this->SetHeaterState(0);
@@ -812,6 +772,21 @@ public:
             mp3player.Loop();
         }
     }
+
+    ErrorCode USBPDLoop_ForInternalUseOnly(){
+         //USB-PD
+        //Power Delivery USB-C
+        PD_UFP.init(PD_POWER_OPTION_MAX_20V);
+        while(true){
+            PD_UFP.run();
+            u16 newVoltage = PD_UFP.get_voltage();
+            if(newVoltage!=this->voltage_USB_PD){
+                ESP_LOGI(TAG, "Voltage on USB-PD changed to %f", newVoltage*0.05);
+                this->voltage_USB_PD=newVoltage;
+            }
+            vTaskDelay(pdMS_TO_TICKS(5));
+        }
+    }
 };
 
 void sensorTask(void *pvParameters)
@@ -824,5 +799,14 @@ void mp3Task(void *pvParameters)
 {
     HAL_labathome *hal = (HAL_labathome *)pvParameters;
     hal->MP3Loop_ForInternalUseOnly();
+}
+
+void usbpdTask(void *pvParameters)
+{
+#if CONFIG_FREERTOS_HZ!=1000
+    #error "Set CONFIG_FREERTOS_HZ to 1000 as we need a well defined 1ms delay for proper USB-PD protocol handling"
+#endif
+    HAL_labathome *hal = (HAL_labathome *)pvParameters;
+    hal->USBPDLoop_ForInternalUseOnly();
 }
 
