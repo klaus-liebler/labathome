@@ -80,3 +80,48 @@ Nach dem ersten Start öffnet lab@home einen WIFI-Accesspoint, über den die Web
 - Konfigurationsoberfläche für Wifi
 - Konfigurationsoberfläche für diverse Systemeinstellungen (in Arbeit)
 - Online-Aktualisierung der kompletten Systemsoftware (in Arbeit)
+
+# Getting Started - Hardware
+Die aktuellen Schaltpläne und Layouts im KiCad-Format befinden sich im Verzeichnis pcbV10 (neu) bzw pcb (alt). Die Hardware wurde so designed, dass sie bei JLCPBC kostengünstig gefertigt werden kann.
+Im Verzeichnis pcb-frontplate gibt es ein KiCad-Projekt für eine Frontplattendesign, das als 10x10cm große Platine (mit vielen Fräsungen und Bedruckungen, aber komplett ohne Leiterbahnen) sehr preiswert bei JLCPCB mitbestellt werden kann.
+Bei Bedarf stelle ich ein Aufbauvideo zur Verfügung, das die Montage der THT-Bauteile und der mechanischen Bauteile zeigt.
+Nach dem Aufbau ist darauf zu achten, dass die sechs Schiebeschalter auf eine sinnvolle Position gestellt werden.
+- "5V FAN 24V": Stellt ein, ob die externen Anschlüsse FAN1 und FAN2 mit 5V oder mit 20/24V versorgt werden (Empfehlung: zur Sicherheit auf "5V)
+- "TERM ON" in Richtung "ON": Stellt ein, ob die Terminierung des RS485 ein- oder ausgeschaltet ist.
+- "PROG 5V POWER": Stellt ein, ob die 5V-Schiene der Platine (aus der letztlich die komplette Elektronik versorgt wird) aus dem USB-C-Programmieranschluss oder dem USB-C-PD-Power-Anschluss versorgt werden (Empfehlung "PROG")
+- "SNS MOV": Stellt ein, ob ein gemeinsam genutzter Pin mit dem PIR-Movement-Sensor oder dem Sensor-Signal "FS" des Fan1-Anschlusses verbunden ist (Empfehlung in Richung "MOV")
+- "LED HTR": Stellt ein, ob ein gemeinsam genutzter Pin den Heizwiderstand (HTR) oder die Hochleistungs-LED ansteuert.
+- "REL_ROT": Stellt ein, ob ein gemeinsam genutzter Pin mit dem A1-Anschluss des Zeitrelais oder mit dem Rotary-Encoder verbunden ist (Empfehlung in Richtung ROT)
+
+# Getting Started - Software compilieren
+Selbst kompilieren? Geht!
+- ESP-IDF installieren
+- Ich gehe davon aus, dass alle Checkouts in c:/repos erfolgen. Viele Pfade sind in den Konfigurationsdateien absolut und auf diesen Pfad angepasst
+- Dieses repo https://github.com/klaus-liebler/labathome auschecken
+- Das repo https://github.com/klaus-liebler/espidf-components auschecken
+- Das repo https://github.com/klaus-liebler/wifimanager_webui auschecken
+
+- Im Verzeichnis c:/repos/labathome/labathome_webui zunächst "npm update" und dann "gulp" aufrufen (Ich gehe davon aus, dass eine Node.js-Umgebung installiert ist...)
+- Im Verzeichnis c:/repos/wifimanager_webui zunächst "npm update" und dann "gulp" aufrufen (Ich gehe davon aus, dass eine Node.js-Umgebung installiert ist...)
+- Pfade anpassen (Falls Pfade anders gewählt)
+- In c:/repos/labathome/labathome_firmware/CMakeLists.txt die Zeile set(EXTRA_COMPONENT_DIRS "../../espidf-components") ggf. auf den Speicherort der eben ausgecheckten espidf-components anpassen
+- In c:/repos/espidf-components/wifimanager/CMakeLists.txt die Zeile EMBED_FILES ../../wifimanager_webui/dist_compressed/wifimanager.html.gz ggf anpassen
+- im verzeichnis labathome_firmware menuconfig starten und Einstellungen tätigen (Stand 2022-05-12: Gegenwärtig werden die Einstellungen nicht beachtet, Einstellungen sind also nicht erforderlich)
+- Compilieren starten
+- Wenn Sie diesen Prozess erfolgreich gemeistert haben, ist das Flashen wohl auch kein Problem mehr
+
+Um den Prozess zu vereinfachen, stelle ich auf Anfrage fertige Binaries zur Verfügung
+
+# Getting Started - Software in Betrieb nehmen
+- Ergebnis der Compilierung sind mehrere binäre Dateien, die jetzt in bestimmte Speicherbereiche im Flash-Speicher des Mikrocontrollers geschrieben werden müssen.
+- Laden Sie sich zunächst die Software "Flash Download Tools" von https://www.espressif.com/en/support/download/other-tools herunter.
+- Entpacken und starten Sie die Software (Doppelklick auf flash_download_tool_x.y.z)
+- Wählen Sie bei "chipType" die Option "ESP32" und bei "workMode" die Option "develop"
+- Stellen Sie in der nun erscheinenden Hauptoberfläche die folgenden Dateien und Speicherorte ein (achten Sie bei den Speicherorten auf die exakte Schreibweise und vergessen Sie keine "0"). Bei "COM" nutzen Sie den Drop-Down, um den richtigen Anschluss auszuwählen.
+![flash_download_tool_setting](https://user-images.githubusercontent.com/7479349/168019275-0f23d562-bf44-4dae-b733-d4ca9e6b8fbd.png)
+- Klicken Sie auf "Start"
+- Warten Sie, bis der Prozess abgeschlossen ist
+- Schließen Sie die Software und betätigen den Reset-Knopf von Lab@home (8-Uhr-Position)
+- Verbinden Sie sich mit dem WLAN-Netz labathome-xyz (xyz ist eine einzigartige Seriennummer; bitte notieren!!!) und dem Passwort labathome
+- Offnen Sie im Webbrowser die Seite http://192.168.210.0/wifimanager und verbinden Sie lab@home mit ihrem WLAN-Netzwerk
+- Wenn Ihr WLAN-Router das unterstützt, sollte Ihr lab@home jetzt unter http://labathome-xyz (Seriennummer!) mit seiner Hauptoberfläche erreichbar sein
