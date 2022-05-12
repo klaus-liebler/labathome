@@ -66,3 +66,17 @@ Die Hardware von lab@home ist auf einer 10x10cm großen Platine aufgebaut und en
   - USB-C
   - OTA
 
+Die Software von lab@home besteht aus der eigentlichen Firmware und einer Webapplikation. Viele Experimente können über die Webapplikation gesteuert werden.
+Nach dem ersten Start öffnet lab@home einen WIFI-Accesspoint, über den die Webapplikation erreichbar ist und labathome auch in ein bestehendes WIFI-Netzwerk eingebunden werden kann. Dank der Webapplikation benötigt der Anwender keine lokale Software und die Nutzung ist unabhängig vom Betriebssystem möglich (viele meiner Studierenden verwenden Apple-Rechner oder haben nur Chromebooks oder Android-Tablets). Die Webapplikation hat diese Features:
+- Programmierung von lab@home mit Funktionsblöcken in Anlehnung an IEC61131 und VDI3814
+  - darauf ist der Entwickler besonders stolz!!
+  - Speichern und Laden von Programmen möglich
+  - Es ist möglich, eine Startapplikation festzulegen, die lab@home automatisch beim Einschalten lädt und ausführt
+  - Integrierter Debugger
+  - Integrierter Simulator
+  - Technisches Detail: Das Funktionsblock-Diagramm wird von einem Java-Script-Compiler im Browser zu einem Binärcode compiliert und "online" zum Mikrocontroller gesendet. Dieser bringt dann das Programm unmittelbar zur Ausführung
+- Oberfläche für das Experiment "Identikation einer Regelstrecke mit dem Sprungantwort-Versuch"
+- Oberfläche für das Experiment "Parametriertung eines PID-Reglers mit der Einstellregeln nach Chien, Hrones und Reswick"
+- Konfigurationsoberfläche für Wifi
+- Konfigurationsoberfläche für diverse Systemeinstellungen (in Arbeit)
+- Online-Aktualisierung der kompletten Systemsoftware (in Arbeit)
