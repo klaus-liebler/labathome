@@ -1,18 +1,22 @@
 #include <stdio.h>
-#include "sdkconfig.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "driver/gpio.h"
+#include "common_in_project.hh"
+#include <sdkconfig.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <freertos/semphr.h>
+#include <freertos/queue.h>
+#include <driver/gpio.h>
 #include <esp_system.h>
-#include "esp_spi_flash.h"
-#include "driver/adc.h"
-#include "esp_adc_cal.h"
+#include <esp_spi_flash.h>
+#include <driver/adc.h>
+#include <esp_adc_cal.h>
 #include <esp_wifi.h>
 #include <esp_event.h>
 #include <sys/param.h>
 #include <nvs_flash.h>
 #include <esp_netif.h>
 #include <network_manager.hh>
+#include <otamanager.hh>
 #include <esp_http_server.h>
 #include "http_handlers.hh"
 static const char *TAG = "main";
@@ -23,196 +27,111 @@ static const char *TAG = "main";
 #include "spiffs.hh"
 
 
+uint8_t http_scatchpad[labathome::config::HTTP_SCRATCHPAD_SIZE] ALL4;
+
 //#include "HAL_labathomeV5.hh"
 //HAL *hal = new HAL_labathome(MODE_IO33::SERVO2, MODE_MULTI1_PIN::I2S, MODE_MULTI_2_3_PINS::I2S);
-#include "HAL_labathomeV10.hh"
-HAL *hal = new HAL_labathome(MODE_SPI_IO1_OR_SERVO2::SERVO2, MODE_HEATER_OR_LED_POWER::HEATER, MODE_K3A1_OR_ROTB::ROTB, MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR, MODE_FAN1_DRIVE_OR_SERVO1::FAN1_DRIVE, MODE_RS485_OR_EXT::RS485);
 //#include "HAL_wroverkit.hh"
 //HAL *hal = new HAL_wroverkit();
+#include "HAL_labathomeV10.hh"
 
-PLCManager *plcmanager = new PLCManager(hal);
+static HAL * hal = new HAL_labathome(MODE_SPI_IO1_OR_SERVO2::SERVO2, MODE_HEATER_OR_LED_POWER::HEATER, MODE_K3A1_OR_ROTB::ROTB, MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR, MODE_FAN1_DRIVE_OR_SERVO1::FAN1_DRIVE, MODE_RS485_OR_EXT::RS485);
+static PLCManager *plcmanager = new PLCManager(hal);
 
-extern "C"
-{
-    void app_main();
-    void plcTask(void *);
-}
+extern "C" void app_main();
 
-void plcTask(void *pvParameters)
-{
-    ESP_LOGI(TAG, "plcTask started");
-    TickType_t xLastWakeTime;
-    const TickType_t xFrequency = 10;
-    // Initialise the xLastWakeTime variable with the current time.
-    xLastWakeTime = xTaskGetTickCount();
-    plcmanager->Init();
-    
-    for(int i=0;i<3;i++)
-    {
-        hal->ColorizeLed(LED::LED_RED, CRGB::DarkRed);
-        hal->ColorizeLed(LED::LED_GREEN, CRGB::DarkGreen);
-        hal->ColorizeLed(LED::LED_YELLOW, CRGB::Yellow);
-        hal->ColorizeLed(LED::LED_3, CRGB::DarkBlue);
-        hal->AfterLoop();
-        vTaskDelay(pdMS_TO_TICKS(150));
-        hal->ColorizeLed(LED::LED_RED, CRGB::DarkBlue);
-        hal->ColorizeLed(LED::LED_GREEN, CRGB::Yellow);
-        hal->ColorizeLed(LED::LED_YELLOW, CRGB::DarkGreen);
-        hal->ColorizeLed(LED::LED_3, CRGB::DarkRed);
-        hal->AfterLoop();
-        vTaskDelay(pdMS_TO_TICKS(150));
-    }
-    
-    // hal->SetFan1State(30);
-    // hal->SetFan2State(30);
-    // while (true)
-    // {
-    //     vTaskDelay(pdMS_TO_TICKS(2000)); 
-    // }
-    
-    // for(int i=0;i<5;i++)
-    // {
-    //     hal->SetFan1State(30);
-    //     hal->SetFan2State(30);
-    //     ESP_LOGI(TAG, "Fans 30");
-    //     vTaskDelay(pdMS_TO_TICKS(2000));
-    //     hal->SetFan1State(60);
-    //     hal->SetFan2State(60);
-    //     ESP_LOGI(TAG, "Fans 60");
-    //     vTaskDelay(pdMS_TO_TICKS(2000));
-    //     hal->SetFan1State(100);
-    //     hal->SetFan2State(100);
-    //     ESP_LOGI(TAG, "Fans 100");
-    //     vTaskDelay(pdMS_TO_TICKS(2000));
-    //     hal->SetFan1State(60);
-    //     hal->SetFan2State(60);
-    //     ESP_LOGI(TAG, "Fans 60");
-    //     vTaskDelay(pdMS_TO_TICKS(2000));
-    // }
-
-    // hal->UnColorizeAllLed();
-    // #define PI 3.14159265
-    // for(;;)
-    // {
-    //     ESP_LOGI(TAG, "LED POWER WHITE cycle");
-    //     for(int deg=0;deg<360;deg+=10){
-    //         uint8_t result = 50*(sin(deg*PI/180)+1);
-    //         hal->SetHeaterState(result);
-            
-    //         vTaskDelay(pdMS_TO_TICKS(30));
-    //     }
-    // }
-    
-    
-    hal->PlaySong(1);
-    ESP_LOGI(TAG, "plcmanager main loop starts");
-    while (true)
-    {
-        // Wait for the next cycle.
-        vTaskDelayUntil(&xLastWakeTime, xFrequency);
-        ESP_LOGD(TAG, "CheckForNewExecutable");
-        plcmanager->CheckForNewExecutable();
-        ESP_LOGD(TAG, "BeforeLoop");
-        hal->BeforeLoop();
-        ESP_LOGD(TAG, "Loop");
-        plcmanager->Loop();
-        ESP_LOGD(TAG, "AfterLoop");
-        hal->AfterLoop();
-    }
-}
-
-
-static const httpd_uri_t getroot = {
+constexpr httpd_uri_t getroot = {
     .uri       = "/",
     .method    = HTTP_GET,
     .handler   = handle_get_root,
-    .user_ctx = plcmanager,
+    .user_ctx = &plcmanager,
 };
 
-static const httpd_uri_t putfbd = {
+constexpr httpd_uri_t putfbd = {
     .uri       = "/fbd",
     .method    = HTTP_PUT,
     .handler   = handle_put_fbd,
-    .user_ctx = plcmanager,
+    .user_ctx = &plcmanager,
 };
 
-static const httpd_uri_t getfbd = {
+constexpr httpd_uri_t getfbd = {
     .uri       = "/fbd",
     .method    = HTTP_GET,
     .handler   = handle_get_fbd,
-    .user_ctx = plcmanager,
+    .user_ctx = &plcmanager,
 };
 
-static const httpd_uri_t getfbdstorejson = {
+constexpr httpd_uri_t getfbdstorejson = {
     .uri       = "/fbdstorejson/*",
     .method    = HTTP_GET,
     .handler   = handle_get_fbdstorejson,
-    .user_ctx = plcmanager,
+    .user_ctx = &plcmanager,
 };
 
-static const httpd_uri_t postfbdstorejson = {
+constexpr httpd_uri_t postfbdstorejson = {
     .uri       = "/fbdstorejson/*",
     .method    = HTTP_POST,
     .handler   = handle_post_fbdstorejson,
-    .user_ctx = plcmanager,
+    .user_ctx = &plcmanager,
 };
 
-static const httpd_uri_t deletefbdstorejson = {
+constexpr httpd_uri_t deletefbdstorejson = {
     .uri       = "/fbdstorejson/*",
     .method    = HTTP_DELETE,
     .handler   = handle_delete_fbdstorejson,
-    .user_ctx = plcmanager,
+    .user_ctx = &plcmanager,
 };
 
-static const httpd_uri_t postfbddefaultbin = {
+constexpr httpd_uri_t postfbddefaultbin = {
     .uri       = "/fbddefaultbin",
     .method    = HTTP_POST,
     .handler   = handle_post_fbddefaultbin,
-    .user_ctx = plcmanager,
+    .user_ctx = &plcmanager,
 };
 
-static const httpd_uri_t postfbddefaultjson = {
+constexpr httpd_uri_t postfbddefaultjson = {
     .uri       = "/fbddefaultjson",
     .method    = HTTP_POST,
     .handler   = handle_post_fbddefaultjson,
-    .user_ctx = plcmanager,
+    .user_ctx = &plcmanager,
 };
 
-static const httpd_uri_t putheaterexperiment = {
+constexpr httpd_uri_t putheaterexperiment = {
     .uri       = "/heaterexperiment",
     .method    = HTTP_PUT,
     .handler   = handle_put_heaterexperiment,
-    .user_ctx = plcmanager,
+    .user_ctx = &plcmanager,
 };
 
-static const httpd_uri_t putairspeedexperiment = {
+constexpr httpd_uri_t putairspeedexperiment = {
     .uri       = "/airspeedexperiment",
     .method    = HTTP_PUT,
     .handler   = handle_put_airspeedexperiment,
-    .user_ctx = plcmanager,
+    .user_ctx = &plcmanager,
 };
 
-static const httpd_uri_t putfftexperiment = {
+constexpr httpd_uri_t putfftexperiment = {
     .uri       = "/fftexperiment",
     .method    = HTTP_PUT,
     .handler   = handle_put_fftexperiment,
-    .user_ctx = plcmanager,
+    .user_ctx = &plcmanager,
 };
 
 
-static const httpd_uri_t getadcexperiment = {
+constexpr httpd_uri_t getadcexperiment = {
     .uri       = "/adcexperiment",
     .method    = HTTP_GET,
     .handler   = handle_get_adcexperiment,
-    .user_ctx = plcmanager,
+    .user_ctx = &plcmanager,
 };
 
-static httpd_handle_t start_webserver(void)
+static httpd_handle_t InitAndRunWebserver(void)
 {
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.uri_match_fn = httpd_uri_match_wildcard;
     config.max_uri_handlers = 15;
+    config.global_user_ctx = http_scatchpad;
 
     if (httpd_start(&server, &config) != ESP_OK)
     {
@@ -234,6 +153,10 @@ static httpd_handle_t start_webserver(void)
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &postfbddefaultbin));
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &postfbddefaultjson));
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &getadcexperiment));
+
+    const char *hostnameptr;
+    ESP_ERROR_CHECK(esp_netif_get_hostname(wifimgr::wifi_netif_ap, &hostnameptr));
+    ESP_LOGI(TAG, "HTTPd successfully started for website http://%s", hostnameptr);
     return server;
 }
 
@@ -268,27 +191,32 @@ void _lab_error_check_failed(ErrorCode rc, const char *file, int line, const cha
 
 void app_main(void)
 {
+    //Nacheinander
+    // - einmalig USB-PD (prüfe, ob verbunden, wenn verbunden, dann so lange probieren, bis 20V, dann task beenden)
+    // - mit internet verbinden
+    // - einmalig OTA
+    
     esp_log_level_set(TAG, ESP_LOG_INFO);
     ESP_ERROR_CHECK(SpiffsManager::Init());
-    LAB_ERROR_CHECK(hal->Init());
+    LAB_ERROR_CHECK(hal->InitAndRun());
+    esp_err_t err = nvs_flash_init();
+    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
+    {
+        ESP_ERROR_CHECK(nvs_flash_erase());
+        err = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(err);
 
-    vTaskDelay(pdMS_TO_TICKS(5000)); //Give USB-C the chance to deliver power
-    ESP_ERROR_CHECK(nvs_flash_init());
-    //connectSTA2AP(false);
-    //xSemaphoreTake( connectSemaphore, portMAX_DELAY);
-    //initNetIfandEventLoop();
-    //connectSTA2AP(CONFIG_NETWORK_WIFI_SSID, CONFIG_NETWORK_WIFI_PASSWORD, CONFIG_NETWORK_HOSTNAME_PATTERN);
-    
-    
-    ESP_ERROR_CHECK(wifimgr::wifimanager_start());
-    httpd_handle_t httpd_handle =  start_webserver();
+    ESP_ERROR_CHECK(wifimgr::InitAndRun());
+    otamanager::M otamanager;
+    otamanager.InitAndRun();
+
+    httpd_handle_t httpd_handle =  InitAndRunWebserver();
     wifimgr::RegisterHTTPDHandlers(httpd_handle);
-    const char *hostnameptr;
-    ESP_ERROR_CHECK(esp_netif_get_hostname(wifimgr::wifi_netif_ap, &hostnameptr));
-    ESP_LOGI(TAG, "HTTPd successfully started for website http://%s", hostnameptr);
-    int secs = 0;
-    xTaskCreate(plcTask, "plcTask", 4096 * 4, NULL, 6, NULL);
 
+    int secs = 0;
+    
+    plcmanager->InitAndRun();
     while (true)
     {
         float heaterTemp{0.f};
@@ -302,27 +230,7 @@ void app_main(void)
         int encoderValue{0};
         hal->GetEncoderValue(&encoderValue);
         uint16_t co2{0};
-        hal->GetCO2PPM(&co2);
-        // if(co2<800){
-        //     hal->ColorizeLed(LED::LED_YELLOW, CRGB::Green);            
-        //     hal->ColorizeLed(LED::LED_GREEN, CRGB::Green);
-        //     hal->ColorizeLed(LED::LED_3, CRGB::Green); 
-        //     hasAlreadyPlayedTheWarnSound=false;
-        // }else if(co2<1000){
-        //     hal->ColorizeLed(LED::LED_YELLOW, CRGB::Yellow);
-        //     hal->ColorizeLed(LED::LED_GREEN, CRGB::Yellow);
-        //     hal->ColorizeLed(LED::LED_3, CRGB::Yellow);
-        //     hasAlreadyPlayedTheWarnSound=false;
-        // }else{
-        //     hal->ColorizeLed(LED::LED_YELLOW, CRGB::Red);
-        //     hal->ColorizeLed(LED::LED_GREEN, CRGB::Red);
-        //     hal->ColorizeLed(LED::LED_3, CRGB::Red);
-        //     if(!hasAlreadyPlayedTheWarnSound){
-        //         hal->PlaySong(2);
-        //     }   
-        //     hasAlreadyPlayedTheWarnSound=true;       
-        // }
-        
+        hal->GetCO2PPM(&co2);     
         ESP_LOGI(TAG, "Run %4d, Heap %6d, RED %d YEL %d ENC %d GRN %d MOV %d HEAT %4.1f AIRT %4.1f PRS %5.0f HUM %3.0f  CO2 %d", secs, esp_get_free_heap_size(),
             hal->GetButtonRedIsPressed(), hal->GetButtonEncoderIsPressed(), encoderValue, hal->GetButtonGreenIsPressed(),  hal->IsMovementDetected(), heaterTemp, airTemp, airPres, airHumid, co2);
         secs += 5;

@@ -13,17 +13,15 @@
 #include "esp_http_server.h"
 #include "http_handlers.hh"
 #include "plcmanager.hh"
-#include "paths_and_files.hh"
+
 
 static const char *TAG = "HTTP_handler";
 
+#include "common_in_project.hh"
 
 
-constexpr size_t SCRATCH_BUFSIZE = 8192;
-constexpr size_t MAX_FILE_SIZE  = (200*1024); // 200 KB
-constexpr const char* MAX_FILE_SIZE_STR="File size must be less than 200KB!";
-
-char scratch[SCRATCH_BUFSIZE];
+constexpr size_t MAX_UPLOAD_FILE_SIZE  = (200*1024); // 200 KB
+constexpr const char* MAX_FILE_SIZE_STR="File size must not exceed 200KB!";
 
 
 esp_err_t helper_get_fbd(httpd_req_t *req, const char *filepath)
@@ -53,11 +51,11 @@ esp_err_t helper_get_fbd(httpd_req_t *req, const char *filepath)
     httpd_resp_set_type(req, "application/json");
 
     /* Retrieve the pointer to scratch buffer for temporary storage */
-    char *chunk = scratch;
-    size_t chunksize;
+    char *chunk = static_cast<char*>(httpd_get_global_user_ctx(req->handle));
+    size_t chunksize{0};
     do {
         /* Read file in chunks into the scratch buffer */
-        chunksize = fread(chunk, 1, SCRATCH_BUFSIZE, fd);
+        chunksize = fread(chunk, 1, labathome::config::HTTP_SCRATCHPAD_SIZE, fd);
 
         if (chunksize > 0) {
             /* Send the buffer contents as HTTP response chunk */
@@ -88,7 +86,7 @@ static esp_err_t helper_directory(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "Got helper_directory request");
     struct dirent *entry;
-    DIR *dir = opendir(Paths::FBDSTORE_BASE_DIRECTORY);
+    DIR *dir = opendir(labathome::config::paths::FBDSTORE_BASE_DIRECTORY);
     httpd_resp_set_type(req, "application/json");
     httpd_resp_sendstr_chunk(req, "[");
     bool firstLoop=true;
@@ -111,7 +109,7 @@ static esp_err_t helper_directory(httpd_req_t *req)
 
 esp_err_t handle_get_fbdstorejson(httpd_req_t *req)
 {
-    char filepath[Paths::FILE_PATH_MAX];
+    char filepath[labathome::config::paths::FILE_PATH_MAX];
     const char *filename = strrchr(req->uri, '/')+1;
      if (!filename) {
         ESP_LOGE(TAG, "Filename is not defined correctly");
@@ -123,21 +121,21 @@ esp_err_t handle_get_fbdstorejson(httpd_req_t *req)
         /* If name has trailing '/', respond with directory contents */
         return helper_directory(req);
     }
-    strcpy(filepath, Paths::FBDSTORE_BASE);
+    strcpy(filepath, labathome::config::paths::FBDSTORE_BASE);
     strcpy(filepath+strlen(filepath), filename);
     strcpy(filepath+strlen(filepath), ".json");
     return helper_get_fbd(req, filepath);
 }
 
 esp_err_t handle_delete_fbdstorejson(httpd_req_t *req){
-    char filepath[Paths::FILE_PATH_MAX];
+    char filepath[labathome::config::paths::FILE_PATH_MAX];
     const char *filename = strrchr(req->uri, '/')+1;
      if (!filename || strlen(filename)==0) {
         ESP_LOGE(TAG, "Filename is not defined correctly");
         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Filename is not defined correctly");
         return ESP_FAIL;
     }
-    strcpy(filepath, Paths::FBDSTORE_BASE);
+    strcpy(filepath, labathome::config::paths::FBDSTORE_BASE);
     strcpy(filepath+strlen(filepath), filename);
     strcpy(filepath+strlen(filepath), ".json");
     struct stat file_stat;
@@ -157,25 +155,14 @@ esp_err_t handle_delete_fbdstorejson(httpd_req_t *req){
 
 esp_err_t handle_get_fbddefaultjson(httpd_req_t *req)
 {
-    return helper_get_fbd(req, Paths::DEFAULT_FBD_JSON_FILENAME);
+    return helper_get_fbd(req, labathome::config::paths::DEFAULT_FBD_JSON_FILENAME);
 }
 
 esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
 {
-    if (strcmp("/hello", req->uri) == 0) {
-        httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "/hello URI is not available");
-        /* Return ESP_OK to keep underlying socket open */
-        return ESP_OK;
-    } else if (strcmp("/echo", req->uri) == 0) {
-        httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "/echo URI is not available");
-        /* Return ESP_FAIL to close underlying socket */
-        return ESP_FAIL;
-    }
-    /* For any other URI send 404 and close socket */
-    httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "Some 404 error message");
+    httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "Error 404: Resource not found");
     return ESP_FAIL;
 }
-
 
 
 extern const char index_html_gz_start[] asm("_binary_index_html_gz_start");
@@ -187,20 +174,19 @@ esp_err_t handle_get_root(httpd_req_t *req)
     httpd_resp_set_type(req, "text/html");
     httpd_resp_set_hdr(req, "Content-Encoding", "gzip");
     httpd_resp_send(req, index_html_gz_start, index_html_gz_size); // -1 = use strlen()
-
     return ESP_OK;
 }
 
-const size_t MAX_FDB_BUFFER = 8192;
+
 esp_err_t handle_put_fbd(httpd_req_t *req)
 {    
-    PLCManager *plcmanager = (PLCManager *)(req->user_ctx);
+    PLCManager *plcmanager = *static_cast<PLCManager **>(req->user_ctx);
     int ret=0;
     int remaining = req->content_len;
-    if(remaining>=MAX_FDB_BUFFER)
+    if(remaining>=labathome::config::HTTP_SCRATCHPAD_SIZE)
         return ESP_FAIL;
     ESP_LOGI(TAG, "fbd_put_handler, expecting %d bytes of data", remaining);
-    uint8_t buf[remaining];
+    uint8_t *buf= static_cast<uint8_t*>(httpd_get_global_user_ctx(req->handle));
     while (remaining > 0) {
         /* Read the data for the request */
         if ((ret = httpd_req_recv(req, (char*)buf,  MIN(remaining, sizeof(buf)))) <= 0) {
@@ -226,28 +212,30 @@ esp_err_t handle_put_fbd(httpd_req_t *req)
 }
 
 esp_err_t handle_get_fbd(httpd_req_t *req){
-    PLCManager *plcmanager = (PLCManager *)(req->user_ctx);
+    PLCManager *plcmanager = *static_cast<PLCManager **>(req->user_ctx);
     size_t size=0;
     plcmanager->GetDebugInfoSize(&size);
-    uint8_t buf[size];
+    if(size>=labathome::config::HTTP_SCRATCHPAD_SIZE)
+        return ESP_FAIL;
+    uint8_t *buf= static_cast<uint8_t*>(httpd_get_global_user_ctx(req->handle));
     plcmanager->GetDebugInfo(buf, size);
     httpd_resp_set_type(req, "application/octet-stream");
     httpd_resp_send(req, (char *)buf, size);
     return ESP_OK;
 }
 
-
 esp_err_t handle_get_adcexperiment(httpd_req_t *req)
 {
-    PLCManager *plcmanager = (PLCManager *)(req->user_ctx);
+    PLCManager *plcmanager = *static_cast<PLCManager **>(req->user_ctx);
     float *buf;
     plcmanager->GetHAL()->GetADCValues(&buf);
     httpd_resp_set_type(req, "application/octet-stream");
     httpd_resp_send(req, (char *)buf, 4*sizeof(float));
     return ESP_OK;
 }
+
 esp_err_t handle_put_fftexperiment(httpd_req_t *req){
-    PLCManager *plcmanager = (PLCManager *)(req->user_ctx);
+    PLCManager *plcmanager = *static_cast<PLCManager **>(req->user_ctx);
     int ret=0;
     int remaining = req->content_len;
     if(remaining!=32){
@@ -281,7 +269,7 @@ esp_err_t handle_put_fftexperiment(httpd_req_t *req){
 
 esp_err_t handle_put_heaterexperiment(httpd_req_t *req)
 {    
-    PLCManager *plcmanager = (PLCManager *)(req->user_ctx);
+    PLCManager *plcmanager = *static_cast<PLCManager **>(req->user_ctx);
     int ret=0;
     int remaining = req->content_len;
     if(remaining!=24){
@@ -331,7 +319,7 @@ esp_err_t handle_put_heaterexperiment(httpd_req_t *req)
 }
 
 esp_err_t handle_put_airspeedexperiment(httpd_req_t *req){
-    PLCManager *plcmanager = (PLCManager *)(req->user_ctx);
+    PLCManager *plcmanager = *static_cast<PLCManager **>(req->user_ctx);
     int ret=0;
     int remaining = req->content_len;
     if(remaining!=24){
@@ -399,7 +387,7 @@ esp_err_t helper_post_fbd(httpd_req_t *req, const char *filepath, bool overwrite
     }
 
     /* File cannot be larger than a limit */
-    if (req->content_len > MAX_FILE_SIZE) {
+    if (req->content_len > MAX_UPLOAD_FILE_SIZE) {
         ESP_LOGE(TAG, "File too large : %d bytes", req->content_len);
         /* Respond with 400 Bad Request */
         httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, MAX_FILE_SIZE_STR);
@@ -419,7 +407,7 @@ esp_err_t helper_post_fbd(httpd_req_t *req, const char *filepath, bool overwrite
     ESP_LOGI(TAG, "Receiving file : %s...", filepath);
 
     /* Retrieve the pointer to scratch buffer for temporary storage */
-    char *buf = scratch;
+    char *buf= static_cast<char*>(httpd_get_global_user_ctx(req->handle));
     int received;
 
     /* Content length of the request gives
@@ -430,7 +418,7 @@ esp_err_t helper_post_fbd(httpd_req_t *req, const char *filepath, bool overwrite
 
         ESP_LOGI(TAG, "Remaining size : %d", remaining);
         /* Receive the file part by part into a buffer */
-        if ((received = httpd_req_recv(req, buf, MIN(remaining, SCRATCH_BUFSIZE))) <= 0) {
+        if ((received = httpd_req_recv(req, buf, MIN(remaining, labathome::config::HTTP_SCRATCHPAD_SIZE))) <= 0) {
             if (received == HTTPD_SOCK_ERR_TIMEOUT) {
                 /* Retry if timeout occurred */
                 continue;
@@ -475,23 +463,23 @@ esp_err_t helper_post_fbd(httpd_req_t *req, const char *filepath, bool overwrite
 }
 
 esp_err_t handle_post_fbdstorejson(httpd_req_t *req){
-    char filepath[Paths::FILE_PATH_MAX];
+    char filepath[labathome::config::paths::FILE_PATH_MAX];
     const char *filename = strrchr(req->uri, '/')+1;
     if (!filename) {
         ESP_LOGE(TAG, "Filename is not defined correctly");
         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Filename is not defined correctly");
         return ESP_FAIL;
     }
-    strcpy(filepath, Paths::FBDSTORE_BASE);
+    strcpy(filepath, labathome::config::paths::FBDSTORE_BASE);
     strcpy(filepath+strlen(filepath), filename);
     strcpy(filepath+strlen(filepath), ".json");
     return helper_post_fbd(req, filepath, false);
 }
 
 esp_err_t handle_post_fbddefaultbin(httpd_req_t *req){
-    return helper_post_fbd(req, Paths::DEFAULT_FBD_BIN_FILENAME, true);
+    return helper_post_fbd(req, labathome::config::paths::DEFAULT_FBD_BIN_FILENAME, true);
 }
 
 esp_err_t handle_post_fbddefaultjson(httpd_req_t *req){
-    return helper_post_fbd(req, Paths::DEFAULT_FBD_JSON_FILENAME, true);
+    return helper_post_fbd(req, labathome::config::paths::DEFAULT_FBD_JSON_FILENAME, true);
 }

@@ -28,9 +28,8 @@ enum class Servo : uint8_t
 class HAL
 {
     public:
-        virtual ErrorCode Init()=0;
+        virtual ErrorCode InitAndRun()=0;
         virtual ErrorCode HardwareTest()=0;
-        virtual void SensorLoop_ForInternalUseOnly()=0;
         virtual ErrorCode StartBuzzer(double freqHz)=0;
         virtual ErrorCode EndBuzzer()=0;
         virtual ErrorCode ColorizeLed(LED led, uint32_t color)=0;

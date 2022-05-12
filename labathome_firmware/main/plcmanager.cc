@@ -4,7 +4,7 @@
 #include "errorcodes.hh"
 #include <vector>
 #include "pidcontroller.hh"
-#include "paths_and_files.hh"
+#include "common_in_project.hh"
 #include <math.h>
 
 constexpr uint32_t TRIGGER_FALLBACK_TIME_MS = 3000;
@@ -20,6 +20,11 @@ PLCManager::PLCManager(HAL *hal):hal(hal)
     nextExecutable = nullptr;
     heaterPIDController = new PIDController(&actualTemperature, &setpointHeater, &setpointTemperature, 0, 100, Mode::OFF, Direction::DIRECT, 1000);
     airspeedPIDController = new PIDController(&actualAirspeed, &setpointFan2, &setpointFan2, 0, 100, Mode::OFF, Direction::DIRECT, 1000);
+}
+
+ErrorCode PLCManager::InitAndRun(){
+    xTaskCreate(PLCManager::plcTask, "plcTask", 4096 * 4, this, 6, NULL);
+    return ErrorCode::OK;
 }
 
 bool PLCManager::IsBinaryAvailable(size_t index)
@@ -158,6 +163,53 @@ public:
         return ErrorCode::OK;
     }
 };
+
+
+void PLCManager::plcTask(void *pvParameters)
+{
+    PLCManager *plc = (PLCManager *)pvParameters;
+    plc->Loop();
+}
+
+void PLCManager::EternalLoop(){   
+    ESP_LOGI(TAG, "PLC Manager started");
+    TickType_t xLastWakeTime;
+    const TickType_t xFrequency = 10;
+    // Initialise the xLastWakeTime variable with the current time.
+    xLastWakeTime = xTaskGetTickCount();
+    this->FindInitialExecutable();
+    
+    for(int i=0;i<3;i++)
+    {
+        hal->ColorizeLed(LED::LED_RED, CRGB::DarkRed);
+        hal->ColorizeLed(LED::LED_GREEN, CRGB::DarkGreen);
+        hal->ColorizeLed(LED::LED_YELLOW, CRGB::Yellow);
+        hal->ColorizeLed(LED::LED_3, CRGB::DarkBlue);
+        hal->AfterLoop();
+        vTaskDelay(pdMS_TO_TICKS(150));
+        hal->ColorizeLed(LED::LED_RED, CRGB::DarkBlue);
+        hal->ColorizeLed(LED::LED_GREEN, CRGB::Yellow);
+        hal->ColorizeLed(LED::LED_YELLOW, CRGB::DarkGreen);
+        hal->ColorizeLed(LED::LED_3, CRGB::DarkRed);
+        hal->AfterLoop();
+        vTaskDelay(pdMS_TO_TICKS(150));
+    }    
+    
+    hal->PlaySong(0);
+    ESP_LOGD(TAG, "plcmanager main loop starts");
+    while (true)
+    {
+        vTaskDelayUntil(&xLastWakeTime, xFrequency);
+        ESP_LOGD(TAG, "CheckForNewExecutable");
+        CheckForNewExecutable();
+        ESP_LOGD(TAG, "BeforeLoop");
+        hal->BeforeLoop();
+        ESP_LOGD(TAG, "Loop");
+        Loop();
+        ESP_LOGD(TAG, "AfterLoop");
+        hal->AfterLoop();
+    }
+}
 
 ErrorCode PLCManager::ParseNewExecutableAndEnqueue(const uint8_t  *buffer, size_t length)
 {
@@ -511,7 +563,6 @@ ErrorCode PLCManager::GetDebugInfoSize(size_t *sizeInBytes){
     return ErrorCode::OK;
 }
 
-
 ErrorCode PLCManager::GetDebugInfo(uint8_t *buffer, size_t maxSizeInByte){
     int *bufAsINT32 = (int*)buffer;
     float *bufAsFLOAT = (float*)buffer;
@@ -564,27 +615,27 @@ ErrorCode PLCManager::GetDebugInfo(uint8_t *buffer, size_t maxSizeInByte){
     return ErrorCode::OK;
 }
 
-ErrorCode PLCManager::Init()
+ErrorCode PLCManager::FindInitialExecutable()
 {
     FILE *fd = NULL;
     struct stat file_stat;
-    ESP_LOGI(TAG, "Trying to open %s", Paths::DEFAULT_FBD_BIN_FILENAME);
-    if (stat(Paths::DEFAULT_FBD_BIN_FILENAME, &file_stat) == -1) {
-        ESP_LOGI(TAG, "Default PLC file %s does not exist. Using factory default instead", Paths::DEFAULT_FBD_BIN_FILENAME);
+    ESP_LOGI(TAG, "Trying to open %s", labathome::config::paths::DEFAULT_FBD_BIN_FILENAME);
+    if (stat(labathome::config::paths::DEFAULT_FBD_BIN_FILENAME, &file_stat) == -1) {
+        ESP_LOGI(TAG, "Default PLC file %s does not exist. Using factory default instead", labathome::config::paths::DEFAULT_FBD_BIN_FILENAME);
         return ErrorCode::OK;
     }
-    fd = fopen(Paths::DEFAULT_FBD_BIN_FILENAME, "r");
+    fd = fopen(labathome::config::paths::DEFAULT_FBD_BIN_FILENAME, "r");
     if (!fd) {
-        ESP_LOGE(TAG, "Failed to read existing file : %s", Paths::DEFAULT_FBD_BIN_FILENAME);
+        ESP_LOGE(TAG, "Failed to read existing file : %s", labathome::config::paths::DEFAULT_FBD_BIN_FILENAME);
         return ErrorCode::FILE_SYSTEM_ERROR;
     }
     uint8_t buf[file_stat.st_size];
     size_t size_read = fread(buf, 1, file_stat.st_size, fd);
     if(size_read!=file_stat.st_size){
-        ESP_LOGE(TAG, "Unable to read file completely : %s", Paths::DEFAULT_FBD_BIN_FILENAME);
+        ESP_LOGE(TAG, "Unable to read file completely : %s", labathome::config::paths::DEFAULT_FBD_BIN_FILENAME);
         return ErrorCode::FILE_SYSTEM_ERROR;
     }
-    ESP_LOGI(TAG, "Successfully read %s", Paths::DEFAULT_FBD_BIN_FILENAME);
+    ESP_LOGI(TAG, "Successfully read %s", labathome::config::paths::DEFAULT_FBD_BIN_FILENAME);
     return this->ParseNewExecutableAndEnqueue(buf, size_read);
 }
 
@@ -623,11 +674,6 @@ ErrorCode PLCManager::CheckForNewExecutable()
     return ErrorCode::OK;
 }
 
-void PLCManager::LoopPID(int64_t nowUs)
-{
-        
-}
-
 
 ErrorCode PLCManager::Loop()
 {
@@ -652,7 +698,6 @@ ErrorCode PLCManager::Loop()
         this->setpointServo1=0;
         this->setpointTemperature=0;
     }
-    
     
     if(experimentMode == ExperimentMode::functionblock)
     {

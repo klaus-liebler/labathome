@@ -31,8 +31,12 @@
 #include <Alarm.mp3.h>
 #include <PD_UFP.h>
 
-const uint8_t *SONGS[] = {Alarm_ding_mp3, Alarm_heule_mp3, Alarm_hupe_mp3};
-const size_t SONGS_LEN[] = {sizeof(Alarm_ding_mp3), sizeof(Alarm_heule_mp3), sizeof(Alarm_hupe_mp3)};
+extern const uint8_t ready_mp3[] asm("_binary_ready_mp3_start");
+extern const size_t  ready_mp3_size asm("ready_mp3_length");
+
+
+const uint8_t *SONGS[] = {ready_mp3, Alarm_heule_mp3, Alarm_hupe_mp3};
+const size_t SONGS_LEN[] = {ready_mp3_size, sizeof(Alarm_heule_mp3), sizeof(Alarm_hupe_mp3)};
 
 
 typedef gpio_num_t Pintype;
@@ -151,16 +155,13 @@ constexpr uint16_t FREQUENCIES[]{11,22,32,43,54,65,75,97,118,140,161,183,205,226
 constexpr uint16_t BUCKET_INDICES[]{1,2,3,4,5,6,7,9,11,13,15,17,19,21,24,27,30,33,36,40,44,48,52,57,62,67,73,79,85,92,99,107,115,124,134,144,155,167,180,194,208,223,240,258,277,297,319,342,367,393,421,451,483,517,554,593,635,680,728,780,835,894,957,1024};
 
 
-int32_t samplesI32[SAMPLES]; //The slave serial-data port’s format is I²S, 24-bit, twos complement, There must be 64 SCK cycles in each WS stereo frame, or 32 SCK cycles per data-word.
-double real[SAMPLES];
-double imag[SAMPLES];
-arduinoFFT fft(real, imag, SAMPLES, SAMPLE_RATE_MICROPHONE);
+//int32_t samplesI32[SAMPLES]; //The slave serial-data port’s format is I²S, 24-bit, twos complement, There must be 64 SCK cycles in each WS stereo frame, or 32 SCK cycles per data-word.
+//double real[SAMPLES];
+//double imag[SAMPLES];
+//arduinoFFT fft(real, imag, SAMPLES, SAMPLE_RATE_MICROPHONE);
 
-MP3Player mp3player;
+MP3::Player mp3player;
 
-extern "C" void sensorTask(void *pvParameters);
-extern "C" void mp3Task(void *pvParameters);
-extern "C" void usbpdTask(void *pvParameters);
 
 class HAL_labathome : public HAL
 {
@@ -177,7 +178,7 @@ private:
 
     WS2812_Strip<LED_NUMBER> *strip = NULL;
     cRotaryEncoder *rotenc = NULL;
-    PD_UFP_core_c PD_UFP;
+    PD_UFP_core_c PD_UFP;//176byte
 
     uint32_t buttonState = 0;
 
@@ -198,42 +199,37 @@ private:
     uint16_t ds4525doPressure;
     uint16_t voltage_USB_PD{0};
     
-public:
-    HAL_labathome(MODE_SPI_IO1_OR_SERVO2 mode_SPI_IO1_OR_SERVO2, MODE_HEATER_OR_LED_POWER mode_HEATER_OR_LED_POWER, MODE_K3A1_OR_ROTB mode_K3A1_OR_ROTB, MODE_MOVEMENT_OR_FAN1SENSE mode_MOVEMENT_OR_FAN1SENSE, MODE_FAN1_DRIVE_OR_SERVO1 mode_FAN1_DRIVE_OR_SERVO1, MODE_RS485_OR_EXT mode_RS485_OR_EXT) : mode_SPI_IO1_OR_SERVO2(mode_SPI_IO1_OR_SERVO2), mode_HEATER_OR_LED_POWER(mode_HEATER_OR_LED_POWER), mode_K3A1_OR_ROTB(mode_K3A1_OR_ROTB), mode_MOVEMENT_OR_FAN1SENSE(mode_MOVEMENT_OR_FAN1SENSE),  mode_FAN1_DRIVE_OR_SERVO1(mode_FAN1_DRIVE_OR_SERVO1), mode_RS485_OR_EXT(mode_RS485_OR_EXT)
-    {
+    void MP3Loop(){
+        //sizeof(MP3::Player);64byte
+        mp3player.InitInternalDACMonoRightPin25();
+        while(true){
+            mp3player.Loop();
+        }
     }
 
-    ErrorCode HardwareTest() override{
-        return ErrorCode::OK;
+    void USBPDLoop(){
+        PD_UFP.init(PD_POWER_OPTION_MAX_20V);
+        while(true){
+            PD_UFP.run();
+            if(!PD_UFP.is_attached()){
+                ESP_LOGI(TAG, "USB PC is not attached. Exiting USB PD Loop!");
+                break;
+            }
+            u16 newVoltage = PD_UFP.get_voltage();
+            if(newVoltage!=this->voltage_USB_PD){
+                ESP_LOGI(TAG, "Voltage on USB-PD changed to %f", newVoltage*0.05);
+                this->voltage_USB_PD=newVoltage;
+            }
+            if(newVoltage==400){//=20V
+                ESP_LOGI(TAG, "Voltage reached Target 20V. Exiting USB PD Loop!");
+                break;
+            }
+            vTaskDelay(pdMS_TO_TICKS(5));
+        }
+        vTaskDelete(NULL);
     }
 
-    int64_t IRAM_ATTR GetMicros()
-    {
-        return esp_timer_get_time();
-    }
-
-    uint32_t GetMillis()
-    {
-        return (uint32_t)(esp_timer_get_time() / 1000ULL);
-    }
-
-    int64_t GetMillis64()
-    {
-        return esp_timer_get_time() / 1000ULL;
-    }
-
-    ErrorCode GetADCValues(float **voltages)
-    {
-        *voltages = this->ADS1115Values;
-        return ErrorCode::OK;
-    }
-
-    ErrorCode GetEncoderValue(int *value){
-        return this->rotenc->GetValue(value)==ESP_OK?ErrorCode::OK:ErrorCode::GENERIC_ERROR;
-    }
-
-
-    void SensorLoop_ForInternalUseOnly()
+    void SensorLoop()
     {
         int64_t nextOneWireReadout{INT64_MAX};
         int64_t nextBME280Readout{INT64_MAX};
@@ -248,11 +244,6 @@ public:
         TickType_t ads1115ReadoutInterval{portMAX_DELAY};
 
         
-
-        
-
-  
-
         //OneWire
         DS18B20_Info *ds18b20_info = NULL;
         owb_rmt_driver_info rmt_driver_info;
@@ -374,10 +365,44 @@ public:
             }
             vTaskDelay(1);
         }
-        
-        
     }
 
+
+public:
+    HAL_labathome(MODE_SPI_IO1_OR_SERVO2 mode_SPI_IO1_OR_SERVO2, MODE_HEATER_OR_LED_POWER mode_HEATER_OR_LED_POWER, MODE_K3A1_OR_ROTB mode_K3A1_OR_ROTB, MODE_MOVEMENT_OR_FAN1SENSE mode_MOVEMENT_OR_FAN1SENSE, MODE_FAN1_DRIVE_OR_SERVO1 mode_FAN1_DRIVE_OR_SERVO1, MODE_RS485_OR_EXT mode_RS485_OR_EXT) : mode_SPI_IO1_OR_SERVO2(mode_SPI_IO1_OR_SERVO2), mode_HEATER_OR_LED_POWER(mode_HEATER_OR_LED_POWER), mode_K3A1_OR_ROTB(mode_K3A1_OR_ROTB), mode_MOVEMENT_OR_FAN1SENSE(mode_MOVEMENT_OR_FAN1SENSE),  mode_FAN1_DRIVE_OR_SERVO1(mode_FAN1_DRIVE_OR_SERVO1), mode_RS485_OR_EXT(mode_RS485_OR_EXT)
+    {
+    }
+
+    ErrorCode HardwareTest() override{
+        return ErrorCode::OK;
+    }
+
+    int64_t IRAM_ATTR GetMicros()
+    {
+        return esp_timer_get_time();
+    }
+
+    uint32_t GetMillis()
+    {
+        return (uint32_t)(esp_timer_get_time() / 1000ULL);
+    }
+
+    int64_t GetMillis64()
+    {
+        return esp_timer_get_time() / 1000ULL;
+    }
+
+    ErrorCode GetADCValues(float **voltages)
+    {
+        *voltages = this->ADS1115Values;
+        return ErrorCode::OK;
+    }
+
+    ErrorCode GetEncoderValue(int *value){
+        return this->rotenc->GetValue(value)==ESP_OK?ErrorCode::OK:ErrorCode::GENERIC_ERROR;
+    }
+
+    
     ErrorCode PlaySong(uint32_t songNumber)
     {
         if (songNumber >= sizeof(SONGS) / sizeof(uint8_t*))
@@ -431,40 +456,41 @@ public:
     
     //see https://github.com/squix78/esp32-mic-fft/blob/master/esp32-mic-fft.ino
     ErrorCode GetFFT64(float *magnitudes64_param){
-        for (int i = 1; i < 64; i++){
-            magnitudes64_param[i]=0;
-        }    
-        for(int cnt=0;cnt<average_over_N_measurements;cnt++){
-            float magnitudes64[64];
-            size_t num_bytes_read{0};
-            if (ESP_OK != i2s_read(I2S_PORT_MICROPHONE, samplesI32, SAMPLES_IN_BYTES, &num_bytes_read, portMAX_DELAY)){
-                ESP_LOGE(TAG, "ESP_OK!=i2s_read");
-                return ErrorCode::GENERIC_ERROR;
-            }
-            if(num_bytes_read!=SAMPLES_IN_BYTES){
-                ESP_LOGE(TAG, "num_bytes_read!=SAMPLES_IN_BYTES");
-                return ErrorCode::GENERIC_ERROR;
-            }
-            for (int i = 0; i < SAMPLES; i++){
-                real[i] = samplesI32[i];
-                imag[i]=0.0;
-            }
-            fft.Windowing(FFT_WIN_TYP_HANN, FFT_FORWARD);
-            fft.Compute(FFT_FORWARD);
-            fft.ComplexToMagnitude();
-            size_t resultPointer = 1;
-            magnitudes64[0]=0;
-            for (int i = 1; i < 64; i++){
-                while(resultPointer<BUCKET_INDICES[i]){
-                    //if(magnitudes64[i] > 13*AMPLITUDE){
-                        magnitudes64[i]=std::max(magnitudes64[i], (float)(real[resultPointer]/AMPLITUDE));
-                    //}
-                    resultPointer++;
-                }
-                //magnitudes64_param[i]+=magnitudes64[i];
-                magnitudes64_param[i] = std::max(magnitudes64_param[i], magnitudes64[i]);
-            }
-        }
+        // for (int i = 1; i < 64; i++){
+        //     magnitudes64_param[i]=0;
+        // }    
+        // for(int cnt=0;cnt<average_over_N_measurements;cnt++){
+        //     float magnitudes64[64];
+        //     size_t num_bytes_read{0};
+        //     if (ESP_OK != i2s_read(I2S_PORT_MICROPHONE, samplesI32, SAMPLES_IN_BYTES, &num_bytes_read, portMAX_DELAY)){
+        //         ESP_LOGE(TAG, "ESP_OK!=i2s_read");
+        //         return ErrorCode::GENERIC_ERROR;
+        //     }
+        //     if(num_bytes_read!=SAMPLES_IN_BYTES){
+        //         ESP_LOGE(TAG, "num_bytes_read!=SAMPLES_IN_BYTES");
+        //         return ErrorCode::GENERIC_ERROR;
+        //     }
+        //     for (int i = 0; i < SAMPLES; i++){
+        //         real[i] = samplesI32[i];
+        //         imag[i]=0.0;
+        //     }
+        //     fft.Windowing(FFT_WIN_TYP_HANN, FFT_FORWARD);
+        //     fft.Compute(FFT_FORWARD);
+        //     fft.ComplexToMagnitude();
+        //     size_t resultPointer = 1;
+        //     magnitudes64[0]=0;
+        //     for (int i = 1; i < 64; i++){
+        //         while(resultPointer<BUCKET_INDICES[i]){
+        //             //if(magnitudes64[i] > 13*AMPLITUDE){
+        //                 magnitudes64[i]=std::max(magnitudes64[i], (float)(real[resultPointer]/AMPLITUDE));
+        //             //}
+        //             resultPointer++;
+        //         }
+        //         //magnitudes64_param[i]+=magnitudes64[i];
+        //         magnitudes64_param[i] = std::max(magnitudes64_param[i], magnitudes64[i]);
+        //     }
+        // }
+        //uncomment the following lines, if necessary
         //for (int i = 1; i < 64; i++){
             //magnitudes64_param[i]/=average_over_N_measurements;
         //}
@@ -473,7 +499,7 @@ public:
 
 
 
-    ErrorCode Init()
+    ErrorCode InitAndRun()
     {
         if(mode_SPI_IO1_OR_SERVO2!=MODE_SPI_IO1_OR_SERVO2::SERVO2
             || mode_K3A1_OR_ROTB!=MODE_K3A1_OR_ROTB::ROTB
@@ -592,8 +618,6 @@ public:
         }
 
 
-        mp3player.InitInternalDACMonoRightPin25();
-
         //I2C Master
         i2c_config_t conf;
         conf.mode = I2C_MODE_MASTER;
@@ -618,8 +642,8 @@ public:
         }
 
         xTaskCreate(sensorTask, "sensorTask", 4096 * 4, this, 6, NULL);
-        xTaskCreate(usbpdTask, "usbpdTask", 4096 * 4, this, 16, NULL);
-        xTaskCreate(mp3Task, "mp3task", 16384 * 4, this, 16, NULL);
+        //xTaskCreate(usbpdTask, "usbpdTask", 4096 * 4, this, 16, NULL);
+        //xTaskCreate(mp3Task, "mp3task", 4096 * 4, this, 16, NULL);
         
         return ErrorCode::OK;
     }
@@ -767,46 +791,29 @@ public:
         return err==ESP_OK?ErrorCode::OK:ErrorCode::GENERIC_ERROR;
     }
 
-    ErrorCode MP3Loop_ForInternalUseOnly(){
-        while(true){
-            mp3player.Loop();
-        }
+
+
+    static void sensorTask(void *pvParameters)
+    {
+        HAL_labathome *hal = (HAL_labathome *)pvParameters;
+        hal->SensorLoop();
     }
 
-    ErrorCode USBPDLoop_ForInternalUseOnly(){
-         //USB-PD
-        //Power Delivery USB-C
-        PD_UFP.init(PD_POWER_OPTION_MAX_20V);
-        while(true){
-            PD_UFP.run();
-            u16 newVoltage = PD_UFP.get_voltage();
-            if(newVoltage!=this->voltage_USB_PD){
-                ESP_LOGI(TAG, "Voltage on USB-PD changed to %f", newVoltage*0.05);
-                this->voltage_USB_PD=newVoltage;
-            }
-            vTaskDelay(pdMS_TO_TICKS(5));
-        }
+    static void mp3Task(void *pvParameters)
+    {
+        HAL_labathome *hal = (HAL_labathome *)pvParameters;
+        hal->MP3Loop();
+    }
+
+    static void usbpdTask(void *pvParameters)
+    {
+    #if CONFIG_FREERTOS_HZ!=1000
+        #error "Set CONFIG_FREERTOS_HZ to 1000 as we need a well defined 1ms delay for proper USB-PD protocol handling"
+    #endif
+        HAL_labathome *hal = (HAL_labathome *)pvParameters;
+        hal->USBPDLoop();
     }
 };
 
-void sensorTask(void *pvParameters)
-{
-    HAL_labathome *hal = (HAL_labathome *)pvParameters;
-    hal->SensorLoop_ForInternalUseOnly();
-}
 
-void mp3Task(void *pvParameters)
-{
-    HAL_labathome *hal = (HAL_labathome *)pvParameters;
-    hal->MP3Loop_ForInternalUseOnly();
-}
-
-void usbpdTask(void *pvParameters)
-{
-#if CONFIG_FREERTOS_HZ!=1000
-    #error "Set CONFIG_FREERTOS_HZ to 1000 as we need a well defined 1ms delay for proper USB-PD protocol handling"
-#endif
-    HAL_labathome *hal = (HAL_labathome *)pvParameters;
-    hal->USBPDLoop_ForInternalUseOnly();
-}
 

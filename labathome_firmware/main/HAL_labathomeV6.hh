@@ -223,7 +223,7 @@ public:
 
         //BME280
         BME280 *bme280 = new BME280(I2C_PORT, BME280_ADRESS::PRIM);
-        if (bme280->Init(&bme280ReadoutIntervalMs) == ESP_OK)
+        if (bme280->InitAndRun(&bme280ReadoutIntervalMs) == ESP_OK)
         {
             bme280->TriggerNextMeasurement();
             bme280ReadoutIntervalMs += 20;
@@ -238,7 +238,7 @@ public:
 
         //BH1750
         BH1750 *bh1750 = new BH1750(I2C_PORT, BH1750_ADRESS::LOW);
-        if (bh1750->Init(BH1750_OPERATIONMODE::CONTINU_H_RESOLUTION) == ESP_OK)
+        if (bh1750->InitAndRun(BH1750_OPERATIONMODE::CONTINU_H_RESOLUTION) == ESP_OK)
         {
             bh1750ReadoutIntervalMs = 200;
             nextBH1750Readout = GetMillis() + bh1750ReadoutIntervalMs;
@@ -251,7 +251,7 @@ public:
 
         //ADS1115
         ADS1115 *ads1115 = new ADS1115(I2C_PORT, (uint8_t)0x48);
-        if (ads1115->Init(ads1115_sps_t::ADS1115_SPS_16, &ads1115ReadoutInterval) == ESP_OK)
+        if (ads1115->InitAndRun(ads1115_sps_t::ADS1115_SPS_16, &ads1115ReadoutInterval) == ESP_OK)
         {
             ads1115->TriggerMeasurement((ads1115_mux_t)nextADS1115Mux);
             nextADS1115Mux++;
@@ -264,7 +264,7 @@ public:
         }
 
         MS4525DO *ms4525 = new MS4525DO(I2C_PORT, MS4523_Adress::I);
-        if(ms4525->Init()==ESP_OK){
+        if(ms4525->InitAndRun()==ESP_OK){
             nextMS4525Readout = GetMillis() + ms4525ReadoutInterval;
         }
 
@@ -370,7 +370,7 @@ public:
 
     static constexpr auto power_ledc_timer_duty_resolution = LEDC_TIMER_10_BIT;
 
-    ErrorCode Init()
+    ErrorCode InitAndRun()
     {
         if (mode_io33 == MODE_IO33::FAN1_SENSE)
             return ErrorCode::NOT_YET_IMPLEMENTED;
@@ -508,15 +508,15 @@ public:
         i2c_param_config(I2C_PORT, &conf);
         ESP_ERROR_CHECK(i2c_driver_install(I2C_PORT, conf.mode, 0, 0, 0));
 
-        ESP_ERROR_CHECK(I2C::Init());
+        ESP_ERROR_CHECK(I2C::InitAndRun());
 
         //LED Strip
         strip = new WS2812_Strip<LED_NUMBER>();
-        ESP_ERROR_CHECK(strip->Init(VSPI_HOST, PIN_LED_STRIP, 2 ));
+        ESP_ERROR_CHECK(strip->InitAndRun(VSPI_HOST, PIN_LED_STRIP, 2 ));
         ESP_ERROR_CHECK(strip->Clear(100));
 
         rotenc=new cRotaryEncoder((pcnt_unit_t)0, PIN_ROTENC_A, PIN_ROTENC_B, -100, 100);
-        rotenc->Init();
+        rotenc->InitAndRun();
         rotenc->Start();
 
         xTaskCreate(sensorTask, "sensorTask", 4096 * 4, this, 6, NULL);

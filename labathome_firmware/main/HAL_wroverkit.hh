@@ -114,7 +114,7 @@ public:
         return LabAtHomeErrorCode::OK;
     }
 
-    LabAtHomeErrorCode Init()
+    LabAtHomeErrorCode InitAndRun()
     {
         //Boolean Inputs in right sequence
         gpio_set_level(PIN_LCD_RST, 0);
@@ -171,7 +171,7 @@ public:
 
         //LED Strip
         strip = new WS2812_Strip<LED_NUMBER>(CHANNEL_WS2812);
-        ESP_ERROR_CHECK(strip->Init(PIN_LED_STRIP));
+        ESP_ERROR_CHECK(strip->InitAndRun(PIN_LED_STRIP));
         ESP_ERROR_CHECK(strip->Clear(100));
 
         return LabAtHomeErrorCode::OK;

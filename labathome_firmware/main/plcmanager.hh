@@ -9,7 +9,7 @@
 #include <vector>
 #include <cstring>
 
-#define ALL4  __attribute__ ((aligned (16)))
+
 
 
 class FunctionBlock;
@@ -133,7 +133,12 @@ class PLCManager:public FBContext
         double setpointServo1=0;
         double setpointHeater=0;
 
-        void LoopPID(int64_t nowUs);
+        static void plcTask(void *pvParameters);
+
+        void EternalLoop();
+        ErrorCode FindInitialExecutable();
+        ErrorCode CheckForNewExecutable();
+        ErrorCode Loop();
         
     public:
         bool IsBinaryAvailable(size_t index);
@@ -158,10 +163,8 @@ class PLCManager:public FBContext
         HAL *GetHAL();
         
         PLCManager(HAL *hal);
-        ErrorCode Init();
- 
-        ErrorCode CheckForNewExecutable();
-        ErrorCode Loop();
+        ErrorCode InitAndRun();
+
         ErrorCode TriggerAirspeedExperimentClosedLoop(double setpointAirspeed, double setpointServo1, double KP, double TN, double TV, AirspeedExperimentData *data);
         ErrorCode TriggerAirspeedExperimentOpenLoop(double setpointFan2, double setpointServo1, AirspeedExperimentData *data);
         ErrorCode TriggerAirspeedExperimentFunctionblock(AirspeedExperimentData *data);
@@ -170,6 +173,7 @@ class PLCManager:public FBContext
         ErrorCode TriggerHeaterExperimentFunctionblock(HeaterExperimentData *data);
         ErrorCode GetDebugInfoSize(size_t *sizeInBytes);
         ErrorCode GetDebugInfo(uint8_t *buffer, size_t maxSizeInByte);
+        
         
         
 };

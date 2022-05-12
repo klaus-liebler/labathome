@@ -6,6 +6,20 @@
     "*.tcc": "cpp",
     "array": "cpp",
     "string": "cpp",
-    "string_view": "cpp"
-  }
+    "string_view": "cpp",
+    "iostream": "cpp",
+    "bitset": "cpp",
+    "optional": "cpp",
+    "functional": "cpp",
+    "random": "cpp",
+    "fstream": "cpp",
+    "future": "cpp",
+    "istream": "cpp",
+    "ostream": "cpp",
+    "sstream": "cpp",
+    "streambuf": "cpp",
+    "regex": "cpp",
+    "*.ipp": "cpp"
+  },
+  "idf.flashType": "UART"
 }
