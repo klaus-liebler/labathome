@@ -1,4 +1,0 @@
-(sym_lib_table
-  (lib (name MCU_Module)(type Legacy)(uri ${KICAD_SYMBOL_DIR}/MCU_Module.lib)(options "")(descr ""))
-  (lib (name labAThome-rescue)(type Legacy)(uri ${KIPRJMOD}/labAThome-rescue.lib)(options "")(descr ""))
-)
