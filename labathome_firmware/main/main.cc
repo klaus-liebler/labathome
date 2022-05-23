@@ -32,9 +32,8 @@ uint8_t http_scatchpad[labathome::config::HTTP_SCRATCHPAD_SIZE] ALL4;
 //#include "HAL_labathomeV5.hh"
 //HAL *hal = new HAL_labathome(MODE_IO33::SERVO2, MODE_MULTI1_PIN::I2S, MODE_MULTI_2_3_PINS::I2S);
 //#include "HAL_wroverkit.hh"
-//HAL *hal = new HAL_wroverkit();
+//static HAL *hal = new HAL_wroverkit();
 #include "HAL_labathomeV10.hh"
-
 static HAL * hal = new HAL_labathome(MODE_SPI_IO1_OR_SERVO2::SERVO2, MODE_HEATER_OR_LED_POWER::HEATER, MODE_K3A1_OR_ROTB::ROTB, MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR, MODE_FAN1_DRIVE_OR_SERVO1::FAN1_DRIVE, MODE_RS485_OR_EXT::RS485);
 static PLCManager *plcmanager = new PLCManager(hal);
 
@@ -191,14 +190,10 @@ void _lab_error_check_failed(ErrorCode rc, const char *file, int line, const cha
 
 void app_main(void)
 {
-    //Nacheinander
-    // - einmalig USB-PD (prüfe, ob verbunden, wenn verbunden, dann so lange probieren, bis 20V, dann task beenden)
-    // - mit internet verbinden
-    // - einmalig OTA
-    
     esp_log_level_set(TAG, ESP_LOG_INFO);
     ESP_ERROR_CHECK(SpiffsManager::Init());
     LAB_ERROR_CHECK(hal->InitAndRun());
+    ESP_LOGI(TAG, "RED %d YEL %d GRN %d", hal->GetButtonRedIsPressed(), hal->GetButtonEncoderIsPressed(), hal->GetButtonGreenIsPressed());
     esp_err_t err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
     {
@@ -206,17 +201,18 @@ void app_main(void)
         err = nvs_flash_init();
     }
     ESP_ERROR_CHECK(err);
-
-    ESP_ERROR_CHECK(wifimgr::InitAndRun());
+    ESP_ERROR_CHECK(wifimgr::InitAndRun(hal->GetButtonGreenIsPressed() && hal->GetButtonRedIsPressed(), http_scatchpad, sizeof(http_scatchpad)));
     otamanager::M otamanager;
     otamanager.InitAndRun();
 
-    httpd_handle_t httpd_handle =  InitAndRunWebserver();
+
+    httpd_handle_t httpd_handle = InitAndRunWebserver();
     wifimgr::RegisterHTTPDHandlers(httpd_handle);
 
     int secs = 0;
     
     plcmanager->InitAndRun();
+
     while (true)
     {
         float heaterTemp{0.f};

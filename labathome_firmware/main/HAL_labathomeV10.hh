@@ -229,6 +229,21 @@ private:
         vTaskDelete(NULL);
     }
 
+    void updateButtons(){
+        this->movementIsDetected = gpio_get_level(PIN_MOVEMENT_OR_FAN1SENSE);
+        int adc_reading = adc1_get_raw(PIN_SW_CHANNEL);
+        //uint32_t voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
+        //printf("Raw: %d\tVoltage: %dmV\n", adc_reading, voltage);
+        int i = 0;
+        for (i = 0; i < sizeof(sw_limits) / sizeof(uint16_t); i++)
+        {
+            if (adc_reading < sw_limits[i])
+                break;
+        }
+        i = ~i;
+        this->buttonState = i;
+    }
+
     void SensorLoop()
     {
         int64_t nextOneWireReadout{INT64_MAX};
@@ -318,18 +333,7 @@ private:
         while (true)
         {
             if(GetMillis64() > nextButtonReadout){
-                this->movementIsDetected = gpio_get_level(PIN_MOVEMENT_OR_FAN1SENSE);
-                int adc_reading = adc1_get_raw(PIN_SW_CHANNEL);
-                //uint32_t voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
-                //printf("Raw: %d\tVoltage: %dmV\n", adc_reading, voltage);
-                int i = 0;
-                for (i = 0; i < sizeof(sw_limits) / sizeof(uint16_t); i++)
-                {
-                    if (adc_reading < sw_limits[i])
-                        break;
-                }
-                i = ~i;
-                this->buttonState = i;
+                updateButtons();
                 nextButtonReadout = GetMillis64()+100;
             }
 
@@ -640,10 +644,10 @@ public:
             rotenc->Init();
             rotenc->Start();
         }
-
-        xTaskCreate(sensorTask, "sensorTask", 4096 * 4, this, 6, NULL);
-        //xTaskCreate(usbpdTask, "usbpdTask", 4096 * 4, this, 16, NULL);
-        //xTaskCreate(mp3Task, "mp3task", 4096 * 4, this, 16, NULL);
+        updateButtons();//do this while init to avoid race condition (wifimanager is resettet when red and green buttons are pressed during startup)
+        xTaskCreate(sensorTask, "sensorTask", 4096 * 4, this, 6, nullptr);
+        xTaskCreate(usbpdTask, "usbpdTask", 2048 * 4, this, 16, nullptr);
+        xTaskCreate(mp3Task, "mp3task", 6144 * 4, this, 16, nullptr); //Stack Size = 4096 --> Stack overflow!!
         
         return ErrorCode::OK;
     }
@@ -790,8 +794,6 @@ public:
         esp_err_t err =  mcpwm_set_duty_in_us(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM_OPR_B, cal_pulsewidth);
         return err==ESP_OK?ErrorCode::OK:ErrorCode::GENERIC_ERROR;
     }
-
-
 
     static void sensorTask(void *pvParameters)
     {

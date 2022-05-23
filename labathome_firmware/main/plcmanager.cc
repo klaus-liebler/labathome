@@ -168,7 +168,7 @@ public:
 void PLCManager::plcTask(void *pvParameters)
 {
     PLCManager *plc = (PLCManager *)pvParameters;
-    plc->Loop();
+    plc->EternalLoop();
 }
 
 void PLCManager::EternalLoop(){   
