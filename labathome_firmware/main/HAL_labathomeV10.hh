@@ -22,6 +22,7 @@
 #include <ads1115.hh>
 #include <ccs811.hh>
 #include <hdc1080.hh>
+#include <aht_sensor.hh>
 #include <owb.h>
 #include <owb_rmt.h>
 #include <ds18b20.h>
@@ -185,6 +186,7 @@ private:
     //Sensors
     hdc1080::M *hdc1080dev;
     CCS811::M *ccs811dev;
+    AHT::M *aht21dev;
 
     //SensorValues
     float heaterTemperatureDegCel = 0.0;
@@ -330,6 +332,9 @@ private:
         //HDC1080
         hdc1080dev = new hdc1080::M(I2C_PORT);
 
+        //AHT21
+        aht21dev = new AHT::M(I2C_PORT, AHT::ADDRESS::default_address);
+
         while (true)
         {
             if(GetMillis64() > nextButtonReadout){
@@ -353,10 +358,19 @@ private:
                 bh1750->Read(&(this->ambientBrightnessLux));
                 nextBH1750Readout = GetMillis64() + bh1750ReadoutIntervalMs;
             }
-  
 
             hdc1080dev->Loop(GetMillis64());
             ccs811dev->Loop(GetMillis64());
+            aht21dev->Loop(GetMillis64());
+
+            if(ccs811dev->HasValidData()){
+                this->co2PPM=ccs811dev->Get_eCO2();
+            }
+            if(this->aht21dev->HasValidData()){
+                this->aht21dev->Read(this->airRelHumidityPercent, this->airTemperatureDegCel);
+            }else if(this->hdc1080dev->HasValidData()){
+                this->hdc1080dev->ReadOut(this->airRelHumidityPercent, this->airTemperatureDegCel);
+            }
 
             if (xTaskGetTickCount() >= nextADS1115Readout)
             {
