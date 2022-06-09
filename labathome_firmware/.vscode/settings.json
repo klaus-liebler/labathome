@@ -19,7 +19,9 @@
     "sstream": "cpp",
     "streambuf": "cpp",
     "regex": "cpp",
-    "*.ipp": "cpp"
+    "*.ipp": "cpp",
+    "owb.h": "c",
+    "owb_rmt.h": "c"
   },
   "idf.flashType": "UART"
 }

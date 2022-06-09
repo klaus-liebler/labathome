@@ -1,4 +1,4 @@
-20146653648367642
+20149989698691301
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -85603,6 +85603,13 @@ X_53050uita
 4
 4
 liebler_SEMICONDUCTORS
+AHT21
+
+
+0
+6
+6
+liebler_SEMICONDUCTORS
 AM612
 
 
@@ -85686,6 +85693,13 @@ MIC_ICS-43434
 0
 6
 6
+liebler_SEMICONDUCTORS
+MSM261D4030H1CPM
+
+
+0
+8
+8
 liebler_SEMICONDUCTORS
 PG-DSO-36
 

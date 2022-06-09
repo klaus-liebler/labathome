@@ -99,8 +99,6 @@ class AppController implements AppManagement {
             a.onclick = (e) => this.setActiveScreen(index);
         });
 
-
-
         /*
         this.SetApplicationState("WebSocket is not connected");
         let websocket = new WebSocket('ws://' + location.hostname + '/w');

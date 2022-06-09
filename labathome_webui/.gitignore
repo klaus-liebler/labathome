@@ -1,0 +1,5 @@
+
+build
+sdkconfig
+dist/
+dist_compressed

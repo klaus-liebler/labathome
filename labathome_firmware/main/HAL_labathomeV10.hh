@@ -28,15 +28,15 @@
 #include <rotenc.hh>
 #include <i2c.hh>
 #include <MP3Player.hh>
-#include <Alarm.mp3.h>
 #include <PD_UFP.h>
 
-extern const uint8_t ready_mp3[] asm("_binary_ready_mp3_start");
-extern const size_t  ready_mp3_size asm("ready_mp3_length");
+FLASH_FILE(fanfare_mp3)
+FLASH_FILE(ready_mp3)
+FLASH_FILE(alarm14heulen_mp3)
 
 
-const uint8_t *SONGS[] = {ready_mp3, Alarm_heule_mp3, Alarm_hupe_mp3};
-const size_t SONGS_LEN[] = {ready_mp3_size, sizeof(Alarm_heule_mp3), sizeof(Alarm_hupe_mp3)};
+const uint8_t *SONGS[] = {fanfare_mp3_start, ready_mp3_start, alarm14heulen_mp3_start};
+const size_t SONGS_LEN[] = {fanfare_mp3_size, ready_mp3_size, alarm14heulen_mp3_size};
 
 
 typedef gpio_num_t Pintype;
@@ -212,7 +212,7 @@ private:
         while(true){
             PD_UFP.run();
             if(!PD_UFP.is_attached()){
-                ESP_LOGI(TAG, "USB PC is not attached. Exiting USB PD Loop!");
+                ESP_LOGI(TAG, "USB PD is not attached. Exiting USB PD Loop!");
                 break;
             }
             u16 newVoltage = PD_UFP.get_voltage();
