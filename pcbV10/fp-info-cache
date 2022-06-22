@@ -1,4 +1,4 @@
-20149989698691301
+20155004846381407
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -84945,6 +84945,13 @@ HLK-PM01
 4
 4
 liebler_MECH
+MTS-102_recessed
+
+
+0
+3
+3
+liebler_MECH
 Mitsumi_SIQ-02FVS3
 
 
@@ -85491,8 +85498,22 @@ ASPIAIG-Q8080
 2
 2
 liebler_PASSIVES
+CP_Elec_6.3x5.7_handsolder
+SMD capacitor, aluminum electrolytic, United Chemi-Con, 6.3x5.7mm
+capacitor electrolytic
+0
+2
+2
+liebler_PASSIVES
 CP_Elec_6.3x7.7_handsolder
 SMD capacitor, aluminum electrolytic, Nichicon, 6.3x7.7mm
+capacitor electrolytic
+0
+2
+2
+liebler_PASSIVES
+CP_Elec_10x10_handsolder
+SMD capacitor, aluminum electrolytic, Nichicon, 10.0x10.0mm
 capacitor electrolytic
 0
 2
