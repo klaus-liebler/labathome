@@ -84,6 +84,12 @@ constexpr Pintype PN_EXT3 = PIN_MULTI3;
 
 constexpr Pintype FUSB302_INT = PIN_SPI_CLK;
 
+constexpr Pintype PIN_NS4168_WS{(Pintype)13};
+constexpr Pintype PIN_NS4168_SCK{(Pintype)5};
+constexpr Pintype PIN_NS4168_SDAT{(Pintype)25};
+constexpr bool NS4168_ACTIVE{false};
+constexpr bool MD8002_ACTIVE{!NS4168_ACTIVE};
+
 struct Note
 {
     uint16_t freq;
@@ -203,7 +209,12 @@ private:
     
     void MP3Loop(){
         //sizeof(MP3::Player);64byte
-        mp3player.InitInternalDACMonoRightPin25();
+        if(MD8002_ACTIVE){
+            mp3player.InitInternalDACMonoRightPin25();
+        }else if(NS4168_ACTIVE){
+            mp3player.InitExternalI2SDAC(I2S_PORT_LOUDSPEAKER, PIN_NS4168_SCK, PIN_NS4168_WS, PIN_NS4168_SDAT);
+        }
+        
         while(true){
             mp3player.Loop();
         }

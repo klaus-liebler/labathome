@@ -15,7 +15,7 @@
 #include <sys/param.h>
 #include <nvs_flash.h>
 #include <esp_netif.h>
-#include <network_manager.hh>
+#include <wifimanager.hh>
 #include <otamanager.hh>
 #include <esp_http_server.h>
 #include "http_handlers.hh"
@@ -25,6 +25,7 @@ static const char *TAG = "main";
 #include "WS2812.hh"
 #include "esp_log.h"
 #include "spiffs.hh"
+#include "winfactboris.hh"
 
 
 uint8_t http_scatchpad[labathome::config::HTTP_SCRATCHPAD_SIZE] ALL4;
@@ -154,7 +155,7 @@ static httpd_handle_t InitAndRunWebserver(void)
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &getadcexperiment));
 
     const char *hostnameptr;
-    ESP_ERROR_CHECK(esp_netif_get_hostname(wifimgr::wifi_netif_ap, &hostnameptr));
+    ESP_ERROR_CHECK(esp_netif_get_hostname(WIFIMGR::wifi_netif_ap, &hostnameptr));
     ESP_LOGI(TAG, "HTTPd successfully started for website http://%s", hostnameptr);
     return server;
 }
@@ -201,13 +202,14 @@ void app_main(void)
         err = nvs_flash_init();
     }
     ESP_ERROR_CHECK(err);
-    ESP_ERROR_CHECK(wifimgr::InitAndRun(hal->GetButtonGreenIsPressed() && hal->GetButtonRedIsPressed(), http_scatchpad, sizeof(http_scatchpad)));
+    ESP_ERROR_CHECK(WIFIMGR::InitAndRun(hal->GetButtonGreenIsPressed() && hal->GetButtonRedIsPressed(), http_scatchpad, sizeof(http_scatchpad)));
     otamanager::M otamanager;
     otamanager.InitAndRun();
+    winfactboris::InitAndRun(hal);
 
 
     httpd_handle_t httpd_handle = InitAndRunWebserver();
-    wifimgr::RegisterHTTPDHandlers(httpd_handle);
+    WIFIMGR::RegisterHTTPDHandlers(httpd_handle);
 
     int secs = 0;
     
