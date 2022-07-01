@@ -10,8 +10,6 @@
 #define LOGE ESP_LOGE
 
 
-
-
 namespace labathome::strings
 {
     constexpr char SUCCESSFUL_STRING[] = "Initialization of %s was successful";

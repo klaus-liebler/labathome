@@ -35,8 +35,8 @@ uint8_t http_scatchpad[labathome::config::HTTP_SCRATCHPAD_SIZE] ALL4;
 //#include "HAL_wroverkit.hh"
 //static HAL *hal = new HAL_wroverkit();
 #include "HAL_labathomeV10.hh"
-static HAL * hal = new HAL_labathome(MODE_SPI_IO1_OR_SERVO2::SERVO2, MODE_HEATER_OR_LED_POWER::HEATER, MODE_K3A1_OR_ROTB::ROTB, MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR, MODE_FAN1_DRIVE_OR_SERVO1::FAN1_DRIVE, MODE_RS485_OR_EXT::RS485);
-static PLCManager *plcmanager = new PLCManager(hal);
+static HAL * hal = new HAL_labathome(MODE_ROT_LDR_ANALOGIN::LDR_AND_ANALOGIN, MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR, MODE_HEATER_OR_LED_POWER::HEATER, MODE_FAN1_DRIVE_OR_SERVO1::SERVO1);
+static DeviceManager *devicemanager = new DeviceManager(hal);
 
 extern "C" void app_main();
 
@@ -44,77 +44,77 @@ constexpr httpd_uri_t getroot = {
     .uri       = "/",
     .method    = HTTP_GET,
     .handler   = handle_get_root,
-    .user_ctx = &plcmanager,
+    .user_ctx = &devicemanager,
 };
 
 constexpr httpd_uri_t putfbd = {
     .uri       = "/fbd",
     .method    = HTTP_PUT,
     .handler   = handle_put_fbd,
-    .user_ctx = &plcmanager,
+    .user_ctx = &devicemanager,
 };
 
 constexpr httpd_uri_t getfbd = {
     .uri       = "/fbd",
     .method    = HTTP_GET,
     .handler   = handle_get_fbd,
-    .user_ctx = &plcmanager,
+    .user_ctx = &devicemanager,
 };
 
 constexpr httpd_uri_t getfbdstorejson = {
     .uri       = "/fbdstorejson/*",
     .method    = HTTP_GET,
     .handler   = handle_get_fbdstorejson,
-    .user_ctx = &plcmanager,
+    .user_ctx = &devicemanager,
 };
 
 constexpr httpd_uri_t postfbdstorejson = {
     .uri       = "/fbdstorejson/*",
     .method    = HTTP_POST,
     .handler   = handle_post_fbdstorejson,
-    .user_ctx = &plcmanager,
+    .user_ctx = &devicemanager,
 };
 
 constexpr httpd_uri_t deletefbdstorejson = {
     .uri       = "/fbdstorejson/*",
     .method    = HTTP_DELETE,
     .handler   = handle_delete_fbdstorejson,
-    .user_ctx = &plcmanager,
+    .user_ctx = &devicemanager,
 };
 
 constexpr httpd_uri_t postfbddefaultbin = {
     .uri       = "/fbddefaultbin",
     .method    = HTTP_POST,
     .handler   = handle_post_fbddefaultbin,
-    .user_ctx = &plcmanager,
+    .user_ctx = &devicemanager,
 };
 
 constexpr httpd_uri_t postfbddefaultjson = {
     .uri       = "/fbddefaultjson",
     .method    = HTTP_POST,
     .handler   = handle_post_fbddefaultjson,
-    .user_ctx = &plcmanager,
+    .user_ctx = &devicemanager,
 };
 
 constexpr httpd_uri_t putheaterexperiment = {
     .uri       = "/heaterexperiment",
     .method    = HTTP_PUT,
     .handler   = handle_put_heaterexperiment,
-    .user_ctx = &plcmanager,
+    .user_ctx = &devicemanager,
 };
 
 constexpr httpd_uri_t putairspeedexperiment = {
     .uri       = "/airspeedexperiment",
     .method    = HTTP_PUT,
     .handler   = handle_put_airspeedexperiment,
-    .user_ctx = &plcmanager,
+    .user_ctx = &devicemanager,
 };
 
 constexpr httpd_uri_t putfftexperiment = {
     .uri       = "/fftexperiment",
     .method    = HTTP_PUT,
     .handler   = handle_put_fftexperiment,
-    .user_ctx = &plcmanager,
+    .user_ctx = &devicemanager,
 };
 
 
@@ -122,7 +122,7 @@ constexpr httpd_uri_t getadcexperiment = {
     .uri       = "/adcexperiment",
     .method    = HTTP_GET,
     .handler   = handle_get_adcexperiment,
-    .user_ctx = &plcmanager,
+    .user_ctx = &devicemanager,
 };
 
 static httpd_handle_t InitAndRunWebserver(void)
@@ -213,7 +213,7 @@ void app_main(void)
 
     int secs = 0;
     
-    plcmanager->InitAndRun();
+    devicemanager->InitAndRun();
 
     while (true)
     {
@@ -227,9 +227,9 @@ void app_main(void)
         hal->GetAirRelHumidity(&airHumid);
         int encoderValue{0};
         hal->GetEncoderValue(&encoderValue);
-        uint16_t co2{0};
+        float co2{0};
         hal->GetCO2PPM(&co2);     
-        ESP_LOGI(TAG, "Run %4d, Heap %6d, RED %d YEL %d ENC %d GRN %d MOV %d HEAT %4.1f AIRT %4.1f PRS %5.0f HUM %3.0f  CO2 %d", secs, esp_get_free_heap_size(),
+        ESP_LOGI(TAG, "Run %4d, Heap %6d, RED %d YEL %d ENC %d GRN %d MOV %d HEAT %4.1f AIRT %4.1f PRS %5.0f HUM %3.0f  CO2 %f", secs, esp_get_free_heap_size(),
             hal->GetButtonRedIsPressed(), hal->GetButtonEncoderIsPressed(), encoderValue, hal->GetButtonGreenIsPressed(),  hal->IsMovementDetected(), heaterTemp, airTemp, airPres, airHumid, co2);
         secs += 5;
         vTaskDelay(pdMS_TO_TICKS(5000));

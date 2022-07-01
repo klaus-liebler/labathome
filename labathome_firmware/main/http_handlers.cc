@@ -12,7 +12,7 @@
 #include "esp_spiffs.h"
 #include "esp_http_server.h"
 #include "http_handlers.hh"
-#include "plcmanager.hh"
+#include "devicemanager.hh"
 
 
 static const char *TAG = "HTTP_handler";
@@ -180,7 +180,7 @@ esp_err_t handle_get_root(httpd_req_t *req)
 
 esp_err_t handle_put_fbd(httpd_req_t *req)
 {    
-    PLCManager *plcmanager = *static_cast<PLCManager **>(req->user_ctx);
+    DeviceManager *devicemanager = *static_cast<DeviceManager **>(req->user_ctx);
     int ret=0;
     int remaining = req->content_len;
     if(remaining>=labathome::config::HTTP_SCRATCHPAD_SIZE)
@@ -206,19 +206,19 @@ esp_err_t handle_put_fbd(httpd_req_t *req)
         printf("0x%08x ",buf32[i]);
     }
     printf("\n");
-    plcmanager->ParseNewExecutableAndEnqueue((uint8_t*)buf, req->content_len);
+    devicemanager->ParseNewExecutableAndEnqueue((uint8_t*)buf, req->content_len);
     httpd_resp_send_chunk(req, NULL, 0);
     return ESP_OK;
 }
 
 esp_err_t handle_get_fbd(httpd_req_t *req){
-    PLCManager *plcmanager = *static_cast<PLCManager **>(req->user_ctx);
+    DeviceManager *devicemanager = *static_cast<DeviceManager **>(req->user_ctx);
     size_t size=0;
-    plcmanager->GetDebugInfoSize(&size);
+    devicemanager->GetDebugInfoSize(&size);
     if(size>=labathome::config::HTTP_SCRATCHPAD_SIZE)
         return ESP_FAIL;
     uint8_t *buf= static_cast<uint8_t*>(httpd_get_global_user_ctx(req->handle));
-    plcmanager->GetDebugInfo(buf, size);
+    devicemanager->GetDebugInfo(buf, size);
     httpd_resp_set_type(req, "application/octet-stream");
     httpd_resp_send(req, (char *)buf, size);
     return ESP_OK;
@@ -226,16 +226,16 @@ esp_err_t handle_get_fbd(httpd_req_t *req){
 
 esp_err_t handle_get_adcexperiment(httpd_req_t *req)
 {
-    PLCManager *plcmanager = *static_cast<PLCManager **>(req->user_ctx);
+    DeviceManager *devicemanager = *static_cast<DeviceManager **>(req->user_ctx);
     float *buf;
-    plcmanager->GetHAL()->GetADCValues(&buf);
+    devicemanager->GetHAL()->GetADCValues(&buf);
     httpd_resp_set_type(req, "application/octet-stream");
     httpd_resp_send(req, (char *)buf, 4*sizeof(float));
     return ESP_OK;
 }
 
 esp_err_t handle_put_fftexperiment(httpd_req_t *req){
-    PLCManager *plcmanager = *static_cast<PLCManager **>(req->user_ctx);
+    DeviceManager *devicemanager = *static_cast<DeviceManager **>(req->user_ctx);
     int ret=0;
     int remaining = req->content_len;
     if(remaining!=32){
@@ -257,9 +257,9 @@ esp_err_t handle_put_fftexperiment(httpd_req_t *req){
     
     ESP_LOGI(TAG, "Fetching FFT data");
     float magnitudes[64];
-    plcmanager->GetHAL()->SetFan1State(setpointFan);
-    plcmanager->GetHAL()->SetFan2State(setpointFan);
-    plcmanager->GetHAL()->GetFFT64(magnitudes);
+    devicemanager->GetHAL()->SetFan1Duty(setpointFan);
+    devicemanager->GetHAL()->SetFan2State(setpointFan);
+    devicemanager->GetHAL()->GetFFT64(magnitudes);
     
     httpd_resp_set_type(req, "application/octet-stream");
     httpd_resp_send(req, (const char*)magnitudes, sizeof(magnitudes));
@@ -269,7 +269,7 @@ esp_err_t handle_put_fftexperiment(httpd_req_t *req){
 
 esp_err_t handle_put_heaterexperiment(httpd_req_t *req)
 {    
-    PLCManager *plcmanager = *static_cast<PLCManager **>(req->user_ctx);
+    DeviceManager *devicemanager = *static_cast<DeviceManager **>(req->user_ctx);
     int ret=0;
     int remaining = req->content_len;
     if(remaining!=24){
@@ -302,9 +302,9 @@ esp_err_t handle_put_heaterexperiment(httpd_req_t *req)
     HeaterExperimentData returnData;
     switch (modeU32)
     {
-    case 0: plcmanager->TriggerHeaterExperimentFunctionblock(&returnData); break;
-    case 1: plcmanager->TriggerHeaterExperimentOpenLoop(setpointTempOrHeater, setpointFan, &returnData); break;
-    case 2: plcmanager->TriggerHeaterExperimentClosedLoop(setpointTempOrHeater, setpointFan, KP, TN, TV, &returnData); break;
+    case 0: devicemanager->TriggerHeaterExperimentFunctionblock(&returnData); break;
+    case 1: devicemanager->TriggerHeaterExperimentOpenLoop(setpointTempOrHeater, setpointFan, &returnData); break;
+    case 2: devicemanager->TriggerHeaterExperimentClosedLoop(setpointTempOrHeater, setpointFan, KP, TN, TV, &returnData); break;
     default:break;
     }
     
@@ -319,7 +319,7 @@ esp_err_t handle_put_heaterexperiment(httpd_req_t *req)
 }
 
 esp_err_t handle_put_airspeedexperiment(httpd_req_t *req){
-    PLCManager *plcmanager = *static_cast<PLCManager **>(req->user_ctx);
+    DeviceManager *devicemanager = *static_cast<DeviceManager **>(req->user_ctx);
     int ret=0;
     int remaining = req->content_len;
     if(remaining!=24){
@@ -352,9 +352,9 @@ esp_err_t handle_put_airspeedexperiment(httpd_req_t *req){
     AirspeedExperimentData returnData;
     switch (modeU32)
     {
-    case 0: plcmanager->TriggerAirspeedExperimentFunctionblock(&returnData); break;
-    case 1: plcmanager->TriggerAirspeedExperimentOpenLoop(setpointTempOrHeater, setpointFan, &returnData); break;
-    case 2: plcmanager->TriggerAirspeedExperimentClosedLoop(setpointTempOrHeater, setpointFan, KP, TN, TV, &returnData); break;
+    case 0: devicemanager->TriggerAirspeedExperimentFunctionblock(&returnData); break;
+    case 1: devicemanager->TriggerAirspeedExperimentOpenLoop(setpointTempOrHeater, setpointFan, &returnData); break;
+    case 2: devicemanager->TriggerAirspeedExperimentClosedLoop(setpointTempOrHeater, setpointFan, KP, TN, TV, &returnData); break;
     default:break;
     }
     

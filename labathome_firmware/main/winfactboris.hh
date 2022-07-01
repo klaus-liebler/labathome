@@ -3,6 +3,19 @@
 #include <esp_log.h>
 
 #define TAG "BORIS"
+/**
+ * @brief 
+ OnBoard-Datenpunkte!
+ Typen sind bool (1byte), float (4byte), integer (4byte), enum (4byte), color (4byte, RGBA) 
+ Bei JEDER Nachricht werden ALLE Datenpunkte in der o.g. Reihenfolge übertragen, als Prefix wird eine 4byte MessageType mitgesendet. Durch diesen wird klar, welches Format die nachfolgende Nachricht hat. Wir beginnen mit dem MessageType 42.
+ Soll ein Wert nicht aktiv gesetzt werden, dann wird als Wert 0xFF für bool, QuietNan für float, INT_MAX_VALUE für integer, INT_MAX_VALUE für enum und INT_MAX_VALUE für color gesendet
+ 
+ Configuration
+ Heater vs LED
+ RelayInput vs RotaryEncoder
+ Fan1_Sense vs MovementSensor
+ * 
+ */
 
 namespace winfactboris
 {
@@ -28,6 +41,7 @@ namespace winfactboris
     {
         uint16_t pin{0};
         uint16_t value{0};
+        //float f = std::numeric_limits<float>::quiet_NaN();
         switch (rx_buffer[0])
         {
         case 'w':

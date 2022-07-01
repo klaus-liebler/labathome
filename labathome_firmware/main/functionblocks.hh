@@ -1,7 +1,7 @@
 #pragma once
 #include "errorcodes.hh"
 #include <stdio.h>
-#include "plcmanager.hh"
+#include "devicemanager.hh"
 #include "math.h"
 #include "crgb.hh"
 
@@ -239,7 +239,7 @@ class FB_FAN1: public FunctionBlock{
     size_t input;
     public:
         ErrorCode execute(FBContext *ctx){
-            ctx->GetHAL()->SetFan1State(ctx->GetInteger(input));
+            ctx->GetHAL()->SetFan1Duty(ctx->GetInteger(input));
             return ErrorCode::OK;;
         }
         FB_FAN1(uint32_t IdOnWebApp, size_t input):FunctionBlock(IdOnWebApp), input(input){}

@@ -1,4 +1,4 @@
-#include "plcmanager.hh"
+#include "devicemanager.hh"
 #include "functionblocks.hh"
 #include "esp_log.h"
 #include "errorcodes.hh"
@@ -6,15 +6,16 @@
 #include "pidcontroller.hh"
 #include "common_in_project.hh"
 #include <math.h>
+#include "winfactboris_messages.hh"
 
 constexpr uint32_t TRIGGER_FALLBACK_TIME_MS = 3000;
-constexpr const char *TAG = "plcmanager";
+constexpr const char *TAG = "devicemanager";
 
 #define SetBit(A, k) (A[(k / 32)] |= (1 << (k % 32)))
 #define ClearBit(A, k) (A[(k / 32)] &= ~(1 << (k % 32)))
 #define TestBit(A, k) (A[(k / 32)] & (1 << (k % 32)))
 
-PLCManager::PLCManager(HAL *hal):hal(hal)
+DeviceManager::DeviceManager(HAL *hal):hal(hal)
 {
     currentExecutable = this->createInitialExecutable();
     nextExecutable = nullptr;
@@ -22,32 +23,32 @@ PLCManager::PLCManager(HAL *hal):hal(hal)
     airspeedPIDController = new PIDController(&actualAirspeed, &setpointFan2, &setpointFan2, 0, 100, Mode::OFF, Direction::DIRECT, 1000);
 }
 
-ErrorCode PLCManager::InitAndRun(){
-    xTaskCreate(PLCManager::plcTask, "plcTask", 4096 * 4, this, 6, NULL);
+ErrorCode DeviceManager::InitAndRun(){
+    xTaskCreate(DeviceManager::plcTask, "plcTask", 4096 * 4, this, 6, NULL);
     return ErrorCode::OK;
 }
 
-bool PLCManager::IsBinaryAvailable(size_t index)
+bool DeviceManager::IsBinaryAvailable(size_t index)
 {
     return index < this->currentExecutable->binaries.size();
 }
 
-bool PLCManager::IsIntegerAvailable(size_t index)
+bool DeviceManager::IsIntegerAvailable(size_t index)
 {
     return index < this->currentExecutable->integers.size();
 }
 
-bool PLCManager::IsColorAvailable(size_t index)
+bool DeviceManager::IsColorAvailable(size_t index)
 {
     return index < this->currentExecutable->colors.size();
 }
 
-bool PLCManager::IsDoubleAvailable(size_t index)
+bool DeviceManager::IsDoubleAvailable(size_t index)
 {
     return false;
 }
 
-ErrorCode PLCManager::SetBinary(size_t index, bool value)
+ErrorCode DeviceManager::SetBinary(size_t index, bool value)
 {
     if (index < this->currentExecutable->binaries.size())
     {
@@ -57,7 +58,7 @@ ErrorCode PLCManager::SetBinary(size_t index, bool value)
     return ErrorCode::INDEX_OUT_OF_BOUNDS;
 }
 
-ErrorCode PLCManager::SetInteger(size_t index, int value)
+ErrorCode DeviceManager::SetInteger(size_t index, int value)
 {
 
     if (index < this->currentExecutable->integers.size())
@@ -68,7 +69,7 @@ ErrorCode PLCManager::SetInteger(size_t index, int value)
     return ErrorCode::INDEX_OUT_OF_BOUNDS;
 }
 
-ErrorCode PLCManager::SetColor(size_t index, uint32_t value)
+ErrorCode DeviceManager::SetColor(size_t index, uint32_t value)
 {
     if (index >= this->currentExecutable->colors.size())
         return ErrorCode::INDEX_OUT_OF_BOUNDS;
@@ -76,28 +77,28 @@ ErrorCode PLCManager::SetColor(size_t index, uint32_t value)
     return ErrorCode::OK;
 }
 
-bool PLCManager::GetBinary(size_t index)
+bool DeviceManager::GetBinary(size_t index)
 {
     bool x = false;
     GetBinaryAsPointer(index, &x);
     return x;
 }
 
-int PLCManager::GetInteger(size_t index)
+int DeviceManager::GetInteger(size_t index)
 {
     int x = 0;
     GetIntegerAsPointer(index, &x);
     return x;
 }
 
-uint32_t PLCManager::GetColor(size_t index)
+uint32_t DeviceManager::GetColor(size_t index)
 {
     uint32_t x = 0;
     GetColorAsPointer(index, &x);
     return x;
 }
 
-ErrorCode PLCManager::GetBinaryAsPointer(size_t index, bool *value)
+ErrorCode DeviceManager::GetBinaryAsPointer(size_t index, bool *value)
 {
     if (index >= this->currentExecutable->binaries.size())
         return ErrorCode::INDEX_OUT_OF_BOUNDS;
@@ -105,7 +106,7 @@ ErrorCode PLCManager::GetBinaryAsPointer(size_t index, bool *value)
     return ErrorCode::OK;
 }
 
-ErrorCode PLCManager::GetIntegerAsPointer(size_t index, int *value)
+ErrorCode DeviceManager::GetIntegerAsPointer(size_t index, int *value)
 {
     if (index >= this->currentExecutable->integers.size())
         return ErrorCode::INDEX_OUT_OF_BOUNDS;
@@ -113,7 +114,7 @@ ErrorCode PLCManager::GetIntegerAsPointer(size_t index, int *value)
     return ErrorCode::OK;
 }
 
-ErrorCode PLCManager::GetColorAsPointer(size_t index, uint32_t *value)
+ErrorCode DeviceManager::GetColorAsPointer(size_t index, uint32_t *value)
 {
     if (index >= this->currentExecutable->colors.size())
         return ErrorCode::INDEX_OUT_OF_BOUNDS;
@@ -121,12 +122,12 @@ ErrorCode PLCManager::GetColorAsPointer(size_t index, uint32_t *value)
     return ErrorCode::OK;
 }
 
-int64_t PLCManager::GetMicroseconds()
+int64_t DeviceManager::GetMicroseconds()
 {
     return hal->GetMicros();
 }
 
-HAL *PLCManager::GetHAL()
+HAL *DeviceManager::GetHAL()
 {
     return this->hal;
 }
@@ -165,13 +166,13 @@ public:
 };
 
 
-void PLCManager::plcTask(void *pvParameters)
+void DeviceManager::plcTask(void *pvParameters)
 {
-    PLCManager *plc = (PLCManager *)pvParameters;
+    DeviceManager *plc = (DeviceManager *)pvParameters;
     plc->EternalLoop();
 }
 
-void PLCManager::EternalLoop(){   
+void DeviceManager::EternalLoop(){   
     ESP_LOGI(TAG, "PLC Manager started");
     TickType_t xLastWakeTime;
     const TickType_t xFrequency = 10;
@@ -196,7 +197,7 @@ void PLCManager::EternalLoop(){
     }    
     
     hal->PlaySong(0);
-    ESP_LOGD(TAG, "plcmanager main loop starts");
+    ESP_LOGD(TAG, "devicemanager main loop starts");
     while (true)
     {
         vTaskDelayUntil(&xLastWakeTime, xFrequency);
@@ -211,7 +212,13 @@ void PLCManager::EternalLoop(){
     }
 }
 
-ErrorCode PLCManager::ParseNewExecutableAndEnqueue(const uint8_t  *buffer, size_t length)
+#define S(x, ...) do {                 \
+        ESP_LOGI(TAG, "Found " #x);                      \
+        functionBlocks[cfgIndex] = new x ( __VA_ARGS__ );\
+    } while(0);\
+    break;\
+
+ErrorCode DeviceManager::ParseNewExecutableAndEnqueue(const uint8_t  *buffer, size_t length)
 {
     ParseContext *ctx = new ParseContext();
     ctx->buf = buffer;
@@ -220,7 +227,6 @@ ErrorCode PLCManager::ParseNewExecutableAndEnqueue(const uint8_t  *buffer, size_
     ESP_LOGI(TAG, "Starting to parse new Executable of length %d", length);
     const uint32_t dataStructureVersion = ctx->ReadU32();
     if(dataStructureVersion!=0xAFFECAFE) return ErrorCode::INCOMPATIBLE_VERSION;
-    
     uint32_t hash= ctx->ReadU32();
 
     //BOOLEAN=0,
@@ -242,265 +248,59 @@ ErrorCode PLCManager::ParseNewExecutableAndEnqueue(const uint8_t  *buffer, size_
         switch (operatorType)
         {
 //#pragma region Basic
-        case 1:
-        {
-            ESP_LOGI(TAG, "Found FB_AND2");
-            functionBlocks[cfgIndex] = new FB_AND2(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 2:
-        {
-            ESP_LOGI(TAG, "Found FB_OR2");
-            functionBlocks[cfgIndex] = new FB_OR2(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 3:
-        {
-            ESP_LOGI(TAG, "Found FB_XOR2");
-            functionBlocks[cfgIndex] = new FB_XOR2(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 4:
-        {
-            ESP_LOGI(TAG, "FOUND FB_NOT");
-            functionBlocks[cfgIndex] = new FB_NOT(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 5:
-        {
-            ESP_LOGI(TAG, "FOUND FB_RS");
-            functionBlocks[cfgIndex] = new FB_RS(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 6:
-        {
-            ESP_LOGI(TAG, "FOUND FB_SR");
-            functionBlocks[cfgIndex] = new FB_SR(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 7:
-        {
-            ESP_LOGI(TAG, "FOUND FB_ConstTrue");
-            functionBlocks[cfgIndex] = new FB_ConstTrue(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 8:
-        {
-            ESP_LOGI(TAG, "FOUND FB_ConstFalse");
-            functionBlocks[cfgIndex] = new FB_ConstFalse(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 9:
-        {
-            ESP_LOGI(TAG, "FOUND FB_CNT");
-            functionBlocks[cfgIndex] = new FB_CNT(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        // case 10:
-        // {
-        //     ESP_LOGI(TAG, "FOUND FB_Timekeeper");
-        //     functionBlocks[cfgIndex] = new FB_Timekeeper(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
-        // }
-        // break;
-        case 11:
-        {
-            ESP_LOGI(TAG, "FOUND FB_TON");
-            functionBlocks[cfgIndex] = new FB_TON(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 12:
-        {
-            ESP_LOGI(TAG, "FOUND FB_TOF");
-            functionBlocks[cfgIndex] = new FB_TOF(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
+        case 1: S(FB_AND2, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        case 2: S(FB_OR2, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        case 3: S(FB_XOR2, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        case 4: S(FB_NOT, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        case 5: S(FB_RS, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        case 6: S(FB_SR, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        case 7: S(FB_ConstTrue, ctx->ReadU32(), ctx->ReadU32());
+        case 8: S(FB_ConstFalse, ctx->ReadU32(), ctx->ReadU32());
+        case 9: S(FB_CNT, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        // case 10: S(FB_Timekeeper, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        case 11: S(FB_TON, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        case 12: S(FB_TOF, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
 //#pragma endregion Basic
 //#pragma region Arithmetic
-        case 13:
-        {
-            ESP_LOGI(TAG, "Found FB_ADD2");
-            functionBlocks[cfgIndex] = new FB_ADD2(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;   
-        case 14:
-        {
-            ESP_LOGI(TAG, "Found FB_SUB2");
-            functionBlocks[cfgIndex] = new FB_SUB2(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 15:
-        {
-            ESP_LOGI(TAG, "Found FB_MULTIPLY");
-            functionBlocks[cfgIndex] = new FB_MULTIPLY(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;        
-        case 16:
-        {
-            ESP_LOGI(TAG, "Found FB_DIVIDE");
-            functionBlocks[cfgIndex] = new FB_DIVIDE(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 17:
-        {
-            ESP_LOGI(TAG, "Found FB_MAX");
-            functionBlocks[cfgIndex] = new FB_MAX(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;        
-        case 18:
-        {
-            ESP_LOGI(TAG, "Found FB_MIN");
-            functionBlocks[cfgIndex] = new FB_MIN(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 19:
-        {
-            ESP_LOGI(TAG, "FOUND FB_GT");
-            functionBlocks[cfgIndex] = new FB_GT(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 20:
-        {
-            ESP_LOGI(TAG, "FOUND FB_LT");
-            functionBlocks[cfgIndex] = new FB_LT(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 21:
-        {
-            ESP_LOGI(TAG, "FOUND FB_ConstInteger");
-            functionBlocks[cfgIndex] = new FB_ConstInteger(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadS32());
-        }
-        break;
+        case 13: S(FB_ADD2, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());   
+        case 14: S(FB_SUB2, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        case 15: S(FB_MULTIPLY, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());        
+        case 16: S(FB_DIVIDE, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        case 17: S(FB_MAX, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());       
+        case 18: S(FB_MIN, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        case 19: S(FB_GT, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        case 20: S(FB_LT, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
+        case 21: S(FB_ConstInteger, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadS32());
 //#pragma endregion Arithmetic
 //#pragma region Converter
-        case 24:
-        {
-            ESP_LOGI(TAG, "FOUND FB_Bool2ColorConverter");
-            functionBlocks[cfgIndex] = new FB_Bool2ColorConverter(ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;       
+        case 24:S(FB_Bool2ColorConverter, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());     
 //#pragma endregion Converter
 //#pragma region Input       
-        case 30:
-        {
-            ESP_LOGI(TAG, "FOUND FB_GreenButton");
-            functionBlocks[cfgIndex] = new FB_GreenButton(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 31:
-        {
-            ESP_LOGI(TAG, "FOUND FB_EncoderButton");
-            functionBlocks[cfgIndex] = new FB_EncoderButton(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 33:
-        {
-            ESP_LOGI(TAG, "FOUND FB_RedButton");
-            functionBlocks[cfgIndex] = new FB_RedButton(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
+        case 30:S(FB_GreenButton, ctx->ReadU32(), ctx->ReadU32());
+        case 31:S(FB_EncoderButton, ctx->ReadU32(), ctx->ReadU32());
+        case 33:S(FB_RedButton, ctx->ReadU32(), ctx->ReadU32());
 //#pragma endregion Input
 //#pragma region Sensor
-        case 34:
-        {
-            ESP_LOGI(TAG, "FOUND FB_MovementSensor");
-            functionBlocks[cfgIndex] = new FB_MovementSensor(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 36:
-        {
-            ESP_LOGI(TAG, "FOUND FB_AirTemperatureBMESensor");
-            functionBlocks[cfgIndex] = new FB_AirTemperatureBMESensor(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        
-        case 41:
-        {
-            ESP_LOGI(TAG, "FOUND FB_AmbientBrigthnessSensor");
-            functionBlocks[cfgIndex] = new FB_AmbientBrigthnessSensor(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 44:
-        {
-            ESP_LOGI(TAG, "FOUND FB_HeaterTemperatureSensor");
-            functionBlocks[cfgIndex] = new FB_HeaterTemperatureSensor(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
+        case 34: S(FB_MovementSensor, ctx->ReadU32(), ctx->ReadU32());
+        case 36: S(FB_AirTemperatureBMESensor, ctx->ReadU32(), ctx->ReadU32());
+        case 41: S(FB_AmbientBrigthnessSensor, ctx->ReadU32(), ctx->ReadU32());
+        case 44: S(FB_HeaterTemperatureSensor, ctx->ReadU32(), ctx->ReadU32());
 //#pragma endregion Sensor
 //#pragma region Output
-        case 45:
-        {
-            ESP_LOGI(TAG, "FOUND FB_Relay");
-            functionBlocks[cfgIndex] = new FB_Relay(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 46:
-        {
-            ESP_LOGI(TAG, "FOUND FB_RedLED");
-            functionBlocks[cfgIndex] = new FB_RedLED(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 47:
-        {
-            ESP_LOGI(TAG, "FOUND FB_YellowLED");
-            functionBlocks[cfgIndex] = new FB_YellowLED(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 48:
-        {
-            ESP_LOGI(TAG, "FOUND FB_GreenLED");
-            functionBlocks[cfgIndex] = new FB_GreenLED(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 49:
-        {
-            ESP_LOGI(TAG, "FOUND FB_LED3");
-            functionBlocks[cfgIndex] = new FB_LED3(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 50:
-        {
-            ESP_LOGI(TAG, "FOUND FB_LED4");
-            functionBlocks[cfgIndex] = new FB_LED4(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 51:
-        {
-            ESP_LOGI(TAG, "FOUND FB_LED5");
-            functionBlocks[cfgIndex] = new FB_LED5(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 52:
-        {
-            ESP_LOGI(TAG, "FOUND FB_LED6");
-            functionBlocks[cfgIndex] = new FB_LED6(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 53:
-        {
-            ESP_LOGI(TAG, "FOUND FB_LED7");
-            functionBlocks[cfgIndex] = new FB_LED7(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 54:
-        {
-            ESP_LOGI(TAG, "FOUND FB_FAN1");
-            functionBlocks[cfgIndex] = new FB_FAN1(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
-        case 55:
-        {
-            ESP_LOGI(TAG, "FOUND FB_FAN2");
-            functionBlocks[cfgIndex] = new FB_FAN2(ctx->ReadU32(), ctx->ReadU32());
-        }
-        break;
+        case 45: S(FB_Relay,ctx->ReadU32(), ctx->ReadU32());
+        case 46: S(FB_RedLED, ctx->ReadU32(), ctx->ReadU32());
+        case 47: S(FB_YellowLED, ctx->ReadU32(), ctx->ReadU32());
+        case 48: S(FB_GreenLED, ctx->ReadU32(), ctx->ReadU32());
+        case 49: S(FB_LED3, ctx->ReadU32(), ctx->ReadU32());
+        case 50: S(FB_LED4, ctx->ReadU32(), ctx->ReadU32());
+        case 51: S(FB_LED5, ctx->ReadU32(), ctx->ReadU32());
+        case 52: S(FB_LED6, ctx->ReadU32(), ctx->ReadU32());
+        case 53: S(FB_LED7, ctx->ReadU32(), ctx->ReadU32());
+        case 54: S(FB_FAN1, ctx->ReadU32(), ctx->ReadU32());
+        case 55: S(FB_FAN2, ctx->ReadU32(), ctx->ReadU32());
 
 //region Specials
-        case 57:
-        {
-            ESP_LOGI(TAG, "FOUND FB_Melody");
-            functionBlocks[cfgIndex] = new FB_Melody(ctx->ReadU32(), ctx->ReadU32(),ctx->ReadU32());
-        }
-        break;
+        case 57: S(FB_Melody, ctx->ReadU32(), ctx->ReadU32(),ctx->ReadU32());
         /*case 33:
         {
             ESP_LOGI(TAG, "FOUND FB_MQTT");
@@ -535,7 +335,7 @@ ErrorCode PLCManager::ParseNewExecutableAndEnqueue(const uint8_t  *buffer, size_
     return ErrorCode::OK;
 }
 
-Executable *PLCManager::createInitialExecutable()
+Executable *DeviceManager::createInitialExecutable()
 {
     FB_RedButton *button_red = new FB_RedButton(0,2);
     FB_RedLED *led_red = new FB_RedLED(1,2);
@@ -558,12 +358,12 @@ Executable *PLCManager::createInitialExecutable()
     return e;
 }
 
-ErrorCode PLCManager::GetDebugInfoSize(size_t *sizeInBytes){
+ErrorCode DeviceManager::GetDebugInfoSize(size_t *sizeInBytes){
     *sizeInBytes=this->currentExecutable->debugSizeBytes;
     return ErrorCode::OK;
 }
 
-ErrorCode PLCManager::GetDebugInfo(uint8_t *buffer, size_t maxSizeInByte){
+ErrorCode DeviceManager::GetDebugInfo(uint8_t *buffer, size_t maxSizeInByte){
     int *bufAsINT32 = (int*)buffer;
     float *bufAsFLOAT = (float*)buffer;
     uint32_t *bufAsUINT32 = (uint32_t*)buffer;
@@ -615,7 +415,7 @@ ErrorCode PLCManager::GetDebugInfo(uint8_t *buffer, size_t maxSizeInByte){
     return ErrorCode::OK;
 }
 
-ErrorCode PLCManager::FindInitialExecutable()
+ErrorCode DeviceManager::FindInitialExecutable()
 {
     FILE *fd = NULL;
     struct stat file_stat;
@@ -639,7 +439,7 @@ ErrorCode PLCManager::FindInitialExecutable()
     return this->ParseNewExecutableAndEnqueue(buf, size_read);
 }
 
-ErrorCode PLCManager::CheckForNewExecutable()
+ErrorCode DeviceManager::CheckForNewExecutable()
 {
     if (this->nextExecutable == nullptr)
     {
@@ -675,7 +475,7 @@ ErrorCode PLCManager::CheckForNewExecutable()
 }
 
 
-ErrorCode PLCManager::Loop()
+ErrorCode DeviceManager::Loop()
 {
     static ExperimentMode previousExperimentMode = ExperimentMode::functionblock; //set in last line of this method
     uint32_t nowMsSteady = hal->GetMillis();
@@ -687,7 +487,7 @@ ErrorCode PLCManager::Loop()
     }
     if(this->experimentMode!=previousExperimentMode){
         //Safe settings on mode change!
-        hal->SetFan1State(0);
+        hal->SetFan1Duty(0);
         hal->SetFan2State(0);
         hal->SetHeaterState(0);
         hal->SetServo1Position(0);
@@ -709,7 +509,7 @@ ErrorCode PLCManager::Loop()
     else if(experimentMode==ExperimentMode::openloop_heater){
         heaterPIDController->SetMode(Mode::OFF, nowMsSteady);
         hal->SetHeaterState(this->setpointHeater);
-        hal->SetFan1State(this->setpointFan1);
+        hal->SetFan1Duty(this->setpointFan1);
         hal->SetFan2State(this->setpointFan1);
     }
     else if(experimentMode==ExperimentMode::closedloop_heater){
@@ -725,7 +525,7 @@ ErrorCode PLCManager::Loop()
              ESP_LOGI(TAG, "Computed a new  setpointHeater %F", setpointHeater);
         }
         hal->SetHeaterState(this->setpointHeater);
-        hal->SetFan1State(this->setpointFan1);
+        hal->SetFan1Duty(this->setpointFan1);
         hal->SetFan2State(this->setpointFan1);
     }
     else if(experimentMode==ExperimentMode::closedloop_airspeed){
@@ -753,11 +553,14 @@ ErrorCode PLCManager::Loop()
         hal->SetFan2State(this->setpointFan2);
         */
     }
+    else if(experimentMode==ExperimentMode::boris_udp){
+        //do nothing
+    }
     previousExperimentMode = this->experimentMode;
     return ErrorCode::OK;
 }
 
-ErrorCode PLCManager::TriggerHeaterExperimentClosedLoop(double setpointTemperature, double setpointFan1, double KP, double TN, double TV, HeaterExperimentData *data){
+ErrorCode DeviceManager::TriggerHeaterExperimentClosedLoop(double setpointTemperature, double setpointFan1, double KP, double TN, double TV, HeaterExperimentData *data){
     //Trigger
     this->lastExperimentTrigger=hal->GetMillis();
     this->experimentMode=ExperimentMode::closedloop_heater;
@@ -774,7 +577,7 @@ ErrorCode PLCManager::TriggerHeaterExperimentClosedLoop(double setpointTemperatu
     data->SetpointTemperature=this->setpointTemperature;
     return ErrorCode::OK;
 }
-ErrorCode PLCManager::TriggerHeaterExperimentOpenLoop(double setpointHeater, double setpointFan1, HeaterExperimentData *data){
+ErrorCode DeviceManager::TriggerHeaterExperimentOpenLoop(double setpointHeater, double setpointFan1, HeaterExperimentData *data){
     //Trigger
     this->lastExperimentTrigger=hal->GetMillis();
     this->experimentMode=ExperimentMode::openloop_heater;
@@ -788,7 +591,7 @@ ErrorCode PLCManager::TriggerHeaterExperimentOpenLoop(double setpointHeater, dou
     data->SetpointTemperature=0;
     return ErrorCode::OK;
 }
-ErrorCode PLCManager::TriggerHeaterExperimentFunctionblock(HeaterExperimentData *data){
+ErrorCode DeviceManager::TriggerHeaterExperimentFunctionblock(HeaterExperimentData *data){
     //Trigger
     this->lastExperimentTrigger=hal->GetMillis();
     this->experimentMode=ExperimentMode::functionblock;
@@ -799,7 +602,7 @@ ErrorCode PLCManager::TriggerHeaterExperimentFunctionblock(HeaterExperimentData 
     data->SetpointTemperature=0;
     return ErrorCode::OK;
 }
-ErrorCode PLCManager::TriggerAirspeedExperimentClosedLoop(double setpointAirspeed, double setpointServo1, double KP, double TN, double TV, AirspeedExperimentData *data){
+ErrorCode DeviceManager::TriggerAirspeedExperimentClosedLoop(double setpointAirspeed, double setpointServo1, double KP, double TN, double TV, AirspeedExperimentData *data){
     //Trigger
     this->lastExperimentTrigger=hal->GetMillis();
     this->experimentMode=ExperimentMode::closedloop_airspeed;
@@ -816,7 +619,7 @@ ErrorCode PLCManager::TriggerAirspeedExperimentClosedLoop(double setpointAirspee
     data->Servo=this->setpointServo1;
     return ErrorCode::OK;
 }
-ErrorCode PLCManager::TriggerAirspeedExperimentOpenLoop(double setpointFan2, double setpointServo1, AirspeedExperimentData *data){
+ErrorCode DeviceManager::TriggerAirspeedExperimentOpenLoop(double setpointFan2, double setpointServo1, AirspeedExperimentData *data){
     //Trigger
     this->lastExperimentTrigger=hal->GetMillis();
     this->experimentMode=ExperimentMode::openloop_heater;
@@ -830,7 +633,7 @@ ErrorCode PLCManager::TriggerAirspeedExperimentOpenLoop(double setpointFan2, dou
     data->Servo=this->setpointServo1;
     return ErrorCode::OK;
 }
-ErrorCode PLCManager::TriggerAirspeedExperimentFunctionblock(AirspeedExperimentData *data){
+ErrorCode DeviceManager::TriggerAirspeedExperimentFunctionblock(AirspeedExperimentData *data){
     //Trigger
     this->lastExperimentTrigger=hal->GetMillis();
     this->experimentMode=ExperimentMode::functionblock;
@@ -839,5 +642,105 @@ ErrorCode PLCManager::TriggerAirspeedExperimentFunctionblock(AirspeedExperimentD
     hal->GetAirSpeed(&(data->ActualAirspeed));
     data->SetpointAirspeed=setpointAirspeed;
     data->Servo=this->setpointServo1;
+    return ErrorCode::OK;
+}
+
+enum class CMD{
+    READ=0,
+    WRITE=1,
+    CONFIG=2,
+};
+
+enum class Inputs{
+    BUTTON_RED_BOOL,
+    BUTTON_YELLOW_BOOL,
+    BUTTON_GREEN_BOOL,
+    ROTARY_ENCODER_DETENTS,
+    MOVEMENT_SENSOR_BOOL,
+    VOLTAGE_USBC_VOLT,
+    BRIGHTNESS_LUX,
+    TEMPERATURE_HEATER_CELCIUS,
+    TEMPERATURE_ROOM_CELCIUS,
+    PRESSURE_ROOM_HPA,
+    HUMIDITY_ROOM_RELATIVEPERCENT,
+    CO2_ROOM_PPM,
+    AIRQUALITY_ROOM_PERCENT,
+    PRESSURE_EXTERNAL_HPA,
+    SIGNAL_STRENGTH_WIFI_DB,
+    VOLTAGE_ANALOGINPUT_VOLTS,
+    SOUND_INDEX,
+    ROTATIONS_FAN1_RPM
+};
+
+enum class Outputs{
+    VOLTAGE_USBC_VOLT,
+    DUTY_HEATER_PERCENT,
+    DUTY_POWER_LED_PERCENT,
+    COLOR_LED0_RGB,
+    COLOR_LED1_RGB,
+    COLOR_LED2_RGB,
+    COLOR_LED3_RGB,
+    SOUND_INDEX,
+    VOLTAGE_ANALOG_OUTPUT_VOLTS,
+    
+};
+
+
+
+
+ErrorCode DeviceManager::TriggerBorisUDP(uint8_t *requestU8, size_t requestLen, uint8_t* responseU8, size_t& responseLen){
+    //Trigger
+    this->lastExperimentTrigger=hal->GetMillis();
+    this->experimentMode=ExperimentMode::boris_udp;
+    //size_t maxResponseLen=responseLen;
+    responseLen=0;
+    if((uint32_t)requestU8%4!=0){
+        ESP_LOGE(TAG, "Data Buffer not aligned property");
+        return ErrorCode::GENERIC_ERROR;
+    }
+    if((uint32_t)responseU8%4!=0){
+        ESP_LOGE(TAG, "Response Buffer not aligned property");
+        return ErrorCode::GENERIC_ERROR;
+    }
+
+
+    uint32_t* requestU32 = (uint32_t*) requestU8;
+    uint32_t messageType = requestU32[0];
+    
+    switch (messageType)
+    {
+        case MESSAGE_TYPE_CONFIG:{
+            hal->UpdatePinConfiguration(requestU8, requestLen);
+        }
+        break;
+        case MESSAGE_TYPE_OUTPUTDATA:{
+            if(requestLen!=sizeof(MessageOutputData)){
+                ESP_LOGE(TAG, "requestLen %d!=sizeof(MessageOutputData)", requestLen);
+                return ErrorCode::INDEX_OUT_OF_BOUNDS;
+            }
+            MessageOutputData* output = (MessageOutputData*)requestU8;
+            if(!std::isnan(output->AnalogOutputVolts)){
+                hal->SetAnalogOutput(output->AnalogOutputVolts);
+            }
+            if(!std::isnan(output->AngleServo1Degress)){
+                hal->SetServo1Position(output->AngleServo1Degress);
+            }
+            if(!std::isnan(output->AngleServo2Degress)){
+                hal->SetServo1Position(output->AngleServo2Degress);
+            }
+            if(!std::isnan(output->DutyFan1Percent)){
+                hal->SetFan1Duty(output->DutyFan1Percent);
+            }
+        }
+        break;
+        case MESSAGE_TYPE_INPUTDATA:{
+             if(requestLen!=sizeof(MessageInputData)){
+                ESP_LOGE(TAG, "requestLen %d!=sizeof(MessageInputData)", requestLen);
+                return ErrorCode::INDEX_OUT_OF_BOUNDS;
+            }
+            MessageInputData* input = (MessageInputData*)requestU8;
+        }
+        break;
+    }
     return ErrorCode::OK;
 }

@@ -109,9 +109,10 @@ enum class ExperimentMode
     openloop_heater,
     closedloop_heater,
     closedloop_airspeed,
+    boris_udp,
 };
 
-class PLCManager:public FBContext
+class DeviceManager:public FBContext
 {
  private:
         HAL *hal;
@@ -162,7 +163,7 @@ class PLCManager:public FBContext
         ErrorCode ParseNewExecutableAndEnqueue(const uint8_t  *buffer, size_t length);
         HAL *GetHAL();
         
-        PLCManager(HAL *hal);
+        DeviceManager(HAL *hal);
         ErrorCode InitAndRun();
 
         ErrorCode TriggerAirspeedExperimentClosedLoop(double setpointAirspeed, double setpointServo1, double KP, double TN, double TV, AirspeedExperimentData *data);
@@ -171,9 +172,8 @@ class PLCManager:public FBContext
         ErrorCode TriggerHeaterExperimentClosedLoop(double setpointTemperature, double setpointFan, double KP, double TN, double TV, HeaterExperimentData *data);
         ErrorCode TriggerHeaterExperimentOpenLoop(double setpointHeater, double setpointFan, HeaterExperimentData *data);
         ErrorCode TriggerHeaterExperimentFunctionblock(HeaterExperimentData *data);
+        ErrorCode TriggerBorisUDP(uint8_t *data, size_t dataLen, uint8_t* responseBufferU8, size_t& responseLen);
         ErrorCode GetDebugInfoSize(size_t *sizeInBytes);
-        ErrorCode GetDebugInfo(uint8_t *buffer, size_t maxSizeInByte);
-        
-        
-        
+        ErrorCode GetDebugInfo(uint8_t *buffer, size_t maxSizeInByte);      
 };
+

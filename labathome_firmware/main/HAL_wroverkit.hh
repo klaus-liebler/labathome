@@ -331,7 +331,7 @@ public:
         return heaterState;
     }
 
-    ErrorCode SetFan1State(float dutyInPercent)
+    ErrorCode SetFan1Duty(float dutyInPercent)
     {
         fan1State = dutyInPercent;
         return ErrorCode::OK;

@@ -630,7 +630,7 @@ public:
         return mcpwm_get_duty(MCPWM_UNIT_0, MCPWM_TIMER_2, MCPWM_OPR_A);
     }
 
-    ErrorCode SetFan1State(float dutyInPercent)
+    ErrorCode SetFan1Duty(float dutyInPercent)
     {
         mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_1, MCPWM_OPR_A, dutyInPercent);
         return ErrorCode::OK;
