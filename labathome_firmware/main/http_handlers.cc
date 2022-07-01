@@ -228,7 +228,7 @@ esp_err_t handle_get_adcexperiment(httpd_req_t *req)
 {
     DeviceManager *devicemanager = *static_cast<DeviceManager **>(req->user_ctx);
     float *buf;
-    devicemanager->GetHAL()->GetADCValues(&buf);
+    devicemanager->GetHAL()->GetAnalogInputs(&buf);
     httpd_resp_set_type(req, "application/octet-stream");
     httpd_resp_send(req, (char *)buf, 4*sizeof(float));
     return ESP_OK;
@@ -258,7 +258,7 @@ esp_err_t handle_put_fftexperiment(httpd_req_t *req){
     ESP_LOGI(TAG, "Fetching FFT data");
     float magnitudes[64];
     devicemanager->GetHAL()->SetFan1Duty(setpointFan);
-    devicemanager->GetHAL()->SetFan2State(setpointFan);
+    devicemanager->GetHAL()->SetFan2Duty(setpointFan);
     devicemanager->GetHAL()->GetFFT64(magnitudes);
     
     httpd_resp_set_type(req, "application/octet-stream");

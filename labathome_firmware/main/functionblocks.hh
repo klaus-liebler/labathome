@@ -137,7 +137,7 @@ public:
     ErrorCode execute(FBContext *ctx){
         bool newInputState=ctx->GetBinary(input);
         if(!lastInputState && newInputState){
-            ctx->GetHAL()->PlaySong(melodyIndex);
+            ctx->GetHAL()->SetSound(melodyIndex);
         }
         lastInputState=newInputState;
 
@@ -162,7 +162,7 @@ class FB_RedLED: public FunctionBlock{
     size_t input;
 public:
     ErrorCode execute(FBContext *ctx){
-        ctx->GetHAL()->ColorizeLed(LED::LED_RED, ctx->GetBinary(input)?CRGB::DarkRed:CRGB::Black);
+        //ctx->GetHAL()->ColorizeLed(LED::LED_RED, ctx->GetBinary(input)?CRGB::DarkRed:CRGB::Black);
         return ErrorCode::OK;;
     }
     FB_RedLED(uint32_t IdOnWebApp, size_t input):FunctionBlock(IdOnWebApp), input(input){}
@@ -178,50 +178,6 @@ public:
     }
     FB_LED3(uint32_t IdOnWebApp, size_t input):FunctionBlock(IdOnWebApp), input(input){}
     ~FB_LED3(){}
-};
-
-class FB_LED4: public FunctionBlock{
-    size_t input;
-public:
-    ErrorCode execute(FBContext *ctx){
-        ctx->GetHAL()->ColorizeLed(LED::LED_4, ctx->GetColor(input));
-        return ErrorCode::OK;
-    }
-    FB_LED4(uint32_t IdOnWebApp, size_t input):FunctionBlock(IdOnWebApp), input(input){}
-    ~FB_LED4(){}
-};
-
-class FB_LED5: public FunctionBlock{
-    size_t input;
-    public:
-        ErrorCode execute(FBContext *ctx){
-        ctx->GetHAL()->ColorizeLed(LED::LED_5, ctx->GetColor(input));
-        return ErrorCode::OK;
-        }
-        FB_LED5(uint32_t IdOnWebApp, size_t input):FunctionBlock(IdOnWebApp), input(input){}
-        ~FB_LED5(){}
-};
-
-class FB_LED6: public FunctionBlock{
-    size_t input;
-    public:
-        ErrorCode execute(FBContext *ctx){
-        ctx->GetHAL()->ColorizeLed(LED::LED_6, ctx->GetColor(input));
-        return ErrorCode::OK;
-        }
-        FB_LED6(uint32_t IdOnWebApp, size_t input):FunctionBlock(IdOnWebApp), input(input){}
-        ~FB_LED6(){}
-};
-
-class FB_LED7: public FunctionBlock{
-    size_t input;
-    public:
-        ErrorCode execute(FBContext *ctx){
-            ctx->GetHAL()->ColorizeLed(LED::LED_7, ctx->GetColor(input));
-            return ErrorCode::OK;
-        }
-        FB_LED7(uint32_t IdOnWebApp, size_t input):FunctionBlock(IdOnWebApp), input(input){}
-        ~FB_LED7(){}
 };
 
 class FB_Relay: public FunctionBlock{
@@ -250,7 +206,7 @@ class FB_FAN2: public FunctionBlock{
     size_t input;
     public:
         ErrorCode execute(FBContext *ctx){
-            ctx->GetHAL()->SetFan2State(ctx->GetInteger(input));
+            ctx->GetHAL()->SetFan2Duty(ctx->GetInteger(input));
             return ErrorCode::OK;;
         }
         FB_FAN2(uint32_t IdOnWebApp, size_t input):FunctionBlock(IdOnWebApp), input(input){}

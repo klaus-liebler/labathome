@@ -144,7 +144,7 @@ private:
     float airPressurePa = 0.0;
     float airRelHumidityPercent = 0.0;
     float ambientBrightnessLux = 0.0;
-    float ADS1115Values[4];
+    float AnalogInputs[4];
     float airSpeedMeterPerSecond;
     uint16_t ds4525doPressure;
     //Actor Values
@@ -173,9 +173,9 @@ public:
         return esp_timer_get_time() / 1000ULL;
     }
 
-    ErrorCode GetADCValues(float **voltages)
+    ErrorCode GetAnalogInputs(float **voltages)
     {
-        *voltages = this->ADS1115Values;
+        *voltages = this->AnalogInputs;
         return ErrorCode::OK;
     }
 
@@ -310,7 +310,7 @@ public:
 
             if (xTaskGetTickCount() >= nextADS1115Readout)
             {
-                ads1115->GetVoltage(&ADS1115Values[nextADS1115Mux & 0b11]);
+                ads1115->GetVoltage(&AnalogInputs[nextADS1115Mux & 0b11]);
                 nextADS1115Mux++;
                 if (nextADS1115Mux > 0b111)
                     nextADS1115Mux = 0b100;
@@ -322,9 +322,9 @@ public:
         
     }
 
-    ErrorCode PlaySong(uint32_t songNumber)
+    ErrorCode SetSound(uint32_t songNumber)
     {
-        if (songNumber >= sizeof(SONGS) / sizeof(Note))
+        if (songNumber >= sizeof(SOUNDS) / sizeof(Note))
             songNumber = 0;
         this->song_nextNoteIndex = 0;
         this->song_nextNoteTimeMs = GetMillis();
@@ -529,7 +529,7 @@ public:
 
         if(this->heaterTemperatureDegCel>85){
             ESP_LOGE(TAG, "Emergency Shutdown. Heater Temperature too high!!!");
-            this->SetHeaterState(0);
+            this->SetHeaterDuty(0);
             this->heaterEmergencyShutdown=true;
         }
         return ErrorCode::OK;
@@ -546,7 +546,7 @@ public:
         {
             if (GetMillis() > song_nextNoteTimeMs)
             {
-                const Note note = SONGS[songNumber][song_nextNoteIndex];
+                const Note note = SOUNDS[songNumber][song_nextNoteIndex];
                 if (note.freq == 0)
                 {
                     ESP_LOGI(TAG, "Mute Note and wait %d", note.durationMs);
@@ -618,7 +618,7 @@ public:
         return ErrorCode::OK;
     }
 
-    ErrorCode SetHeaterState(float dutyInPercent)
+    ErrorCode SetHeaterDuty(float dutyInPercent)
     {
         if(this->heaterEmergencyShutdown) return ErrorCode::EMERGENCY_SHUTDOWN;
         mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_2, MCPWM_OPR_A, dutyInPercent);
@@ -641,7 +641,7 @@ public:
         return mcpwm_get_duty(MCPWM_UNIT_0, MCPWM_TIMER_1, MCPWM_OPR_A);
     }
 
-    ErrorCode SetFan2State(float dutyInPercent)
+    ErrorCode SetFan2Duty(float dutyInPercent)
     {
         mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_1, MCPWM_OPR_B, dutyInPercent);
         return ErrorCode::OK;
@@ -652,7 +652,7 @@ public:
         return mcpwm_get_duty(MCPWM_UNIT_0, MCPWM_TIMER_1, MCPWM_OPR_B);
     }
 
-    ErrorCode SetLedPowerWhiteState(uint8_t dutyInpercent)
+    ErrorCode SetLedPowerWhiteDuty(uint8_t dutyInpercent)
     {
         if (dutyInpercent > 100)
             dutyInpercent = 100;

@@ -196,7 +196,7 @@ void DeviceManager::EternalLoop(){
         vTaskDelay(pdMS_TO_TICKS(150));
     }    
     
-    hal->PlaySong(0);
+    hal->SetSound(0);
     ESP_LOGD(TAG, "devicemanager main loop starts");
     while (true)
     {
@@ -292,10 +292,6 @@ ErrorCode DeviceManager::ParseNewExecutableAndEnqueue(const uint8_t  *buffer, si
         case 47: S(FB_YellowLED, ctx->ReadU32(), ctx->ReadU32());
         case 48: S(FB_GreenLED, ctx->ReadU32(), ctx->ReadU32());
         case 49: S(FB_LED3, ctx->ReadU32(), ctx->ReadU32());
-        case 50: S(FB_LED4, ctx->ReadU32(), ctx->ReadU32());
-        case 51: S(FB_LED5, ctx->ReadU32(), ctx->ReadU32());
-        case 52: S(FB_LED6, ctx->ReadU32(), ctx->ReadU32());
-        case 53: S(FB_LED7, ctx->ReadU32(), ctx->ReadU32());
         case 54: S(FB_FAN1, ctx->ReadU32(), ctx->ReadU32());
         case 55: S(FB_FAN2, ctx->ReadU32(), ctx->ReadU32());
 
@@ -488,8 +484,8 @@ ErrorCode DeviceManager::Loop()
     if(this->experimentMode!=previousExperimentMode){
         //Safe settings on mode change!
         hal->SetFan1Duty(0);
-        hal->SetFan2State(0);
-        hal->SetHeaterState(0);
+        hal->SetFan2Duty(0);
+        hal->SetHeaterDuty(0);
         hal->SetServo1Position(0);
         this->setpointAirspeed=0;
         this->setpointFan1=0.0;
@@ -508,9 +504,9 @@ ErrorCode DeviceManager::Loop()
     }
     else if(experimentMode==ExperimentMode::openloop_heater){
         heaterPIDController->SetMode(Mode::OFF, nowMsSteady);
-        hal->SetHeaterState(this->setpointHeater);
+        hal->SetHeaterDuty(this->setpointHeater);
         hal->SetFan1Duty(this->setpointFan1);
-        hal->SetFan2State(this->setpointFan1);
+        hal->SetFan2Duty(this->setpointFan1);
     }
     else if(experimentMode==ExperimentMode::closedloop_heater){
         heaterPIDController->SetMode(Mode::CLOSEDLOOP, nowMsSteady);
@@ -524,9 +520,9 @@ ErrorCode DeviceManager::Loop()
         if(heaterPIDController->Compute(nowMsSteady)==ErrorCode::OK){ //OK means: Value changed
              ESP_LOGI(TAG, "Computed a new  setpointHeater %F", setpointHeater);
         }
-        hal->SetHeaterState(this->setpointHeater);
+        hal->SetHeaterDuty(this->setpointHeater);
         hal->SetFan1Duty(this->setpointFan1);
-        hal->SetFan2State(this->setpointFan1);
+        hal->SetFan2Duty(this->setpointFan1);
     }
     else if(experimentMode==ExperimentMode::closedloop_airspeed){
         /*
@@ -548,9 +544,9 @@ ErrorCode DeviceManager::Loop()
         if(newResult)
         {
             ESP_LOGI(TAG, "airspeedPIDController if(newResult): %F", this->setpointFan2);
-            hal->SetFan2State(this->setpointFan2);
+            hal->SetFan2Duty(this->setpointFan2);
         }
-        hal->SetFan2State(this->setpointFan2);
+        hal->SetFan2Duty(this->setpointFan2);
         */
     }
     else if(experimentMode==ExperimentMode::boris_udp){
@@ -645,55 +641,11 @@ ErrorCode DeviceManager::TriggerAirspeedExperimentFunctionblock(AirspeedExperime
     return ErrorCode::OK;
 }
 
-enum class CMD{
-    READ=0,
-    WRITE=1,
-    CONFIG=2,
-};
-
-enum class Inputs{
-    BUTTON_RED_BOOL,
-    BUTTON_YELLOW_BOOL,
-    BUTTON_GREEN_BOOL,
-    ROTARY_ENCODER_DETENTS,
-    MOVEMENT_SENSOR_BOOL,
-    VOLTAGE_USBC_VOLT,
-    BRIGHTNESS_LUX,
-    TEMPERATURE_HEATER_CELCIUS,
-    TEMPERATURE_ROOM_CELCIUS,
-    PRESSURE_ROOM_HPA,
-    HUMIDITY_ROOM_RELATIVEPERCENT,
-    CO2_ROOM_PPM,
-    AIRQUALITY_ROOM_PERCENT,
-    PRESSURE_EXTERNAL_HPA,
-    SIGNAL_STRENGTH_WIFI_DB,
-    VOLTAGE_ANALOGINPUT_VOLTS,
-    SOUND_INDEX,
-    ROTATIONS_FAN1_RPM
-};
-
-enum class Outputs{
-    VOLTAGE_USBC_VOLT,
-    DUTY_HEATER_PERCENT,
-    DUTY_POWER_LED_PERCENT,
-    COLOR_LED0_RGB,
-    COLOR_LED1_RGB,
-    COLOR_LED2_RGB,
-    COLOR_LED3_RGB,
-    SOUND_INDEX,
-    VOLTAGE_ANALOG_OUTPUT_VOLTS,
-    
-};
-
-
-
 
 ErrorCode DeviceManager::TriggerBorisUDP(uint8_t *requestU8, size_t requestLen, uint8_t* responseU8, size_t& responseLen){
     //Trigger
     this->lastExperimentTrigger=hal->GetMillis();
     this->experimentMode=ExperimentMode::boris_udp;
-    //size_t maxResponseLen=responseLen;
-    responseLen=0;
     if((uint32_t)requestU8%4!=0){
         ESP_LOGE(TAG, "Data Buffer not aligned property");
         return ErrorCode::GENERIC_ERROR;
@@ -703,6 +655,11 @@ ErrorCode DeviceManager::TriggerBorisUDP(uint8_t *requestU8, size_t requestLen, 
         return ErrorCode::GENERIC_ERROR;
     }
 
+    if(responseLen<sizeof(MessageInputData)){
+        ESP_LOGE(TAG, "Response Buffer (%d) is too small for the response(%d)", responseLen, sizeof(MessageInputData));
+        return ErrorCode::GENERIC_ERROR;
+    }
+    responseLen=sizeof(MessageInputData);
 
     uint32_t* requestU32 = (uint32_t*) requestU8;
     uint32_t messageType = requestU32[0];
@@ -714,11 +671,15 @@ ErrorCode DeviceManager::TriggerBorisUDP(uint8_t *requestU8, size_t requestLen, 
         }
         break;
         case MESSAGE_TYPE_OUTPUTDATA:{
-            if(requestLen!=sizeof(MessageOutputData)){
+             if(requestLen!=sizeof(MessageOutputData)){
                 ESP_LOGE(TAG, "requestLen %d!=sizeof(MessageOutputData)", requestLen);
                 return ErrorCode::INDEX_OUT_OF_BOUNDS;
             }
             MessageOutputData* output = (MessageOutputData*)requestU8;
+            
+            LOGI(TAG, "Got a MESSAGE_TYPE_OUTPUTDATA with DutyFan1 %f RelayK3 %d LED0 %d", output->DutyFan1Percent, output->RelayK3, output->LED0);
+           
+
             if(!std::isnan(output->AnalogOutputVolts)){
                 hal->SetAnalogOutput(output->AnalogOutputVolts);
             }
@@ -731,16 +692,56 @@ ErrorCode DeviceManager::TriggerBorisUDP(uint8_t *requestU8, size_t requestLen, 
             if(!std::isnan(output->DutyFan1Percent)){
                 hal->SetFan1Duty(output->DutyFan1Percent);
             }
-        }
-        break;
-        case MESSAGE_TYPE_INPUTDATA:{
-             if(requestLen!=sizeof(MessageInputData)){
-                ESP_LOGE(TAG, "requestLen %d!=sizeof(MessageInputData)", requestLen);
-                return ErrorCode::INDEX_OUT_OF_BOUNDS;
+            if(!std::isnan(output->DutyFan2Percent)){
+                hal->SetFan2Duty(output->DutyFan2Percent);
             }
-            MessageInputData* input = (MessageInputData*)requestU8;
+            if(!std::isnan(output->DutyHeaterPercent)){
+                hal->SetHeaterDuty(output->DutyHeaterPercent);
+            }
+            if(!std::isnan(output->DutyPowerLedPercent)){
+                hal->SetLedPowerWhiteDuty(output->DutyPowerLedPercent);
+            }
+            hal->ColorizeLed(LED::LED_0, output->LED0);
+            hal->ColorizeLed(LED::LED_1, output->LED1);
+            hal->ColorizeLed(LED::LED_2, output->LED2);
+            hal->ColorizeLed(LED::LED_3, output->LED3);
+            if(output->RelayK3!=0xFF){
+                hal->SetRelayState(output->RelayK3);
+            }
+            if(output->SoundIsValid == VALID){
+                hal->SetSound(output->SoundValue);
+            }
+            if(!std::isnan(output->UsbSupplyVoltageVolts)){
+                ESP_LOGE(TAG, "output->UsbSupplyVoltageVolts not yet implemented");
+            }
+            
         }
         break;
     }
+    
+    MessageInputData* input = (MessageInputData*)responseU8;
+
+    float* analogInputs{nullptr};
+
+    hal->GetCO2PPM(&input->AirCo2PPM);
+    hal->GetAirPressure(&input->AirPressurePa);
+    hal->GetAirPressure(&input->AirQualityPercent);
+    hal->GetAmbientBrightness(&input->AmbientBrightnessLux);
+    hal->GetAnalogInputs(&analogInputs);
+    input->AnalogInputVolt=analogInputs[0];
+    input->ButtonGreen=hal->GetButtonGreenIsPressed();
+    input->ButtonRed=hal->GetButtonRedIsPressed();
+    input->ButtonYellow=hal->GetButtonEncoderIsPressed();
+    hal->GetFan1Rpm(&input->Fan1RotationsRpM);
+    hal->GetHeaterTemperature(&input->HeaterTemperatureDegCel);
+    hal->GetEncoderValue(&input->IncrementalEncoderDetents);
+    input->IncrementalEncoderIsValid=0x01;
+    input->MessageType=MESSAGE_TYPE_INPUTDATA;
+    input->MovementSensor=hal->IsMovementDetected();
+    input->SoundIsValid=0x01;
+    hal->GetSound(&input->SoundValue);
+    input->UsbSupplyVoltageVolts=hal->GetUSBCVoltage();
+    hal->GetWifiRssiDb(&input->WifiSignalStrengthDB);
+
     return ErrorCode::OK;
 }

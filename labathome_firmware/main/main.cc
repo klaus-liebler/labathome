@@ -21,14 +21,6 @@
 #include "http_handlers.hh"
 static const char *TAG = "main";
 #include "HAL.hh"
-#include "functionblocks.hh"
-#include "WS2812.hh"
-#include "esp_log.h"
-#include "spiffs.hh"
-#include "winfactboris.hh"
-
-
-uint8_t http_scatchpad[labathome::config::HTTP_SCRATCHPAD_SIZE] ALL4;
 
 //#include "HAL_labathomeV5.hh"
 //HAL *hal = new HAL_labathome(MODE_IO33::SERVO2, MODE_MULTI1_PIN::I2S, MODE_MULTI_2_3_PINS::I2S);
@@ -36,7 +28,19 @@ uint8_t http_scatchpad[labathome::config::HTTP_SCRATCHPAD_SIZE] ALL4;
 //static HAL *hal = new HAL_wroverkit();
 #include "HAL_labathomeV10.hh"
 static HAL * hal = new HAL_labathome(MODE_ROT_LDR_ANALOGIN::LDR_AND_ANALOGIN, MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR, MODE_HEATER_OR_LED_POWER::HEATER, MODE_FAN1_DRIVE_OR_SERVO1::SERVO1);
+
+
+#include "functionblocks.hh"
+#include "WS2812.hh"
+#include "esp_log.h"
+#include "spiffs.hh"
+#include "winfactboris.hh"
+
 static DeviceManager *devicemanager = new DeviceManager(hal);
+
+uint8_t http_scatchpad[labathome::config::HTTP_SCRATCHPAD_SIZE] ALL4;
+
+
 
 extern "C" void app_main();
 
@@ -205,7 +209,7 @@ void app_main(void)
     ESP_ERROR_CHECK(WIFIMGR::InitAndRun(hal->GetButtonGreenIsPressed() && hal->GetButtonRedIsPressed(), http_scatchpad, sizeof(http_scatchpad)));
     otamanager::M otamanager;
     otamanager.InitAndRun();
-    winfactboris::InitAndRun(hal);
+    winfactboris::InitAndRun(devicemanager);
 
 
     httpd_handle_t httpd_handle = InitAndRunWebserver();
@@ -217,20 +221,34 @@ void app_main(void)
 
     while (true)
     {
-        float heaterTemp{0.f};
-        hal->GetHeaterTemperature(&heaterTemp);
+        uint32_t heap = esp_get_free_heap_size();
+        bool red=hal->GetButtonRedIsPressed();
+        bool yel=hal->GetButtonEncoderIsPressed();
+        bool grn = hal->GetButtonGreenIsPressed();
+        bool mov = hal->IsMovementDetected();
+        float htrTemp{0.f};
+        int enc{0};
+        hal->GetEncoderValue(&enc);
+        int32_t sound{0};
+        hal->GetSound(&sound);
+        float spply = hal->GetUSBCVoltage();
+
+        float bright{0.0};
+        hal->GetAmbientBrightness(&bright);
+
+        float co2{0};
+        hal->GetHeaterTemperature(&htrTemp);
         float airTemp{0.f};
         hal->GetAirTemperature(&airTemp);
         float airPres{0.f};
         hal->GetAirPressure(&airPres);
         float airHumid{0.f};
         hal->GetAirRelHumidity(&airHumid);
-        int encoderValue{0};
-        hal->GetEncoderValue(&encoderValue);
-        float co2{0};
-        hal->GetCO2PPM(&co2);     
-        ESP_LOGI(TAG, "Run %4d, Heap %6d, RED %d YEL %d ENC %d GRN %d MOV %d HEAT %4.1f AIRT %4.1f PRS %5.0f HUM %3.0f  CO2 %f", secs, esp_get_free_heap_size(),
-            hal->GetButtonRedIsPressed(), hal->GetButtonEncoderIsPressed(), encoderValue, hal->GetButtonGreenIsPressed(),  hal->IsMovementDetected(), heaterTemp, airTemp, airPres, airHumid, co2);
+        hal->GetCO2PPM(&co2); 
+        float* analogVolt{nullptr};
+        hal->GetAnalogInputs(&analogVolt);  
+        ESP_LOGI(TAG, "Run %4d Heap %6d  RED %d YEL %d GRN %d MOV %d ENC %d SOUND %d SUPPLY %4.1f BRGHT %4.1f HEAT %4.1f AIRT %4.1f AIRPRS %5.0f AIRHUM %3.0f CO2 %5.0f, ANALOGIN %4.1f",
+                           secs, heap,   red,   yel,   grn,   mov,   enc,   sound,    spply,      bright,     htrTemp,   airTemp,   airPres,     airHumid,     co2,       analogVolt[0]);
         secs += 5;
         vTaskDelay(pdMS_TO_TICKS(5000));
     }

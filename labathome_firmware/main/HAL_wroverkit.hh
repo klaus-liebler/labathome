@@ -156,12 +156,12 @@ public:
         return ErrorCode::OK;
     }
 
-    ErrorCode GetADCValues(float **s)
+    ErrorCode GetAnalogInputs(float **s)
     {
         return ErrorCode::OK;
     }
 
-    ErrorCode PlaySong(unsigned int)
+    ErrorCode SetSound(unsigned int)
     {
         return ErrorCode::OK;
     }
@@ -320,7 +320,7 @@ public:
         return ErrorCode::OK;
     }
 
-    ErrorCode SetHeaterState(float dutyInPercent)
+    ErrorCode SetHeaterDuty(float dutyInPercent)
     {
         heaterState = dutyInPercent;
         return ErrorCode::OK;
@@ -342,7 +342,7 @@ public:
         return fan1State;
     }
 
-    ErrorCode SetFan2State(float dutyInPercent)
+    ErrorCode SetFan2Duty(float dutyInPercent)
     {
         fan2State = dutyInPercent;
         return ErrorCode::OK;
@@ -353,7 +353,7 @@ public:
         return fan2State;
     }
 
-    ErrorCode SetLedPowerWhiteState(uint8_t dutyInpercent)
+    ErrorCode SetLedPowerWhiteDuty(uint8_t dutyInpercent)
     {
         return ErrorCode::OK;
     }

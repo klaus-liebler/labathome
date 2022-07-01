@@ -40,7 +40,7 @@ FLASH_FILE(ready_mp3)
 FLASH_FILE(alarm14heulen_mp3)
 
 
-const uint8_t *SONGS[] = {fanfare_mp3_start, ready_mp3_start, alarm14heulen_mp3_start};
+const uint8_t *SOUNDS[] = {fanfare_mp3_start, ready_mp3_start, alarm14heulen_mp3_start};
 const size_t SONGS_LEN[] = {fanfare_mp3_size, ready_mp3_size, alarm14heulen_mp3_size};
 
 
@@ -138,7 +138,7 @@ enum class Button : uint8_t
     BUT_RED = 0,
     BUT_GREEN = 2,
 };
-
+constexpr size_t ANALOG_INPUTS_LEN{1};
 constexpr size_t LED_NUMBER{4};
 constexpr rmt_channel_t CHANNEL_ONEWIRE_TX{RMT_CHANNEL_1};
 constexpr rmt_channel_t CHANNEL_ONEWIRE_RX{RMT_CHANNEL_2};
@@ -222,14 +222,14 @@ private:
     float airQualityPercent{std::numeric_limits<float>::quiet_NaN()};
     float airSpeedMeterPerSecond{std::numeric_limits<float>::quiet_NaN()};
     float wifiRssiDb{std::numeric_limits<float>::quiet_NaN()};
-    float analogInputVolt{std::numeric_limits<float>::quiet_NaN()};
-    //Ist-Sound vom Player
+    //float analogInputVolt{std::numeric_limits<float>::quiet_NaN()};
+    uint32_t sound{0};
     float fan1RotationsRpM{std::numeric_limits<float>::quiet_NaN()};
 
     
     bool heaterEmergencyShutdown{false};
 
-    float ADS1115Values[4];
+    float AnalogInputs[ANALOG_INPUTS_LEN]={0};
     
     uint16_t ds4525doPressure;
     
@@ -290,9 +290,9 @@ private:
         if(mode_ROT_LDR_ANALOGIN == MODE_ROT_LDR_ANALOGIN::ANALOGIN || mode_ROT_LDR_ANALOGIN==MODE_ROT_LDR_ANALOGIN::LDR_AND_ANALOGIN){
             //Es wird nicht unterschieden, ob der eingang "nur" zum Messen von analogen Spannung verwendet wird oder ob es sich um den Trigger-Eingang des Zeitrelais handelt. Im zweiten Fall muss einfach eine Zeitrelais-Schaltung basierend auf der Grenzüberschreitung des Analogen Messwertes in der Funktionsblock-Spache realisiert werden
             int adc_reading = adc1_get_raw(PIN_ANALOGIN_OR_ROTB_CHANNEL);
-            this->analogInputVolt = 11*esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);//die Multiplikation mit 11 wegen dem Spannungsteiler
+            this->AnalogInputs[0] = 11*esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);//die Multiplikation mit 11 wegen dem Spannungsteiler
         }else{
-            this->analogInputVolt=std::numeric_limits<float>::quiet_NaN();
+            this->AnalogInputs[0]=std::numeric_limits<float>::quiet_NaN();
         }
 
         if(mode_ROT_LDR_ANALOGIN == MODE_ROT_LDR_ANALOGIN::LDR || mode_ROT_LDR_ANALOGIN==MODE_ROT_LDR_ANALOGIN::LDR_AND_ANALOGIN){
@@ -405,6 +405,9 @@ private:
             if(GetMillis64() > nextBinaryAndAnalogReadout){
                 readBinaryAndAnalogIOs();
                 nextBinaryAndAnalogReadout = GetMillis64()+100;
+                if(!mp3player.IsEmittingSamples()){
+                    this->sound=0;
+                }
             }
 
             if (GetMillis64() > nextOneWireReadout)
@@ -439,7 +442,7 @@ private:
 
             if (xTaskGetTickCount() >= nextADS1115Readout)
             {
-                ads1115->GetVoltage(&ADS1115Values[nextADS1115Mux & 0b11]);
+                ads1115->GetVoltage(&AnalogInputs[nextADS1115Mux & 0b11]);
                 nextADS1115Mux++;
                 if (nextADS1115Mux > 0b111)
                     nextADS1115Mux = 0b100;
@@ -484,9 +487,9 @@ public:
         return esp_timer_get_time() / 1000ULL;
     }
 
-    ErrorCode GetADCValues(float **voltages)
+    ErrorCode GetAnalogInputs(float **voltages)
     {
-        *voltages = this->ADS1115Values;
+        *voltages = this->AnalogInputs;
         return ErrorCode::OK;
     }
 
@@ -494,13 +497,23 @@ public:
         return this->rotenc->GetValue(value)==ESP_OK?ErrorCode::OK:ErrorCode::GENERIC_ERROR;
     }
 
+    ErrorCode GetFan1Rpm(float* rpm){
+        *rpm=std::numeric_limits<float>::quiet_NaN();
+        return ErrorCode::OK;
+    }
     
-    ErrorCode PlaySong(uint32_t songNumber)
+    ErrorCode SetSound(int32_t soundNumber)
     {
-        if (songNumber >= sizeof(SONGS) / sizeof(uint8_t*))
-            songNumber = 0;
-        mp3player.Play(SONGS[songNumber], SONGS_LEN[songNumber]);
-        ESP_LOGI(TAG, "Set Song to %d", songNumber);
+        if (soundNumber >= sizeof(SOUNDS) / sizeof(uint8_t*))
+            soundNumber = 0;
+        this->sound=soundNumber;
+        mp3player.Play(SOUNDS[soundNumber], SONGS_LEN[soundNumber]);
+        ESP_LOGI(TAG, "Set Sound to %d", soundNumber);
+        return ErrorCode::OK;
+    }
+
+    ErrorCode GetSound(int32_t* soundNumber){
+        *soundNumber=this->sound;
         return ErrorCode::OK;
     }
 
@@ -527,6 +540,13 @@ public:
         *pa = this->airPressurePa;
         return ErrorCode::OK;
     }
+
+    ErrorCode GetAirQuality(float *qualityPercent)
+    {
+        *qualityPercent = std::numeric_limits<float>::quiet_NaN();
+        return ErrorCode::OK;
+    }
+
     ErrorCode GetAirRelHumidity(float *percent)
     {
         *percent = this->airRelHumidityPercent;
@@ -795,7 +815,7 @@ public:
     {
         if(this->heaterTemperatureDegCel>85){
             ESP_LOGE(TAG, "Emergency Shutdown. Heater Temperature too high!!!");
-            this->SetHeaterState(0);
+            this->SetHeaterDuty(0);
             this->heaterEmergencyShutdown=true;
         }
         return ErrorCode::OK;
@@ -849,7 +869,7 @@ public:
         return ErrorCode::OK;
     }
 
-    ErrorCode SetHeaterState(float dutyInPercent)
+    ErrorCode SetHeaterDuty(float dutyInPercent)
     {
         if(this->heaterEmergencyShutdown) return ErrorCode::EMERGENCY_SHUTDOWN;
         mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_2, MCPWM_OPR_A, dutyInPercent);
@@ -875,7 +895,7 @@ public:
         return mcpwm_get_duty(MCPWM_UNIT_0, MCPWM_TIMER_FAN, MCPWM_GEN_FAN1);
     }
 
-    ErrorCode SetFan2State(float dutyInPercent)
+    ErrorCode SetFan2Duty(float dutyInPercent)
     {
         mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_FAN, MCPWM_GEN_FAN2, dutyInPercent);
         return ErrorCode::OK;
@@ -886,7 +906,7 @@ public:
         return mcpwm_get_duty(MCPWM_UNIT_0, MCPWM_TIMER_FAN, MCPWM_GEN_FAN2);
     }
 
-    ErrorCode SetLedPowerWhiteState(float dutyInPercent)
+    ErrorCode SetLedPowerWhiteDuty(float dutyInPercent)
     {
         if(mode_HEATER_OR_LED_POWER!=MODE_HEATER_OR_LED_POWER::LED_POWER){
             return ErrorCode::FUNCTION_NOT_AVAILABLE;

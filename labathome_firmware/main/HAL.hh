@@ -7,17 +7,14 @@
 
 enum class LED : uint8_t
 {
-    LED_RED=0,
-    LED_YELLOW=1,
-    LED_GREEN=2,
-    LED_3=3,
-    LED_4=4,
-    LED_5=5,
-    LED_6=6,
-    LED_7=7,
+    LED_RED=3,
+    LED_0=3,
+    LED_YELLOW=2,
+    LED_1=2,
+    LED_GREEN=1,
+    LED_2=1,
+    LED_3=0,
 };
-
-
 
 enum class Servo : uint8_t
 {
@@ -35,13 +32,13 @@ class HAL
         virtual ErrorCode ColorizeLed(LED led, uint32_t color)=0;
         virtual ErrorCode UnColorizeAllLed()=0;
         virtual ErrorCode SetRelayState(bool state)=0;
-        virtual ErrorCode SetHeaterState(float dutyInPercent)=0;
+        virtual ErrorCode SetHeaterDuty(float dutyInPercent)=0;
         virtual float GetHeaterState()=0;
         virtual ErrorCode SetFan1Duty(float dutyInPercent)=0;
         virtual float GetFan1State()=0;
-        virtual ErrorCode SetFan2State(float dutyInPercent)=0;
+        virtual ErrorCode SetFan2Duty(float dutyInPercent)=0;
         virtual float GetFan2State()=0;
-        virtual ErrorCode SetLedPowerWhiteState(float dutyInpercent)=0;
+        virtual ErrorCode SetLedPowerWhiteDuty(float dutyInpercent)=0;
         virtual bool GetButtonRedIsPressed()=0;
         virtual bool GetButtonEncoderIsPressed()=0;
         virtual ErrorCode GetEncoderValue(int *value);
@@ -59,9 +56,13 @@ class HAL
         virtual ErrorCode GetAirTemperature(float *degreesCelcius);
         virtual ErrorCode GetAirPressure(float *pa);
         virtual ErrorCode GetAirRelHumidity(float *percent);
+        virtual ErrorCode GetAirQuality(float *qualityPercent);
         virtual ErrorCode GetAirSpeed(float *speedMetersPerSecond);
-        virtual ErrorCode GetADCValues(float **voltages);
-        virtual ErrorCode PlaySong(uint32_t songNumber);
+        virtual ErrorCode GetAnalogInputs(float **voltages);
+        virtual ErrorCode SetSound(int32_t songNumber);
+        virtual ErrorCode GetSound(int32_t *songNumber);
+        virtual ErrorCode GetFan1Rpm(float* rpm);
+        virtual ErrorCode GetWifiRssiDb(float *db)=0;
         virtual int64_t GetMicros()=0;
         virtual uint32_t GetMillis()=0; 
         virtual ErrorCode GetFFT64(float *magnitudes64);
