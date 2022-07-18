@@ -8,13 +8,10 @@
 #include "errorcodes.hh"
 #include <vector>
 #include <cstring>
-
-
+#include <pidcontroller.hh>
 
 
 class FunctionBlock;
-class PIDController;
-
 class Executable
 {
     public:
@@ -23,9 +20,9 @@ class Executable
         std::vector<FunctionBlock*> functionBlocks;
         std::vector<bool> binaries;
         std::vector<int> integers;
-        std::vector<double> floats;
+        std::vector<float> floats;
         std::vector<uint32_t> colors;
-        Executable(uint32_t hash, size_t debugSizeBytes, std::vector<FunctionBlock*> functionBlocks, std::vector<bool> binaries, std::vector<int> integers, std::vector<double> floats, std::vector<uint32_t> colors):
+        Executable(uint32_t hash, size_t debugSizeBytes, std::vector<FunctionBlock*> functionBlocks, std::vector<bool> binaries, std::vector<int> integers, std::vector<float> floats, std::vector<uint32_t> colors):
             hash(hash), debugSizeBytes(debugSizeBytes), functionBlocks(functionBlocks), binaries(binaries), integers(integers), floats(floats), colors(colors)
         {
         }
@@ -49,7 +46,7 @@ class FBContext{
     public:
         virtual bool IsBinaryAvailable(size_t index)=0;
         virtual bool IsIntegerAvailable(size_t index)=0;
-        virtual bool IsDoubleAvailable(size_t index)=0;
+        virtual bool IsFloatAvailable(size_t index)=0;
         virtual bool IsColorAvailable(size_t index)=0;
         
         virtual ErrorCode  GetBinaryAsPointer(size_t index, bool *value)=0;
@@ -64,6 +61,10 @@ class FBContext{
         virtual ErrorCode  GetColorAsPointer(size_t index, uint32_t *value)=0;
         virtual ErrorCode  SetColor(size_t index, uint32_t value)=0;
         virtual uint32_t  GetColor(size_t index)=0;
+
+        virtual ErrorCode  GetFloatAsPointer(size_t index, float *value)=0;
+        virtual ErrorCode  SetFloat(size_t index, float value)=0;
+        virtual float  GetFloat(size_t index)=0;
         
 
         virtual int64_t GetMicroseconds()=0;
@@ -116,23 +117,23 @@ class DeviceManager:public FBContext
 {
  private:
         HAL *hal;
-        PIDController *heaterPIDController;
-        PIDController *airspeedPIDController;
+        PIDController<float> *heaterPIDController;
+        PIDController<float> *airspeedPIDController;
         Executable *currentExecutable;
         Executable *nextExecutable;
         Executable* createInitialExecutable();
         uint32_t lastExperimentTrigger=0;
         ExperimentMode experimentMode;
-        double heaterKP=0; double heaterTN=0; double heaterTV=0;
-        double airspeedKP=0; double airspeedTN=0; double airspeedTV=0;
-        double actualTemperature=0;
-        double setpointTemperature=0;
-        double actualAirspeed=0;
-        double setpointAirspeed=0;
-        double setpointFan1=0;
-        double setpointFan2=0;
-        double setpointServo1=0;
-        double setpointHeater=0;
+        float heaterKP=0; float heaterTN_secs=0; float heaterTV_secs=0;
+        float airspeedKP=0; float airspeedTN_secs=0; float airspeedTV_secs=0;
+        float actualTemperature=0;
+        float setpointTemperature=0;
+        float actualAirspeed=0;
+        float setpointAirspeed=0;
+        float setpointFan1=0;
+        float setpointFan2=0;
+        float setpointServo1=0;
+        float setpointHeater=0;
 
         static void plcTask(void *pvParameters);
 
@@ -144,8 +145,9 @@ class DeviceManager:public FBContext
     public:
         bool IsBinaryAvailable(size_t index);
         bool IsIntegerAvailable(size_t index);
-        bool IsDoubleAvailable(size_t index);
+        bool IsFloatAvailable(size_t index);
         bool IsColorAvailable(size_t index);
+    
         ErrorCode  GetBinaryAsPointer(size_t index, bool *value);
         ErrorCode  SetBinary(size_t index, bool value);
         bool  GetBinary(size_t index);
@@ -157,6 +159,10 @@ class DeviceManager:public FBContext
         ErrorCode  GetColorAsPointer(size_t index, uint32_t *value);
         ErrorCode  SetColor(size_t index, uint32_t value);
         uint32_t GetColor(size_t index);
+
+        ErrorCode  GetFloatAsPointer(size_t index, float *value);
+        ErrorCode  SetFloat(size_t index, float value);
+        float GetFloat(size_t index);
         
        
         int64_t GetMicroseconds();
@@ -166,11 +172,11 @@ class DeviceManager:public FBContext
         DeviceManager(HAL *hal);
         ErrorCode InitAndRun();
 
-        ErrorCode TriggerAirspeedExperimentClosedLoop(double setpointAirspeed, double setpointServo1, double KP, double TN, double TV, AirspeedExperimentData *data);
-        ErrorCode TriggerAirspeedExperimentOpenLoop(double setpointFan2, double setpointServo1, AirspeedExperimentData *data);
+        ErrorCode TriggerAirspeedExperimentClosedLoop(float setpointAirspeed, float setpointServo1, float KP, float TN, float TV, AirspeedExperimentData *data);
+        ErrorCode TriggerAirspeedExperimentOpenLoop(float setpointFan2, float setpointServo1, AirspeedExperimentData *data);
         ErrorCode TriggerAirspeedExperimentFunctionblock(AirspeedExperimentData *data);
-        ErrorCode TriggerHeaterExperimentClosedLoop(double setpointTemperature, double setpointFan, double KP, double TN, double TV, HeaterExperimentData *data);
-        ErrorCode TriggerHeaterExperimentOpenLoop(double setpointHeater, double setpointFan, HeaterExperimentData *data);
+        ErrorCode TriggerHeaterExperimentClosedLoop(float setpointTemperature, float setpointFan, float KP, float TN, float TV, HeaterExperimentData *data);
+        ErrorCode TriggerHeaterExperimentOpenLoop(float setpointHeater, float setpointFan, HeaterExperimentData *data);
         ErrorCode TriggerHeaterExperimentFunctionblock(HeaterExperimentData *data);
         ErrorCode TriggerBorisUDP(uint8_t *data, size_t dataLen, uint8_t* responseBufferU8, size_t& responseLen);
         ErrorCode GetDebugInfoSize(size_t *sizeInBytes);

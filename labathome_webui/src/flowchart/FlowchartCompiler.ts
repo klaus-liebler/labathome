@@ -99,7 +99,7 @@ export class FlowchartCompiler {
         for (let i = 0; i < dv.byteLength; i++) {
             code += "0x" + dv.getUint8(i).toString(16) + ", ";
         }
-        code += "};";
+        code += "};//"+dv.byteLength+"bytes";
         console.log(code);
 
         return {
@@ -164,7 +164,7 @@ export class FlowchartCompiler {
         };
         //Version of Data Structure
         serctx.writeU32(0xAFFECAFE);
-        //Placeholder for hash
+        //Placeholder for hash, will be overwritten some lines later
         serctx.writeU32(0);
 
 

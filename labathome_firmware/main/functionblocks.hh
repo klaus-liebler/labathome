@@ -4,6 +4,7 @@
 #include "devicemanager.hh"
 #include "math.h"
 #include "crgb.hh"
+#include <pidcontroller.hh>
 
 class FB_ConstTrue: public FunctionBlock{
     size_t output;
@@ -52,6 +53,31 @@ class FB_EncoderButton: public FunctionBlock{
         ~FB_EncoderButton(){}
 };
 
+class FB_EncoderDetents: public FunctionBlock{
+    size_t output;
+    int16_t previous=0;
+    int count=0;
+    const int maxCount=100;
+    const int minCount=0;
+    public:
+        ErrorCode execute(FBContext *ctx){
+            int current=0;
+            ctx->GetHAL()->GetEncoderValue(&current);
+            int16_t change = ((int16_t)current -  previous);
+            change/=4;
+            if(change!=0){
+                count+=change;
+                if(count>this->maxCount) count=maxCount;
+                if(count<this->minCount) count=minCount;
+                previous=current;
+            }
+            ctx->SetInteger(output, count);
+            return ErrorCode::OK;
+        }
+        FB_EncoderDetents(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
+        ~FB_EncoderDetents(){}
+};
+
 class FB_RedButton: public FunctionBlock{
     size_t output;
     public:
@@ -70,25 +96,76 @@ class FB_AmbientBrigthnessSensor:public FunctionBlock{
         ErrorCode execute(FBContext *ctx){
             float value;
             ctx->GetHAL()->GetAmbientBrightness(&value);
-            ctx->SetInteger(output, value);
+            ctx->SetFloat(output, value);
             return ErrorCode::OK;
         }
         FB_AmbientBrigthnessSensor(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
         ~FB_AmbientBrigthnessSensor(){}
 };
 
-class FB_AirTemperatureBMESensor:public FunctionBlock{
+class FB_AirTemperatureSensor:public FunctionBlock{
     size_t output;
     public:
         ErrorCode execute(FBContext *ctx){
             float value;
             ctx->GetHAL()->GetAirTemperature(&value);
-            int32_t int_value = (int32_t)(value*10);
-            ctx->SetInteger(output, int_value);
+            ctx->SetFloat(output, value);
             return ErrorCode::OK;
         }
-        FB_AirTemperatureBMESensor(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
-        ~FB_AirTemperatureBMESensor(){}
+        FB_AirTemperatureSensor(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
+        ~FB_AirTemperatureSensor(){}
+};
+
+class FB_AirHumiditySensor:public FunctionBlock{
+    size_t output;
+    public:
+        ErrorCode execute(FBContext *ctx){
+            float value;
+            ctx->GetHAL()->GetAirRelHumidity(&value);
+            ctx->SetFloat(output, value);
+            return ErrorCode::OK;
+        }
+        FB_AirHumiditySensor(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
+        ~FB_AirHumiditySensor(){}
+};
+
+class FB_AirPressureSensor:public FunctionBlock{
+    size_t output;
+    public:
+        ErrorCode execute(FBContext *ctx){
+            float value;
+            ctx->GetHAL()->GetAirPressure(&value);
+            ctx->SetFloat(output, value);
+            return ErrorCode::OK;
+        }
+        FB_AirPressureSensor(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
+        ~FB_AirPressureSensor(){}
+};
+
+class FB_AirCO2Sensor:public FunctionBlock{
+    size_t output;
+    public:
+        ErrorCode execute(FBContext *ctx){
+            float value;
+            ctx->GetHAL()->GetCO2PPM(&value);
+            ctx->SetFloat(output, value);
+            return ErrorCode::OK;
+        }
+        FB_AirCO2Sensor(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
+        ~FB_AirCO2Sensor(){}
+};
+
+class FB_AirQualitySensor:public FunctionBlock{
+    size_t output;
+    public:
+        ErrorCode execute(FBContext *ctx){
+            float value;
+            ctx->GetHAL()->GetAirQuality(&value);
+            ctx->SetFloat(output, value);
+            return ErrorCode::OK;
+        }
+        FB_AirQualitySensor(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
+        ~FB_AirQualitySensor(){}
 };
 
 
@@ -99,7 +176,7 @@ public:
     ErrorCode execute(FBContext *ctx){
         float value;
         ctx->GetHAL()->GetHeaterTemperature(&value);
-        ctx->SetInteger(output, value);
+        ctx->SetFloat(output, value);
         return ErrorCode::OK;
     }
     FB_HeaterTemperatureSensor(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
@@ -129,7 +206,7 @@ public:
     ~FB_GreenLED(){}
 };
 
-class FB_Melody: public FunctionBlock{
+class FB_Sound: public FunctionBlock{
     size_t input;
     uint32_t melodyIndex;
     bool lastInputState = false;
@@ -143,8 +220,8 @@ public:
 
         return ErrorCode::OK;;
     }
-    FB_Melody(uint32_t IdOnWebApp, size_t input, uint32_t melodyIndex):FunctionBlock(IdOnWebApp), input(input), melodyIndex(melodyIndex){}
-    ~FB_Melody(){}
+    FB_Sound(uint32_t IdOnWebApp, size_t input, uint32_t melodyIndex):FunctionBlock(IdOnWebApp), input(input), melodyIndex(melodyIndex){}
+    ~FB_Sound(){}
 };
 
 class FB_YellowLED: public FunctionBlock{
@@ -162,7 +239,7 @@ class FB_RedLED: public FunctionBlock{
     size_t input;
 public:
     ErrorCode execute(FBContext *ctx){
-        //ctx->GetHAL()->ColorizeLed(LED::LED_RED, ctx->GetBinary(input)?CRGB::DarkRed:CRGB::Black);
+        ctx->GetHAL()->ColorizeLed(LED::LED_RED, ctx->GetBinary(input)?CRGB::DarkRed:CRGB::Black);
         return ErrorCode::OK;;
     }
     FB_RedLED(uint32_t IdOnWebApp, size_t input):FunctionBlock(IdOnWebApp), input(input){}
@@ -195,7 +272,7 @@ class FB_FAN1: public FunctionBlock{
     size_t input;
     public:
         ErrorCode execute(FBContext *ctx){
-            ctx->GetHAL()->SetFan1Duty(ctx->GetInteger(input));
+            ctx->GetHAL()->SetFan1Duty(ctx->GetFloat(input));
             return ErrorCode::OK;;
         }
         FB_FAN1(uint32_t IdOnWebApp, size_t input):FunctionBlock(IdOnWebApp), input(input){}
@@ -206,11 +283,85 @@ class FB_FAN2: public FunctionBlock{
     size_t input;
     public:
         ErrorCode execute(FBContext *ctx){
-            ctx->GetHAL()->SetFan2Duty(ctx->GetInteger(input));
+            ctx->GetHAL()->SetFan2Duty(ctx->GetFloat(input));
             return ErrorCode::OK;;
         }
         FB_FAN2(uint32_t IdOnWebApp, size_t input):FunctionBlock(IdOnWebApp), input(input){}
         ~FB_FAN2(){}
+};
+
+class FB_PowerLED: public FunctionBlock{
+    size_t input;
+    public:
+        ErrorCode execute(FBContext *ctx){
+            ctx->GetHAL()->SetLedPowerWhiteDuty(ctx->GetFloat(input));
+            return ErrorCode::OK;;
+        }
+        FB_PowerLED(uint32_t IdOnWebApp, size_t input):FunctionBlock(IdOnWebApp), input(input){}
+        ~FB_PowerLED(){}
+};
+
+class FB_AnalogOutput0: public FunctionBlock{
+    size_t input;
+    public:
+        ErrorCode execute(FBContext *ctx){
+            ctx->GetHAL()->SetAnalogOutput(ctx->GetFloat(input));
+            return ErrorCode::OK;;
+        }
+        FB_AnalogOutput0(uint32_t IdOnWebApp, size_t input):FunctionBlock(IdOnWebApp), input(input){}
+        ~FB_AnalogOutput0(){}
+};
+
+class FB_AnalogInput0: public FunctionBlock{
+    size_t output;
+    public:
+        ErrorCode execute(FBContext *ctx){
+            float *ptr;
+            ctx->GetHAL()->GetAnalogInputs(&ptr);
+            ctx->SetFloat(output, ptr[0]);
+            return ErrorCode::OK;;
+        }
+        FB_AnalogInput0(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
+        ~FB_AnalogInput0(){}
+};
+
+class FB_AnalogInput1: public FunctionBlock{
+    size_t output;
+    public:
+        ErrorCode execute(FBContext *ctx){
+            float *ptr;
+            ctx->GetHAL()->GetAnalogInputs(&ptr);
+            ctx->SetFloat(output, ptr[1]);
+            return ErrorCode::OK;;
+        }
+        FB_AnalogInput1(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
+        ~FB_AnalogInput1(){}
+};
+
+class FB_AnalogInput2: public FunctionBlock{
+    size_t output;
+    public:
+        ErrorCode execute(FBContext *ctx){
+            float *ptr;
+            ctx->GetHAL()->GetAnalogInputs(&ptr);
+            ctx->SetFloat(output, ptr[2]);
+            return ErrorCode::OK;;
+        }
+        FB_AnalogInput2(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
+        ~FB_AnalogInput2(){}
+};
+
+class FB_AnalogInput3: public FunctionBlock{
+    size_t output;
+    public:
+        ErrorCode execute(FBContext *ctx){
+            float *ptr;
+            ctx->GetHAL()->GetAnalogInputs(&ptr);
+            ctx->SetFloat(output, ptr[3]);
+            return ErrorCode::OK;;
+        }
+        FB_AnalogInput3(uint32_t IdOnWebApp, size_t output):FunctionBlock(IdOnWebApp), output(output){}
+        ~FB_AnalogInput3(){}
 };
 
 class FB_Bool2ColorConverter: public FunctionBlock{
@@ -228,6 +379,86 @@ class FB_Bool2ColorConverter: public FunctionBlock{
         FB_Bool2ColorConverter(uint32_t IdOnWebApp, size_t input, size_t output, uint32_t colorOnTRUE, uint32_t colorOnFALSE=0):
             FunctionBlock(IdOnWebApp), input(input), output(output), colorOnTRUE(colorOnTRUE), colorOnFALSE(colorOnFALSE){}
         ~FB_Bool2ColorConverter(){}
+};
+
+class FB_Bool2IntConverter: public FunctionBlock{
+    size_t input;
+    size_t output;
+    uint32_t intOnTRUE;
+    uint32_t intOnFALSE;
+    
+    public:
+        ErrorCode execute(FBContext *ctx)
+        {
+            ctx->SetInteger(this->output, ctx->GetBinary(input)?intOnTRUE:intOnFALSE);
+            return ErrorCode::OK;;
+        }
+        FB_Bool2IntConverter(uint32_t IdOnWebApp, size_t input, size_t output, int32_t intOnTRUE, int32_t intOnFALSE=0):
+            FunctionBlock(IdOnWebApp), input(input), output(output), intOnTRUE(intOnTRUE), intOnFALSE(intOnFALSE){}
+        ~FB_Bool2IntConverter(){}
+};
+
+class FB_Bool2FloatConverter: public FunctionBlock{
+    size_t input;
+    size_t output;
+    float floatOnTRUE;
+    float floatOnFALSE;
+    
+    public:
+        ErrorCode execute(FBContext *ctx)
+        {
+            ctx->SetFloat(this->output, ctx->GetBinary(input)?floatOnTRUE:floatOnFALSE);
+            return ErrorCode::OK;;
+        }
+        FB_Bool2FloatConverter(uint32_t IdOnWebApp, size_t input, size_t output, float floatOnTRUE=1.0, float floatOnFALSE=0.0):
+            FunctionBlock(IdOnWebApp), input(input), output(output), floatOnTRUE(floatOnTRUE), floatOnFALSE(floatOnFALSE){}
+        ~FB_Bool2FloatConverter(){}
+};
+
+class FB_Int2BoolConverter: public FunctionBlock{
+    size_t input;
+    size_t output;
+    int32_t limitfor1;
+    
+    public:
+        ErrorCode execute(FBContext *ctx)
+        {
+            ctx->SetBinary(this->output, ctx->GetInteger(input)>=limitfor1);
+            return ErrorCode::OK;;
+        }
+        FB_Int2BoolConverter(uint32_t IdOnWebApp, size_t input, size_t output, int32_t limitfor1=1.0):
+            FunctionBlock(IdOnWebApp), input(input), output(output), limitfor1(limitfor1){}
+        ~FB_Int2BoolConverter(){}
+};
+
+class FB_Int2FloatConverter: public FunctionBlock{
+    size_t input;
+    size_t output;
+    
+    public:
+        ErrorCode execute(FBContext *ctx)
+        {
+            ctx->SetFloat(this->output, ctx->GetInteger(input));
+            return ErrorCode::OK;;
+        }
+        FB_Int2FloatConverter(uint32_t IdOnWebApp, size_t input, size_t output):
+            FunctionBlock(IdOnWebApp), input(input), output(output){}
+        ~FB_Int2FloatConverter(){}
+};
+
+class FB_Float2IntConverter: public FunctionBlock{
+    size_t input;
+    size_t output;
+    
+    public:
+        ErrorCode execute(FBContext *ctx)
+        {
+            ctx->SetInteger(this->output, ctx->GetFloat(input));
+            return ErrorCode::OK;;
+        }
+        FB_Float2IntConverter(uint32_t IdOnWebApp, size_t input, size_t output):
+            FunctionBlock(IdOnWebApp), input(input), output(output){}
+        ~FB_Float2IntConverter(){}
 };
 
 
@@ -285,7 +516,7 @@ class FB_ADD2: public FunctionBlock{
     public:
         ErrorCode execute(FBContext *ctx)
         {
-            ctx->SetInteger(this->output, ctx->GetInteger(inputA) + ctx->GetInteger(inputB));
+            ctx->SetFloat(this->output, ctx->GetFloat(inputA) + ctx->GetFloat(inputB));
             return ErrorCode::OK;;
         }
         FB_ADD2(uint32_t IdOnWebApp, size_t inputA, size_t inputB, size_t output):FunctionBlock(IdOnWebApp), inputA(inputA), inputB(inputB), output(output){}
@@ -300,7 +531,7 @@ class FB_SUB2: public FunctionBlock{
     public:
         ErrorCode execute(FBContext *ctx)
         {
-            ctx->SetInteger(this->output, ctx->GetInteger(inputA) - ctx->GetInteger(inputB));
+            ctx->SetFloat(this->output, ctx->GetFloat(inputA) - ctx->GetFloat(inputB));
             return ErrorCode::OK;;
         }
         FB_SUB2(uint32_t IdOnWebApp, size_t inputA, size_t inputB, size_t output):FunctionBlock(IdOnWebApp), inputA(inputA), inputB(inputB), output(output){}
@@ -315,7 +546,7 @@ class FB_MULTIPLY: public FunctionBlock{
     public:
         ErrorCode execute(FBContext *ctx)
         {
-            ctx->SetInteger(this->output, ctx->GetInteger(inputA) * ctx->GetInteger(inputB));
+            ctx->SetFloat(this->output, ctx->GetFloat(inputA) * ctx->GetFloat(inputB));
             return ErrorCode::OK;;
         }
         FB_MULTIPLY(uint32_t IdOnWebApp, size_t inputA, size_t inputB, size_t output):FunctionBlock(IdOnWebApp), inputA(inputA), inputB(inputB), output(output){}
@@ -330,7 +561,7 @@ class FB_DIVIDE: public FunctionBlock{
     public:
         ErrorCode execute(FBContext *ctx)
         {
-            ctx->SetInteger(this->output, ctx->GetInteger(inputA) / ctx->GetInteger(inputB));
+            ctx->SetFloat(this->output, ctx->GetFloat(inputA) / ctx->GetFloat(inputB));
             return ErrorCode::OK;;
         }
         FB_DIVIDE(uint32_t IdOnWebApp, size_t inputA, size_t inputB, size_t output):FunctionBlock(IdOnWebApp), inputA(inputA), inputB(inputB), output(output){}
@@ -345,7 +576,7 @@ class FB_MAX: public FunctionBlock{
     public:
         ErrorCode execute(FBContext *ctx)
         {
-            ctx->SetInteger(this->output, std::max(ctx->GetInteger(inputA), ctx->GetInteger(inputB)));
+            ctx->SetFloat(this->output, std::max(ctx->GetFloat(inputA), ctx->GetFloat(inputB)));
             return ErrorCode::OK;;
         }
         FB_MAX(uint32_t IdOnWebApp, size_t inputA, size_t inputB, size_t output):FunctionBlock(IdOnWebApp), inputA(inputA), inputB(inputB), output(output){}
@@ -360,7 +591,7 @@ class FB_MIN: public FunctionBlock{
     public:
         ErrorCode execute(FBContext *ctx)
         {
-            ctx->SetInteger(this->output, std::min(ctx->GetInteger(inputA), ctx->GetInteger(inputB)));
+            ctx->SetFloat(this->output, std::min(ctx->GetFloat(inputA), ctx->GetFloat(inputB)));
             return ErrorCode::OK;;
         }
         FB_MIN(uint32_t IdOnWebApp, size_t inputA, size_t inputB, size_t output):FunctionBlock(IdOnWebApp), inputA(inputA), inputB(inputB), output(output){}
@@ -375,7 +606,7 @@ class FB_GT: public FunctionBlock{
     public:
         ErrorCode execute(FBContext *ctx)
         {
-            ctx->SetBinary(this->output, ctx->GetInteger(inputA) > ctx->GetInteger(inputB));
+            ctx->SetBinary(this->output, ctx->GetFloat(inputA) > ctx->GetFloat(inputB));
             return ErrorCode::OK;;
         }
         FB_GT(uint32_t IdOnWebApp, size_t inputA, size_t inputB, size_t output):FunctionBlock(IdOnWebApp), inputA(inputA), inputB(inputB), output(output){}
@@ -390,11 +621,61 @@ class FB_LT: public FunctionBlock{
     public:
         ErrorCode execute(FBContext *ctx)
         {
-            ctx->SetBinary(this->output, ctx->GetInteger(inputA) < ctx->GetInteger(inputB));
+            ctx->SetBinary(this->output, ctx->GetFloat(inputA) < ctx->GetFloat(inputB));
             return ErrorCode::OK;;
         }
         FB_LT(uint32_t IdOnWebApp, size_t inputA, size_t inputB, size_t output):FunctionBlock(IdOnWebApp), inputA(inputA), inputB(inputB), output(output){}
         ~FB_LT(){}
+};
+
+class FB_Limit: public FunctionBlock{
+    size_t inputMinimum;
+    size_t input;
+    size_t inputMaximum;
+    size_t output;
+    
+    public:
+        ErrorCode execute(FBContext *ctx)
+        {
+            int i = ctx->GetFloat(this->input);
+            int min = ctx->GetFloat(this->inputMinimum);
+            int max = ctx->GetFloat(this->inputMaximum);
+            ctx->SetFloat(this->output, i>max?max:i<min?min:i);
+            return ErrorCode::OK;;
+        }
+        FB_Limit(uint32_t IdOnWebApp, size_t inputMinimum, size_t input, size_t inputMaximum, size_t output):FunctionBlock(IdOnWebApp), inputMinimum(inputMinimum), input(input), inputMaximum(inputMaximum), output(output){}
+        ~FB_Limit(){}
+};
+
+class FB_LimitMonitor: public FunctionBlock{
+    size_t inputMinimum;
+    size_t input;
+    size_t inputMaximum;
+    size_t inputHysteresis;
+    size_t outputLLE;
+    size_t outputULE;
+    
+    public:
+        ErrorCode execute(FBContext *ctx)
+        {
+            int i = ctx->GetFloat(this->input);
+            int min = ctx->GetFloat(this->inputMinimum);
+            int max = ctx->GetFloat(this->inputMaximum);
+            int h = ctx->GetFloat(this->inputHysteresis);
+            if(i>max){
+                ctx->SetBinary(this->outputULE, true);
+            }else if(i<=max-h){
+                ctx->SetBinary(this->outputULE, false);
+            }
+            if(i<min){
+                ctx->SetBinary(this->outputLLE, true);
+            } else if(i>=min+h){
+                ctx->SetBinary(this->outputLLE, false);
+            }
+            return ErrorCode::OK;;
+        }
+        FB_LimitMonitor(uint32_t IdOnWebApp, size_t inputMinimum, size_t input, size_t inputMaximum, size_t inputHysteresis ,size_t outputLLE, size_t outputULE):FunctionBlock(IdOnWebApp), inputMinimum(inputMinimum), input(input), inputMaximum(inputMaximum), inputHysteresis(inputHysteresis), outputLLE(outputLLE), outputULE(outputULE){}
+        ~FB_LimitMonitor(){}
 };
 
 class FB_RS: public FunctionBlock{
@@ -460,6 +741,47 @@ class FB_CNT: public FunctionBlock{
         }
         FB_CNT(uint32_t IdOnWebApp, size_t inputTrigger, size_t inputReset, size_t inputPreset, size_t output, size_t outputCurrentValue):FunctionBlock(IdOnWebApp), inputTrigger(inputTrigger), inputReset(inputReset), inputPreset(inputPreset), output(output), outputCurrentValue(outputCurrentValue){}
         ~FB_CNT(){}
+};
+
+class FB_Timekeeper: public FunctionBlock{
+    size_t inputCountUp;
+    size_t inputReset;
+    size_t inputPresetTime_msecs;
+    size_t output;
+    size_t outputCurrentValue_msecs;
+    
+
+    int64_t currentValueUS = 0;
+    bool lastInput{false};//for edge detection
+    int64_t lastCallTimeUS{0};
+    
+    public:
+        ErrorCode execute(FBContext *ctx)
+        {
+            if(ctx->GetBinary(this->inputReset)){
+                this->currentValueUS=0;
+                this->lastCallTimeUS=0;
+                this->lastInput=false;
+                ctx->SetBinary(this->output, false);
+                return ErrorCode::OK;
+            }
+            bool currentInput = ctx->GetBinary(this->inputCountUp);
+            if(currentInput){
+                int64_t now = ctx->GetMicroseconds();
+                if(lastInput){
+                    this->currentValueUS+=(now-lastCallTimeUS);
+                }
+                lastCallTimeUS=now; 
+            }
+            int64_t currentValueMS = currentValueUS/1000;
+            ctx->SetBinary(this->output,currentValueMS>=ctx->GetInteger(inputPresetTime_msecs));
+            ctx->SetInteger(this->outputCurrentValue_msecs, currentValueMS);
+            lastInput=currentInput;
+            return ErrorCode::OK;
+        }
+        FB_Timekeeper(uint32_t IdOnWebApp, size_t inputCountUp, size_t inputReset, size_t inputPresetTime_msecs, size_t output, size_t outputCurrentValue_msecs):
+            FunctionBlock(IdOnWebApp), inputCountUp(inputCountUp), inputReset(inputReset), inputPresetTime_msecs(inputPresetTime_msecs), output(output), outputCurrentValue_msecs(outputCurrentValue_msecs){}
+        ~FB_Timekeeper(){}
 };
 
 class FB_TON: public FunctionBlock{
@@ -532,6 +854,56 @@ class FB_TOF: public FunctionBlock{
 };
 
 
+class FB_PIDSimple: public FunctionBlock{
+    size_t inputSetpoint;
+    size_t inputFeedback;
+    size_t output;
+    float setpointValue;
+    float feedbackValue;
+    float outputValue;
+
+    float kp;
+    int64_t tn_msecs;
+    int64_t tv_msecs;
+    float minOutput;
+    float maxOutput;
+    bool directionInverse;
+
+    PIDController<float> *pid;
+    
+    public:
+        ErrorCode initPhase1(FBContext *ctx) override
+        {
+            pid = new PIDController<float>(&feedbackValue, &outputValue, &setpointValue, minOutput, maxOutput, Mode::CLOSEDLOOP, directionInverse?Direction::REVERSE:Direction::DIRECT, 1000);
+            pid->SetKpTnTv(kp, tn_msecs, tv_msecs);
+            return ErrorCode::OK;
+        }
+
+        ErrorCode execute(FBContext *ctx) override
+        {
+            ctx->GetFloatAsPointer(inputSetpoint, &setpointValue);
+            ctx->GetFloatAsPointer(inputFeedback, &feedbackValue);
+            pid->Compute(ctx->GetMicroseconds()/1000);
+            ctx->SetFloat(output, outputValue);
+            return ErrorCode::OK;
+        }
+        FB_PIDSimple(uint32_t IdOnWebApp, size_t inputSetpoint, size_t inputFeedback, size_t output, float kp, int32_t tn_msecs, int32_t tv_msecs, float minOutput, float maxOutput, bool directionInverse):
+            FunctionBlock(IdOnWebApp), 
+            inputSetpoint(inputSetpoint), 
+            inputFeedback(inputFeedback), 
+            output(output),
+            kp(kp), 
+            tn_msecs(tn_msecs),  
+            tv_msecs(tv_msecs),
+            minOutput(minOutput),
+            maxOutput(maxOutput),
+            directionInverse(directionInverse){}
+        ~FB_PIDSimple(){
+            delete pid;
+        }
+};
+
+
 
 class FB_NOT: public FunctionBlock{
     size_t input;
@@ -547,17 +919,17 @@ class FB_NOT: public FunctionBlock{
         ~FB_NOT(){}
 };
 
-class FB_ConstInteger: public FunctionBlock{
+class FB_ConstFLOAT: public FunctionBlock{
     size_t output;
-    int constant;
+    float constant;
     public:
         ErrorCode execute(FBContext *ctx)
         {
-            ctx->SetInteger(this->output, this->constant);
+            ctx->SetFloat(this->output, this->constant);
             return ErrorCode::OK;
         }
-        FB_ConstInteger(uint32_t IdOnWebApp, size_t output, int constant):FunctionBlock(IdOnWebApp), output(output), constant(constant){}
-        ~FB_ConstInteger(){}
+        FB_ConstFLOAT(uint32_t IdOnWebApp, size_t output, float constant):FunctionBlock(IdOnWebApp), output(output), constant(constant){}
+        ~FB_ConstFLOAT(){}
 };
 
 

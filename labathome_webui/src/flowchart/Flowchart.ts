@@ -1,13 +1,16 @@
 import { ConnectorType, FlowchartInputConnector, FlowchartOutputConnector } from "./FlowchartConnector";
-import { FlowchartCompiler, HashAndBufAndMaps, SortedOperatorsAndMaps } from "./FlowchartCompiler";
+import { FlowchartCompiler, HashAndBufAndMaps } from "./FlowchartCompiler";
 import { FlowchartLink } from "./FlowchartLink";
-import { FlowchartOperator, PositionType, TypeInfo } from "./FlowchartOperator";
+import { FlowchartOperator, TypeInfo } from "./FlowchartOperator";
 import * as operatorimpl from "./FlowchartOperatorImpl";
-import { NodeWrapper, TopologicalSortDFS } from "./TopologicalSorfDFS";
 import { Utils, $, KeyValueTuple } from "../utils";
 import { AppManagement } from "../AppManagement";
 import { SerializeContext } from "./SerializeContext";
 import { SimulationManager } from "./SimulationManager";
+
+//const URL_PREFIX="";
+
+const URL_PREFIX="http://labathome-ed5564";
 
 export class FlowchartOptions {
     canUserEditLinks: boolean = true;
@@ -98,22 +101,22 @@ export class Flowchart {
         if(this.currentDebugInfo==null) return;
 
         let xhr = new XMLHttpRequest;
-        xhr.onerror = (e) => { console.log("Fehler beim XMLHttpRequest!"); };
-        xhr.open("GET", "/fbd", true);
+        xhr.onerror = (e) => { console.error("Fehler beim XMLHttpRequest!"); };
+        xhr.open("GET", URL_PREFIX+"/fbd", true);
         xhr.responseType = "arraybuffer";
         xhr.onload = (e) => {
             if(this.currentDebugInfo==null) return;
             
             let arrayBuffer = xhr.response; // Note: not oReq.responseText
             if (!arrayBuffer || arrayBuffer.byteLength <=16) {
-                console.info("! arrayBuffer || arrayBuffer.byteLength<16");
+                console.error("! arrayBuffer || arrayBuffer.byteLength<16");
                 this.currentDebugInfo=null;
                 return;
             }
             let ctx = new SerializeContext(arrayBuffer);
             let hash = ctx.readU32();
             if(hash!=this.currentDebugInfo.hash){
-                console.info("hash!=this.currentDebugInfo.hash");
+                console.error("hash!=this.currentDebugInfo.hash");
                 this.currentDebugInfo=null;
                 return;
             }
@@ -164,8 +167,9 @@ export class Flowchart {
                     console.error(`linksToColorize===undefined for connectorType ${connectorType} addressOffset ${adressOffset} and value ${value}`);
                     continue;
                 }
+  
                 linksToChange.forEach((e)=>{
-                    e.SetCaption(""+value);
+                    e.SetCaption(value.toFixed(2));
                 });
             }
 
@@ -350,7 +354,7 @@ export class Flowchart {
     private put2fbd(buf:ArrayBuffer)
     {
         let xhr = new XMLHttpRequest;
-        xhr.open("PUT", "/fbd", true);
+        xhr.open("PUT", URL_PREFIX+"/fbd", true);
         xhr.onloadend = (e) => {
             if(xhr.status!=200){
                 this.appManagement.DialogController().showOKDialog(16, `HTTP Error ${xhr.status}`, null);
@@ -368,7 +372,7 @@ export class Flowchart {
         
         this.appManagement.DialogController().showEnterFilenameDialog(10, "Enter filename (without Extension", (filename:string)=>{
             let xhr_json = new XMLHttpRequest;
-            xhr_json.open("POST", "/fbdstorejson/"+filename, true);
+            xhr_json.open("POST", URL_PREFIX+"/fbdstorejson/"+filename, true);
             xhr_json.onloadend = (e) => {
                 if(xhr_json.status!=200){
                     this.appManagement.DialogController().showOKDialog(16, `HTTP Error ${xhr_json.status}`, null);
@@ -385,14 +389,14 @@ export class Flowchart {
     private saveJSONandBINToLabathomeDefaultFile(buf:ArrayBuffer)
     {
         let xhr_bin = new XMLHttpRequest();
-        xhr_bin.open("POST", "/fbddefaultbin", true);
+        xhr_bin.open("POST", URL_PREFIX+"/fbddefaultbin", true);
         xhr_bin.onloadend = (e) => {
             if(xhr_bin.status!=200){
                 this.appManagement.DialogController().showOKDialog(16, `HTTP Error ${xhr_bin.status}`, null);
                 return;
             }
             let xhr_json  = new XMLHttpRequest();
-            xhr_json.open("POST", "/fbddefaultjson", true);
+            xhr_json.open("POST", URL_PREFIX+"/fbddefaultjson", true);
             xhr_json.onloadend =(e)=>{
                 if(xhr_json.status!=200){
                     this.appManagement.DialogController().showOKDialog(16, `HTTP Error ${xhr_json.status}`, null);
@@ -411,14 +415,14 @@ export class Flowchart {
     {
         let filename:string = "";
         let xhr = new XMLHttpRequest;
-        xhr.open("GET", "/fbdstorejson/", true);//GET without filename, but with "/" at the end!!!
+        xhr.open("GET", URL_PREFIX+"/fbdstorejson/", true);//GET without filename, but with "/" at the end!!!
         xhr.onload = (e) => {
             let s = xhr.responseText;
             let data = <string[]>JSON.parse(s);
             this.appManagement.DialogController().showFilelist(1000, data, 
                 (filename:string)=>{
                     let xhr = new XMLHttpRequest;
-                    xhr.open("GET", "/fbdstorejson/"+filename, true); //GET with the filename selected in the dialog
+                    xhr.open("GET", URL_PREFIX+"/fbdstorejson/"+filename, true); //GET with the filename selected in the dialog
                     xhr.onload = (e) => {
                         let s = xhr.responseText;
                         let data = <FlowchartData>JSON.parse(s);
@@ -428,7 +432,7 @@ export class Flowchart {
                 },
                 (filename:string)=>{
                     let xhr = new XMLHttpRequest;
-                    xhr.open("DELETE", "/fbdstorejson/"+filename, true); //GET with the filename selected in the dialog
+                    xhr.open("DELETE", URL_PREFIX+"/fbdstorejson/"+filename, true); //GET with the filename selected in the dialog
                     xhr.onloadend = (e) => {
                         this.appManagement.DialogController().showOKDialog(1, `File ${filename} deleted successfully`, null);
                     }
@@ -443,7 +447,7 @@ export class Flowchart {
     private openDefaultJSONFromLabathome()
     {
         let xhr = new XMLHttpRequest;
-        xhr.open("GET", "/fbddefaultjson", true);
+        xhr.open("GET", URL_PREFIX+"/fbddefaultjson", true);
         xhr.onload = (e) => {
             let s = xhr.responseText;
             let data = <FlowchartData>JSON.parse(s);
@@ -606,11 +610,11 @@ export class Flowchart {
 
         workspace.onkeyup = (e) => {
             if (e.key == "Delete") {
-                console.log("Flowchart workspace.onkeyup with e.target=" + e.target + " und Delete-Key");
+                console.debug("Flowchart workspace.onkeyup with e.target=" + e.target + " und Delete-Key");
                 this.deleteSelectedThing();
             }
             else {
-                console.log("Flowchart workspace.onkeyup with e.target=" + e.target + " und key " + e.key);
+                console.debug("Flowchart workspace.onkeyup with e.target=" + e.target + " und key " + e.key);
             }
         }
 

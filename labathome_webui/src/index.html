@@ -133,9 +133,9 @@
         <a id="show_screen_airspeedexperiment" href="javascript:void(0)"><svg class="icon">
             <use xlink:href="#icon-binoculars"></use>
           </svg>&nbsp;Airspeed Exp.</a>
-        <a id="show_screen_adcexperiment" href="javascript:void(0)"><svg class="icon">
+        <a id="show_screen_ptnexperiment" href="javascript:void(0)"><svg class="icon">
             <use xlink:href="#icon-binoculars"></use>
-          </svg>&nbsp;ADC Experiment</a>
+          </svg>&nbsp;PTN-Experiment</a>
         <a id="show_screen_fftexperiment" href="javascript:void(0)"><svg class="icon">
             <use xlink:href="#icon-microphone"></use>
           </svg>&nbsp;FFT Experiment</a>
@@ -144,31 +144,75 @@
         <div id="screen_dashboard">
           <p>Nothing to do here</p>
         </div>
-        <div id="screen_adcexperiment">
+        <div id="screen_ptnexperiment">
           <form>
             <label>Main Controls</label>
             <div>
-              <button id="adcexperiment_butRecord" class="large" type="button">🔴</button>
-              <button id="adcexperiment_butStop" class="large" type="button">⬛</button>
-              <button id="adcexperiment_butDelete" type="button"><svg class="icon icon-bin2">
-                  <use xlink:href="#icon-bin2"></use>
-                </svg></button>
+              <label>
+                <input type="radio" name="ptnexperiment_mode" value="0" checked />
+                <div class="functionblock box">
+                  <span>Functionblock</span>
+                </div>
+              </label>
+
+              <label>
+                <input type="radio" name="ptnexperiment_mode" value="1" />
+                <div class="openloop box">
+                  <span>Open Loop</span>
+                </div>
+              </label>
+
+              <label>
+                <input type="radio" name="ptnexperiment_mode" value="2" />
+                <div class="closedloop box">
+                  <span>Closed Loop</span>
+                </div>
+              </label>
+
+              <button id="ptnexperiment_butRecord" class="large" type="button">🔴</button>
+              <button id="ptnexperiment_butStop" class="large" type="button">⬛</button>
+              <button id="ptnexperiment_butDelete" type="button">🗑</button>
             </div>
+
+            <label class="ptnexperiment_openloopctrl">Input Voltage [Volt]</label>
+            <div class="range-wrap ptnexperiment ptnexperiment_openloopctrl">
+              <input type="range" id="ptnexperiment_inpSetpointVoltageY" min="0" max="3.3" value="0" />
+              <output class="bubble"></output>
+            </div>
+
+            <label class="ptnexperiment_closedloopctrl">Setp. Voltage [Volt]</label>
+            <div class="range-wrap ptnexperiment ptnexperiment_closedloopctrl">
+              <input type="range" id="ptnexperiment_inpSetpointVoltageX" min="0" max="3.3" value="0" />
+              <output class="bubble"></output>
+            </div>
+
+
+            <label class="ptnexperiment_closedloopctrl">K<sub>P</sub></label>
+            <input class="ptnexperiment_closedloopctrl" type="number" id="ptnexperiment_inpKP" min="0" max="20"
+              value="0" step="0.1" />
+
+            <label class="ptnexperiment_closedloopctrl">T<sub>N</sub></label>
+            <input class="ptnexperiment_closedloopctrl" type="number" id="ptnexperiment_inpTN" min="0" max="1"
+              value="0" step="0.01" />
+
+            <label class="ptnexperiment_closedloopctrl">T<sub>V</sub></label>
+            <input class="ptnexperiment_closedloopctrl" type="number" id="ptnexperiment_inpTV" min="0" max="100"
+              value="0" step="0.25" />
           </form>
-          <div style="height: 300px; width: 100%;"><canvas id="adcexperiment_chart"
+          <div style="height: 300px; width: 100%;"><canvas id="ptnexperiment_chart"
               style="height: 300px; width: 100%;"></canvas></div>
           <table>
             <thead>
               <tr>
                 <th>Time [HH:MM:SS]</th>
                 <th>Time [seconds]</th>
-                <th>Input 0 [V]</th>
-                <th>Input 1 [V]</th>
-                <th>Input 2 [V]</th>
-                <th>Input 3 [V]</th>
+                <th>Input [V]</th>
+                <th>PT1 [V]</th>
+                <th>PT2 [V]</th>
+                <th>PT3 [V]</th>
 
               </tr>
-              <tr id="adcexperiment_tabFirstRow">
+              <tr id="ptnexperiment_tabFirstRow">
                 <td></td>
                 <td></td>
                 <td></td>
@@ -177,7 +221,7 @@
                 <td></td>
               </tr>
             </thead>
-            <tbody id="adcexperiment_tabBody">
+            <tbody id="ptnexperiment_tabBody">
             </tbody>
           </table>
         </div>
@@ -406,7 +450,7 @@
         </div>
       </main>
     </div>
-    <footer id="footer">Klaus Liebler, &copy;2021</footer>
+    <footer id="footer">Klaus Liebler, &copy;2022</footer>
   </div>
   <script>
     document.getElementById("footer").ondblclick = function () {

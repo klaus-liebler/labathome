@@ -34,14 +34,20 @@
 #include <PD_UFP.h>
 
 #include "winfactboris_messages.hh"
-
-FLASH_FILE(fanfare_mp3)
+FLASH_FILE(alarm_co2_mp3)
+FLASH_FILE(alarm_temperature_mp3)
+FLASH_FILE(nok_mp3)
+FLASH_FILE(ok_mp3)
 FLASH_FILE(ready_mp3)
-FLASH_FILE(alarm14heulen_mp3)
+FLASH_FILE(fanfare_mp3)
+FLASH_FILE(negative_mp3)
+FLASH_FILE(positive_mp3)
+FLASH_FILE(siren_mp3)
 
 
-const uint8_t *SOUNDS[] = {fanfare_mp3_start, ready_mp3_start, alarm14heulen_mp3_start};
-const size_t SONGS_LEN[] = {fanfare_mp3_size, ready_mp3_size, alarm14heulen_mp3_size};
+
+const uint8_t *SOUNDS[]  = {nullptr, alarm_co2_mp3_start, alarm_temperature_mp3_start, nok_mp3_start, ok_mp3_start, ready_mp3_start, fanfare_mp3_start, negative_mp3_start, positive_mp3_start, siren_mp3_start};
+const size_t SONGS_LEN[] = {0,       alarm_co2_mp3_size,  alarm_temperature_mp3_size,  nok_mp3_size,  ok_mp3_size,  ready_mp3_size,  fanfare_mp3_size,  negative_mp3_size,  positive_mp3_size,  siren_mp3_size};
 
 
 typedef gpio_num_t Pintype;
@@ -70,13 +76,13 @@ constexpr Pintype PIN_MULTI1 = (Pintype)27;
 constexpr Pintype PIN_K3_ON = (Pintype)32;
 constexpr Pintype PIN_MULTI3 = (Pintype)33;
 constexpr Pintype PIN_ANALOGIN_OR_ROTB = (Pintype)34;//
-constexpr adc1_channel_t PIN_ANALOGIN_OR_ROTB_CHANNEL{ADC1_CHANNEL_6};
+constexpr adc1_channel_t CHANNEL_ANALOGIN_OR_ROTB{ADC1_CHANNEL_6};
 //36=VP, 39=VN
 constexpr Pintype PIN_MOVEMENT_OR_FAN1SENSE = (Pintype)35;
 constexpr Pintype PIN_SW = (Pintype)36;
-constexpr adc1_channel_t PIN_SW_CHANNEL{ADC1_CHANNEL_0};
+constexpr adc1_channel_t CHANNEL_SWITCHES{ADC1_CHANNEL_0};
 constexpr Pintype PIN_LDR_OR_ROTA = (Pintype)39;
-constexpr adc1_channel_t PIN_LDR_OR_ROTA_CHANNEL{ADC1_CHANNEL_3};
+constexpr adc1_channel_t CHANNEL_LDR_OR_ROTA{ADC1_CHANNEL_3};
 
 
 constexpr Pintype PIN_485_DI = PIN_MULTI1;
@@ -113,13 +119,6 @@ enum class MODE_HEATER_OR_LED_POWER:uint8_t{
     LED_POWER=2,
 };
 
-enum class MODE_ROT_LDR_ANALOGIN:uint8_t{
-    ROT=1,
-    LDR=2,
-    ANALOGIN=3,
-    LDR_AND_ANALOGIN=4,
-};
-
 enum class MODE_MOVEMENT_OR_FAN1SENSE:uint8_t{
     MOVEMENT_SENSOR=1,
     FAN1SENSE=2,
@@ -138,7 +137,7 @@ enum class Button : uint8_t
     BUT_RED = 0,
     BUT_GREEN = 2,
 };
-constexpr size_t ANALOG_INPUTS_LEN{1};
+constexpr size_t ANALOG_INPUTS_LEN{4};
 constexpr size_t LED_NUMBER{4};
 constexpr rmt_channel_t CHANNEL_ONEWIRE_TX{RMT_CHANNEL_1};
 constexpr rmt_channel_t CHANNEL_ONEWIRE_RX{RMT_CHANNEL_2};
@@ -190,7 +189,6 @@ class HAL_labathome : public HAL
 {
 private:
     //config
-    MODE_ROT_LDR_ANALOGIN mode_ROT_LDR_ANALOGIN;
     MODE_MOVEMENT_OR_FAN1SENSE mode_MOVEMENT_OR_FAN1SENSE;
     MODE_HEATER_OR_LED_POWER mode_HEATER_OR_LED_POWER;//Heater mit 1Hz, LED mit 300Hz
     MODE_FAN1_DRIVE_OR_SERVO1 mode_FAN1_DRIVE_OR_SERVO1; //FAN1 drive mit 100Hz, servo mit 50Hz
@@ -271,7 +269,7 @@ private:
 
     void readBinaryAndAnalogIOs(){
         
-        int adc_reading = adc1_get_raw(PIN_SW_CHANNEL);
+        int adc_reading = adc1_get_raw(CHANNEL_SWITCHES);
         //uint32_t voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
         //printf("Raw: %d\tVoltage: %dmV\n", adc_reading, voltage);
         int i = 0;
@@ -287,20 +285,12 @@ private:
         esp_wifi_sta_get_ap_info(&ap_info);
         this->wifiRssiDb=ap_info.rssi;
 
-        if(mode_ROT_LDR_ANALOGIN == MODE_ROT_LDR_ANALOGIN::ANALOGIN || mode_ROT_LDR_ANALOGIN==MODE_ROT_LDR_ANALOGIN::LDR_AND_ANALOGIN){
-            //Es wird nicht unterschieden, ob der eingang "nur" zum Messen von analogen Spannung verwendet wird oder ob es sich um den Trigger-Eingang des Zeitrelais handelt. Im zweiten Fall muss einfach eine Zeitrelais-Schaltung basierend auf der Grenzüberschreitung des Analogen Messwertes in der Funktionsblock-Spache realisiert werden
-            int adc_reading = adc1_get_raw(PIN_ANALOGIN_OR_ROTB_CHANNEL);
-            this->AnalogInputs[0] = 11*esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);//die Multiplikation mit 11 wegen dem Spannungsteiler
-        }else{
-            this->AnalogInputs[0]=std::numeric_limits<float>::quiet_NaN();
-        }
-
-        if(mode_ROT_LDR_ANALOGIN == MODE_ROT_LDR_ANALOGIN::LDR || mode_ROT_LDR_ANALOGIN==MODE_ROT_LDR_ANALOGIN::LDR_AND_ANALOGIN){
-            int adc_reading = adc1_get_raw(PIN_LDR_OR_ROTA_CHANNEL);
-            this->ambientBrightnessLux_analog = 11*esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);//die Multiplikation mit 11 wegen dem Spannungsteiler
-        }else{
-            this->ambientBrightnessLux_analog=std::numeric_limits<float>::quiet_NaN();
-        }
+        //Es wird nicht unterschieden, ob der eingang "nur" zum Messen von analogen Spannung verwendet wird oder ob es sich um den Trigger-Eingang des Zeitrelais handelt. Im zweiten Fall muss einfach eine Zeitrelais-Schaltung basierend auf der Grenzüberschreitung des Analogen Messwertes in der Funktionsblock-Spache realisiert werden
+        int analogIn = adc1_get_raw(CHANNEL_ANALOGIN_OR_ROTB);
+        this->AnalogInputs[0] = 11*esp_adc_cal_raw_to_voltage(analogIn, adc_chars);//die Multiplikation mit 11 wegen dem Spannungsteiler
+        int ldrIn = adc1_get_raw(CHANNEL_LDR_OR_ROTA);
+        this->ambientBrightnessLux_analog = esp_adc_cal_raw_to_voltage(ldrIn, adc_chars);//TODO Messkurce erstellen
+        
 
         if(mode_MOVEMENT_OR_FAN1SENSE == MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR){
             this->movementIsDetected = gpio_get_level(PIN_MOVEMENT_OR_FAN1SENSE);
@@ -317,13 +307,11 @@ private:
         int64_t nextBME280Readout{INT64_MAX};
         int64_t nextBH1750Readout{INT64_MAX};
         int64_t nextBinaryAndAnalogReadout{0};
-        TickType_t nextADS1115Readout{UINT32_MAX};
-        uint16_t nextADS1115Mux{0b100}; //100...111
+       
 
         uint32_t oneWireReadoutIntervalMs{800}; //10bit -->187ms Conversion time, 12bit--> 750ms
         uint32_t bme280ReadoutIntervalMs{UINT32_MAX};
         uint32_t bh1750ReadoutIntervalMs{200};
-        TickType_t ads1115ReadoutInterval{portMAX_DELAY};
 
         
         //OneWire
@@ -377,20 +365,6 @@ private:
             ESP_LOGW(TAG, "I2C: BH1750 not found");
         }
 
-        //ADS1115
-        ADS1115 *ads1115 = new ADS1115(I2C_PORT, (uint8_t)0x48);
-        if (ads1115->Init(ads1115_sps_t::ADS1115_SPS_16, &ads1115ReadoutInterval) == ESP_OK)
-        {
-            ads1115->TriggerMeasurement((ads1115_mux_t)nextADS1115Mux);
-            nextADS1115Mux++;
-            nextADS1115Readout = xTaskGetTickCount() + ads1115ReadoutInterval;
-            ESP_LOGI(TAG, "I2C: ADS1115 successfully initialized.");
-        }
-        else
-        {
-            ESP_LOGW(TAG, "I2C: ADS1115 not found");
-        }
-
         //CCS811
         ccs811dev = new CCS811::M(I2C_PORT, CCS811::ADDRESS::ADDR0, CCS811::MODE::_1SEC, (gpio_num_t)GPIO_NUM_NC);
 
@@ -439,16 +413,6 @@ private:
             }else if(this->hdc1080dev->HasValidData()){
                 this->hdc1080dev->ReadOut(this->airRelHumidityPercent, this->airTemperatureDegCel);
             }
-
-            if (xTaskGetTickCount() >= nextADS1115Readout)
-            {
-                ads1115->GetVoltage(&AnalogInputs[nextADS1115Mux & 0b11]);
-                nextADS1115Mux++;
-                if (nextADS1115Mux > 0b111)
-                    nextADS1115Mux = 0b100;
-                ads1115->TriggerMeasurement((ads1115_mux_t)nextADS1115Mux);
-                nextADS1115Readout = xTaskGetTickCount() + ads1115ReadoutInterval;
-            }
             vTaskDelay(1);
         }
     }
@@ -456,12 +420,10 @@ private:
 
 public:
     HAL_labathome(
-        MODE_ROT_LDR_ANALOGIN mode_ROT_LDR_ANALOGIN, 
         MODE_MOVEMENT_OR_FAN1SENSE mode_MOVEMENT_OR_FAN1SENSE,
         MODE_HEATER_OR_LED_POWER mode_HEATER_OR_LED_POWER,//Heater mit 1Hz, LED mit 300Hz
         MODE_FAN1_DRIVE_OR_SERVO1 mode_FAN1_DRIVE_OR_SERVO1) //FAN1 drive mit 100Hz, servo mit 50Hz):ioConfig(defaultConfig)
         :
-        mode_ROT_LDR_ANALOGIN(mode_ROT_LDR_ANALOGIN),
         mode_MOVEMENT_OR_FAN1SENSE(mode_MOVEMENT_OR_FAN1SENSE),
         mode_HEATER_OR_LED_POWER(mode_HEATER_OR_LED_POWER),
         mode_FAN1_DRIVE_OR_SERVO1(mode_FAN1_DRIVE_OR_SERVO1)
@@ -627,7 +589,6 @@ public:
         MessageConfig* cfg = (MessageConfig*)configMessage;
         UpdatePinConfiguration(
             false,
-            (MODE_ROT_LDR_ANALOGIN)cfg->mode_ROT_LDR_ANALOGIN,
             (MODE_MOVEMENT_OR_FAN1SENSE)cfg->mode_MOVEMENT_OR_FAN1SENSE,
             (MODE_HEATER_OR_LED_POWER)cfg->mode_HEATER_OR_LED_POWER,
             (MODE_FAN1_DRIVE_OR_SERVO1)cfg->mode_FAN1_DRIVE_OR_SERVO1
@@ -638,7 +599,6 @@ public:
 //Annahme: Pins können sowohl digital konfiguriert sein als auch für eine analoge Spannungsmessung zuganglich sein
     ErrorCode UpdatePinConfiguration(
         bool forceReconfiguration,
-        MODE_ROT_LDR_ANALOGIN mode_ROT_LDR_ANALOGIN, 
         MODE_MOVEMENT_OR_FAN1SENSE mode_MOVEMENT_OR_FAN1SENSE,
         MODE_HEATER_OR_LED_POWER mode_HEATER_OR_LED_POWER,//Heater mit 1Hz, LED mit 300Hz
         MODE_FAN1_DRIVE_OR_SERVO1 mode_FAN1_DRIVE_OR_SERVO1){
@@ -652,44 +612,10 @@ public:
             }
             this->mode_HEATER_OR_LED_POWER=mode_HEATER_OR_LED_POWER;
         }
-        
-        /*
-        if(forceReconfiguration || this->mode_ROT_LDR_ANALOGIN ANALOGIN_OR_ROTB!=mode_K3A1_OR_ANALOGIN_OR_ROTB){
-            if(mode_K3A1_OR_ANALOGIN_OR_ROTB==MODE_K3A1_OR_ANALOGIN_OR_ROTB::K3A1){
-                rotenc->Stop();
-                adc1_config_channel_atten(PIN_ANALOGIN_OR_ROTB_CHANNEL, ADC_ATTEN_DB_0);
-            }
-            else if(mode_K3A1_OR_ANALOGIN_OR_ROTB==MODE_K3A1_OR_ANALOGIN_OR_ROTB::ANALOGIN){
-                rotenc->Stop();
-                adc1_config_channel_atten(PIN_ANALOGIN_OR_ROTB_CHANNEL, ADC_ATTEN_DB_11);
-            }
-            else if (mode_K3A1_OR_ANALOGIN_OR_ROTB==MODE_K3A1_OR_ANALOGIN_OR_ROTB::ROTB){
-                rotaryChanged=true;
-                //see below
-            }
-            this->mode_K3A1_OR_ANALOGIN_OR_ROTB=mode_K3A1_OR_ANALOGIN_OR_ROTB;
-        }
-
-        if(forceReconfiguration || this->mode_LDR_OR_ROTA != mode_LDR_OR_ROTA){
-            if(mode_LDR_OR_ROTA==MODE_LDR_OR_ROTA::LDR){
-                rotenc->Stop();
-                adc1_config_channel_atten(PIN_LDR_OR_ROTA_CHANNEL, ADC_ATTEN_DB_11);//TODO check the measuring interval
-            }
-            else if(mode_LDR_OR_ROTA==MODE_LDR_OR_ROTA::ROTA){
-                rotaryChanged=true;
-                //see below
-            }
-            this->mode_LDR_OR_ROTA=mode_LDR_OR_ROTA;
-        }
-
-        if(forceReconfiguration || (rotaryChanged && mode_K3A1_OR_ANALOGIN_OR_ROTB==MODE_K3A1_OR_ANALOGIN_OR_ROTB::ROTB && mode_LDR_OR_ROTA==MODE_LDR_OR_ROTA::ROTA)){
-            rotenc->Start();
-        }
-        */
 
         if(forceReconfiguration || this->mode_MOVEMENT_OR_FAN1SENSE!=mode_MOVEMENT_OR_FAN1SENSE){
             if(mode_MOVEMENT_OR_FAN1SENSE==MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR){
-                pcnt_unit_stop(speedmeter);
+                //pcnt_unit_stop(speedmeter);
                 gpio_reset_pin(PIN_MOVEMENT_OR_FAN1SENSE);
                 esp32::ConfigGpioInput(PIN_MOVEMENT_OR_FAN1SENSE, GPIO_FLOATING);
             }
@@ -708,9 +634,6 @@ public:
             }
             this->mode_FAN1_DRIVE_OR_SERVO1 = mode_FAN1_DRIVE_OR_SERVO1;
         }
-
-
-           
         return ErrorCode::OK;
     }
 
@@ -738,25 +661,21 @@ public:
         i2s_driver_install(I2S_PORT_MICROPHONE, &i2sMemsConfigLeftChannel, 0, NULL);
         i2s_set_pin(I2S_PORT_MICROPHONE, &i2sPins);
 
-
-        //Rotary Encoder Input
-        rotenc=new cRotaryEncoder(PIN_LDR_OR_ROTA, PIN_ANALOGIN_OR_ROTB, -100, 100);
-        rotenc->Init();
-        rotenc->Start();
-
-
-
-        //Relay K3 output
-        gpio_set_level(PIN_K3_ON, 0);
-        esp32::ConfigGpioOutputPP(PIN_K3_ON);
-
-        //Configure Analog
+        //Configure Analog (before Rotary Encoder!!!)
         adc_chars = (esp_adc_cal_characteristics_t *)calloc(1, sizeof(esp_adc_cal_characteristics_t));
         esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_0db, ADC_WIDTH_BIT_12, DEFAULT_VREF, adc_chars);
         adc1_config_width(ADC_WIDTH_BIT_12);
-        adc1_config_channel_atten(PIN_SW_CHANNEL, ADC_ATTEN_DB_0);
-        adc1_config_channel_atten(PIN_ANALOGIN_OR_ROTB_CHANNEL, ADC_ATTEN_DB_11);
-        adc1_config_channel_atten(PIN_LDR_OR_ROTA_CHANNEL, ADC_ATTEN_DB_11);//TODO check the measuring interval
+        adc1_config_channel_atten(CHANNEL_SWITCHES, ADC_ATTEN_DB_0);
+        adc1_config_channel_atten(CHANNEL_ANALOGIN_OR_ROTB, ADC_ATTEN_DB_11);
+        adc1_config_channel_atten(CHANNEL_LDR_OR_ROTA, ADC_ATTEN_DB_11);
+
+        //Rotary Encoder Input
+        rotenc=new cRotaryEncoder(PIN_LDR_OR_ROTA, PIN_ANALOGIN_OR_ROTB);
+        rotenc->Init();
+        rotenc->Start();
+        //Relay K3 output
+        gpio_set_level(PIN_K3_ON, 0);
+        esp32::ConfigGpioOutputPP(PIN_K3_ON);
 
         //Pulse Counter for RPM of Fan1
         //pcnt_unit_config_t unit_config = {};
@@ -798,7 +717,6 @@ public:
 
         UpdatePinConfiguration(
             true, 
-            this->mode_ROT_LDR_ANALOGIN,
             this->mode_MOVEMENT_OR_FAN1SENSE,
             this->mode_HEATER_OR_LED_POWER,
             this->mode_FAN1_DRIVE_OR_SERVO1);

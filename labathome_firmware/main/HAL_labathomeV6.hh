@@ -26,7 +26,7 @@ typedef gpio_num_t Pintype;
 constexpr Pintype PIN_R3_1 = (Pintype)36;
 constexpr Pintype PIN_MOVEMENT = (Pintype)39;
 constexpr Pintype PIN_SW = (Pintype)34;
-constexpr adc1_channel_t PIN_SW_CHANNEL = ADC1_CHANNEL_6;
+constexpr adc1_channel_t CHANNEL_SWITCHES = ADC1_CHANNEL_6;
 constexpr Pintype PIN_ROTENC_A = (Pintype)35;
 constexpr Pintype PIN_FAN2_DRIVE = (Pintype)32;
 constexpr Pintype PIN_FAN1_SENSE = (Pintype)33;
@@ -273,7 +273,7 @@ public:
         while (true)
         {
             this->movementIsDetected = gpio_get_level(PIN_MOVEMENT);
-            int adc_reading = adc1_get_raw(PIN_SW_CHANNEL);
+            int adc_reading = adc1_get_raw(CHANNEL_SWITCHES);
             //uint32_t voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
             //printf("Raw: %d\tVoltage: %dmV\n", adc_reading, voltage);
             int i = 0;
@@ -410,7 +410,7 @@ public:
         adc_chars = (esp_adc_cal_characteristics_t *)calloc(1, sizeof(esp_adc_cal_characteristics_t));
         esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_0db, ADC_WIDTH_BIT_12, DEFAULT_VREF, adc_chars);
         adc1_config_width(ADC_WIDTH_BIT_12);
-        adc1_config_channel_atten(PIN_SW_CHANNEL, ADC_ATTEN_0db);
+        adc1_config_channel_atten(CHANNEL_SWITCHES, ADC_ATTEN_0db);
 
         gpio_pad_select_gpio((uint8_t)PIN_ROTENC_A);
         gpio_set_direction(PIN_ROTENC_A, GPIO_MODE_INPUT);

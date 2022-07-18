@@ -83,7 +83,7 @@ export class $
         return element;
     }
 
-    public static InputNumber(table:HTMLTableSectionElement, min:number, max:number, key:string, cfg:KeyValueTuple[]|null):HTMLInputElement
+    public static InputIntegerNumber(table:HTMLTableSectionElement, min:number, max:number, key:string, cfg:KeyValueTuple[]|null):HTMLInputElement
     {
         let value:number=0;
         if(cfg!=null)
@@ -98,7 +98,25 @@ export class $
         let tr=$.Html(table, "tr", [],["develop-propertygrid-tr"]);
         $.Html(tr, "td", [],["develop-propertygrid-td"], key);
         let inputContainer = $.Html(tr, "td", [],["develop-propertygrid-td"]);
-        return <HTMLInputElement>$.Html(inputContainer, "input", ["type", "number", "min", ""+Math.round(min), "max", ""+Math.round(max), "value", ""+Math.round(value),]);
+        return <HTMLInputElement>$.Html(inputContainer, "input", ["type", "number", "step", "1", "min", ""+Math.round(min), "max", ""+Math.round(max), "value", ""+Math.round(value),]);
+    }
+
+    public static InputFloatNumber(table:HTMLTableSectionElement, key:string, cfg:KeyValueTuple[]|null):HTMLInputElement
+    {
+        let value:number=0;
+        if(cfg!=null)
+        {
+            for (const e of cfg) {
+                if(e.key==key && !isNaN(e.value)){
+                    value=e.value;
+                    break;
+                }
+            }
+        }
+        let tr=$.Html(table, "tr", [],["develop-propertygrid-tr"]);
+        $.Html(tr, "td", [],["develop-propertygrid-td"], key);
+        let inputContainer = $.Html(tr, "td", [],["develop-propertygrid-td"]);
+        return <HTMLInputElement>$.Html(inputContainer, "input", ["type", "number", "value", ""+value,]);
     }
 
     public static InputSelect(table:HTMLTableSectionElement, displayValueAndKeyvalues:StringNumberTuple[], key:string, cfg:KeyValueTuple[]|null):HTMLSelectElement

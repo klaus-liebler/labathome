@@ -187,9 +187,10 @@ esp_err_t handle_put_fbd(httpd_req_t *req)
         return ESP_FAIL;
     ESP_LOGI(TAG, "fbd_put_handler, expecting %d bytes of data", remaining);
     uint8_t *buf= static_cast<uint8_t*>(httpd_get_global_user_ctx(req->handle));
+    //uint8_t buf[256];
     while (remaining > 0) {
         /* Read the data for the request */
-        if ((ret = httpd_req_recv(req, (char*)buf,  MIN(remaining, sizeof(buf)))) <= 0) {
+        if ((ret = httpd_req_recv(req, (char*)buf,  MIN(remaining, labathome::config::HTTP_SCRATCHPAD_SIZE))) <= 0) {
             if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
                 /* Retry receiving if timeout occurred */
                 continue;
@@ -200,13 +201,12 @@ esp_err_t handle_put_fbd(httpd_req_t *req)
     }
     // End response
     uint32_t *buf32 = (uint32_t*)buf;
-    printf("Received Buffer:\n");
-    for(size_t i= 0; i<(req->content_len/4); i++)
-    {
-        printf("0x%08x ",buf32[i]);
-    }
-    printf("\n");
+    ESP_LOGI(TAG, "Received Buffer:\n");
+    ESP_LOG_BUFFER_HEX(TAG, buf, req->content_len);
     devicemanager->ParseNewExecutableAndEnqueue((uint8_t*)buf, req->content_len);
+    httpd_resp_set_hdr(req, "Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+    httpd_resp_set_hdr(req, "Pragma", "no-cache");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     httpd_resp_send_chunk(req, NULL, 0);
     return ESP_OK;
 }
@@ -220,11 +220,14 @@ esp_err_t handle_get_fbd(httpd_req_t *req){
     uint8_t *buf= static_cast<uint8_t*>(httpd_get_global_user_ctx(req->handle));
     devicemanager->GetDebugInfo(buf, size);
     httpd_resp_set_type(req, "application/octet-stream");
+    httpd_resp_set_hdr(req, "Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+    httpd_resp_set_hdr(req, "Pragma", "no-cache");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     httpd_resp_send(req, (char *)buf, size);
     return ESP_OK;
 }
 
-esp_err_t handle_get_adcexperiment(httpd_req_t *req)
+esp_err_t handle_get_ptnexperiment(httpd_req_t *req)
 {
     DeviceManager *devicemanager = *static_cast<DeviceManager **>(req->user_ctx);
     float *buf;
@@ -458,6 +461,9 @@ esp_err_t helper_post_fbd(httpd_req_t *req, const char *filepath, bool overwrite
     ESP_LOGI(TAG, "File reception complete");
 
     /* Redirect onto root to see the updated file list */
+    httpd_resp_set_hdr(req, "Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+    httpd_resp_set_hdr(req, "Pragma", "no-cache");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     httpd_resp_sendstr(req, "File uploaded successfully");
     return ESP_OK;
 }

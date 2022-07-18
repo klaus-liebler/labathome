@@ -7,15 +7,22 @@ import { SerializeContext } from "./flowchart/SerializeContext";
 export let DE_de = new Intl.NumberFormat('de-DE');
 export const CHART_EACH_INTERVAL = 2;
 
-export class ADCExperimentController extends ScreenController {
+export class PtnExperimentController extends ScreenController {
     private butRecord: HTMLButtonElement;
     private butStop: HTMLButtonElement;
     private butDelete: HTMLButtonElement;
     private tbody: HTMLTableSectionElement;
     private tfirstRow: HTMLTableRowElement;
+    private inputSetpointVoltageY: HTMLInputElement;
+    private inputSetpointVoltageX: HTMLInputElement;
+    private inputKP: HTMLInputElement;
+    private inputTN: HTMLInputElement;
+    private inputTV: HTMLInputElement;
     private timer: number | undefined;
     private chart: Chart;
+
     private counter = 10 ^ 6;
+    private mode: number = 0;
     private seconds = 0;
 
     private recording = false;
@@ -46,11 +53,58 @@ export class ADCExperimentController extends ScreenController {
         this.seconds = 0;
     }
 
+    private onModeChange(newMode: number) {
+        switch (newMode) {
+            case 0:
+                document.querySelectorAll('.ptnexperiment_closedloopctrl').forEach((v, k) => {
+                    (<HTMLElement>v).style.display = "none";
+                });
+                document.querySelectorAll('.ptnexperiment_openloopctrl').forEach((v, k) => {
+                    (<HTMLElement>v).style.display = "none";
+                });
+                break;
+            case 1:
+                document.querySelectorAll('.ptnexperiment_closedloopctrl').forEach((v, k) => {
+                    (<HTMLElement>v).style.display = "none";
+                });
+                document.querySelectorAll('.ptnexperiment_openloopctrl').forEach((v, k) => {
+                    (<HTMLElement>v).style.display = "inline-block";
+                });
+                break;
+            case 2:
+                document.querySelectorAll('.ptnexperiment_closedloopctrl').forEach((v, k) => {
+                    (<HTMLElement>v).style.display = "inline-block";
+                });
+                document.querySelectorAll('.ptnexperiment_openloopctrl').forEach((v, k) => {
+                    (<HTMLElement>v).style.display = "none";
+                });
+                break;
+        }
+        this.mode = newMode;
+    }
+
     private sendAndReceive() {
+        let buffer = new ArrayBuffer(256);
+        let ctx = new SerializeContext(buffer);
+        ctx.writeU32(this.mode);
+        if (this.mode == 0) {
+            ctx.writeF32(0);
+            ctx.writeF32(0);
+        } else if (this.mode == 1) {
+            ctx.writeF32(this.inputSetpointVoltageY.valueAsNumber);
+            ctx.writeF32(0.0);
+        }
+        else {
+            ctx.writeF32(this.inputSetpointVoltageX.valueAsNumber);
+            ctx.writeF32(0.0);
+        }
+        ctx.writeF32(this.inputKP.valueAsNumber);
+        ctx.writeF32(this.inputTN.valueAsNumber);
+        ctx.writeF32(this.inputTV.valueAsNumber);
 
         let xhr = new XMLHttpRequest;
         xhr.onerror = (e) => { console.log("Fehler beim XMLHttpRequest!"); };
-        xhr.open("GET", "/adcexperiment", true);
+        xhr.open("GET", "/ptnexperiment", true);
         xhr.responseType = "arraybuffer";
         xhr.onload = (e) => {
             let Values: number[]=[0,0,0,0];
@@ -99,42 +153,53 @@ export class ADCExperimentController extends ScreenController {
 
     constructor(appManagement:AppManagement, div: HTMLDivElement) {
         super(appManagement, div);
-        this.butRecord = <HTMLButtonElement>document.getElementById("adcexperiment_butRecord")!;
-        this.butStop = <HTMLButtonElement>document.getElementById("adcexperiment_butStop")!;
+        this.butRecord = <HTMLButtonElement>document.getElementById("ptnexperiment_butRecord")!;
+        this.butStop = <HTMLButtonElement>document.getElementById("ptnexperiment_butStop")!;
         this.butStop.hidden = true;
-        this.butDelete = <HTMLButtonElement>document.getElementById("adcexperiment_butDelete")!;
-        this.tbody = <HTMLTableSectionElement>document.getElementById("adcexperiment_tabBody")!;
-        this.tfirstRow = <HTMLTableRowElement>document.getElementById("adcexperiment_tabFirstRow")!;
+        this.butDelete = <HTMLButtonElement>document.getElementById("ptnexperiment_butDelete")!;
+        this.tbody = <HTMLTableSectionElement>document.getElementById("ptnexperiment_tabBody")!;
+        this.tfirstRow = <HTMLTableRowElement>document.getElementById("ptnexperiment_tabFirstRow")!;
 
-        let ctx = <HTMLCanvasElement>document.getElementById('adcexperiment_chart')!;
+
+        this.inputSetpointVoltageY = <HTMLInputElement>document.getElementById("ptnexperiment_inpSetpointVoltageY");
+        this.inputSetpointVoltageX = <HTMLInputElement>document.getElementById("ptnexperiment_inpSetpointVoltageX");
+       
+
+        this.inputKP = <HTMLInputElement>document.getElementById("ptnexperiment_inpKP")!;
+        this.inputTN = <HTMLInputElement>document.getElementById("ptnexperiment_inpTN")!;
+        this.inputTV = <HTMLInputElement>document.getElementById("ptnexperiment_inpTV")!;
+
+        this.onModeChange(0);
+
+        let ctx = <HTMLCanvasElement>document.getElementById('ptnexperiment_chart')!;
         this.chart = new Chart(ctx,{
             type: 'line',
             data: {
                 labels: [],
                 datasets: [
                     {
-                        label: "Input 0 [V]",
+                        label: "Input [V]",
                         data: [],
                         backgroundColor: "red",
                         borderColor: "red",
                         fill: false,
                     },
                     {
-                        label: "Input 1 [V]",
+                        label: "PT1 [V]",
                         data: [],
                         backgroundColor: "green",
                         borderColor: "green",
                         fill: false,
                     },
                     {
-                        label: "Input 2 [V]",
+                        label: "PT2 [V]",
                         data: [],
                         backgroundColor: "blue",
                         borderColor: "blue",
                         fill: false,
                     },
                     {
-                        label: "Input 3 [V]",
+                        label: "PT3 [V]",
                         data: [],
                         backgroundColor: "grey",
                         borderColor: "grey",
@@ -156,6 +221,34 @@ export class ADCExperimentController extends ScreenController {
                 }
             }
         });
+
+        document.querySelectorAll('input[name="ptnexperiment_mode"]').forEach((v, k) => {
+            let inp = <HTMLInputElement>v;
+            inp.onclick = (e) => {
+                let num = parseInt(inp.value);
+                if (this.mode != num)
+                    this.onModeChange(num);
+            };
+        });
+
+        let setBubble = (range: HTMLInputElement, bubble: HTMLOutputElement) => {
+            let val = range.valueAsNumber;
+            let min = range.min ? parseInt(range.min) : 0;
+            let max = range.max ? parseInt(range.max) : 100;
+            let newVal = ((val - min) * 100) / (max - min);
+            bubble.innerHTML = "" + val;
+
+            // Sorta magic numbers based on size of the native UI thumb
+            bubble.style.left = `calc(${newVal}% + (${8 - newVal * 0.15}px))`;
+        };
+
+        document.querySelectorAll(".range-wrap.ptnexperiment").forEach(wrap => {
+            let range = <HTMLInputElement>wrap.querySelector("input[type='range']")!;
+            let bubble = <HTMLOutputElement>wrap.querySelector("output.bubble")!;
+            range.oninput = (e) => setBubble(range, bubble);
+            setBubble(range, bubble);
+        });
+
 
         this.butStop.onclick = (e) => {
             this.butStop.hidden = true;

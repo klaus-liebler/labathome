@@ -7,6 +7,8 @@
 
 namespace labathome::config{
     constexpr size_t HTTP_SCRATCHPAD_SIZE{2048};
+    //#define INITIAL_EXECUTABLE_TWO_BUTTONS_AND
+    #define INITIAL_EXECUTABLE_PTNCHEN
 }
 
 namespace labathome::config::paths{

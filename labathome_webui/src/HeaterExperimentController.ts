@@ -32,18 +32,20 @@ export class HeaterExperimentController extends ScreenController {
     public onFirstStart(): void {
         this.timer = window.setInterval(() => { this.sendAndReceive(); }, 1000);
     }
+
     public onRestart(): void {
         this.timer = window.setInterval(() => { this.sendAndReceive(); }, 1000);
     }
+
     public onStop(): void {
         window.clearInterval(this.timer);
         this.butStop.hidden = true;
         this.butRecord.hidden = false;
         this.counter = 10 ^ 6;
     }
+    
     public onCreate() {
         this.resetData();
-
     }
 
     private resetData() {
@@ -159,16 +161,12 @@ export class HeaterExperimentController extends ScreenController {
                 this.seconds++;
             }
 
-
             this.tfirstRow.children[0].textContent = now.toLocaleTimeString("de-DE");
             this.tfirstRow.children[1].textContent = DE_de.format(this.seconds);
             this.tfirstRow.children[2].textContent = DE_de.format(SetpointTemperature);
             this.tfirstRow.children[3].textContent = DE_de.format(ActualTemperature);
             this.tfirstRow.children[4].textContent = DE_de.format(Heater);
             this.tfirstRow.children[5].textContent = DE_de.format(Fan);
-
-
-
         };
         xhr.send(ctx.getResult());
     }

@@ -1,11 +1,14 @@
 import { StringNumberTuple } from "../utils";
 export default function(){ return [
-	new StringNumberTuple("No Song", 0),
-	new StringNumberTuple("positive", 1),
-	new StringNumberTuple("negative", 2),
-	new StringNumberTuple("Barbie_girl", 3),
-	new StringNumberTuple("HauntedHouse", 4),
-	new StringNumberTuple("axelf", 5),
-	new StringNumberTuple("Bond_007", 6),
+	new StringNumberTuple("Kein Sound", 0),
+	new StringNumberTuple("Sprache: CO2 Alarm", 1),
+	new StringNumberTuple("Sprache: Temperatur-Alarm Update", 2),
+	new StringNumberTuple("Sprache: Nicht OK ", 3),
+	new StringNumberTuple("Sprache: Alles OK ", 4),
+	new StringNumberTuple("Sprache: Betriebsbereitschaft", 5),
+	new StringNumberTuple("Sound: Fanfare", 6),
+	new StringNumberTuple("Sound: Negativ", 7),
+	new StringNumberTuple("Sound: Positiv", 8),
+	new StringNumberTuple("Sound: Sirene", 9),
 ];
 };

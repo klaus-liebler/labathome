@@ -27,7 +27,7 @@ static const char *TAG = "main";
 //#include "HAL_wroverkit.hh"
 //static HAL *hal = new HAL_wroverkit();
 #include "HAL_labathomeV10.hh"
-static HAL * hal = new HAL_labathome(MODE_ROT_LDR_ANALOGIN::LDR_AND_ANALOGIN, MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR, MODE_HEATER_OR_LED_POWER::HEATER, MODE_FAN1_DRIVE_OR_SERVO1::SERVO1);
+static HAL * hal = new HAL_labathome(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR, MODE_HEATER_OR_LED_POWER::HEATER, MODE_FAN1_DRIVE_OR_SERVO1::SERVO1);
 
 
 #include "functionblocks.hh"
@@ -123,9 +123,9 @@ constexpr httpd_uri_t putfftexperiment = {
 
 
 constexpr httpd_uri_t getadcexperiment = {
-    .uri       = "/adcexperiment",
+    .uri       = "/ptnexperiment",
     .method    = HTTP_GET,
-    .handler   = handle_get_adcexperiment,
+    .handler   = handle_get_ptnexperiment,
     .user_ctx = &devicemanager,
 };
 
