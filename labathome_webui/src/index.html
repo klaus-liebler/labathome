@@ -69,9 +69,6 @@
           d="M7.5 11A2.5 2.5 0 0 0 10 8.5v-6a2.5 2.5 0 1 0-5 0v6A2.5 2.5 0 0 0 7.5 11zM11 7v1.5a3.5 3.5 0 1 1-7 0V7H3v1.5a4.5 4.5 0 0 0 4 4.472V15H5v1h5v-1H8v-2.028A4.5 4.5 0 0 0 12 8.5V7h-1z"
           fill="currentColor" />
       </symbol>
-      <symbol id="icon-bin2" viewBox="0 0 32 32">
-        <path d="M6 32h20l2-22h-24zM20 4v-4h-8v4h-10v6l2-2h24l2 2v-6h-10zM18 4h-4v-2h4v2z"></path>
-      </symbol>
       <symbol id="icon-tree" viewBox="0 0 32 32">
         <path
           d="M30.5 24h-0.5v-6.5c0-1.93-1.57-3.5-3.5-3.5h-8.5v-4h0.5c0.825 0 1.5-0.675 1.5-1.5v-5c0-0.825-0.675-1.5-1.5-1.5h-5c-0.825 0-1.5 0.675-1.5 1.5v5c0 0.825 0.675 1.5 1.5 1.5h0.5v4h-8.5c-1.93 0-3.5 1.57-3.5 3.5v6.5h-0.5c-0.825 0-1.5 0.675-1.5 1.5v5c0 0.825 0.675 1.5 1.5 1.5h5c0.825 0 1.5-0.675 1.5-1.5v-5c0-0.825-0.675-1.5-1.5-1.5h-0.5v-6h8v6h-0.5c-0.825 0-1.5 0.675-1.5 1.5v5c0 0.825 0.675 1.5 1.5 1.5h5c0.825 0 1.5-0.675 1.5-1.5v-5c0-0.825-0.675-1.5-1.5-1.5h-0.5v-6h8v6h-0.5c-0.825 0-1.5 0.675-1.5 1.5v5c0 0.825 0.675 1.5 1.5 1.5h5c0.825 0 1.5-0.675 1.5-1.5v-5c0-0.825-0.675-1.5-1.5-1.5zM6 30h-4v-4h4v4zM18 30h-4v-4h4v4zM14 8v-4h4v4h-4zM30 30h-4v-4h4v4z">
@@ -171,12 +168,12 @@
 
               <button id="ptnexperiment_butRecord" class="large" type="button">🔴</button>
               <button id="ptnexperiment_butStop" class="large" type="button">⬛</button>
-              <button id="ptnexperiment_butDelete" type="button">🗑</button>
+              <button id="ptnexperiment_butDelete" type="button">🗑️</button>
             </div>
 
             <label class="ptnexperiment_openloopctrl">Input Voltage [Volt]</label>
             <div class="range-wrap ptnexperiment ptnexperiment_openloopctrl">
-              <input type="range" id="ptnexperiment_inpSetpointVoltageY" min="0" max="3.3" value="0" />
+              <input type="range" id="ptnexperiment_inpSetpointVoltageY" min="0" max="3.3" step="0.1" value="0" />
               <output class="bubble"></output>
             </div>
 
@@ -282,9 +279,7 @@
 
               <button id="heaterexperiment_butRecord" class="large" type="button">🔴</button>
               <button id="heaterexperiment_butStop" class="large" type="button">⬛</button>
-              <button id="heaterexperiment_butDelete" type="button"><svg class="icon icon-bin2">
-                  <use xlink:href="#icon-bin2"></use>
-                </svg></button>
+              <button id="heaterexperiment_butDelete" type="button">🗑️</button>
             </div>
 
             <label class="heaterexperiment_openloopctrl">Heater Power [%]</label>
@@ -377,9 +372,7 @@
 
               <button id="airspeedexperiment_butRecord" class="large" type="button">🔴</button>
               <button id="airspeedexperiment_butStop" class="large" type="button">⬛</button>
-              <button id="airspeedexperiment_butDelete" type="button"><svg class="icon icon-bin2">
-                  <use xlink:href="#icon-bin2"></use>
-                </svg></button>
+              <button id="airspeedexperiment_butDelete" type="button">🗑️</button>
             </div>
 
             <label class="airspeedexperiment_openloopctrl">Fan Power [%]</label>

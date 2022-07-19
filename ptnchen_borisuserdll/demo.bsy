@@ -1,0 +1,99 @@
+[Version]
+9.1.1.501
+[File Access]
+0   
+44762
+! 
+! 
+! 
+! 
+! 
+! 
+! 
+! 
+[Block Count]
+5
+[Block #0]
+385   USER1
+USER1
+250 350 321 452  100   16777215   0   0 
+5
+5
+0 0 0   0   0
+C:\repos\labathome\ptnchen_borisuserdll\ptnchen.dll
+*.*
+0 1 0
+0
+0
+192.168.1.219
+1600
+[Block #1]
+429   BLOCKPOTI
+BLOCKPOTI
+100 350 199 388  100   16777215   0   0 
+0
+1
+0 0 0   0   0
+100    0.00000000000000E+0000    3.30000000000000E+0000
+[Block #2]
+431   BLOCKDIGOUT
+BLOCKDIGOUT
+375 400 474 439  100   16777215   0   0 
+1
+0
+0 0 0   0   0
+%8.3f
+8388608
+[Block #3]
+431   BLOCKDIGOUT
+BLOCKDIGOUT
+375 350 474 389  100   16777215   0   0 
+1
+0
+0 0 0   0   0
+%8.3f
+8388608
+[Block #4]
+432   BLOCKSTATUS
+BLOCKSTATUS
+375 300 446 339  100   16777215   0   0 
+1
+0
+0 0 0   0   0
+40960 8421504
+0
+[Connection Count]
+4
+[Connection #0]
+1   1   0   1   16711680   -1   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+[Connection #1]
+0   2   3   1   16711680   -1   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+[Connection #2]
+0   5   2   1   16711680   -1   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+[Connection #3]
+0   1   4   1   16711680   -1   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+[Simulation Parameters]
+ 1.00000000000000E+0001    1.00000000000000E-0002   0   2   1  0   1   1   0   0   4   0   0
+[Logical Levels]
+ 0.00000000000000E+0000    5.00000000000000E+0000    2.50000000000000E+0000
+[Frame Count]
+0
+[Optimization Parameters Count]
+0
+[Optimization Control Parameters]
+20   5   100   3   10   1   10   1   12345
+ 1.00000000000000E+0000    0.00000000000000E+0000    0.00000000000000E+0000
+OPT.DAT
+0
+1
+[Batch Parameters Count]
+0
+[Global Parameters]
+0
+[Message Options]
+BORIS.MSG
+[User Background Bitmap]
+0
+
+[Scrollbars]
+0   250

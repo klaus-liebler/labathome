@@ -67,4 +67,5 @@ class HAL
         virtual uint32_t GetMillis()=0; 
         virtual ErrorCode GetFFT64(float *magnitudes64);
         virtual ErrorCode UpdatePinConfiguration(uint8_t* configMessage, size_t configMessagelen);
+        virtual ErrorCode OutputOneLineStatus();
 };

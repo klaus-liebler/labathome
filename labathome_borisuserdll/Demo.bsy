@@ -1,0 +1,640 @@
+[Version]
+9.1.1.501
+[File Access]
+0   
+44743
+! 
+! 
+! 
+! 
+! 
+! 
+! 
+! 
+[Block Count]
+59
+[Block #0]
+428   BLOCKSPINEDIT
+BLOCKSPINEDIT
+75 50 174 88  100   16777215   1   0 Soll-Versorgungsspannung am USB-C
+0
+1
+0 0 0   0   0
+ 3.00000000000000E+0000    0.00000000000000E+0000    6.55350000000000E+0004    1.00000000000000E+0000
+[Block #1]
+0   Text
+Text
+18 32 230 46  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Soll-Versorgungsspannung am USB-C
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   0
+[Block #2]
+428   BLOCKSPINEDIT
+BLOCKSPINEDIT
+75 125 174 163  100   16777215   1   0 Leistung Heizwiderstand
+0
+1
+0 0 0   0   0
+ 5.00000000000000E+0000    0.00000000000000E+0000    6.55350000000000E+0004    1.00000000000000E+0000
+[Block #3]
+0   Text
+Text
+56 107 191 121  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Leistung Heizwiderstand
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   2
+[Block #4]
+428   BLOCKSPINEDIT
+BLOCKSPINEDIT
+75 200 174 238  100   16777215   1   0 Helligkeit Power-LED
+0
+1
+0 0 0   0   0
+ 7.00000000000000E+0000    0.00000000000000E+0000    6.55350000000000E+0004    1.00000000000000E+0000
+[Block #5]
+0   Text
+Text
+66 182 182 196  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Helligkeit Power-LED
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   4
+[Block #6]
+428   BLOCKSPINEDIT
+BLOCKSPINEDIT
+75 275 174 313  100   16777215   1   0 Soll-Sound
+0
+1
+0 0 0   0   0
+ 8.00000000000000E+0000    0.00000000000000E+0000    6.55350000000000E+0004    1.00000000000000E+0000
+[Block #7]
+0   Text
+Text
+94 257 154 271  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Soll-Sound
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   6
+[Block #8]
+428   BLOCKSPINEDIT
+BLOCKSPINEDIT
+75 350 174 388  100   16777215   1   0 Analoger Ausgang 0-10V
+0
+1
+0 0 0   0   0
+ 1.50000000000000E+0001    0.00000000000000E+0000    6.55350000000000E+0004    1.00000000000000E+0000
+[Block #9]
+0   Text
+Text
+57 332 191 346  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Analoger Ausgang 0-10V
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   8
+[Block #10]
+428   BLOCKSPINEDIT
+BLOCKSPINEDIT
+75 425 174 463  100   16777215   1   0 Soll-Geschwindigkeit FAN1
+0
+1
+0 0 0   0   0
+ 3.70000000000000E+0001    0.00000000000000E+0000    6.55350000000000E+0004    1.00000000000000E+0000
+[Block #11]
+0   Text
+Text
+50 407 197 421  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Soll-Geschwindigkeit FAN1
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   10
+[Block #12]
+428   BLOCKSPINEDIT
+BLOCKSPINEDIT
+75 500 174 538  100   16777215   1   0 Soll-Geschwindigkeit FAN2
+0
+1
+0 0 0   0   0
+ 1.00000000000000E+0002    0.00000000000000E+0000    6.55350000000000E+0004    1.00000000000000E+0000
+[Block #13]
+0   Text
+Text
+50 482 197 496  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Soll-Geschwindigkeit FAN2
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   12
+[Block #14]
+428   BLOCKSPINEDIT
+BLOCKSPINEDIT
+75 575 174 613  100   16777215   1   0 Soll-Position Servo 1
+0
+1
+0 0 0   0   0
+ 2.80000000000000E+0001    0.00000000000000E+0000    6.55350000000000E+0004    1.00000000000000E+0000
+[Block #15]
+0   Text
+Text
+67 557 180 571  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Soll-Position Servo 1
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   14
+[Block #16]
+428   BLOCKSPINEDIT
+BLOCKSPINEDIT
+75 650 174 688  100   16777215   1   0 Soll-Position Servo 2
+0
+1
+0 0 0   0   0
+ 3.30000000000000E+0001    0.00000000000000E+0000    6.55350000000000E+0004    1.00000000000000E+0000
+[Block #17]
+0   Text
+Text
+67 632 180 646  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Soll-Position Servo 2
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   16
+[Block #18]
+428   BLOCKSPINEDIT
+BLOCKSPINEDIT
+75 725 174 763  100   16777215   1   0 Relay K3
+0
+1
+0 0 0   0   0
+ 5.00000000000000E+0000    0.00000000000000E+0000    5.00000000000000E+0000    5.00000000000000E+0000
+[Block #19]
+0   Text
+Text
+100 707 148 721  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Relay K3
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   18
+[Block #20]
+431   BLOCKDIGOUT
+BLOCKDIGOUT
+600 300 699 339  100   16777215   1   0 Drehencoder-Zählwert
+1
+0
+0 0 0   0   0
+%4.0f
+8388608
+[Block #21]
+432   BLOCKSTATUS
+BLOCKSTATUS
+575 75 646 114  100   16777215   1   0 Taster rot
+1
+0
+0 0 0   0   0
+40960 8421504
+0
+[Block #22]
+0   Text
+Text
+585 57 635 71  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Taster rot
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   21
+[Block #23]
+432   BLOCKSTATUS
+BLOCKSTATUS
+575 150 646 189  100   16777215   1   0 Taster gelb
+1
+0
+0 0 0   0   0
+40960 8421504
+0
+[Block #24]
+0   Text
+Text
+580 132 640 146  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Taster gelb
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   23
+[Block #25]
+432   BLOCKSTATUS
+BLOCKSTATUS
+575 225 646 264  100   16777215   1   0 Taster grün
+1
+0
+0 0 0   0   0
+40960 8421504
+0
+[Block #26]
+0   Text
+Text
+579 207 640 221  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Taster grün
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   25
+[Block #27]
+0   Text
+Text
+588 282 710 296  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Drehencoder-Zählwert
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   20
+[Block #28]
+431   BLOCKDIGOUT
+BLOCKDIGOUT
+600 450 699 489  100   16777215   1   0 Ist-Versorgungsspannung am USB-C
+1
+0
+0 0 0   0   0
+%4.0f
+8388608
+[Block #29]
+0   Text
+Text
+547 432 751 446  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Ist-Versorgungsspannung am USB-C
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   28
+[Block #30]
+431   BLOCKDIGOUT
+BLOCKDIGOUT
+600 525 699 564  100   16777215   1   0 Ist-Helligkeit
+1
+0
+0 0 0   0   0
+%4.0f
+8388608
+[Block #31]
+0   Text
+Text
+615 507 682 521  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Ist-Helligkeit
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   30
+[Block #32]
+431   BLOCKDIGOUT
+BLOCKDIGOUT
+600 600 699 639  100   16777215   1   0 Temperatur des Heizwiderstandes
+1
+0
+0 0 0   0   0
+%4.0f
+8388608
+[Block #33]
+0   Text
+Text
+555 582 743 596  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Temperatur des Heizwiderstandes
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   32
+[Block #34]
+431   BLOCKDIGOUT
+BLOCKDIGOUT
+600 675 699 714  100   16777215   1   0 Raumtemperatur
+1
+0
+0 0 0   0   0
+%4.0f
+8388608
+[Block #35]
+0   Text
+Text
+602 657 695 671  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Raumtemperatur
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   34
+[Block #36]
+432   BLOCKSTATUS
+BLOCKSTATUS
+575 375 646 414  100   16777215   1   0 Bewegungsmelder
+1
+0
+0 0 0   0   0
+40960 8421504
+0
+[Block #37]
+0   Text
+Text
+558 357 662 371  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Bewegungsmelder
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   36
+[Block #38]
+431   BLOCKDIGOUT
+BLOCKDIGOUT
+600 750 699 789  100   16777215   1   0 Raum-Luftdruck
+1
+0
+0 0 0   0   0
+%4.0f
+8388608
+[Block #39]
+0   Text
+Text
+605 732 692 746  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Raum-Luftdruck
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   38
+[Block #40]
+431   BLOCKDIGOUT
+BLOCKDIGOUT
+600 825 699 864  100   16777215   1   0 Raum-Luftfeuchtigkeit
+1
+0
+0 0 0   0   0
+%4.0f
+8388608
+[Block #41]
+0   Text
+Text
+589 807 708 821  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Raum-Luftfeuchtigkeit
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   40
+[Block #42]
+431   BLOCKDIGOUT
+BLOCKDIGOUT
+600 900 699 939  100   16777215   1   0 Raum-CO2
+1
+0
+0 0 0   0   0
+%4.0f
+8388608
+[Block #43]
+0   Text
+Text
+618 882 680 896  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Raum-CO2
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   42
+[Block #44]
+431   BLOCKDIGOUT
+BLOCKDIGOUT
+600 975 699 1014  100   16777215   1   0 Raum-Luftqualität
+1
+0
+0 0 0   0   0
+%4.0f
+8388608
+[Block #45]
+0   Text
+Text
+600 957 697 971  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Raum-Luftqualität
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   44
+[Block #46]
+431   BLOCKDIGOUT
+BLOCKDIGOUT
+600 1050 699 1089  100   16777215   1   0 Externer Luftdruck
+1
+0
+0 0 0   0   0
+%4.0f
+8388608
+[Block #47]
+0   Text
+Text
+600 1032 697 1046  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Externer Luftdruck
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   46
+[Block #48]
+431   BLOCKDIGOUT
+BLOCKDIGOUT
+600 1125 699 1164  100   16777215   1   0 Signalstärke des WiFi-AccessPoints
+1
+0
+0 0 0   0   0
+%4.0f
+8388608
+[Block #49]
+0   Text
+Text
+550 1107 748 1121  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Signalstärke des WiFi-AccessPoints
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   48
+[Block #50]
+431   BLOCKDIGOUT
+BLOCKDIGOUT
+600 1200 699 1239  100   16777215   1   0 Externer Spannungseingang
+1
+0
+0 0 0   0   0
+%4.0f
+8388608
+[Block #51]
+0   Text
+Text
+571 1182 727 1196  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Externer Spannungseingang
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   50
+[Block #52]
+431   BLOCKDIGOUT
+BLOCKDIGOUT
+600 1275 699 1314  100   16777215   1   0 Ist-Sound
+1
+0
+0 0 0   0   0
+%4.0f
+8388608
+[Block #53]
+0   Text
+Text
+623 1257 675 1271  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Ist-Sound
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   52
+[Block #54]
+431   BLOCKDIGOUT
+BLOCKDIGOUT
+600 1350 699 1389  100   16777215   1   0 Ist-Geschwindigkeit FAN1
+1
+0
+0 0 0   0   0
+%4.0f
+8388608
+[Block #55]
+0   Text
+Text
+579 1332 718 1346  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Ist-Geschwindigkeit FAN1
+9   16711680   2   0   16777215   0   1
+ARIAL
+16776960   54
+[Block #56]
+0   Text
+Text
+464 57 554 98  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Sensoren
+12   0   0   0   16777215   1   0
+ARIAL
+16776960   -1
+[Block #57]
+0   Text
+Text
+219 57 296 98  100   16777215   0   0 
+0
+0
+0 0 0   0   0
+Aktoren
+12   0   0   0   16777215   1   0
+ARIAL
+16776960   -1
+[Block #58]
+385   USER1
+USER1
+300 25 371 361  100   16777215   0   0 
+14
+18
+0 0 0   0   0
+C:\Users\KlausLiebler\Downloads\LabAtHome\LabAtHome.dll
+*.*
+0 1 0
+0
+0
+192.168.1.247
+1600
+[Connection Count]
+6
+[Connection #0]
+10   1   58   6   16711680   -1   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+[Connection #1]
+58   1   21   1   16711680   -1   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+[Connection #2]
+58   2   23   1   16711680   -1   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+[Connection #3]
+58   3   25   1   16711680   -1   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+[Connection #4]
+12   1   58   7   16711680   -1   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+[Connection #5]
+58   9   32   1   16711680   -1   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+[Simulation Parameters]
+ 1.00000000000000E+0001    1.00000000000000E+0000   1   2   1  0   1   1   0   0   4   0   0
+[Logical Levels]
+ 0.00000000000000E+0000    5.00000000000000E+0000    2.50000000000000E+0000
+[Frame Count]
+0
+[Optimization Parameters Count]
+0
+[Optimization Control Parameters]
+20   5   100   3   10   1   10   1   12345
+ 1.00000000000000E+0000    0.00000000000000E+0000    0.00000000000000E+0000
+OPT.DAT
+0
+1
+[Batch Parameters Count]
+0
+[Global Parameters]
+0
+[Message Options]
+BORIS.MSG
+[User Background Bitmap]
+0
+
+[Scrollbars]
+0   0

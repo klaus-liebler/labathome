@@ -185,7 +185,7 @@ constexpr uint16_t BUCKET_INDICES[]{1,2,3,4,5,6,7,9,11,13,15,17,19,21,24,27,30,3
 MP3::Player mp3player;
 
 
-class HAL_labathome : public HAL
+class HAL_Impl : public HAL
 {
 private:
     //config
@@ -419,7 +419,7 @@ private:
 
 
 public:
-    HAL_labathome(
+    HAL_Impl(
         MODE_MOVEMENT_OR_FAN1SENSE mode_MOVEMENT_OR_FAN1SENSE,
         MODE_HEATER_OR_LED_POWER mode_HEATER_OR_LED_POWER,//Heater mit 1Hz, LED mit 300Hz
         MODE_FAN1_DRIVE_OR_SERVO1 mode_FAN1_DRIVE_OR_SERVO1) //FAN1 drive mit 100Hz, servo mit 50Hz):ioConfig(defaultConfig)
@@ -428,6 +428,38 @@ public:
         mode_HEATER_OR_LED_POWER(mode_HEATER_OR_LED_POWER),
         mode_FAN1_DRIVE_OR_SERVO1(mode_FAN1_DRIVE_OR_SERVO1)
     {
+    }
+
+    ErrorCode OutputOneLineStatus() override{
+        uint32_t heap = esp_get_free_heap_size();
+        bool red=GetButtonRedIsPressed();
+        bool yel=GetButtonEncoderIsPressed();
+        bool grn = GetButtonGreenIsPressed();
+        bool mov = IsMovementDetected();
+        float htrTemp{0.f};
+        int enc{0};
+        GetEncoderValue(&enc);
+        int32_t sound{0};
+        GetSound(&sound);
+        float spply = GetUSBCVoltage();
+
+        float bright{0.0};
+        GetAmbientBrightness(&bright);
+
+        float co2{0};
+        GetHeaterTemperature(&htrTemp);
+        float airTemp{0.f};
+        GetAirTemperature(&airTemp);
+        float airPres{0.f};
+        GetAirPressure(&airPres);
+        float airHumid{0.f};
+        GetAirRelHumidity(&airHumid);
+        GetCO2PPM(&co2); 
+        float* analogVolt{nullptr};
+        GetAnalogInputs(&analogVolt);  
+        ESP_LOGI(TAG, "Heap %6d  RED %d YEL %d GRN %d MOV %d ENC %d SOUND %d SUPPLY %4.1f BRGHT %4.1f HEAT %4.1f AIRT %4.1f AIRPRS %5.0f AIRHUM %3.0f CO2 %5.0f, ANALOGIN %4.1f",
+                         heap,   red,   yel,   grn,   mov,   enc,   sound,    spply,      bright,     htrTemp,   airTemp,   airPres,     airHumid,     co2,       analogVolt[0]);
+        return ErrorCode::OK;
     }
 
     ErrorCode HardwareTest() override{
@@ -879,13 +911,13 @@ public:
 
     static void sensorTask(void *pvParameters)
     {
-        HAL_labathome *hal = (HAL_labathome *)pvParameters;
+        HAL_Impl *hal = (HAL_Impl *)pvParameters;
         hal->SensorLoop();
     }
 
     static void mp3Task(void *pvParameters)
     {
-        HAL_labathome *hal = (HAL_labathome *)pvParameters;
+        HAL_Impl *hal = (HAL_Impl *)pvParameters;
         hal->MP3Loop();
     }
 
@@ -894,7 +926,7 @@ public:
     #if CONFIG_FREERTOS_HZ!=1000
         #error "Set CONFIG_FREERTOS_HZ to 1000 as we need a well defined 1ms delay for proper USB-PD protocol handling"
     #endif
-        HAL_labathome *hal = (HAL_labathome *)pvParameters;
+        HAL_Impl *hal = (HAL_Impl *)pvParameters;
         hal->USBPDLoop();
     }
 };

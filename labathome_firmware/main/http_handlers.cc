@@ -200,7 +200,6 @@ esp_err_t handle_put_fbd(httpd_req_t *req)
         remaining -= ret;
     }
     // End response
-    uint32_t *buf32 = (uint32_t*)buf;
     ESP_LOGI(TAG, "Received Buffer:\n");
     ESP_LOG_BUFFER_HEX(TAG, buf, req->content_len);
     devicemanager->ParseNewExecutableAndEnqueue((uint8_t*)buf, req->content_len);
@@ -227,13 +226,49 @@ esp_err_t handle_get_fbd(httpd_req_t *req){
     return ESP_OK;
 }
 
-esp_err_t handle_get_ptnexperiment(httpd_req_t *req)
+esp_err_t handle_put_ptnexperiment(httpd_req_t *req)
 {
     DeviceManager *devicemanager = *static_cast<DeviceManager **>(req->user_ctx);
-    float *buf;
-    devicemanager->GetHAL()->GetAnalogInputs(&buf);
+    int ret=0;
+    int remaining = req->content_len;
+    if(remaining!=20){
+        ESP_LOGE(TAG, "Unexpected Data length %d in handle_put_ptnexperiment", remaining);
+        return ESP_FAIL;
+    }
+    uint8_t bufU8[remaining] ALL4;
+    while (remaining > 0) {
+        /* Read the data for the request */
+        if ((ret = httpd_req_recv(req, (char*)bufU8,  MIN(remaining, sizeof(bufU8)))) <= 0) {
+            if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
+                /* Retry receiving if timeout occurred */
+                continue;
+            }
+            return ESP_FAIL;
+        }
+        remaining -= ret;
+    }
+    // End response
+    float *bufF32 = (float*)bufU8;
+    uint32_t *bufU32 = (uint32_t*)bufU8;
+    
+    uint32_t modeU32 = bufU32[0];
+    float setpoint = bufF32[1];
+    float KP = bufF32[3];
+    float TN = bufF32[4];
+    float TV = bufF32[5];
+    
+    ESP_LOGI(TAG, "Set mode %d and setpoint %4.1f ", modeU32, setpoint);
+    float* voltages;
+    switch (modeU32)
+    {
+    case 0: devicemanager->TriggerPtnExperimentFunctionblock(&voltages); break;
+    case 1: devicemanager->TriggerPtnExperimentOpenLoop(setpoint, &voltages); break;
+    case 2: devicemanager->TriggerPtnExperimentClosedLoop(setpoint,  KP, TN, TV, &voltages); break;
+    default:break;
+    }
+    
     httpd_resp_set_type(req, "application/octet-stream");
-    httpd_resp_send(req, (char *)buf, 4*sizeof(float));
+    httpd_resp_send(req, (const char*)voltages, 16);
     return ESP_OK;
 }
 
@@ -276,7 +311,7 @@ esp_err_t handle_put_heaterexperiment(httpd_req_t *req)
     int ret=0;
     int remaining = req->content_len;
     if(remaining!=24){
-        ESP_LOGE(TAG, "Unexpected Data length %d in experiment_put_handler", remaining);
+        ESP_LOGE(TAG, "Unexpected Data length %d in handle_put_heaterexperiment", remaining);
         return ESP_FAIL;
     }
     uint8_t bufU8[remaining] ALL4;

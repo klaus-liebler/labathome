@@ -89,14 +89,11 @@ export class PtnExperimentController extends ScreenController {
         ctx.writeU32(this.mode);
         if (this.mode == 0) {
             ctx.writeF32(0);
-            ctx.writeF32(0);
         } else if (this.mode == 1) {
             ctx.writeF32(this.inputSetpointVoltageY.valueAsNumber);
-            ctx.writeF32(0.0);
         }
         else {
             ctx.writeF32(this.inputSetpointVoltageX.valueAsNumber);
-            ctx.writeF32(0.0);
         }
         ctx.writeF32(this.inputKP.valueAsNumber);
         ctx.writeF32(this.inputTN.valueAsNumber);
@@ -104,7 +101,7 @@ export class PtnExperimentController extends ScreenController {
 
         let xhr = new XMLHttpRequest;
         xhr.onerror = (e) => { console.log("Fehler beim XMLHttpRequest!"); };
-        xhr.open("GET", "/ptnexperiment", true);
+        xhr.open("PUT", "/ptnexperiment", true);
         xhr.responseType = "arraybuffer";
         xhr.onload = (e) => {
             let Values: number[]=[0,0,0,0];
@@ -148,7 +145,7 @@ export class PtnExperimentController extends ScreenController {
             this.tfirstRow.children[4].textContent = DE_de.format(Values[2]);
             this.tfirstRow.children[5].textContent = DE_de.format(Values[3]);
         };
-        xhr.send();
+        xhr.send(ctx.getResult());
     }
 
     constructor(appManagement:AppManagement, div: HTMLDivElement) {

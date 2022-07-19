@@ -8,9 +8,9 @@ import { AppManagement } from "../AppManagement";
 import { SerializeContext } from "./SerializeContext";
 import { SimulationManager } from "./SimulationManager";
 
-//const URL_PREFIX="";
+const URL_PREFIX="";
 
-const URL_PREFIX="http://labathome-ed5564";
+//const URL_PREFIX="http://labathome-ed5564";
 
 export class FlowchartOptions {
     canUserEditLinks: boolean = true;

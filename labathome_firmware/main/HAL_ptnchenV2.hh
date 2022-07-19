@@ -29,7 +29,7 @@ constexpr Pintype PIN_FAN1_DRIVE_OR_SERVO1 = (Pintype)18;
 constexpr Pintype PIN_I2C_SDA = (Pintype)19;
 constexpr Pintype PIN_I2C_SCL = (Pintype)22;
 constexpr Pintype PIN_SW = (Pintype)36;
-
+constexpr adc1_channel_t CHANNEL_SWITCHES{ADC1_CHANNEL_0};
 
 
 
@@ -47,13 +47,13 @@ constexpr size_t ANALOG_INPUTS_LEN{4};
 constexpr size_t LED_NUMBER{4};
 
 constexpr i2c_port_t I2C_PORT{I2C_NUM_1};
-
+constexpr uint32_t DEFAULT_VREF{1100}; //Use adc2_vref_to_gpio() to obtain a better estimate
 constexpr uint16_t sw_limits[]{160, 480, 1175, 1762, 2346, 2779, 3202};
 
 
 
 
-class HAL_ptnchen : public HAL
+class HAL_Impl : public HAL
 {
 private:
 
@@ -65,7 +65,8 @@ private:
     uint32_t buttonState{0}; //see Button-Enum for meaning of bits
     float AnalogInputs[ANALOG_INPUTS_LEN]={0};
 
-    
+    esp_adc_cal_characteristics_t *adc_chars{nullptr};
+
     void SensorLoop()
     {
 
@@ -112,8 +113,18 @@ private:
 
 
 public:
-    HAL_ptnchen()
+    HAL_Impl()
     {
+    }
+
+    ErrorCode OutputOneLineStatus(){
+        uint32_t heap = esp_get_free_heap_size();
+        bool but=GetButtonRedIsPressed();
+        float* analogVolt{nullptr};
+        GetAnalogInputs(&analogVolt);  
+        ESP_LOGI(TAG, "Heap %6d BUTT %d ANAIN %4.1f %4.1f %4.1f %4.1f",
+                       heap,    but,    analogVolt[0], analogVolt[1],analogVolt[2],analogVolt[3]);
+        return ErrorCode::OK;
     }
 
     ErrorCode HardwareTest() override{
@@ -146,7 +157,7 @@ public:
     }
 
     ErrorCode GetFan1Rpm(float* rpm){
-        return ErrorCode::ErrorCode::FUNCTION_NOT_AVAILABLE;
+        return ErrorCode::FUNCTION_NOT_AVAILABLE;
     }
     
     ErrorCode SetSound(int32_t soundNumber)
@@ -155,7 +166,7 @@ public:
     }
 
     ErrorCode GetSound(int32_t* soundNumber){
-        return ErrorCode::ErrorCode::FUNCTION_NOT_AVAILABLE;
+        return ErrorCode::FUNCTION_NOT_AVAILABLE;
     }
 
     
@@ -201,14 +212,19 @@ public:
     ErrorCode GetWifiRssiDb(float *db){
         return ErrorCode::FUNCTION_NOT_AVAILABLE;
     }
-
+    uint8_t dacValue{142};
     ErrorCode SetAnalogOutput(float volts){
-        dac_output_voltage(DAC_CHANNEL_1, volts*255.0/3.3);
+        uint8_t newDacValue = volts*255.0/3.3;
+        if(newDacValue!=dacValue){
+            ESP_LOGI(TAG, "Set DAC to %d", newDacValue);
+            dacValue=newDacValue;
+        }
+        dac_output_voltage(DAC_CHANNEL_1, newDacValue);
         return ErrorCode::OK;
     }
     
     ErrorCode GetFFT64(float *magnitudes64_param){
-
+        return ErrorCode::FUNCTION_NOT_AVAILABLE;
     }
 
     ErrorCode UpdatePinConfiguration(uint8_t* configMessage, size_t configMessagelen){
@@ -236,10 +252,18 @@ public:
         esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_0db, ADC_WIDTH_BIT_12, DEFAULT_VREF, adc_chars);
         adc1_config_width(ADC_WIDTH_BIT_12);
         adc1_config_channel_atten(CHANNEL_SWITCHES, ADC_ATTEN_DB_0);
-        adc1_config_channel_atten(CHANNEL_ANALOGIN_OR_ROTB, ADC_ATTEN_DB_11);
-        adc1_config_channel_atten(CHANNEL_LDR_OR_ROTA, ADC_ATTEN_DB_11);//TODO check the measuring interval
 
         dac_output_enable(DAC_CHANNEL_1);
+
+
+        //I2C Master
+        ESP_ERROR_CHECK(I2C::Init(I2C_PORT, PIN_I2C_SCL, PIN_I2C_SDA));
+
+        //LED Strip
+        strip = new WS2812_Strip<LED_NUMBER>();
+        ESP_ERROR_CHECK(strip->Init(VSPI_HOST, PIN_LED_WS2812, 2 ));
+        ESP_ERROR_CHECK(strip->Clear(100));
+
 
         readBinaryAndAnalogIOs();//do this while init to avoid race condition (wifimanager is resettet when red and green buttons are pressed during startup)
         xTaskCreate(sensorTask, "sensorTask", 4096 * 4, this, 6, nullptr);
@@ -357,7 +381,7 @@ public:
 
     static void sensorTask(void *pvParameters)
     {
-        HAL_labathome *hal = (HAL_labathome *)pvParameters;
+        HAL_Impl *hal = (HAL_Impl *)pvParameters;
         hal->SensorLoop();
     }
 };

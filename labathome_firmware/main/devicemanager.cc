@@ -20,7 +20,8 @@ DeviceManager::DeviceManager(HAL *hal):hal(hal)
     currentExecutable = this->createInitialExecutable();
     nextExecutable = nullptr;
     heaterPIDController = new PIDController<float>(&actualTemperature, &setpointHeater, &setpointTemperature, 0, 100, Mode::OFF, Direction::DIRECT, 1000);
-    airspeedPIDController = new PIDController<float>(&actualAirspeed, &setpointFan2, &setpointFan2, 0, 100, Mode::OFF, Direction::DIRECT, 1000);
+    airspeedPIDController = new PIDController<float>(&actualAirspeed, &setpointFan2, &setpointAirspeed, 0, 100, Mode::OFF, Direction::DIRECT, 1000);
+    ptnPIDController = new PIDController<float>(&actualPtn, &setpointVoltageOut, &setpointPtn, 0, 3.3, Mode::OFF, Direction::DIRECT, 1000);
 }
 
 ErrorCode DeviceManager::InitAndRun(){
@@ -384,7 +385,7 @@ ErrorCode DeviceManager::ParseNewExecutableAndEnqueue(const uint8_t  *buffer, si
 
 Executable *DeviceManager::createInitialExecutable()
 {
-#ifdef INITIAL_EXECUTABLE_TWO_BUTTONS_AND
+#if TARGET==LABATHOME_V10
     FB_RedButton *button_red = new FB_RedButton(0,2);
     FB_RedLED *led_red = new FB_RedLED(1,2);
     const uint32_t booleansCount = 3;
@@ -404,7 +405,7 @@ Executable *DeviceManager::createInitialExecutable()
     size_t debugSizeBytes = 4 /*Hashcode!*/ +4*(booleansCount+1+integersCount+1+floatsCount+1+colorsCount+1);//jeweils noch ein size_t für die Länge
     Executable *e = new Executable(hash, debugSizeBytes, functionBlocks, binaries, integers, floats, colors);
 
-#elif defined(INITIAL_EXECUTABLE_PTNCHEN)
+#elif TARGET==PTNCHEN_V2
     FB_RedButton *button_red = new FB_RedButton(0,2);
     FB_Bool2FloatConverter * conv = new FB_Bool2FloatConverter(1, 2, 2, 3.3, 0);
     FB_AnalogOutput0 *analog_output = new FB_AnalogOutput0(2,2);
@@ -424,6 +425,8 @@ Executable *DeviceManager::createInitialExecutable()
     uint32_t hash = 0;
     size_t debugSizeBytes = 4 /*Hashcode!*/ +4*(booleansCount+1+integersCount+1+floatsCount+1+colorsCount+1);//jeweils noch ein size_t für die Länge
     Executable *e = new Executable(hash, debugSizeBytes, functionBlocks, binaries, integers, floats, colors);
+#else
+    #error "No createInitialExecutable available for this target defined. See devicemanager.cc"
 #endif
     return e;
 }
@@ -557,12 +560,11 @@ ErrorCode DeviceManager::Loop()
     }
     if(this->experimentMode!=previousExperimentMode){
         //Safe settings on mode change!
-        hal->SetFan1Duty(0);
         hal->SetFan2Duty(0);
         hal->SetHeaterDuty(0);
         hal->SetServo1Position(0);
+        hal->SetAnalogOutput(0);
         this->setpointAirspeed=0;
-        this->setpointFan1=0.0;
         this->setpointFan2=0.0;
         this->setpointHeater=0.0;
         this->setpointServo1=0;
@@ -579,8 +581,7 @@ ErrorCode DeviceManager::Loop()
     else if(experimentMode==ExperimentMode::openloop_heater){
         heaterPIDController->SetMode(Mode::OFF, nowMsSteady);
         hal->SetHeaterDuty(this->setpointHeater);
-        hal->SetFan1Duty(this->setpointFan1);
-        hal->SetFan2Duty(this->setpointFan1);
+        hal->SetFan2Duty(this->setpointFan2);
     }
     else if(experimentMode==ExperimentMode::closedloop_heater){
         heaterPIDController->SetMode(Mode::CLOSEDLOOP, nowMsSteady);
@@ -595,8 +596,25 @@ ErrorCode DeviceManager::Loop()
              ESP_LOGI(TAG, "Computed a new  setpointHeater %F", setpointHeater);
         }
         hal->SetHeaterDuty(this->setpointHeater);
-        hal->SetFan1Duty(this->setpointFan1);
-        hal->SetFan2Duty(this->setpointFan1);
+        hal->SetFan2Duty(this->setpointFan2);
+    }
+    else if(experimentMode==ExperimentMode::openloop_ptn){
+        ptnPIDController->SetMode(Mode::OFF, nowMsSteady);
+        hal->SetAnalogOutput(this->setpointVoltageOut);
+    }
+    else if(experimentMode==ExperimentMode::closedloop_ptn){
+        ptnPIDController->SetMode(Mode::CLOSEDLOOP, nowMsSteady);
+        if(ptnPIDController->SetKpTnTv(ptnKP, ptnTN_secs*1000, ptnTV_secs*1000)!=ErrorCode::OBJECT_NOT_CHANGED)
+        {
+            ESP_LOGI(TAG, "SetKpTnTv to %F %F %F", ptnKP, ptnTN_secs, ptnTV_secs);
+        }
+        float *voltages;
+        hal->GetAnalogInputs(&voltages);
+        this->actualPtn=voltages[3];
+        if(ptnPIDController->Compute(nowMsSteady)==ErrorCode::OK){ //OK means: Value changed
+             ESP_LOGI(TAG, "Computed a new  setpointPtn %F", setpointVoltageOut);
+        }
+        hal->SetAnalogOutput(this->setpointVoltageOut);
     }
     else if(experimentMode==ExperimentMode::closedloop_airspeed){
         /*
@@ -630,13 +648,13 @@ ErrorCode DeviceManager::Loop()
     return ErrorCode::OK;
 }
 
-ErrorCode DeviceManager::TriggerHeaterExperimentClosedLoop(float setpointTemperature, float setpointFan1, float KP, float TN, float TV, HeaterExperimentData *data){
+ErrorCode DeviceManager::TriggerHeaterExperimentClosedLoop(float setpointTemperature, float setpointFan, float KP, float TN, float TV, HeaterExperimentData *data){
     //Trigger
     this->lastExperimentTrigger=hal->GetMillis();
     this->experimentMode=ExperimentMode::closedloop_heater;
     //New Setpoints
     this->setpointTemperature=setpointTemperature;
-    this->setpointFan1=setpointFan1;
+    this->setpointFan2=setpointFan;
     this->heaterKP=KP;
     this->heaterTN_secs=TN;
     this->heaterTV_secs=TV;
@@ -647,13 +665,13 @@ ErrorCode DeviceManager::TriggerHeaterExperimentClosedLoop(float setpointTempera
     data->SetpointTemperature=this->setpointTemperature;
     return ErrorCode::OK;
 }
-ErrorCode DeviceManager::TriggerHeaterExperimentOpenLoop(float setpointHeater, float setpointFan1, HeaterExperimentData *data){
+ErrorCode DeviceManager::TriggerHeaterExperimentOpenLoop(float setpointHeater, float setpointFan, HeaterExperimentData *data){
     //Trigger
     this->lastExperimentTrigger=hal->GetMillis();
     this->experimentMode=ExperimentMode::openloop_heater;
     //New Setpoints
     this->setpointHeater=setpointHeater;
-    this->setpointFan1=setpointFan1;
+    this->setpointFan2=setpointFan;
     //Fill return data
     data->Fan=hal->GetFan1State();
     data->Heater=hal->GetHeaterState();
@@ -672,6 +690,40 @@ ErrorCode DeviceManager::TriggerHeaterExperimentFunctionblock(HeaterExperimentDa
     data->SetpointTemperature=0;
     return ErrorCode::OK;
 }
+
+ErrorCode DeviceManager::TriggerPtnExperimentClosedLoop(float setpoint, float KP, float TN, float TV, float **data){
+    //Trigger
+    this->lastExperimentTrigger=hal->GetMillis();
+    this->experimentMode=ExperimentMode::closedloop_ptn;
+    //New Setpoints
+    this->setpointPtn=setpoint;
+    this->ptnKP=KP;
+    this->ptnTN_secs=TN;
+    this->ptnTV_secs=TV;
+    //Fill return data
+    hal->GetAnalogInputs(data);
+    return ErrorCode::OK;
+}
+ErrorCode DeviceManager::TriggerPtnExperimentOpenLoop(float setpoint, float **data){
+    //Trigger
+    this->lastExperimentTrigger=hal->GetMillis();
+    this->experimentMode=ExperimentMode::openloop_ptn;
+    //New Setpoints
+    this->setpointVoltageOut=setpoint;
+    
+    //Fill return data
+    hal->GetAnalogInputs(data);
+    return ErrorCode::OK;
+}
+ErrorCode DeviceManager::TriggerPtnExperimentFunctionblock(float **data){
+    //Trigger
+    this->lastExperimentTrigger=hal->GetMillis();
+    this->experimentMode=ExperimentMode::functionblock;
+    //Fill return data
+    hal->GetAnalogInputs(data);
+    return ErrorCode::OK;
+}
+
 ErrorCode DeviceManager::TriggerAirspeedExperimentClosedLoop(float setpointAirspeed, float setpointServo1, float KP, float TN, float TV, AirspeedExperimentData *data){
     //Trigger
     this->lastExperimentTrigger=hal->GetMillis();
@@ -732,7 +784,7 @@ ErrorCode DeviceManager::TriggerBorisUDP(uint8_t *requestU8, size_t requestLen, 
         ESP_LOGE(TAG, "Response Buffer (%d) is too small for the response(%d)", responseLen, sizeof(MessageInputDataLabAtHome));
         return ErrorCode::GENERIC_ERROR;
     }
-    responseLen=sizeof(MessageInputDataLabAtHome);
+   
 
     uint32_t* requestU32 = (uint32_t*) requestU8;
     uint32_t messageType = requestU32[0];
@@ -750,7 +802,7 @@ ErrorCode DeviceManager::TriggerBorisUDP(uint8_t *requestU8, size_t requestLen, 
             }
             MessageOutputDataLabAtHome* output = (MessageOutputDataLabAtHome*)requestU8;
             
-            LOGI(TAG, "Got a MESSAGE_TYPE_OUTPUTDATA_LABATHOME with DutyFan1 %f RelayK3 %d LED0 %d", output->DutyFan1Percent, output->RelayK3, output->LED0);
+            LOGD(TAG, "Got a MESSAGE_TYPE_OUTPUTDATA_LABATHOME with DutyFan1 %f RelayK3 %d LED0 %d", output->DutyFan1Percent, output->RelayK3, output->LED0);
            
 
             if(!std::isnan(output->AnalogOutputVolts)){
@@ -808,7 +860,8 @@ ErrorCode DeviceManager::TriggerBorisUDP(uint8_t *requestU8, size_t requestLen, 
             hal->GetSound(&input->SoundValue);
             input->UsbSupplyVoltageVolts=hal->GetUSBCVoltage();
             hal->GetWifiRssiDb(&input->WifiSignalStrengthDB);
-            
+            responseLen=sizeof(MessageInputDataLabAtHome);
+         
         }
         break;
         case MESSAGE_TYPE_OUTPUTDATA_PTNCHEN:{
@@ -818,7 +871,7 @@ ErrorCode DeviceManager::TriggerBorisUDP(uint8_t *requestU8, size_t requestLen, 
             }
             MessageOutputDataPtnchen* output = (MessageOutputDataPtnchen*)requestU8;
             
-            LOGI(TAG, "Got a MESSAGE_TYPE_OUTPUTDATA_Ptnchen with Output %f LED0 %d", output->AnalogOutputVolts, output->LED0);
+            LOGD(TAG, "Got a MESSAGE_TYPE_OUTPUTDATA_Ptnchen with Output %f LED0 %d", output->AnalogOutputVolts, output->LED0);
             if(!std::isnan(output->AnalogOutputVolts)){
                 hal->SetAnalogOutput(output->AnalogOutputVolts);
             }
@@ -826,21 +879,20 @@ ErrorCode DeviceManager::TriggerBorisUDP(uint8_t *requestU8, size_t requestLen, 
             hal->ColorizeLed(LED::LED_1, output->LED1);
             hal->ColorizeLed(LED::LED_2, output->LED2);
             hal->ColorizeLed(LED::LED_3, output->LED3);
+            
             MessageInputDataPtnchen* input = (MessageInputDataPtnchen*)responseU8;
             float* analogInputs{nullptr};
-            bool button = hal->GetButtonRedIsPressed();
             hal->GetAnalogInputs(&analogInputs);
+            bool button = hal->GetButtonRedIsPressed();
             input->Button=button;
             input->INPUT=analogInputs[0];
             input->MessageType=MESSAGE_TYPE_INPUTDATA_PTNCHEN;
             input->PTN1=analogInputs[1];
             input->PTN2=analogInputs[2];
             input->PTN3=analogInputs[3];
+            responseLen=sizeof(MessageInputDataPtnchen);
         }
         break;
     }
-    
-
-
     return ErrorCode::OK;
 }

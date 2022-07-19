@@ -109,6 +109,8 @@ enum class ExperimentMode
     functionblock,
     openloop_heater,
     closedloop_heater,
+    openloop_ptn,
+    closedloop_ptn,
     closedloop_airspeed,
     boris_udp,
 };
@@ -119,6 +121,7 @@ class DeviceManager:public FBContext
         HAL *hal;
         PIDController<float> *heaterPIDController;
         PIDController<float> *airspeedPIDController;
+        PIDController<float> *ptnPIDController;
         Executable *currentExecutable;
         Executable *nextExecutable;
         Executable* createInitialExecutable();
@@ -126,14 +129,20 @@ class DeviceManager:public FBContext
         ExperimentMode experimentMode;
         float heaterKP=0; float heaterTN_secs=0; float heaterTV_secs=0;
         float airspeedKP=0; float airspeedTN_secs=0; float airspeedTV_secs=0;
+        float ptnKP=0; float ptnTN_secs=0; float ptnTV_secs=0;
         float actualTemperature=0;
         float setpointTemperature=0;
         float actualAirspeed=0;
         float setpointAirspeed=0;
+        float actualPtn=0;
+        float setpointPtn=0;
+
+
         float setpointFan1=0;
         float setpointFan2=0;
         float setpointServo1=0;
         float setpointHeater=0;
+        float setpointVoltageOut=0;
 
         static void plcTask(void *pvParameters);
 
@@ -178,6 +187,11 @@ class DeviceManager:public FBContext
         ErrorCode TriggerHeaterExperimentClosedLoop(float setpointTemperature, float setpointFan, float KP, float TN, float TV, HeaterExperimentData *data);
         ErrorCode TriggerHeaterExperimentOpenLoop(float setpointHeater, float setpointFan, HeaterExperimentData *data);
         ErrorCode TriggerHeaterExperimentFunctionblock(HeaterExperimentData *data);
+
+        ErrorCode TriggerPtnExperimentClosedLoop(float setpoint, float KP, float TN, float TV, float **data);
+        ErrorCode TriggerPtnExperimentOpenLoop(float setpoint, float **data);
+        ErrorCode TriggerPtnExperimentFunctionblock(float **data);       
+        
         ErrorCode TriggerBorisUDP(uint8_t *data, size_t dataLen, uint8_t* responseBufferU8, size_t& responseLen);
         ErrorCode GetDebugInfoSize(size_t *sizeInBytes);
         ErrorCode GetDebugInfo(uint8_t *buffer, size_t maxSizeInByte);      

@@ -26,8 +26,18 @@ static const char *TAG = "main";
 //HAL *hal = new HAL_labathome(MODE_IO33::SERVO2, MODE_MULTI1_PIN::I2S, MODE_MULTI_2_3_PINS::I2S);
 //#include "HAL_wroverkit.hh"
 //static HAL *hal = new HAL_wroverkit();
-#include "HAL_labathomeV10.hh"
-static HAL * hal = new HAL_labathome(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR, MODE_HEATER_OR_LED_POWER::HEATER, MODE_FAN1_DRIVE_OR_SERVO1::SERVO1);
+
+#if TARGET==LABATHOME_V10
+    #include "HAL_labathomeV10.hh"
+    static HAL * hal = new HAL_Impl(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR, MODE_HEATER_OR_LED_POWER::HEATER, MODE_FAN1_DRIVE_OR_SERVO1::SERVO1);
+#elif TARGET==PTNCHEN_V2
+    #include "HAL_ptnchenV2.hh"
+    static HAL * hal = new HAL_Impl();
+#else
+    #error "No HAL_Implementation available for this target defined. See main.cc"
+#endif
+
+
 
 
 #include "functionblocks.hh"
@@ -122,10 +132,10 @@ constexpr httpd_uri_t putfftexperiment = {
 };
 
 
-constexpr httpd_uri_t getadcexperiment = {
+constexpr httpd_uri_t putptnexperiment = {
     .uri       = "/ptnexperiment",
-    .method    = HTTP_GET,
-    .handler   = handle_get_ptnexperiment,
+    .method    = HTTP_PUT,
+    .handler   = handle_put_ptnexperiment,
     .user_ctx = &devicemanager,
 };
 
@@ -156,7 +166,7 @@ static httpd_handle_t InitAndRunWebserver(void)
 
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &postfbddefaultbin));
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &postfbddefaultjson));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &getadcexperiment));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &putptnexperiment));
 
     const char *hostnameptr;
     ESP_ERROR_CHECK(esp_netif_get_hostname(WIFIMGR::wifi_netif_ap, &hostnameptr));
@@ -208,48 +218,17 @@ void app_main(void)
     ESP_ERROR_CHECK(err);
     ESP_ERROR_CHECK(WIFIMGR::InitAndRun(hal->GetButtonGreenIsPressed() && hal->GetButtonRedIsPressed(), http_scatchpad, sizeof(http_scatchpad)));
     otamanager::M otamanager;
-    otamanager.InitAndRun();
+    otamanager.InitAndRun(labathome::config::OTA_URL);
     winfactboris::InitAndRun(devicemanager);
 
 
     httpd_handle_t httpd_handle = InitAndRunWebserver();
     WIFIMGR::RegisterHTTPDHandlers(httpd_handle);
 
-    int secs = 0;
-    
     devicemanager->InitAndRun();
-
     while (true)
     {
-        uint32_t heap = esp_get_free_heap_size();
-        bool red=hal->GetButtonRedIsPressed();
-        bool yel=hal->GetButtonEncoderIsPressed();
-        bool grn = hal->GetButtonGreenIsPressed();
-        bool mov = hal->IsMovementDetected();
-        float htrTemp{0.f};
-        int enc{0};
-        hal->GetEncoderValue(&enc);
-        int32_t sound{0};
-        hal->GetSound(&sound);
-        float spply = hal->GetUSBCVoltage();
-
-        float bright{0.0};
-        hal->GetAmbientBrightness(&bright);
-
-        float co2{0};
-        hal->GetHeaterTemperature(&htrTemp);
-        float airTemp{0.f};
-        hal->GetAirTemperature(&airTemp);
-        float airPres{0.f};
-        hal->GetAirPressure(&airPres);
-        float airHumid{0.f};
-        hal->GetAirRelHumidity(&airHumid);
-        hal->GetCO2PPM(&co2); 
-        float* analogVolt{nullptr};
-        hal->GetAnalogInputs(&analogVolt);  
-        ESP_LOGI(TAG, "Run %4d Heap %6d  RED %d YEL %d GRN %d MOV %d ENC %d SOUND %d SUPPLY %4.1f BRGHT %4.1f HEAT %4.1f AIRT %4.1f AIRPRS %5.0f AIRHUM %3.0f CO2 %5.0f, ANALOGIN %4.1f",
-                           secs, heap,   red,   yel,   grn,   mov,   enc,   sound,    spply,      bright,     htrTemp,   airTemp,   airPres,     airHumid,     co2,       analogVolt[0]);
-        secs += 5;
+        hal->OutputOneLineStatus();
         vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }
