@@ -7,7 +7,7 @@
 
 #define LABATHOME_V10 10
 #define PTNCHEN_V2 1002
-#define TARGET LABATHOME_V10
+#define TARGET PTNCHEN_V2
 
 namespace labathome::config::paths{
     constexpr size_t FILE_PATH_MAX =ESP_VFS_PATH_MAX + CONFIG_SPIFFS_OBJ_NAME_LEN;

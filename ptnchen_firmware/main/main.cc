@@ -22,13 +22,9 @@
 static const char *TAG = "main";
 #include "HAL.hh"
 
-//#include "HAL_labathomeV5.hh"
-//HAL *hal = new HAL_labathome(MODE_IO33::SERVO2, MODE_MULTI1_PIN::I2S, MODE_MULTI_2_3_PINS::I2S);
-//#include "HAL_wroverkit.hh"
-//static HAL *hal = new HAL_wroverkit();
 
-#include "HAL_labathomeV10.hh"
-static HAL * hal = new HAL_Impl(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR, MODE_HEATER_OR_LED_POWER::HEATER, MODE_FAN1_DRIVE_OR_SERVO1::SERVO1);
+#include "HAL_ptnchenV2.hh"
+static HAL * hal = new HAL_Impl();
 
 
 #include "functionblocks.hh"
