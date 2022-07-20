@@ -1,0 +1,4 @@
+*-backups/
+gerber/
+BOM-*.csv
+POS-*.csv
