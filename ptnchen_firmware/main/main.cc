@@ -165,8 +165,10 @@ static httpd_handle_t InitAndRunWebserver(void)
 void app_main(void)
 {
     esp_log_level_set(TAG, ESP_LOG_INFO);
-    ESP_ERROR_CHECK(SpiffsManager::Init());
+    
     hal->InitAndRun();
+    
+    ESP_ERROR_CHECK(SpiffsManager::Init());
     ESP_LOGI(TAG, "RED %d YEL %d GRN %d", hal->GetButtonRedIsPressed(), hal->GetButtonEncoderIsPressed(), hal->GetButtonGreenIsPressed());
     esp_err_t err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
