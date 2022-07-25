@@ -42,6 +42,7 @@ export class $
     }
 
     public static ColorNumColor2ColorDomString(num:number):string {
+        num=num>>8; //as format is RGBA
         let str = num.toString(16);
         while (str.length < 6) str = "0" + num;
         return "#"+str;
