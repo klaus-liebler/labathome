@@ -17,6 +17,7 @@
 #include <esp_netif.h>
 #include <wifimanager.hh>
 #include <otamanager.hh>
+#include <syslogudp.hh>
 #include <esp_http_server.h>
 #include "http_handlers.hh"
 static const char *TAG = "main";
