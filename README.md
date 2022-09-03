@@ -6,7 +6,7 @@ während des Lockdowns Zugang zu Laborexperimenten in den Bereichen Steuerungste
 mehr in die Hochschullabors, also musste das Labor zu den Studierenden. Nur leider wäre ein Container voll Material pro Student etwas zu aufwändig. Etwas kleineres und vor allem
 kostengünstigeres musste her. Und damit waren die grundsätzlichen Anforderungen umrissen und der Initiator machte mich ans Design...
 
-![Alt text](pcbV10/pcbV10.png?raw=true "Rendering")
+![Alt text](labathome_pcb/pcbV10.png?raw=true "Rendering")
 
 ## Was gehört zu lab@home und was kann man damit machen?
 Lab@home besteht aus
