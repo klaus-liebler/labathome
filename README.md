@@ -1,5 +1,9 @@
 # lab@home
 
+<a target="_blank" href="https://icons8.com/icon/cUjTrEUoGJ2Z/xing">Xing</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+<a target="_blank" href="https://icons8.com/icon/3tC9EQumUAuq/github">GitHub</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+<a target="_blank" href="https://icons8.com/icon/IuI5Yd3J3qcC/linkedin">LinkedIn</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+
 ## Was steckt dahinter?
 Das Projekt "lab@home" entstand zu Beginn der Corona-Pandemie. Als Lehrer in einer Hochschule der angewandten Wissenschaften war es dem Initiator ein Anliegen, seinen Studierenden auch 
 während des Lockdowns Zugang zu Laborexperimenten in den Bereichen Steuerungstechnik, Regelungstechnik und Informationstechnik zu geben. Leider konnten die Studierenden nicht
