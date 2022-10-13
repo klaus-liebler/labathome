@@ -11,13 +11,13 @@
 #include <driver/adc.h>
 #include <esp_adc_cal.h>
 #include <esp_wifi.h>
+#include <driver/gpio.h>
 #include <esp_event.h>
 #include <sys/param.h>
 #include <nvs_flash.h>
 #include <esp_netif.h>
 #include <wifimanager.hh>
 #include <otamanager.hh>
-#include <syslogudp.hh>
 #include <esp_http_server.h>
 #include "http_handlers.hh"
 static const char *TAG = "main";
@@ -25,8 +25,6 @@ static const char *TAG = "main";
 
 //#include "HAL_labathomeV5.hh"
 //HAL *hal = new HAL_labathome(MODE_IO33::SERVO2, MODE_MULTI1_PIN::I2S, MODE_MULTI_2_3_PINS::I2S);
-//#include "HAL_wroverkit.hh"
-//static HAL *hal = new HAL_wroverkit();
 
 #include "HAL_labathomeV10.hh"
 static HAL * hal = new HAL_Impl(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR);
@@ -123,7 +121,6 @@ constexpr httpd_uri_t putfftexperiment = {
     .user_ctx = &devicemanager,
 };
 
-
 constexpr httpd_uri_t putptnexperiment = {
     .uri       = "/ptnexperiment",
     .method    = HTTP_PUT,
@@ -131,7 +128,7 @@ constexpr httpd_uri_t putptnexperiment = {
     .user_ctx = &devicemanager,
 };
 
-static httpd_handle_t InitAndRunWebserver(void)
+static httpd_handle_t SetupAndRunWebserver(void)
 {
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
@@ -180,13 +177,13 @@ void app_main(void)
         err = nvs_flash_init();
     }
     ESP_ERROR_CHECK(err);
-    ESP_ERROR_CHECK(WIFIMGR::InitAndRun(hal->GetButtonGreenIsPressed() && hal->GetButtonRedIsPressed(), http_scatchpad, sizeof(http_scatchpad)));
+    ESP_ERROR_CHECK(WIFIMGR::InitAndRun(hal->GetButtonGreenIsPressed() && hal->GetButtonRedIsPressed(), http_scatchpad, sizeof(http_scatchpad), WIFIMGR::NETWORK_MODE::WIFI_ONLY, GPIO_NUM_1, GPIO_NUM_1, GPIO_NUM_1));
     otamanager::M otamanager;
     otamanager.InitAndRun(CONFIG_SMOPLA_OTA_URL);
     winfactboris::InitAndRun(devicemanager);
 
 
-    httpd_handle_t httpd_handle = InitAndRunWebserver();
+    httpd_handle_t httpd_handle = SetupAndRunWebserver();
     WIFIMGR::RegisterHTTPDHandlers(httpd_handle);
 
     devicemanager->InitAndRun();
