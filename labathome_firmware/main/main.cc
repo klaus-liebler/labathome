@@ -7,9 +7,8 @@
 #include <freertos/queue.h>
 #include <driver/gpio.h>
 #include <esp_system.h>
-#include <esp_spi_flash.h>
-#include <driver/adc.h>
-#include <esp_adc_cal.h>
+#include <spi_flash_mmap.h>
+
 #include <esp_wifi.h>
 #include <driver/gpio.h>
 #include <esp_event.h>

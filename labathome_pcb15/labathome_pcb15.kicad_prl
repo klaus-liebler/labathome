@@ -1,8 +1,8 @@
 {
   "board": {
-    "active_layer": 37,
+    "active_layer": 44,
     "active_layer_preset": "",
-    "auto_track_width": false,
+    "auto_track_width": true,
     "hidden_netclasses": [],
     "hidden_nets": [],
     "high_contrast_mode": 0,
@@ -12,9 +12,8 @@
       "pads": 1.0,
       "tracks": 1.0,
       "vias": 1.0,
-      "zones": 1.0
+      "zones": 0.6
     },
-    "ratsnest_display_mode": 0,
     "selection_filter": {
       "dimensions": true,
       "footprints": true,
@@ -35,14 +34,12 @@
       3,
       4,
       5,
-      6,
       8,
       9,
       10,
       11,
       12,
       13,
-      14,
       15,
       16,
       17,
@@ -63,13 +60,15 @@
       33,
       34,
       35,
-      36
+      36,
+      39,
+      40
     ],
-    "visible_layers": "00010ff_80000001",
+    "visible_layers": "ffcffff_ffffffff",
     "zone_display_mode": 0
   },
   "meta": {
-    "filename": "pcbV10.kicad_prl",
+    "filename": "labathome_pcb15.kicad_prl",
     "version": 3
   },
   "project": {
