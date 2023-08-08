@@ -10456,7 +10456,7 @@
     (property "Value" "ESP32-S3-WROOM-1" (at 97.155 24.13 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Footprint" "Espressif:ESP32-S3-WROOM-1" (at 97.79 99.06 0)
+    (property "Footprint" "liebler_MODULES:ESP32-WROOM-32_HANDSOLDER" (at 97.79 99.06 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "https://www.espressif.com/sites/default/files/documentation/esp32-s3-wroom-1_wroom-1u_datasheet_en.pdf" (at 97.79 101.6 0)
