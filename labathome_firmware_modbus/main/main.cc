@@ -54,7 +54,45 @@ static std::vector<bool> discreteInputsData(DISCRETE_INPUTS_CNT);
 static std::vector<uint16_t> inputRegisterData(INPUT_REGISTERS_CNT);
 static std::vector<uint16_t> holdingRegisterData(HOLDING_REGISTERS_CNT);
 
+/*
+Coils:
+ 0: Relay K3
 
+Discrete Input:
+ 0: Green Button
+ 1: Red Button
+ 2: Yellow Button / Encoder Button
+ 3: Movement Sensor
+
+Input Registers:
+ 0: Not connected
+ 1: Servo 1, Position in Degrees 0...180
+ 2: Servo 2, Position in Degrees 0...180
+ 3: Fan 1, Power in Percent 0...100
+ 4: Fan 2, Power in Percent 0...100
+ 5: Heater, Power in Percent 0...100
+ 6: White Power LED, Power in Percent 0...100
+ 7: RGB LED 1, Color in RGB565
+ 8: LED 2
+ 9: LED 3
+10: LED 4
+11: Relay State (Alternative to Coil 0), 0 means off, all other values on
+12: Play Sound, 0 means silence; try other values up to 9
+
+Holding Registers:
+ 0: CO2 [PPM]
+ 1: Air Pressure [mbar /kPa???]
+ 2: Ambient Brightness [?]
+ 3: Analog Input [mV]
+ 4: Button Green [0 or 1]
+ 5: Button Red [0 or 1]
+ 6: Button Yellow/Encoder [0 or 1]
+ 7: Fan 1 RpM
+ 8: Heater Temperature [°C * 100]
+ 9: Encoder Detents
+10: Movement Sensor [0 or 1]
+                
+*/
 
 
 
@@ -198,15 +236,19 @@ constexpr uart_port_t UART_NUM{UART_NUM_2};
 constexpr gpio_num_t UART_TX{GPIO_NUM_21};
 constexpr gpio_num_t UART_RX{GPIO_NUM_23};
 
+#if CONFIG_ESP_CONSOLE_UART_CUSTOM != 1 | CONFIG_ESP_CONSOLE_UART_TX_GPIO!=21
+#error "CONFIG_ESP_CONSOLE_UART_CUSTOM != y OR CONFIG_ESP_CONSOLE_UART_TX_GPIO!=21"
+#endif
+
 
 void mainTask(void* args){   
     ESP_LOGI(TAG, "Main Manager started");
 
     uart_config_t uart_config = {};
 
-    uart_config.baud_rate = 19200;
+    uart_config.baud_rate = 9600;
     uart_config.data_bits = UART_DATA_8_BITS;
-    uart_config.parity    = UART_PARITY_DISABLE;
+    uart_config.parity    = UART_PARITY_EVEN;
     uart_config.stop_bits = UART_STOP_BITS_1;
     uart_config.flow_ctrl = UART_HW_FLOWCTRL_DISABLE;
     uart_config.source_clk = UART_SCLK_DEFAULT;
@@ -216,7 +258,7 @@ void mainTask(void* args){
 
     ESP_ERROR_CHECK(uart_driver_install(UART_NUM, UART_BUF_SIZE, 0, 0, nullptr, intr_alloc_flags));
     ESP_ERROR_CHECK(uart_param_config(UART_NUM, &uart_config));
-    ESP_ERROR_CHECK(uart_set_pin(UART_NUM, UART_TX, UART_RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+    ESP_ERROR_CHECK(uart_set_pin(UART_NUM, PIN_TXD0 , PIN_RXD0, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
 
 
     TickType_t xLastWakeTime;
@@ -244,6 +286,7 @@ void mainTask(void* args){
             if(rx_size>0){
                 modbusSlave->ReceiveBytesPhase2(rx_size, tx_buf, tx_size);
                 if(tx_size>0){
+                    vTaskDelay(pdMS_TO_TICKS(10));
                     uart_write_bytes(uart_num, tx_buf, tx_size);
                     uart_wait_tx_done(uart_num, 1000);
                 }
