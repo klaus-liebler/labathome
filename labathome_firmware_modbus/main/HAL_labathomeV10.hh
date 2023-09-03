@@ -11,10 +11,13 @@
 #include <driver/mcpwm.h>
 #include <driver/ledc.h>
 
-#include "esp_adc/adc_oneshot.h"
-#include "esp_adc/adc_cali.h"
-#include "esp_adc/adc_cali_scheme.h"
+#include <esp_adc/adc_oneshot.h>
+#include <esp_adc/adc_cali.h>
+#include <esp_adc/adc_cali_scheme.h>
 #include <driver/i2c.h>
+#include <esp_check.h>
+#include <onewire_bus.h>
+#include <ds18b20.hh>
 
 #include <errorcodes.hh>
 #include <rgbled.hh>
@@ -24,10 +27,11 @@
 #include <ccs811.hh>
 #include <hdc1080.hh>
 #include <aht_sensor.hh>
-#include <onewire_bus.hh>
 #include <rotenc.hh>
 #include <AudioPlayer.hh>
 
+
+#define DS18B20_CMD_CONVERT_TEMP      0x44
 
 FLASH_FILE(alarm_co2_mp3)
 FLASH_FILE(alarm_temperature_mp3)
@@ -40,6 +44,10 @@ FLASH_FILE(positive_mp3)
 FLASH_FILE(siren_mp3)
 const uint8_t *SOUNDS[]  = {nullptr, alarm_co2_mp3_start, alarm_temperature_mp3_start, nok_mp3_start, ok_mp3_start, ready_mp3_start, fanfare_mp3_start, negative_mp3_start, positive_mp3_start, siren_mp3_start};
 const size_t SONGS_LEN[] = {0,       alarm_co2_mp3_size,  alarm_temperature_mp3_size,  nok_mp3_size,  ok_mp3_size,  ready_mp3_size,  fanfare_mp3_size,  negative_mp3_size,  positive_mp3_size,  siren_mp3_size};
+
+
+
+
 
 typedef gpio_num_t Pintype;
 constexpr Pintype PIN_SPI_IO2 = (Pintype)0;
@@ -72,12 +80,9 @@ constexpr Pintype PIN_MOVEMENT_OR_FAN1SENSE = (Pintype)35;
 constexpr Pintype PIN_SW = (Pintype)36;
 constexpr Pintype PIN_LDR_OR_ROTA = (Pintype)39;
 
-
 constexpr adc_channel_t CHANNEL_ANALOGIN_OR_ROTB{ADC_CHANNEL_6};
 constexpr adc_channel_t CHANNEL_SWITCHES{ADC_CHANNEL_0};
 constexpr adc_channel_t CHANNEL_LDR_OR_ROTA{ADC_CHANNEL_3};
-
-
 constexpr Pintype PIN_485_DI = PIN_MULTI1;
 constexpr Pintype PIN_EXT1 = PIN_MULTI1;
 
@@ -100,7 +105,6 @@ struct Note
     uint16_t freq;
     uint16_t durationMs;
 };
-
 
 enum class MODE_HEATER_OR_LED_POWER:uint8_t{
     HEATER=1,
@@ -159,6 +163,25 @@ constexpr int FREQUENCY_LED{300};
 constexpr i2s_port_t I2S_PORT_LOUDSPEAKER{I2S_NUM_0};//must be I2S_NUM_0, as only this hat access to internal DAC
 
 
+constexpr size_t ONEWIRE_MAX_DS18B20{2};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class HAL_Impl : public HAL
 {
 private:
@@ -166,7 +189,6 @@ private:
     MODE_MOVEMENT_OR_FAN1SENSE mode_MOVEMENT_OR_FAN1SENSE;
     MODE_HEATER_OR_LED_POWER mode_HEATER_OR_LED_POWER{MODE_HEATER_OR_LED_POWER::HEATER};//Heater mit 1Hz, LED mit 300Hz
     MODE_FAN1_OR_SERVO1 mode_FAN1_OR_SERVO1{MODE_FAN1_OR_SERVO1::SERVO1};
-    //various
 
     adc_oneshot_unit_handle_t adc1_handle;
     adc_cali_handle_t adc1_cali_handle{nullptr};
@@ -175,7 +197,6 @@ private:
     RGBLED::M<LED_NUMBER, RGBLED::DeviceType::WS2812> *strip{nullptr};
     cRotaryEncoder *rotenc{nullptr};
     AudioPlayer::Player *mp3player;
-
     hdc1080::M *hdc1080dev{nullptr};
     CCS811::M *ccs811dev{nullptr};
     AHT::M *aht21dev{nullptr};
@@ -199,7 +220,6 @@ private:
     uint32_t sound{0};
     float fan1RotationsRpM{std::numeric_limits<float>::quiet_NaN()};
 
-    
     bool heaterEmergencyShutdown{false};
 
     float AnalogInputs[ANALOG_INPUTS_LEN]={0};
@@ -275,16 +295,50 @@ private:
 
         
         //OneWire
-        onewire::M* ds18b20 = new onewire::M();
-        ds18b20->Init(PIN_ONEWIRE);
-        ds18b20->ResetSearch();
-        if(ds18b20->SearchRom()!=ESP_OK){
-            ESP_LOGE(TAG, "OneWire: An error occurred searching ROM");
-        }else{
-            ds18b20->TriggerTemperatureConversion(nullptr);
-            nextOneWireReadout = GetMillis64() + oneWireReadoutIntervalMs;
-            ESP_LOGI(TAG, "OneWire: DS18B20 successfully initialized.");
+        onewire_bus_handle_t bus{nullptr};
+        onewire_bus_config_t bus_config = {};
+        bus_config.bus_gpio_num = PIN_ONEWIRE;
+        onewire_bus_rmt_config_t rmt_config = {};
+        rmt_config.max_rx_bytes = 10; // 1byte ROM command + 8byte ROM number + 1byte device command
+        ESP_ERROR_CHECK(onewire_new_bus_rmt(&bus_config, &rmt_config, &bus));
+        ESP_LOGI(TAG, "1-Wire bus installed on GPIO%d", PIN_ONEWIRE);
+        assert(bus);
+
+        int ds18b20_device_num = 0;
+        DS18B20* ds18b20s[ONEWIRE_MAX_DS18B20];
+        onewire_device_iter_handle_t iter = nullptr;
+        onewire_device_t next_onewire_device;
+        esp_err_t search_result = ESP_OK;
+        assert(&iter);
+        // create 1-wire device iterator, which is used for device search
+        ESP_ERROR_CHECK(onewire_new_device_iter(bus, &iter));
+        ESP_LOGI(TAG, "Device iterator created, start searching...");
+        while(true){
+            search_result = onewire_device_iter_get_next(iter, &next_onewire_device);
+            if (search_result != ESP_OK) {
+                break;
+            } 
+            // found a new device, let's check if we can upgrade it to a DS18B20
+            DS18B20* device= DS18B20::BuildFromOnewireDevice(&next_onewire_device);
+            if (!device) {
+                ESP_LOGI(TAG, "Found an unknown device, address: %016llX", next_onewire_device.address);
+                continue;
+            }
+            ESP_LOGI(TAG, "Found a DS18B20[%d], address: %016llX", ds18b20_device_num, next_onewire_device.address);
+            ds18b20s[ds18b20_device_num++]=device;
+            if (ds18b20_device_num >= ONEWIRE_MAX_DS18B20) {
+                ESP_LOGI(TAG, "Max DS18B20 number reached, stop searching...");
+                break;
+            }
         }
+        ESP_ERROR_CHECK(onewire_del_device_iter(iter));
+        ESP_LOGI(TAG, "Searching done, %d DS18B20 device(s) found", ds18b20_device_num);
+
+        for (int i = 0; i < ds18b20_device_num; i++) {
+            ds18b20s[i]->TriggerTemperatureConversion();
+            nextOneWireReadout = GetMillis64() + oneWireReadoutIntervalMs;
+        }
+    
         
 
         //BME280
@@ -338,8 +392,8 @@ private:
 
             if (GetMillis64() > nextOneWireReadout)
             {
-                ds18b20->GetTemperature(nullptr, &(this->heaterTemperatureDegCel));
-                ds18b20->TriggerTemperatureConversion(nullptr);
+                ds18b20s[0]->GetTemperature(&(this->heaterTemperatureDegCel));
+                ds18b20s[0]->TriggerTemperatureConversion();
                 nextOneWireReadout = GetMillis64() + oneWireReadoutIntervalMs;
             }
             if (GetMillis64() > nextBME280Readout)
@@ -448,7 +502,6 @@ public:
     
     ErrorCode SetSound(int32_t soundNumber)
     {
-
         if (soundNumber<0  || soundNumber >= sizeof(SOUNDS) / sizeof(uint8_t*)){
             soundNumber = 0;
         }

@@ -176,7 +176,7 @@ void app_main(void)
         err = nvs_flash_init();
     }
     ESP_ERROR_CHECK(err);
-    ESP_ERROR_CHECK(WIFIMGR::InitAndRun(hal->GetButtonGreenIsPressed() && hal->GetButtonRedIsPressed(), http_scatchpad, sizeof(http_scatchpad), WIFIMGR::NETWORK_MODE::WIFI_ONLY, GPIO_NUM_1, GPIO_NUM_1, GPIO_NUM_1));
+    ESP_ERROR_CHECK(WIFIMGR::InitAndRun(hal->GetButtonGreenIsPressed() && hal->GetButtonRedIsPressed(), http_scatchpad, sizeof(http_scatchpad)));
     otamanager::M otamanager;
     otamanager.InitAndRun(CONFIG_SMOPLA_OTA_URL);
     winfactboris::InitAndRun(devicemanager);

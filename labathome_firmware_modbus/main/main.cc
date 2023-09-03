@@ -54,6 +54,11 @@ static std::vector<bool> discreteInputsData(DISCRETE_INPUTS_CNT);
 static std::vector<uint16_t> inputRegisterData(INPUT_REGISTERS_CNT);
 static std::vector<uint16_t> holdingRegisterData(HOLDING_REGISTERS_CNT);
 
+/**
+MODPOLL Command Lines
+ * 
+*/
+
 /*
 Coils:
  0: Relay K3
@@ -64,7 +69,7 @@ Discrete Input:
  2: Yellow Button / Encoder Button
  3: Movement Sensor
 
-Input Registers:
+Holding Registers:
  0: Not connected
  1: Servo 1, Position in Degrees 0...180
  2: Servo 2, Position in Degrees 0...180
@@ -79,7 +84,7 @@ Input Registers:
 11: Relay State (Alternative to Coil 0), 0 means off, all other values on
 12: Play Sound, 0 means silence; try other values up to 9
 
-Holding Registers:
+Input Registers:
  0: CO2 [PPM]
  1: Air Pressure [mbar /kPa???]
  2: Ambient Brightness [?]
@@ -98,7 +103,7 @@ Holding Registers:
 
 
 void modbusAfterWriteCallback(uint8_t fc, uint16_t start, size_t len){
-    ESP_LOGI(TAG, "Modbus Registers changed! fc:%d, start:%d len:%d.", fc, start, len);
+    ESP_LOGD(TAG, "Modbus Registers changed! fc:%d, start:%d len:%d.", fc, start, len);
     if(fc==15 || fc==5){
         for(int i=start;i<start+len;i++){
             switch (i)
@@ -155,7 +160,7 @@ void modbusAfterWriteCallback(uint8_t fc, uint16_t start, size_t len){
 }
 
 void modbusBeforeReadCallback(uint8_t fc, uint16_t start, size_t len){
-    ESP_LOGI(TAG, "Modbus Register Read! fc:%d, start:%d len:%d.", fc, start, len);
+    ESP_LOGD(TAG, "Modbus Register Read! fc:%d, start:%d len:%d.", fc, start, len);
     if(fc==2){ // Discrete Inputs --> Green, Red, Yellow, Movement
         for(int reg=start;reg<start+len;reg++){
             switch (reg)
@@ -237,7 +242,7 @@ constexpr gpio_num_t UART_TX{GPIO_NUM_21};
 constexpr gpio_num_t UART_RX{GPIO_NUM_23};
 
 #if CONFIG_ESP_CONSOLE_UART_CUSTOM != 1 | CONFIG_ESP_CONSOLE_UART_TX_GPIO!=21
-#error "CONFIG_ESP_CONSOLE_UART_CUSTOM != y OR CONFIG_ESP_CONSOLE_UART_TX_GPIO!=21"
+#warning "CONFIG_ESP_CONSOLE_UART_CUSTOM != 1 | CONFIG_ESP_CONSOLE_UART_TX_GPIO!=21"
 #endif
 
 
@@ -280,7 +285,7 @@ void mainTask(void* args){
         size_t length{0};
         ESP_ERROR_CHECK(uart_get_buffered_data_len(uart_num, &length));
         if(length>0){
-            ESP_LOGI(TAG, "Got Data Length %d", length);
+            ESP_LOGD(TAG, "Got Data Length %d", length);
             modbusSlave->ReceiveBytesPhase1(&rx_buf, &rx_size_max);
             rx_size = uart_read_bytes(uart_num, rx_buf, rx_size_max, 0);
             if(rx_size>0){
@@ -313,7 +318,7 @@ extern "C" void app_main(void)
     
     while (true)
     {
-        //hal->OutputOneLineStatus();
+        hal->OutputOneLineStatus();
         vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }
