@@ -118,7 +118,7 @@ Selbst kompilieren? Geht!
 
 Um den Prozess zu vereinfachen, stelle ich auf Anfrage fertige Binaries zur Verfügung
 
-# Getting Started - Software in Betrieb nehmen
+# Getting Started Variante 1 - Software in Betrieb nehmen 
 - Ergebnis der Compilierung sind mehrere binäre Dateien, die jetzt in bestimmte Speicherbereiche im Flash-Speicher des Mikrocontrollers geschrieben werden müssen.
 - Laden Sie sich zunächst die Software "Flash Download Tools" von https://www.espressif.com/en/support/download/other-tools herunter.
 - Entpacken und starten Sie die Software (Doppelklick auf flash_download_tool_x.y.z)
@@ -131,3 +131,17 @@ Um den Prozess zu vereinfachen, stelle ich auf Anfrage fertige Binaries zur Verf
 - Verbinden Sie sich mit dem WLAN-Netz labathome-xyz (xyz ist eine einzigartige Seriennummer; bitte notieren!!!) und dem Passwort labathome
 - Offnen Sie im Webbrowser die Seite http://192.168.210.0/wifimanager und verbinden Sie lab@home mit ihrem WLAN-Netzwerk
 - Wenn Ihr WLAN-Router das unterstützt, sollte Ihr lab@home jetzt unter http://labathome-xyz (Seriennummer!) mit seiner Hauptoberfläche erreichbar sein
+
+# Getting Started Variante 2 - Software rein webbasiert in Betrieb nehmen 
+- Schließen Sie auf der Lab@Home-Platine z.B. mit einer Büroklammer zwei Anschlüsse kurz (siehe Bild)
+ ![20230924_175428](https://github.com/klaus-liebler/labathome/assets/7479349/4d02154b-1920-4702-956e-c5fe77882c1a)
+
+- Schließen Sie Lab@Home an den Computer an (erst kurzschließen, dann anschließen!)
+- Gehen Sie auf [https://klaus-liebler.github.io/labathome/](https://klaus-liebler.github.io/labathome/). Das ist ein komplett webbasiertes Flash-Werkzeug, das das Einspielen einer neuen Firmware aus dem Browser heraus ermöglicht
+- Klicken Sie auf "Flash Firmware"
+- Wählen Sie den COM-Port von Lab@Home aus. Bei mir sieht das so aus
+  ![20230924_7479349](https://github.com/klaus-liebler/labathome/assets/7479349/dc9fadc8-a65a-4f9a-81fb-0cd4b16af6b5)
+
+- Wählen Sie aus, welche Firmware Sie installieren möchten (GA-Master: labathome_firmware_modbus)
+- Wenn die Installation erfolgreich beendet ist, können Sie das Browserfenster schließen. Trennen Sie dann Lab@Home vom Computer und entfernen Sie den "Kurzschluss". Jetzt können Sie Lab@Home wieder anschließen und verwenden. Viel Spaß damit!
+  
