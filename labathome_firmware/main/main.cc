@@ -10,6 +10,7 @@
 #include <spi_flash_mmap.h>
 
 #include <esp_wifi.h>
+#include <mdns.h>
 #include <driver/gpio.h>
 #include <esp_event.h>
 #include <sys/param.h>
@@ -22,11 +23,11 @@
 static const char *TAG = "main";
 #include "HAL.hh"
 
-//#include "HAL_labathomeV5.hh"
-//HAL *hal = new HAL_labathome(MODE_IO33::SERVO2, MODE_MULTI1_PIN::I2S, MODE_MULTI_2_3_PINS::I2S);
+#include "HAL_labathomeV5.hh"
+HAL *hal = new HAL_labathome(MODE_IO33::SERVO2, MODE_MULTI1_PIN::I2S, MODE_MULTI_2_3_PINS::I2S);
 
-#include "HAL_labathomeV10.hh"
-static HAL * hal = new HAL_Impl(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR);
+//#include "HAL_labathomeV10.hh"
+//static HAL * hal = new HAL_Impl(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR);
 
 
 #include "functionblocks.hh"
@@ -177,8 +178,20 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(err);
     ESP_ERROR_CHECK(WIFIMGR::InitAndRun(hal->GetButtonGreenIsPressed() && hal->GetButtonRedIsPressed(), http_scatchpad, sizeof(http_scatchpad)));
-    otamanager::M otamanager;
-    otamanager.InitAndRun(CONFIG_SMOPLA_OTA_URL);
+    
+    uint8_t mac[6];
+    char   *hostname;
+    esp_read_mac(mac, ESP_MAC_WIFI_STA);
+    asprintf(&hostname, "%s-%02X%02X%02X", "labathome", mac[3], mac[4], mac[5]);
+    
+    ESP_ERROR_CHECK(mdns_init());
+    ESP_ERROR_CHECK(mdns_hostname_set(hostname));
+    ESP_LOGI(TAG, "mdns hostname set to: [%s]", hostname);
+    const char* MDNS_INSTANCE="SENSACT_MDNS_INSTANCE";
+    ESP_ERROR_CHECK(mdns_instance_name_set(MDNS_INSTANCE));
+    //ESP_ERROR_CHECK(mdns_service_subtype_add_for_host("SENSACT-WebServer", "_http", "_tcp", NULL, "_server") );
+    free(hostname);
+
     winfactboris::InitAndRun(devicemanager);
 
 

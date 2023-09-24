@@ -67,6 +67,6 @@
     "typeinfo": "cpp"
   },
   "idf.flashType": "UART",
-  "idf.portWin": "COM18",
+  "idf.portWin": "COM6",
   "idf.adapterTargetName": "esp32"
 }

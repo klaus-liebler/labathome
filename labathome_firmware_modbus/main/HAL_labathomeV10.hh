@@ -29,9 +29,9 @@
 #include <aht_sensor.hh>
 #include <rotenc.hh>
 #include <AudioPlayer.hh>
+#include <codec_manager_internal_dac.hh>
 
 
-#define DS18B20_CMD_CONVERT_TEMP      0x44
 
 FLASH_FILE(alarm_co2_mp3)
 FLASH_FILE(alarm_temperature_mp3)
@@ -164,21 +164,6 @@ constexpr i2s_port_t I2S_PORT_LOUDSPEAKER{I2S_NUM_0};//must be I2S_NUM_0, as onl
 
 
 constexpr size_t ONEWIRE_MAX_DS18B20{2};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
