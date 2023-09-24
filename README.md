@@ -138,4 +138,9 @@ Um den Prozess zu vereinfachen, stelle ich auf Anfrage fertige Binaries zur Verf
 
 - Schließen Sie Lab@Home an den Computer an (erst kurzschließen, dann anschließen!)
 - Gehen Sie auf [https://klaus-liebler.github.io/labathome/](https://klaus-liebler.github.io/labathome/). Das ist ein komplett webbasiertes Flash-Werkzeug, das das Einspielen einer neuen Firmware aus dem Browser heraus ermöglicht
-- Klicken Sie auf "Flash Firmware" und folgen Sie dem Assistenten.
+- Klicken Sie auf "Flash Firmware"
+- Wählen Sie den COM-Port von Lab@Home aus. Bei mir sieht das so aus
+<img width="335" alt="Screenshot 2023-09-24 193104" src="https://github.com/klaus-liebler/labathome/assets/7479349/dc9fadc8-a65a-4f9a-81fb-0cd4b16af6b5">
+- Wählen Sie aus, welche Firmware Sie installieren möchten (GA-Master: labathome_firmware_modbus)
+- Wenn die Installation erfolgreich beendet ist, können Sie das Browserfenster schließen. Trennen Sie dann Lab@Home vom Computer und entfernen Sie den "Kurzschluss". Jetzt können Sie Lab@Home wieder anschließen und verwenden. Viel Spaß damit!
+  
