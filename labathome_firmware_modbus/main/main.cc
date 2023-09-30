@@ -96,6 +96,7 @@ Input Registers:
  8: Heater Temperature [°C * 100]
  9: Encoder Detents
 10: Movement Sensor [0 or 1]
+11: Distance Sensor [millimeters]
                 
 */
 
@@ -185,26 +186,27 @@ void modbusBeforeReadCallback(uint8_t fc, uint16_t start, size_t len){
     else if(fc==4){//Input Registers
         float tmpVal{0.0f};
         int tmpVal_I32{0};
-        float tmpArr[4]={};
+        uint16_t* tmpPtr_u16;
+        uint16_t tmpVal_U16{0};
 
         for(int reg=start;reg<start+len;reg++){
             switch (reg)
             {
             case 0:
                 hal->GetCO2PPM(&tmpVal);
-                inputRegisterData[reg]=tmpVal*100;
+                inputRegisterData[reg]=tmpVal;
                 break;
             case 1:
                 hal->GetAirPressure(&tmpVal);
-                inputRegisterData[reg]=tmpVal*100;
+                inputRegisterData[reg]=tmpVal;
                 break;
             case 2:
                 hal->GetAmbientBrightness(&tmpVal);
-                inputRegisterData[reg]=tmpVal*100;
+                inputRegisterData[reg]=tmpVal;
                 break;
             case 3:
-                //hal->GetAnalogInputs(tmpArr);
-                inputRegisterData[reg]=tmpArr[0];
+                hal->GetAnalogInputs(&tmpPtr_u16);
+                inputRegisterData[reg]=tmpPtr_u16[0]; //CHANNEL_ANALOGIN_OR_ROTB, Pin 34
                 break;
             case 4:
                 inputRegisterData[reg]=hal->GetButtonGreenIsPressed();
@@ -217,7 +219,7 @@ void modbusBeforeReadCallback(uint8_t fc, uint16_t start, size_t len){
                 break;
             case 7:
                 hal->GetFan1Rpm(&tmpVal);
-                inputRegisterData[reg]=tmpVal*100;
+                inputRegisterData[reg]=tmpVal;
                 break;
             case 8:
                 hal->GetHeaterTemperature(&tmpVal);
@@ -229,6 +231,27 @@ void modbusBeforeReadCallback(uint8_t fc, uint16_t start, size_t len){
                 break;
             case 10:
                 inputRegisterData[reg]=hal->IsMovementDetected();
+                break;
+            case 11:
+                hal->GetDistanceMillimeters(&tmpVal_U16);
+                inputRegisterData[reg]=tmpVal_U16;
+                break;
+            case 12:
+                hal->GetAnalogInputs(&tmpPtr_u16);
+                inputRegisterData[reg]=tmpPtr_u16[1]; //CHANNEL_MOVEMENT_OR_FAN1SENSE I35
+                
+                break;
+            case 13:
+                hal->GetAnalogInputs(&tmpPtr_u16);
+                inputRegisterData[reg]=tmpPtr_u16[2];
+                break;
+            case 14:
+                hal->GetAnalogInputs(&tmpPtr_u16);
+                inputRegisterData[reg]=tmpPtr_u16[3];
+                break;
+            case 100:
+                inputRegisterData[reg]=2;
+                break;
             default:
                 break;
             }
@@ -238,7 +261,7 @@ void modbusBeforeReadCallback(uint8_t fc, uint16_t start, size_t len){
 
 constexpr size_t UART_BUF_SIZE{1024};
 constexpr uart_port_t UART_NUM{UART_NUM_2};
-constexpr gpio_num_t UART_TX{GPIO_NUM_21};
+constexpr gpio_num_t UART_TX{GPIO_NUM_21};//Pin 4 am Diplay Connector ("SPI_MOSI")
 constexpr gpio_num_t UART_RX{GPIO_NUM_23};
 
 #if CONFIG_ESP_CONSOLE_UART_CUSTOM != 1 | CONFIG_ESP_CONSOLE_UART_TX_GPIO!=21

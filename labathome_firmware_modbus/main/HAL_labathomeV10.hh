@@ -14,6 +14,7 @@
 #include <esp_adc/adc_oneshot.h>
 #include <esp_adc/adc_cali.h>
 #include <esp_adc/adc_cali_scheme.h>
+#include <soc/adc_channel.h>
 #include <driver/i2c.h>
 #include <esp_check.h>
 #include <onewire_bus.h>
@@ -27,6 +28,7 @@
 #include <ccs811.hh>
 #include <hdc1080.hh>
 #include <aht_sensor.hh>
+#include <vl53l0x.hh>
 #include <rotenc.hh>
 #include <AudioPlayer.hh>
 #include <codec_manager_internal_dac.hh>
@@ -75,14 +77,17 @@ constexpr Pintype PIN_MULTI1 = (Pintype)27;
 constexpr Pintype PIN_K3_ON = (Pintype)32;
 constexpr Pintype PIN_MULTI3 = (Pintype)33;
 constexpr Pintype PIN_ANALOGIN_OR_ROTB = (Pintype)34;//
+constexpr adc_channel_t CHANNEL_ANALOGIN_OR_ROTB{(adc_channel_t)ADC1_GPIO34_CHANNEL};
 //36=VP, 39=VN
 constexpr Pintype PIN_MOVEMENT_OR_FAN1SENSE = (Pintype)35;
-constexpr Pintype PIN_SW = (Pintype)36;
-constexpr Pintype PIN_LDR_OR_ROTA = (Pintype)39;
+constexpr adc_channel_t CHANNEL_MOVEMENT_OR_FAN1SENSE{(adc_channel_t)ADC1_GPIO35_CHANNEL};
 
-constexpr adc_channel_t CHANNEL_ANALOGIN_OR_ROTB{ADC_CHANNEL_6};
-constexpr adc_channel_t CHANNEL_SWITCHES{ADC_CHANNEL_0};
-constexpr adc_channel_t CHANNEL_LDR_OR_ROTA{ADC_CHANNEL_3};
+constexpr Pintype PIN_SW = (Pintype)36;
+constexpr adc_channel_t CHANNEL_SWITCHES{(adc_channel_t)ADC1_GPIO36_CHANNEL};
+
+constexpr Pintype PIN_LDR_OR_ROTA = (Pintype)39;
+constexpr adc_channel_t CHANNEL_LDR_OR_ROTA{(adc_channel_t)ADC1_GPIO39_CHANNEL};
+
 constexpr Pintype PIN_485_DI = PIN_MULTI1;
 constexpr Pintype PIN_EXT1 = PIN_MULTI1;
 
@@ -185,6 +190,7 @@ private:
     hdc1080::M *hdc1080dev{nullptr};
     CCS811::M *ccs811dev{nullptr};
     AHT::M *aht21dev{nullptr};
+    VL53L0X::M* vl53l0xdev{nullptr};
 
     //SensorValues
     uint32_t buttonState{0}; //see Button-Enum for meaning of bits
@@ -204,10 +210,11 @@ private:
     //float analogInputVolt{std::numeric_limits<float>::quiet_NaN()};
     uint32_t sound{0};
     float fan1RotationsRpM{std::numeric_limits<float>::quiet_NaN()};
+    uint16_t distanceMillimeters{UINT16_MAX};
 
     bool heaterEmergencyShutdown{false};
 
-    float AnalogInputs[ANALOG_INPUTS_LEN]={0};
+    uint16_t AnalogInputs[ANALOG_INPUTS_LEN]={0};
     
     uint16_t ds4525doPressure;
     
@@ -226,10 +233,9 @@ private:
     void readBinaryAndAnalogIOs(){
 
         int adc_reading;
+        int adc_calibrated;
         ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, CHANNEL_SWITCHES, &adc_reading));
         
-        //uint32_t voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
-        //printf("Raw: %d\tVoltage: %dmV\n", adc_reading, voltage);
         int i = 0;
         for (i = 0; i < sizeof(sw_limits) / sizeof(uint16_t); i++)
         {
@@ -244,17 +250,18 @@ private:
         //this->wifiRssiDb=ap_info.rssi;
 
         //Es wird nicht unterschieden, ob der eingang "nur" zum Messen von analogen Spannung verwendet wird oder ob es sich um den Trigger-Eingang des Zeitrelais handelt. Im zweiten Fall muss einfach eine Zeitrelais-Schaltung basierend auf der Grenzüberschreitung des Analogen Messwertes in der Funktionsblock-Spache realisiert werden
-        int analogInRaw;
-        ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, CHANNEL_ANALOGIN_OR_ROTB, &analogInRaw));
-        int analogInVoltage;
-        ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_handle, analogInRaw, &analogInVoltage));
-        this->AnalogInputs[0]=11*analogInVoltage;//die Multiplikation mit 11 wegen dem Spannungsteiler
-        int ldrInRaw;
-        ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, CHANNEL_LDR_OR_ROTA, &ldrInRaw));
-        int ldrInVoltage;
-        ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_handle, ldrInRaw, &ldrInVoltage));
+        ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, CHANNEL_ANALOGIN_OR_ROTB, &adc_reading));
+        ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_handle, adc_reading, &adc_calibrated));
+        this->AnalogInputs[0]=adc_calibrated;//die Multiplikation mit 11 wegen dem Spannungsteiler
 
-        this->ambientBrightnessLux_analog = 1.2*ldrInVoltage;//TODO Messkurce erstellen
+        ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, CHANNEL_MOVEMENT_OR_FAN1SENSE, &adc_reading));
+        ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_handle, adc_reading, &adc_calibrated));
+        this->AnalogInputs[1]=adc_calibrated;//die Multiplikation mit 11 wegen dem Spannungsteiler
+        
+        ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, CHANNEL_LDR_OR_ROTA, &adc_reading));
+        ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_handle, adc_reading, &adc_calibrated));
+        this->AnalogInputs[2]=adc_calibrated;
+        this->ambientBrightnessLux_analog = adc_calibrated;//TODO Messkurce erstellen
     
 
         if(mode_MOVEMENT_OR_FAN1SENSE == MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR){
@@ -324,7 +331,7 @@ private:
             nextOneWireReadout = GetMillis64() + oneWireReadoutIntervalMs;
         }
     
-        
+        iI2CPort* i2c_port_interface = I2C::GetPort_DoNotForgetToDelete(I2C_PORT);
 
         //BME280
         BME280 *bme280 = new BME280(I2C_PORT, BME280_ADRESS::PRIM);
@@ -355,13 +362,16 @@ private:
         }
 
         //CCS811
-        ccs811dev = new CCS811::M(I2C_PORT, CCS811::ADDRESS::ADDR0, CCS811::MODE::_1SEC, (gpio_num_t)GPIO_NUM_NC);
+        ccs811dev = new CCS811::M(i2c_port_interface, CCS811::ADDRESS::ADDR0, CCS811::MODE::_1SEC, (gpio_num_t)GPIO_NUM_NC);
 
         //HDC1080
-        hdc1080dev = new hdc1080::M(I2C_PORT);
+        hdc1080dev = new hdc1080::M(i2c_port_interface);
 
         //AHT21
-        aht21dev = new AHT::M(I2C_PORT, AHT::ADDRESS::default_address);
+        aht21dev = new AHT::M(i2c_port_interface, AHT::ADDRESS::default_address);
+
+        //vl53l0x
+        vl53l0xdev= new VL53L0X::M(i2c_port_interface);
 
         while (true)
         {
@@ -395,9 +405,13 @@ private:
             hdc1080dev->Loop(GetMillis64());
             ccs811dev->Loop(GetMillis64());
             aht21dev->Loop(GetMillis64());
+            vl53l0xdev->Loop(GetMillis64());
 
             if(ccs811dev->HasValidData()){
                 this->airCo2PPM=ccs811dev->Get_eCO2();
+            }
+            if(vl53l0xdev->HasValidData()){
+                this->distanceMillimeters=vl53l0xdev->ReadOut();
             }
             if(this->aht21dev->HasValidData()){
                 this->aht21dev->Read(this->airRelHumidityPercent, this->airTemperatureDegCel);
@@ -444,10 +458,10 @@ public:
         float airHumid{0.f};
         GetAirRelHumidity(&airHumid);
         GetCO2PPM(&co2); 
-        float* analogVolt{nullptr};
+        uint16_t* analogVolt{nullptr};
         GetAnalogInputs(&analogVolt);  
-        ESP_LOGI(TAG, "Heap %6lu  RED %d YEL %d GRN %d MOV %d ENC %i SOUND %ld SUPPLY %4.1f BRGHT %4.1f HEAT %4.1f AIRT %4.1f AIRPRS %5.0f AIRHUM %3.0f CO2 %5.0f, ANALOGIN %4.1f",
-                         heap,   red,   yel,   grn,   mov,   enc,   sound,    spply,      bright,     htrTemp,   airTemp,   airPres,     airHumid,     co2,       analogVolt[0]);
+        ESP_LOGI(TAG, "Heap %6lu  RED %d YEL %d GRN %d MOV %d ENC %i SOUND %ld SUPPLY %4.1f BRGHT %4.1f HEAT %4.1f AIRT %4.1f AIRPRS %5.0f AIRHUM %3.0f CO2 %5.0f, ANALOGIN [%4d %4d]",
+                         heap,   red,   yel,   grn,   mov,   enc,   sound,    spply,      bright,     htrTemp,   airTemp,   airPres,     airHumid,     co2,       analogVolt[0],analogVolt[1]);
         return ErrorCode::OK;
     }
 
@@ -466,9 +480,9 @@ public:
         return esp_timer_get_time() / 1000ULL;
     }
 
-    ErrorCode GetAnalogInputs(float **voltages)
+    ErrorCode GetAnalogInputs(uint16_t **millivolts)
     {
-        *voltages = this->AnalogInputs;
+        *millivolts = this->AnalogInputs;
         return ErrorCode::OK;
     }
 
@@ -478,6 +492,11 @@ public:
         ErrorCode err = this->rotenc->GetValue(val, isPressed)==ESP_OK?ErrorCode::OK:ErrorCode::GENERIC_ERROR;
         *value=val;
         return err;
+    }
+
+    ErrorCode GetDistanceMillimeters(uint16_t *value){
+        *value=this->distanceMillimeters;
+        return ErrorCode::OK;
     }
 
     ErrorCode GetFan1Rpm(float* rpm){
@@ -500,8 +519,7 @@ public:
         *soundNumber=this->sound;
         return ErrorCode::OK;
     }
-
-    
+  
     ErrorCode GetCO2PPM(float *co2PPM){
         *co2PPM=this->airCo2PPM;
         return ErrorCode::OK;
@@ -561,23 +579,17 @@ public:
         return ErrorCode::OK;
     }
     
-
     ErrorCode UpdatePinConfiguration(uint8_t* configMessage, size_t configMessagelen){
         return ErrorCode::OK;
     }
 
-
     ErrorCode UpdatePinConfiguration()
     {
-
         return ErrorCode::OK;
     }
 
-
     ErrorCode InitAndRun() override
     {
-
-
 
         //-------------ADC1 Init---------------//
         
@@ -592,6 +604,7 @@ public:
         ESP_ERROR_CHECK(adc_oneshot_config_channel(adc1_handle, CHANNEL_SWITCHES, &config));
         config.atten = ADC_ATTEN_DB_11;
         ESP_ERROR_CHECK(adc_oneshot_config_channel(adc1_handle, CHANNEL_ANALOGIN_OR_ROTB, &config));
+        ESP_ERROR_CHECK(adc_oneshot_config_channel(adc1_handle, CHANNEL_MOVEMENT_OR_FAN1SENSE, &config));
         ESP_ERROR_CHECK(adc_oneshot_config_channel(adc1_handle, CHANNEL_LDR_OR_ROTA, &config));    
         //-------------ADC1 Calibration Init---------------//
         ESP_LOGI(TAG, "calibration scheme version is %s", "Line Fitting");
@@ -852,8 +865,6 @@ public:
         HAL_Impl *hal = (HAL_Impl *)pvParameters;
         hal->MP3Loop();
     }
-
-
 };
 
 

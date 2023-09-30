@@ -30,6 +30,7 @@ class HAL
         virtual ErrorCode SetFan2Duty(float dutyInPercent)=0;
         virtual float GetFan2State()=0;
         virtual ErrorCode SetLedPowerWhiteDuty(float dutyInpercent)=0;
+        virtual ErrorCode GetDistanceMillimeters(uint16_t *value)=0;
         virtual bool GetButtonRedIsPressed()=0;
         virtual bool GetButtonEncoderIsPressed()=0;
         virtual ErrorCode GetEncoderValue(int *value)=0;
@@ -49,7 +50,7 @@ class HAL
         virtual ErrorCode GetAirRelHumidity(float *percent)=0;
         virtual ErrorCode GetAirQuality(float *qualityPercent)=0;
         virtual ErrorCode GetAirSpeed(float *speedMetersPerSecond)=0;
-        virtual ErrorCode GetAnalogInputs(float **voltages)=0;
+        virtual ErrorCode GetAnalogInputs(uint16_t **millivolts)=0;
         virtual ErrorCode SetSound(int32_t songNumber)=0;
         virtual ErrorCode GetSound(int32_t *songNumber)=0;
         virtual ErrorCode GetFan1Rpm(float* rpm)=0;
