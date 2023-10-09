@@ -12,7 +12,7 @@
         "interface/ftdi/esp32_devkitj_v1.cfg",
         "target/esp32.cfg"
     ],
-    "idf.portWin": "COM6",
+    "idf.portWin": "COM25",
     "idf.pythonBinPathWin": "C:\\Users\\KlausLiebler\\.espressif\\python_env\\idf5.1_py3.11_env\\Scripts\\python.exe",
     "idf.toolsPathWin": "C:\\Users\\KlausLiebler\\.espressif",
     "files.associations": {
@@ -79,7 +79,9 @@
         "streambuf": "cpp",
         "thread": "cpp",
         "cinttypes": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "optional": "cpp",
+        "span": "cpp"
     },
     "idf.flashType": "UART"
 }

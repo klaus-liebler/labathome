@@ -41,7 +41,7 @@ modbus::M<100000> *modbusSlave;
 
 constexpr size_t COILS_CNT{16};
 constexpr size_t DISCRETE_INPUTS_CNT{16};
-constexpr size_t INPUT_REGISTERS_CNT{16};
+constexpr size_t INPUT_REGISTERS_CNT{101};
 constexpr size_t HOLDING_REGISTERS_CNT{16};
 
 
@@ -86,17 +86,25 @@ Holding Registers:
 
 Input Registers:
  0: CO2 [PPM]
- 1: Air Pressure [mbar /kPa???]
+ 1: Air Pressure [hPa]
  2: Ambient Brightness [?]
- 3: Analog Input [mV]
+ 3: Analog Input [mV] //CHANNEL_ANALOGIN_OR_ROTB I34
  4: Button Green [0 or 1]
  5: Button Red [0 or 1]
  6: Button Yellow/Encoder [0 or 1]
  7: Fan 1 RpM
- 8: Heater Temperature [°C * 100]
+ 8: Heater Temperature [°C * 100] (Temperatur des "Dreibeiners")
  9: Encoder Detents
 10: Movement Sensor [0 or 1]
 11: Distance Sensor [millimeters]
+12: Analog Voltage on Pin 35 //CHANNEL_MOVEMENT_OR_FAN1SENSE I35
+13: placeholder
+14: placeholder
+15: Relative Humidity AHT21 [%]
+16: Temperature AHT21 [°C * 100]
+17: Relative Humidity BME280 [%]
+18: Temperature BME280 [°C * 100]
+100: Firmware Version
                 
 */
 
@@ -184,7 +192,7 @@ void modbusBeforeReadCallback(uint8_t fc, uint16_t start, size_t len){
         }
     }
     else if(fc==4){//Input Registers
-        float tmpVal{0.0f};
+        float tmpVal_F{0.0f};
         int tmpVal_I32{0};
         uint16_t* tmpPtr_u16;
         uint16_t tmpVal_U16{0};
@@ -193,16 +201,16 @@ void modbusBeforeReadCallback(uint8_t fc, uint16_t start, size_t len){
             switch (reg)
             {
             case 0:
-                hal->GetCO2PPM(&tmpVal);
-                inputRegisterData[reg]=tmpVal;
+                hal->GetCO2PPM(&tmpVal_U16);
+                inputRegisterData[reg]=tmpVal_U16;
                 break;
             case 1:
-                hal->GetAirPressure(&tmpVal);
-                inputRegisterData[reg]=tmpVal;
+                hal->GetAirPressure_hPa(&tmpVal_U16);
+                inputRegisterData[reg]=tmpVal_U16;
                 break;
             case 2:
-                hal->GetAmbientBrightness(&tmpVal);
-                inputRegisterData[reg]=tmpVal;
+                hal->GetAmbientBrightness(&tmpVal_U16);
+                inputRegisterData[reg]=tmpVal_U16;
                 break;
             case 3:
                 hal->GetAnalogInputs(&tmpPtr_u16);
@@ -218,12 +226,12 @@ void modbusBeforeReadCallback(uint8_t fc, uint16_t start, size_t len){
                 inputRegisterData[reg]=hal->GetButtonEncoderIsPressed();
                 break;
             case 7:
-                hal->GetFan1Rpm(&tmpVal);
-                inputRegisterData[reg]=tmpVal;
+                hal->GetFan1Rpm(&tmpVal_F);
+                inputRegisterData[reg]=tmpVal_F;
                 break;
             case 8:
-                hal->GetHeaterTemperature(&tmpVal);
-                inputRegisterData[reg]=tmpVal*100;
+                hal->GetHeaterTemperature(&tmpVal_F);
+                inputRegisterData[reg]=tmpVal_F*100;
                 break;
             case 9:
                 hal->GetEncoderValue(&tmpVal_I32);
@@ -239,7 +247,6 @@ void modbusBeforeReadCallback(uint8_t fc, uint16_t start, size_t len){
             case 12:
                 hal->GetAnalogInputs(&tmpPtr_u16);
                 inputRegisterData[reg]=tmpPtr_u16[1]; //CHANNEL_MOVEMENT_OR_FAN1SENSE I35
-                
                 break;
             case 13:
                 hal->GetAnalogInputs(&tmpPtr_u16);
@@ -249,8 +256,24 @@ void modbusBeforeReadCallback(uint8_t fc, uint16_t start, size_t len){
                 hal->GetAnalogInputs(&tmpPtr_u16);
                 inputRegisterData[reg]=tmpPtr_u16[3];
                 break;
+            case 15:
+                hal->GetAirRelHumidityAHT21(&tmpVal_F);
+                inputRegisterData[reg]=tmpVal_F;
+                break;
+            case 16:
+                hal->GetAirTemperatureAHT21(&tmpVal_F);
+                inputRegisterData[reg]=tmpVal_F*100;
+                break;
+            case 17:
+                hal->GetAirRelHumidityBME280(&tmpVal_F);
+                inputRegisterData[reg]=tmpVal_F;
+                break;
+            case 18:
+                hal->GetAirTemperatureBME280(&tmpVal_F);
+                inputRegisterData[reg]=tmpVal_F*100;
+                break;
             case 100:
-                inputRegisterData[reg]=2;
+                inputRegisterData[reg]=4;
                 break;
             default:
                 break;
