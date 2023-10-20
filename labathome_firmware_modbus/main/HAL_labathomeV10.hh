@@ -679,6 +679,9 @@ public:
         ESP_ERROR_CHECK(rotenc->Init());
         ESP_ERROR_CHECK(rotenc->Start());
 
+        //CHANNEL_MOVEMENT_OR_FAN1SENSE Input (Auch wenn es nur ein Input ist, muss das passieren, weil dieser Input sonst nur einen Analogwert liefern würde)
+        ConfigGpioInput(PIN_MOVEMENT_OR_FAN1SENSE, GPIO_FLOATING);
+
         // Relay K3 output
         gpio_set_level(PIN_K3_ON, 0);
         ConfigGpioOutputPP(PIN_K3_ON);

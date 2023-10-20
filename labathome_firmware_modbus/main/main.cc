@@ -1,63 +1,7 @@
-#include <stdio.h>
-#include <stdint.h>
-#include "esp_log.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/semphr.h"
-#include "sdkconfig.h"
-#include "esp_timer.h"
-#include "modbusslave.hh"
-#include <vector>
-#include <driver/uart.h>
-#include <common.hh>
-#include <array>
-#include <nvs_flash.h>
-#include <spiffs.hh>
-
-static const char *TAG = "main";
-
-#include "HAL.hh"
-#include "HAL_labathomeV10.hh"
-static HAL * hal = new HAL_Impl(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR);
-modbus::M<100000> *modbusSlave;
-
-
-//
-//COIL (binärer Ausgang)
-//-Relay (auch über Holding Register - das letzte Schreiben zählt)
-
-//Discrete Input
-//-Drei Taster
-//-Bewegung
-
-    //Query Inputs:      modpoll -r 1 -c 9 -t 1 COM8
-    //Set Coil Outputs:  modpoll -r 1 -c 1 -t 0 COM8 1 bzw 0
-    //Set LED Color      modpoll -r 1 -c 1 -t 4 COM8 65535
-
-
-
-//Holding Register
-//-AnalogOut, Servo1, Servo2, Fan1, Fan2, DutyHeater, DutyPowerLed, RGB0, RGB1, RGB2, RGB3, Relay, Sound, UsbPowerSuppy (not implemented)
-
-constexpr size_t COILS_CNT{16};
-constexpr size_t DISCRETE_INPUTS_CNT{16};
-constexpr size_t INPUT_REGISTERS_CNT{101};
-constexpr size_t HOLDING_REGISTERS_CNT{16};
-
-
-
-constexpr uart_port_t uart_num = UART_NUM_2;
-
-
-static std::vector<bool> coilData(COILS_CNT);
-static std::vector<bool> discreteInputsData(DISCRETE_INPUTS_CNT);
-static std::vector<uint16_t> inputRegisterData(INPUT_REGISTERS_CNT);
-static std::vector<uint16_t> holdingRegisterData(HOLDING_REGISTERS_CNT);
-
-/**
-MODPOLL Command Lines
- * 
-*/
+constexpr int FIRMWARE_VERSION{5};
+//Query Inputs:      modpoll -r 1 -c 9 -t 1 COM8
+//Set Coil Outputs:  modpoll -r 1 -c 1 -t 0 COM8 1 bzw 0
+//Set LED Color      modpoll -r 1 -c 1 -t 4 COM8 65535
 
 /*
 Coils:
@@ -107,6 +51,47 @@ Input Registers:
 100: Firmware Version
                 
 */
+
+#include <stdio.h>
+#include <stdint.h>
+#include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/semphr.h"
+#include "sdkconfig.h"
+#include "esp_timer.h"
+#include "modbusslave.hh"
+#include <vector>
+#include <driver/uart.h>
+#include <common.hh>
+#include <array>
+#include <nvs_flash.h>
+#include <spiffs.hh>
+
+static const char *TAG = "main";
+
+#include "HAL.hh"
+#include "HAL_labathomeV10.hh"
+static HAL * hal = new HAL_Impl(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR);
+modbus::M<100000> *modbusSlave;
+
+constexpr size_t COILS_CNT{16};
+constexpr size_t DISCRETE_INPUTS_CNT{16};
+constexpr size_t INPUT_REGISTERS_CNT{101};
+constexpr size_t HOLDING_REGISTERS_CNT{16};
+
+
+
+constexpr uart_port_t uart_num = UART_NUM_2;
+
+
+static std::vector<bool> coilData(COILS_CNT);
+static std::vector<bool> discreteInputsData(DISCRETE_INPUTS_CNT);
+static std::vector<uint16_t> inputRegisterData(INPUT_REGISTERS_CNT);
+static std::vector<uint16_t> holdingRegisterData(HOLDING_REGISTERS_CNT);
+
+
+
 
 
 
@@ -273,7 +258,7 @@ void modbusBeforeReadCallback(uint8_t fc, uint16_t start, size_t len){
                 inputRegisterData[reg]=tmpVal_F*100;
                 break;
             case 100:
-                inputRegisterData[reg]=4;
+                inputRegisterData[reg]=FIRMWARE_VERSION;
                 break;
             default:
                 break;
