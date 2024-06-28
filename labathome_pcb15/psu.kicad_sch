@@ -6006,7 +6006,7 @@
 			(uuid "2851289f-6016-4f33-931c-5b9c7da91263")
 		)
 		(instances
-			(project ""
+			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/77dfbe0c-d674-478a-bf0e-cfa040fb2e8f"
 					(reference "J9")
 					(unit 1)
@@ -6541,7 +6541,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 106.9848 154.94 0)
 			(effects
 				(font
@@ -7316,7 +7316,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 129.8448 160.02 0)
 			(effects
 				(font

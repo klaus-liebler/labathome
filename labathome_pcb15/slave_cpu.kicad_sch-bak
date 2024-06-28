@@ -4638,16 +4638,6 @@
 		)
 		(uuid "fff55045-1a38-433b-b3ea-d2213bdf4770")
 	)
-	(text "T1.1"
-		(exclude_from_sim no)
-		(at 168.148 65.024 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "164946f2-6b6b-42a1-bac5-9fdd38a0a5bf")
-	)
 	(text "Taster1?"
 		(exclude_from_sim no)
 		(at 102.616 72.644 0)
@@ -4658,46 +4648,25 @@
 		)
 		(uuid "1a2a5ce8-1cd7-46ec-b082-1f5970622a9c")
 	)
-	(text "T1.2"
+	(text "HALL=TIM3"
 		(exclude_from_sim no)
-		(at 168.148 67.564 0)
+		(at 102.108 84.582 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 		)
-		(uuid "4773097c-fb7c-4f45-907e-cf2e4eb3a20e")
+		(uuid "1ac1aba3-3065-4f2b-8bba-cc39251144d0")
 	)
-	(text "T3.3 ADC1.15"
+	(text "Brushless PWM OUT = TIM1"
 		(exclude_from_sim no)
-		(at 101.854 83.058 0)
+		(at 179.07 67.564 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 		)
-		(uuid "52152a0c-fcd7-4a09-9e52-ddc7e4dcfea2")
-	)
-	(text "T3.4"
-		(exclude_from_sim no)
-		(at 105.918 85.344 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "576c7c4b-ae6d-48c2-8109-e6ed3f00f376")
-	)
-	(text "T16.1 T3.1 ADC2.3"
-		(exclude_from_sim no)
-		(at 165.354 60.96 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "5a5b8691-4df1-45b0-937d-b766311ddd3b")
+		(uuid "3bd4b82f-bc0c-489d-8c17-36bf7c8c4d35")
 	)
 	(text "PIR?"
 		(exclude_from_sim no)
@@ -4708,16 +4677,6 @@
 			)
 		)
 		(uuid "5e14575e-bce1-417e-85bb-e0ac223cb663")
-	)
-	(text "ADC1.11"
-		(exclude_from_sim no)
-		(at 101.6 113.284 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "70b6f519-c2f5-4167-8232-376d969cb6c6")
 	)
 	(text "PB13"
 		(exclude_from_sim no)
@@ -4739,7 +4698,17 @@
 		)
 		(uuid "77c3735a-3f9c-4cb1-8758-511cf885d202")
 	)
-	(text "T2.4_T15.2"
+	(text "ADC1.15"
+		(exclude_from_sim no)
+		(at 93.472 118.11 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "7909f75a-9beb-4b23-a396-412931295569")
+	)
+	(text "TIM15.2"
 		(exclude_from_sim no)
 		(at 169.418 51.816 0)
 		(effects
@@ -4748,16 +4717,6 @@
 			)
 		)
 		(uuid "7f1b6828-be96-4962-a372-64a9d1766371")
-	)
-	(text "T1.3"
-		(exclude_from_sim no)
-		(at 168.402 69.85 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "8760926c-63b0-47b7-8923-e92fb46bfb7d")
 	)
 	(text "TIM2.2"
 		(exclude_from_sim no)
@@ -4769,7 +4728,7 @@
 		)
 		(uuid "94be2274-ab78-41d5-85ca-7e1a30e278ea")
 	)
-	(text "T2.3_T15.1"
+	(text "TIM15.1"
 		(exclude_from_sim no)
 		(at 169.418 49.276 0)
 		(effects
@@ -4778,16 +4737,6 @@
 			)
 		)
 		(uuid "9e220693-fe98-4acf-8ee8-65a161c566e7")
-	)
-	(text "T3.2"
-		(exclude_from_sim no)
-		(at 104.902 95.758 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "9e6bf7ef-521e-4c2a-8c14-239d636dea8e")
 	)
 	(text "Taster2?"
 		(exclude_from_sim no)
@@ -4798,27 +4747,6 @@
 			)
 		)
 		(uuid "b3565d38-30c2-4e66-9781-655cf64058b4")
-	)
-	(text "T17.1 T3.2 ADC2.4"
-		(exclude_from_sim no)
-		(at 165.608 63.5 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "b5d5506e-e56d-4d94-830d-1a9f31d8a433")
-	)
-	(text "T2.1 T8.1"
-		(exclude_from_sim no)
-		(at 166.624 82.804 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "bf790716-b806-42e6-9604-f7d93c55288a")
 	)
 	(text "TIM4.4"
 		(exclude_from_sim no)
@@ -4839,16 +4767,6 @@
 			)
 		)
 		(uuid "c3c18b1a-c1af-4b7b-a30e-9b150b0e2919")
-	)
-	(text "ADC12.14"
-		(exclude_from_sim no)
-		(at 109.474 110.744 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "c728a69d-f75b-4bf4-b0ec-314229966167")
 	)
 	(text "TIM2.1"
 		(exclude_from_sim no)
@@ -4872,7 +4790,7 @@
 	)
 	(global_label "Servo1"
 		(shape output)
-		(at 153.67 52.07 0)
+		(at 153.67 46.99 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4882,7 +4800,7 @@
 		)
 		(uuid "02e3a138-0300-4673-b8ed-e9d9f56a44bd")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 163.0656 52.07 0)
+			(at 163.0656 46.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5068,7 +4986,7 @@
 			)
 		)
 	)
-	(global_label "T15.2_ADC2.15"
+	(global_label "GPIO_PB15_ADC2_IN15"
 		(shape bidirectional)
 		(at 120.65 120.65 180)
 		(fields_autoplaced yes)
@@ -5080,7 +4998,7 @@
 		)
 		(uuid "3d9d082a-4e9c-4d29-a752-2c43d85a8e77")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 102.5231 120.65 0)
+			(at 95.024 120.65 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5158,7 +5076,7 @@
 	)
 	(global_label "Servo2"
 		(shape output)
-		(at 161.29 34.29 0)
+		(at 153.67 49.53 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5168,7 +5086,7 @@
 		)
 		(uuid "49760747-b17a-496f-84ea-70eedd5259df")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 170.6856 34.29 0)
+			(at 163.0656 49.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5222,7 +5140,7 @@
 			)
 		)
 	)
-	(global_label "T2.4"
+	(global_label "TIM2_CH4"
 		(shape output)
 		(at 120.65 110.49 180)
 		(fields_autoplaced yes)
@@ -5234,7 +5152,7 @@
 		)
 		(uuid "59fefbe7-13b1-46a8-a898-5f14d28d0d08")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 113.6734 110.49 0)
+			(at 108.6539 110.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5244,7 +5162,7 @@
 			)
 		)
 	)
-	(global_label "T2.3"
+	(global_label "TIM2_CH3"
 		(shape output)
 		(at 120.65 107.95 180)
 		(fields_autoplaced yes)
@@ -5256,7 +5174,7 @@
 		)
 		(uuid "6327b8e3-006d-4eac-b45e-150fd670feb2")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 113.6734 107.95 0)
+			(at 108.6539 107.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5284,6 +5202,28 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "ADC1_IN11"
+		(shape input)
+		(at 120.65 113.03 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "68789f72-f776-4dc2-a6ae-effd269095fc")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 107.5048 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
 				(hide yes)
 			)
 		)
@@ -5464,50 +5404,6 @@
 			)
 		)
 	)
-	(global_label "ROT_A"
-		(shape input)
-		(at 153.67 44.45 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "8f8544f3-5a48-45d4-adb6-0903cfbb48b7")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 162.2795 44.45 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "T15.1_ADC1.5"
-		(shape bidirectional)
-		(at 120.65 118.11 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "968ce4e1-6b0a-4e39-8b4d-1d11ba6a4613")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 103.7326 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "BL_FAULT"
 		(shape output)
 		(at 207.01 78.74 180)
@@ -5587,28 +5483,6 @@
 		(uuid "a39c6be0-e0ee-49a8-8a94-52bdb7d0600b")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 162.3626 77.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "ROT_B"
-		(shape input)
-		(at 153.67 46.99 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "aabfc822-7fda-478a-8eb2-692e4da49fae")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 162.4609 46.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5708,7 +5582,7 @@
 	)
 	(global_label "HEATER"
 		(shape output)
-		(at 153.67 49.53 0)
+		(at 153.67 44.45 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5718,7 +5592,7 @@
 		)
 		(uuid "b8414f65-bba3-450b-9943-dc7f37884088")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 163.6099 49.53 0)
+			(at 163.6099 44.45 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5730,7 +5604,7 @@
 	)
 	(global_label "Servo3"
 		(shape output)
-		(at 161.29 38.1 0)
+		(at 153.67 52.07 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5740,7 +5614,7 @@
 		)
 		(uuid "b9e21e8b-f076-490f-bdf9-5d69ef6ccf75")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 170.6856 38.1 0)
+			(at 163.0656 52.07 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6104,7 +5978,7 @@
 	)
 	(global_label "BRIGHTNESS"
 		(shape bidirectional)
-		(at 120.65 113.03 180)
+		(at 120.65 118.11 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6114,7 +5988,7 @@
 		)
 		(uuid "f5d2aa21-1c4b-4f0a-a3bb-86a73ac08d37")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 104.9421 113.03 0)
+			(at 104.9421 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
