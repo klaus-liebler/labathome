@@ -2042,213 +2042,6 @@
 				)
 			)
 		)
-		(symbol "liebler_MODULES:XGZP6897D"
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "X"
-				(at 0 10.16 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "XGZP6897D"
-				(at 0 7.62 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" "liebler_MODULES:XGZP6897D"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "XGZP6897D_0_1"
-				(rectangle
-					(start -5.08 5.08)
-					(end 5.08 -5.08)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "XGZP6897D_1_1"
-				(pin no_connect line
-					(at -7.62 3.81 0)
-					(length 2.54)
-					(name "NC"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at -7.62 1.27 0)
-					(length 2.54)
-					(name "VDD"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin no_connect line
-					(at -7.62 -1.27 0)
-					(length 2.54)
-					(name "NC"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin no_connect line
-					(at -7.62 -3.81 0)
-					(length 2.54)
-					(name "NC"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin no_connect line
-					(at 7.62 -3.81 180)
-					(length 2.54)
-					(name "NC"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at 7.62 -1.27 180)
-					(length 2.54)
-					(name "SDA"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "6"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at 7.62 1.27 180)
-					(length 2.54)
-					(name "SCL"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "7"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at 7.62 3.81 180)
-					(length 2.54)
-					(name "GND"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "8"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-		)
 		(symbol "liebler_SEMICONDUCTORS:AHT21"
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -2815,12 +2608,6 @@
 		(uuid "04f70dfe-0bb5-4561-b801-419cec763cf3")
 	)
 	(junction
-		(at 24.13 165.1)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "05a0fdd1-a652-42e9-83e1-7c2b957e05a0")
-	)
-	(junction
 		(at 95.25 135.89)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -3104,16 +2891,6 @@
 		)
 		(uuid "81ac31a9-3879-49d7-b909-3a55cc95e175")
 	)
-	(polyline
-		(pts
-			(xy 73.66 180.34) (xy 19.05 180.34)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8409ac8a-6ddd-43b4-8e3c-be8ec437ba91")
-	)
 	(wire
 		(pts
 			(xy 151.13 121.92) (xy 158.75 121.92)
@@ -3133,16 +2910,6 @@
 			(type default)
 		)
 		(uuid "8df2ea5c-463e-412b-95cf-7eded502a041")
-	)
-	(wire
-		(pts
-			(xy 24.13 165.1) (xy 31.75 165.1)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "98a691fd-1305-4285-b1c6-35636c6bca9d")
 	)
 	(wire
 		(pts
@@ -3718,27 +3485,6 @@
 	)
 	(global_label "SDA"
 		(shape bidirectional)
-		(at 46.99 167.64 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "b8bb03f2-6178-4b25-a3a9-af8918e758c9")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at -1.27 2.54 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "SDA"
-		(shape bidirectional)
 		(at 57.15 118.11 180)
 		(fields_autoplaced yes)
 		(effects
@@ -3842,27 +3588,6 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "SCL"
-		(shape bidirectional)
-		(at 46.99 165.1 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "ecfb9a16-3619-462b-93f3-91b23868c19c")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at -1.27 2.54 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
 				(hide yes)
 			)
 		)
@@ -4442,77 +4167,6 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/faeff10d-104f-4ca8-a480-26bd51140cf0"
 					(reference "#PWR0144")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 46.99 162.56 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "10a18178-87cd-40aa-8dd4-6f69df21823a")
-		(property "Reference" "#PWR067"
-			(at 53.34 162.56 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 52.07 162.56 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 46.99 162.56 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 46.99 162.56 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 46.99 162.56 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "00ef4f37-06a6-4fd4-8038-4bfbee15f21e")
-		)
-		(instances
-			(project "pcbV10"
-				(path "/832b5a8c-7fe2-47ff-beee-cebf840750bb/00000000-0000-0000-0000-000061d72f6f"
-					(reference "#PWR067")
-					(unit 1)
-				)
-			)
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/faeff10d-104f-4ca8-a480-26bd51140cf0"
-					(reference "#PWR0113")
 					(unit 1)
 				)
 			)
@@ -6161,77 +5815,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 24.13 172.72 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "7d411f0e-9991-4073-90f2-ba2b21f51f36")
-		(property "Reference" "#PWR066"
-			(at 30.48 172.72 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 29.21 172.72 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 24.13 172.72 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 24.13 172.72 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 24.13 172.72 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "ef5247ae-090a-4e1a-9ea2-b246148ae388")
-		)
-		(instances
-			(project "pcbV10"
-				(path "/832b5a8c-7fe2-47ff-beee-cebf840750bb/00000000-0000-0000-0000-000061d72f6f"
-					(reference "#PWR066")
-					(unit 1)
-				)
-			)
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/faeff10d-104f-4ca8-a480-26bd51140cf0"
-					(reference "#PWR0110")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:+3V3")
 		(at 238.76 35.56 90)
 		(unit 1)
@@ -7086,78 +6669,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:+3V3")
-		(at 24.13 165.1 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "b39e921c-1436-4d91-bda6-14dbe3160963")
-		(property "Reference" "#PWR065"
-			(at 24.13 168.91 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+3V3"
-			(at 21.59 161.29 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 24.13 165.1 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 24.13 165.1 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 24.13 165.1 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "822f5639-abc7-4678-8691-68d307dee209")
-		)
-		(instances
-			(project "pcbV10"
-				(path "/832b5a8c-7fe2-47ff-beee-cebf840750bb/00000000-0000-0000-0000-000061d72f6f"
-					(reference "#PWR065")
-					(unit 1)
-				)
-			)
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/faeff10d-104f-4ca8-a480-26bd51140cf0"
-					(reference "#PWR0109")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:GND")
 		(at 85.09 146.05 270)
 		(unit 1)
@@ -7561,98 +7072,6 @@
 		)
 	)
 	(symbol
-		(lib_id "liebler_MODULES:XGZP6897D")
-		(at 39.37 166.37 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "c41a3fe0-d7fe-40d0-93af-ba685319554f")
-		(property "Reference" "X2"
-			(at 39.37 156.21 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "XGZP6897D"
-			(at 39.37 158.75 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "liebler_MODULES:XGZP6897D"
-			(at 39.37 166.37 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 39.37 166.37 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 39.37 166.37 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "e5f4aebb-7715-4b4b-85c5-42ced4bd8816")
-		)
-		(pin "2"
-			(uuid "b5431807-8799-484d-ad0c-a4f04fc3dc4e")
-		)
-		(pin "3"
-			(uuid "22e7773a-dd25-426a-bc46-589905155f45")
-		)
-		(pin "4"
-			(uuid "39a23ab5-9be8-4f3e-ac69-3545db9b9a23")
-		)
-		(pin "5"
-			(uuid "e6ba3f6b-9bf4-4892-8b58-119f5c90ea0a")
-		)
-		(pin "6"
-			(uuid "4cf22c91-eb2b-462b-8d9e-c8ca8b8da3c8")
-		)
-		(pin "7"
-			(uuid "825ecbd7-a2a8-4e62-812c-cc285076f4cd")
-		)
-		(pin "8"
-			(uuid "549ab661-c469-4847-839e-7997538bc3f5")
-		)
-		(instances
-			(project "pcbV10"
-				(path "/832b5a8c-7fe2-47ff-beee-cebf840750bb/00000000-0000-0000-0000-000061d72f6f"
-					(reference "X2")
-					(unit 1)
-				)
-			)
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/faeff10d-104f-4ca8-a480-26bd51140cf0"
-					(reference "X2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:GND")
 		(at 96.52 107.95 0)
 		(unit 1)
@@ -7778,90 +7197,6 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/faeff10d-104f-4ca8-a480-26bd51140cf0"
 					(reference "#PWR0160")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 24.13 168.91 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "ca3cbfd7-56d5-4116-9c73-ddf22c4af1ef")
-		(property "Reference" "C31"
-			(at 27.051 167.7416 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "u1"
-			(at 27.051 170.053 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
-			(at 23.1648 165.1 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 24.13 168.91 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 24.13 168.91 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Option" "MS4525DO"
-			(at 24.13 168.91 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "ab95278f-9c59-4309-a256-7304733c4651")
-		)
-		(pin "2"
-			(uuid "66ba9aaf-b237-4d49-8fa8-8067b96d1f89")
-		)
-		(instances
-			(project "pcbV10"
-				(path "/832b5a8c-7fe2-47ff-beee-cebf840750bb/00000000-0000-0000-0000-000061d72f6f"
-					(reference "C31")
-					(unit 1)
-				)
-			)
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/faeff10d-104f-4ca8-a480-26bd51140cf0"
-					(reference "C50")
 					(unit 1)
 				)
 			)
