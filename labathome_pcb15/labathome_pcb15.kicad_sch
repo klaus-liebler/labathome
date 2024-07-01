@@ -5725,17 +5725,6 @@
 		)
 		(uuid "26a9833c-2e5e-457a-a48a-7a3b0867c398")
 	)
-	(label "AO0"
-		(at 24.13 138.43 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "45e6cf7e-af0c-4f05-a12d-bc09828727e0")
-	)
 	(label "USB+"
 		(at 156.21 26.67 0)
 		(fields_autoplaced yes)
@@ -5989,9 +5978,9 @@
 			)
 		)
 	)
-	(global_label "OneWire"
+	(global_label "SCL"
 		(shape bidirectional)
-		(at 24.13 133.35 180)
+		(at 24.13 130.81 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5999,13 +5988,14 @@
 			)
 			(justify right)
 		)
-		(uuid "26c8da95-9acb-4ee9-9d69-3638d5946a07")
+		(uuid "273cb3e2-9039-4b81-9f78-f5bd325f62a0")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at -73.66 -7.62 0)
+			(at 16.5259 130.81 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 				(hide yes)
 			)
 		)
@@ -6439,6 +6429,28 @@
 		(uuid "83d432b7-e07b-45fa-98e6-2d3ceaa8e488")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 135.89 136.9021 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "SDA"
+		(shape bidirectional)
+		(at 24.13 133.35 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "86713676-c62b-4b03-8208-06b82efbc3b4")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 16.4654 133.35 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6901,6 +6913,28 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "1wire"
+		(shape bidirectional)
+		(at 58.42 149.86 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "e51af6a7-00fe-4fa4-9ac1-0f41e2bf2073")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 49.3039 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
 				(hide yes)
 			)
 		)
@@ -8274,7 +8308,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x04")
-		(at 50.8 144.78 0)
+		(at 63.5 144.78 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -8282,7 +8316,7 @@
 		(dnp no)
 		(uuid "54390100-03b2-41d1-9eb5-75b12a735eae")
 		(property "Reference" "J21"
-			(at 52.832 144.9832 0)
+			(at 65.532 144.9832 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8291,7 +8325,7 @@
 			)
 		)
 		(property "Value" "GPIO"
-			(at 52.832 147.2946 0)
+			(at 65.532 147.2946 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8300,7 +8334,7 @@
 			)
 		)
 		(property "Footprint" "liebler_CONN:PhoenixContact_MC_1,5_4-G-3.5_1x04_P3.50mm_Horizontal_smallerCourtyard"
-			(at 50.8 144.78 0)
+			(at 63.5 144.78 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8309,7 +8343,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 50.8 144.78 0)
+			(at 63.5 144.78 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8318,7 +8352,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 50.8 144.78 0)
+			(at 63.5 144.78 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9580,7 +9614,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 24.13 130.81 270)
+		(at 24.13 138.43 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -9588,7 +9622,7 @@
 		(dnp no)
 		(uuid "8ab400a1-bcb2-426b-9dda-da26524a269f")
 		(property "Reference" "#PWR038"
-			(at 17.78 130.81 0)
+			(at 17.78 138.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9597,7 +9631,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 20.8788 130.937 90)
+			(at 20.8788 138.557 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9606,7 +9640,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 24.13 130.81 0)
+			(at 24.13 138.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9615,7 +9649,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 24.13 130.81 0)
+			(at 24.13 138.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9624,7 +9658,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 24.13 130.81 0)
+			(at 24.13 138.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10110,6 +10144,72 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac"
 					(reference "R56")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 58.42 142.24 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "99e3a8e2-b3fc-465b-8e2a-b3e1b2a3f191")
+		(property "Reference" "#PWR0113"
+			(at 52.07 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 55.626 142.24 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 58.42 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 58.42 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 58.42 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "c696897b-c4a8-4e32-893e-85f9fae26ac9")
+		)
+		(instances
+			(project "labathome_pcb15"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac"
+					(reference "#PWR0113")
 					(unit 1)
 				)
 			)
@@ -10693,7 +10793,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "OneWire"
+		(property "Value" "I2C"
 			(at 31.242 135.8646 0)
 			(effects
 				(font
@@ -12090,6 +12190,71 @@
 		)
 	)
 	(symbol
+		(lib_id "power:+3V3")
+		(at 58.42 147.32 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "d8176ce8-4492-437c-b986-66c4506330e5")
+		(property "Reference" "#PWR0109"
+			(at 62.23 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 52.07 147.32 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 58.42 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 58.42 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 58.42 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "b4d88cfe-0ce2-4dda-a242-f4dd90865ca1")
+		)
+		(instances
+			(project "labathome_pcb15"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac"
+					(reference "#PWR0109")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Switch:SW_Push")
 		(at 77.47 140.97 90)
 		(unit 1)
@@ -12234,6 +12399,72 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac"
 					(reference "C5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 58.42 144.78 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "df4242b7-2c9e-4e8b-a56c-fedafa27f5cc")
+		(property "Reference" "#PWR0110"
+			(at 52.07 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 55.626 144.78 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 58.42 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 58.42 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 58.42 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "716589fd-b4f9-46b7-aece-25bc015c7978")
+		)
+		(instances
+			(project "labathome_pcb15"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac"
+					(reference "#PWR0110")
 					(unit 1)
 				)
 			)

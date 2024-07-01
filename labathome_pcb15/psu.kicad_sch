@@ -1671,6 +1671,85 @@
 				)
 			)
 		)
+		(symbol "Mechanical:Fiducial"
+			(exclude_from_sim yes)
+			(in_bom no)
+			(on_board yes)
+			(property "Reference" "FID"
+				(at 0 5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "Fiducial"
+				(at 0 3.175 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Fiducial Marker"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "fiducial marker"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "Fiducial*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "Fiducial_0_1"
+				(circle
+					(center 0 0)
+					(radius 1.27)
+					(stroke
+						(width 0.508)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+		)
 		(symbol "Power_Protection:SRV05-4"
 			(pin_names
 				(offset 0)
@@ -4085,12 +4164,6 @@
 		(uuid "0a409499-6ce8-4659-9a28-643116eb95a5")
 	)
 	(junction
-		(at 219.71 33.02)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "16a8d544-5b7a-4906-9cb7-59d3d4b6a6f0")
-	)
-	(junction
 		(at 166.37 38.1)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4265,6 +4338,12 @@
 		(uuid "b2d05bf8-a329-4aac-9bf8-d96a8e353eea")
 	)
 	(junction
+		(at 219.71 33.02)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b8eaf6ab-597f-46b3-aa8e-e27abebb0a6c")
+	)
+	(junction
 		(at 218.44 35.56)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4386,6 +4465,16 @@
 	)
 	(wire
 		(pts
+			(xy 246.38 31.75) (xy 226.06 31.75)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "11e4550a-ab34-421e-a708-fee629c2ff9e")
+	)
+	(wire
+		(pts
 			(xy 208.28 50.8) (xy 218.44 50.8)
 		)
 		(stroke
@@ -4433,6 +4522,16 @@
 			(type default)
 		)
 		(uuid "1cef3d47-10af-4070-9374-9b916764ffcb")
+	)
+	(wire
+		(pts
+			(xy 226.06 31.75) (xy 226.06 33.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1d7a3f1f-0c1b-4cac-877d-e2b0da2a443b")
 	)
 	(wire
 		(pts
@@ -4983,6 +5082,16 @@
 			(type default)
 		)
 		(uuid "cd445cfb-a880-4266-a77c-1725567b1cda")
+	)
+	(wire
+		(pts
+			(xy 226.06 33.02) (xy 219.71 33.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d2265c8e-1af9-41c6-b6fd-a85438b235d3")
 	)
 	(wire
 		(pts
@@ -5791,6 +5900,76 @@
 		)
 	)
 	(symbol
+		(lib_id "Switch:SW_SPDT")
+		(at 251.46 31.75 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "1b45f33d-cb4f-41ef-a3ec-41288be09e0f")
+		(property "Reference" "SW4"
+			(at 251.46 24.511 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "BATT POWER"
+			(at 251.46 36.576 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "liebler_MECH:Switch_SS12D00"
+			(at 251.46 31.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 251.46 31.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 251.46 31.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "6454b470-818c-4e38-b4d5-82221c05fb30")
+		)
+		(pin "2"
+			(uuid "0d70b295-08d5-4451-bf7e-87c653cc963b")
+		)
+		(pin "3"
+			(uuid "a90d38c9-2894-4923-95d8-576030e0bd2e")
+		)
+		(instances
+			(project "labathome_pcb15"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/77dfbe0c-d674-478a-bf0e-cfa040fb2e8f"
+					(reference "SW4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 199.39 25.4 180)
 		(unit 1)
@@ -6514,7 +6693,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Inductor_SMD:L_Abracon_ASPI-0630LR"
+		(property "Footprint" "liebler_PASSIVES:L_0630"
 			(at 190.5 35.56 0)
 			(effects
 				(font
@@ -7474,16 +7653,16 @@
 	)
 	(symbol
 		(lib_id "power:+5V")
-		(at 219.71 33.02 270)
+		(at 256.54 29.21 270)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "7a6ca79d-dd47-4282-b04d-15900ac27065")
 		(property "Reference" "#PWR035"
-			(at 215.9 33.02 0)
+			(at 252.73 29.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7492,7 +7671,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 223.52 33.0199 90)
+			(at 260.35 29.2101 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7501,7 +7680,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 219.71 33.02 0)
+			(at 256.54 29.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7510,7 +7689,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 219.71 33.02 0)
+			(at 256.54 29.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7519,7 +7698,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 219.71 33.02 0)
+			(at 256.54 29.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8249,6 +8428,70 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/77dfbe0c-d674-478a-bf0e-cfa040fb2e8f"
 					(reference "SW9")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Mechanical:Fiducial")
+		(at 97.79 72.39 0)
+		(unit 1)
+		(exclude_from_sim yes)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "a11cd6dd-c18f-406e-872f-fde4f95be14f")
+		(property "Reference" "DRAWING1"
+			(at 100.33 71.1199 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Polarity"
+			(at 100.33 73.6599 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "liebler_DRAWINGS:barrel_jack_positive_polarity"
+			(at 97.79 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 97.79 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Fiducial Marker"
+			(at 97.79 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(instances
+			(project ""
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/77dfbe0c-d674-478a-bf0e-cfa040fb2e8f"
+					(reference "DRAWING1")
 					(unit 1)
 				)
 			)

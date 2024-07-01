@@ -10440,7 +10440,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "Conn_01x06"
+		(property "Value" "G D C T R 3"
 			(at 46.99 99.0599 0)
 			(effects
 				(font
