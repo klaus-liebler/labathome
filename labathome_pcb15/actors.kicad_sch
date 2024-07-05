@@ -2811,6 +2811,126 @@
 				)
 			)
 		)
+		(symbol "power:+3V3"
+			(power)
+			(pin_numbers hide)
+			(pin_names
+				(offset 0) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "#PWR"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Value" "+3V3"
+				(at 0 3.556 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Power symbol creates a global label with name \"+3V3\""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "global power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "+3V3_0_1"
+				(polyline
+					(pts
+						(xy -0.762 1.27) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 0) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 2.54) (xy 0.762 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "+3V3_1_1"
+				(pin power_in line
+					(at 0 0 90)
+					(length 0)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
 		(symbol "power:+5V"
 			(power)
 			(pin_names
@@ -3189,12 +3309,6 @@
 		(uuid "ceae6df0-adaa-4e8b-b443-48a831695d89")
 	)
 	(junction
-		(at 160.02 72.39)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "cf460bbf-4bd6-48f4-90d3-4f34c1d27acc")
-	)
-	(junction
 		(at 80.01 33.02)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -3348,16 +3462,6 @@
 	)
 	(wire
 		(pts
-			(xy 151.13 69.85) (xy 152.4 69.85)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "85b3ec5e-2d86-4d03-a9bc-4b3e47c452d7")
-	)
-	(wire
-		(pts
 			(xy 33.02 68.58) (xy 38.1 68.58)
 		)
 		(stroke
@@ -3408,6 +3512,16 @@
 	)
 	(wire
 		(pts
+			(xy 160.02 67.31) (xy 151.13 67.31)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8f0e6083-feab-4dd7-be43-1360732d9115")
+	)
+	(wire
+		(pts
 			(xy 80.01 35.56) (xy 80.01 33.02)
 		)
 		(stroke
@@ -3445,16 +3559,6 @@
 			(type default)
 		)
 		(uuid "adecca58-2e46-464f-b093-01db72e06dcc")
-	)
-	(wire
-		(pts
-			(xy 152.4 69.85) (xy 152.4 67.31)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "af70b0e6-f2ac-4b47-be72-ea258a09bb6d")
 	)
 	(wire
 		(pts
@@ -3538,26 +3642,6 @@
 	)
 	(wire
 		(pts
-			(xy 152.4 67.31) (xy 160.02 67.31)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d7fa063c-aa8a-441e-8408-a599e039be8b")
-	)
-	(wire
-		(pts
-			(xy 160.02 69.85) (xy 160.02 72.39)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e230e23b-cb3d-4034-9f88-1845a05f46d7")
-	)
-	(wire
-		(pts
 			(xy 128.27 77.47) (xy 143.51 77.47)
 		)
 		(stroke
@@ -3605,6 +3689,16 @@
 			(type default)
 		)
 		(uuid "fe4632f1-7466-49b6-8d34-1adc687986b4")
+	)
+	(wire
+		(pts
+			(xy 151.13 67.31) (xy 151.13 69.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fe7dddfd-f195-4105-a7e8-819eaa459209")
 	)
 	(rectangle
 		(start 13.97 15.24)
@@ -4372,7 +4466,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
 			(at 43.18 31.242 90)
 			(effects
 				(font
@@ -4783,7 +4877,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "LED_SMD:LED_0805_2012Metric"
+		(property "Footprint" "LED_SMD:LED_0805_2012Metric_Pad1.15x1.40mm_HandSolder"
 			(at 17.78 69.85 0)
 			(effects
 				(font
@@ -5163,7 +5257,7 @@
 	)
 	(symbol
 		(lib_id "power:+5V")
-		(at 160.02 64.77 90)
+		(at 160.02 69.85 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5171,7 +5265,7 @@
 		(dnp no)
 		(uuid "32428d8c-01f2-4269-8bad-7957b339f31e")
 		(property "Reference" "#PWR0104"
-			(at 163.83 64.77 0)
+			(at 163.83 69.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5180,7 +5274,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 157.48 64.77 90)
+			(at 157.48 69.85 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5189,7 +5283,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 160.02 64.77 0)
+			(at 160.02 69.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5198,7 +5292,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 160.02 64.77 0)
+			(at 160.02 69.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5207,7 +5301,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 160.02 64.77 0)
+			(at 160.02 69.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5939,7 +6033,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "LED_SMD:LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm"
+		(property "Footprint" "liebler_OPTO:WS2812b_handsolder"
 			(at 144.78 77.47 0)
 			(effects
 				(font
@@ -6189,6 +6283,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:+3V3")
+		(at 160.02 64.77 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "64e88b26-5875-42b8-9e73-81272361f877")
+		(property "Reference" "#PWR0200"
+			(at 163.83 64.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 157.48 64.77 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 160.02 64.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 160.02 64.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 160.02 64.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "cdacc5e2-f54e-4a92-b7bb-60b5652d3a4e")
+		)
+		(instances
+			(project ""
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/7cc4a29d-fb70-4313-b60c-aaf23d93fc45"
+					(reference "#PWR0200")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "LED:WS2812B")
 		(at 97.79 69.85 0)
 		(unit 1)
@@ -6215,7 +6375,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "LED_SMD:LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm"
+		(property "Footprint" "liebler_OPTO:WS2812b_handsolder"
 			(at 99.06 77.47 0)
 			(effects
 				(font
@@ -6491,7 +6651,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "LED_SMD:LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm"
+		(property "Footprint" "liebler_OPTO:WS2812b_handsolder"
 			(at 129.54 77.47 0)
 			(effects
 				(font
@@ -6765,7 +6925,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "LED_SMD:LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm"
+		(property "Footprint" "liebler_OPTO:WS2812b_handsolder"
 			(at 114.3 77.47 0)
 			(effects
 				(font

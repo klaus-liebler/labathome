@@ -3860,7 +3860,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 237.7948 125.73 0)
 			(effects
 				(font
@@ -6422,7 +6422,7 @@
 				)
 			)
 		)
-		(property "Value" "1M"
+		(property "Value" "M1"
 			(at 262.89 123.19 90)
 			(effects
 				(font
@@ -6430,7 +6430,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
 			(at 262.89 121.412 90)
 			(effects
 				(font
