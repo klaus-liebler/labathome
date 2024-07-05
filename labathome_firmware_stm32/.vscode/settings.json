@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "cinttypes": "cpp",
+        "cstring": "cpp",
+        "stm32g4xx_it.h": "c",
+        "usbpd.h": "c",
+        "errno.h": "c",
+        "string.h": "c",
+        "stdbool.h": "c",
+        "stdarg.h": "c"
+    }
+}
