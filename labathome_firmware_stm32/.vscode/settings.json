@@ -7,6 +7,10 @@
         "errno.h": "c",
         "string.h": "c",
         "stdbool.h": "c",
-        "stdarg.h": "c"
+        "stdarg.h": "c",
+        "cstdio": "cpp",
+        "typeinfo": "cpp",
+        "stdio.h": "c",
+        "main.h": "c"
     }
 }

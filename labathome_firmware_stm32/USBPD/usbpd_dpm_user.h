@@ -71,6 +71,7 @@
   * @{
   */
 void                USBPD_DPM_WaitForTime(uint32_t Time);
+void                USBPD_DPM_UserExecute(void const *argument);
 void                USBPD_DPM_UserCableDetection(uint8_t PortNum, USBPD_CAD_EVENT State);
 
 /**

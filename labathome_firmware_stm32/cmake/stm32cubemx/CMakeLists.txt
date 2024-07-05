@@ -9,7 +9,6 @@ enable_language(C ASM)
 target_compile_definitions(stm32cubemx INTERFACE 
 	USE_FULL_LL_DRIVER 
 	USBPD_PORT_COUNT=1 
-	_RTOS 
 	_SNK 
 	USBPDCORE_LIB_NO_PD 
 	USE_HAL_DRIVER 
@@ -18,14 +17,11 @@ target_compile_definitions(stm32cubemx INTERFACE
 )
 
 target_include_directories(stm32cubemx INTERFACE
-    ../../Core/Inc
     ../../USBPD/App
     ../../USBPD
+    ../../Core/Inc
     ../../Drivers/STM32G4xx_HAL_Driver/Inc
     ../../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy
-    ../../Middlewares/Third_Party/FreeRTOS/Source/include
-    ../../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2
-    ../../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F
     ../../Middlewares/ST/STM32_USBPD_Library/Core/inc
     ../../Middlewares/ST/STM32_USBPD_Library/Devices/STM32G4XX/inc
     ../../Drivers/CMSIS/Device/ST/STM32G4xx/Include
@@ -34,7 +30,6 @@ target_include_directories(stm32cubemx INTERFACE
 
 target_sources(stm32cubemx INTERFACE
     ../../Core/Src/main.c
-    ../../Core/Src/app_freertos.c
     ../../Core/Src/stm32g4xx_it.c
     ../../Core/Src/stm32g4xx_hal_msp.c
     ../../Core/Src/stm32g4xx_hal_timebase_tim.c
@@ -45,6 +40,7 @@ target_sources(stm32cubemx INTERFACE
     ../../USBPD/App/usbpd.c
     ../../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_utils.c
     ../../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_exti.c
+    ../../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_gpio.c
     ../../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_adc.c
     ../../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_adc_ex.c
     ../../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_adc.c
@@ -70,23 +66,12 @@ target_sources(stm32cubemx INTERFACE
     ../../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_uart.c
     ../../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_uart_ex.c
     ../../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_ucpd.c
-    ../../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_gpio.c
     ../../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_dma.c
     ../../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_pcd.c
     ../../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_pcd_ex.c
     ../../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_usb.c
     ../../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_tim.c
     ../../Core/Src/system_stm32g4xx.c
-    ../../Middlewares/Third_Party/FreeRTOS/Source/croutine.c
-    ../../Middlewares/Third_Party/FreeRTOS/Source/event_groups.c
-    ../../Middlewares/Third_Party/FreeRTOS/Source/list.c
-    ../../Middlewares/Third_Party/FreeRTOS/Source/queue.c
-    ../../Middlewares/Third_Party/FreeRTOS/Source/stream_buffer.c
-    ../../Middlewares/Third_Party/FreeRTOS/Source/tasks.c
-    ../../Middlewares/Third_Party/FreeRTOS/Source/timers.c
-    ../../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c
-    ../../Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c
-    ../../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
     ../../Middlewares/ST/STM32_USBPD_Library/Core/src/usbpd_trace.c
     ../../Middlewares/ST/STM32_USBPD_Library/Devices/STM32G4XX/src/usbpd_cad_hw_if.c
     ../../Middlewares/ST/STM32_USBPD_Library/Devices/STM32G4XX/src/usbpd_hw.c

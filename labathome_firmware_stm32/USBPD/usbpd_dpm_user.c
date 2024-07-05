@@ -23,7 +23,6 @@
 #include "main.h"
 #include "usbpd_core.h"
 #include "usbpd_dpm_user.h"
-#include "cmsis_os.h"
 #if defined(_TRACE)
 #include "usbpd_trace.h"
 #include "string.h"
@@ -133,7 +132,7 @@
   */
 void USBPD_DPM_WaitForTime(uint32_t Time)
 {
-  osDelay(Time);
+  HAL_Delay(Time);
 }
 
 /**
@@ -141,11 +140,7 @@ void USBPD_DPM_WaitForTime(uint32_t Time)
   * @param  argument  DPM User event
   * @retval None
   */
-#if (osCMSIS < 0x20000U)
 void USBPD_DPM_UserExecute(void const *argument)
-#else
-void USBPD_DPM_UserExecute(void *argument)
-#endif /* osCMSIS < 0x20000U */
 {
 /* USER CODE BEGIN USBPD_DPM_UserExecute */
 

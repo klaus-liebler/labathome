@@ -4,6 +4,12 @@
 #include <stdarg.h>
 #include <stdbool.h>
 
+
+//to avoid intellisense errors, see https://github.com/microsoft/vscode-cpptools/issues/11164
+#if __INTELLISENSE__
+#define __FILE_NAME__  __FILE__
+#endif
+
 #ifdef __cplusplus
  extern "C" {
 #endif
