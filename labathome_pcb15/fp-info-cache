@@ -1,4 +1,4 @@
-24179525504662233
+24181245759325317
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -96921,6 +96921,13 @@ Through hole pin header THT 2x03 1.27mm double row
 0
 6
 6
+liebler_CONN
+IDC_2x07_P1.27mm_Vertical
+Through hole straight pin header, 2x03, 1.27mm pitch, double rows
+Through hole pin header THT 2x03 1.27mm double row
+0
+14
+14
 liebler_CONN
 JST_SH_BM06B-SRSS-TB_1x06-1MP_P1.00mm_Vertical_handsolder
 JST SH series connector, BM06B-SRSS-TB (http://www.jst-mfg.com/product/pdf/eng/eSH.pdf), generated with kicad-footprint-generator
