@@ -72,6 +72,119 @@ __IO uint16_t* adc1Data16 = (uint16_t*)adc1Data32;
 __IO uint32_t  adc2Data32[1];//ADC2.12 (Brightness) und ADC2.15 (ADC2)
 __IO uint16_t* adc2Data16 = (uint16_t*)adc2Data32;
 
+void SetupAndStartI2CSlave(I2C_HandleTypeDef *hi2c)
+{
+    memset(rx_buf, 0, RX_BUFFER_SIZE);
+    memset(tx_buf, 0, TX_BUFFER_SIZE);
+    HAL_ERROR_CHECK(HAL_I2C_EnableListen_IT(hi2c));
+}
+
+void SetServoAngle(uint8_t servo_1_2_3, uint8_t angle_0_180)
+{
+    if(angle_0_180>180){
+        return;
+    }
+    float pulse_length = 1.0 + (angle_0_180 / 180.0);  // 1.0 ms - 2.0 ms Impulsweite
+    uint32_t pulse = (uint32_t)(1000 * pulse_length); 
+    if(servo_1_2_3==1){ 
+        __HAL_TIM_SET_COMPARE(&htim15, TIM_CHANNEL_1, pulse);
+
+    }
+    else if(servo_1_2_3==2){
+        __HAL_TIM_SET_COMPARE(&htim15, TIM_CHANNEL_2, pulse);
+    } else if(servo_1_2_3==3){
+        __HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, pulse);
+    }
+}
+
+void SetFanSpeed(uint8_t power_0_100)
+{
+    if(power_0_100>100){
+        power_0_100=100;
+    }
+    uint32_t pulse = power_0_100*10; 
+    __HAL_TIM_SET_COMPARE(&htim17, TIM_CHANNEL_1, pulse);
+}
+
+void SetHeaterPower(uint8_t power_0_100)
+{
+    if(power_0_100>100){
+        power_0_100=100;
+    }
+    uint32_t pulse = power_0_100*10; 
+    __HAL_TIM_SET_COMPARE(&htim17, TIM_CHANNEL_1, pulse);
+}
+
+void SetLedPowerPower(uint8_t power_0_100)
+{
+    if(power_0_100>100){
+        power_0_100=100;
+    }
+    uint32_t pulse = power_0_100*10; 
+    __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_4, pulse);
+}
+
+void app_setup()
+{
+    SetupAndStartI2CSlave(&hi2c1);
+    HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
+    HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_4);
+    HAL_TIM_PWM_Start(&htim15, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim15, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(&htim16, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim17, TIM_CHANNEL_1);
+    HAL_NVIC_DisableIRQ(DMA1_Channel1_IRQn);
+    HAL_NVIC_DisableIRQ(DMA1_Channel2_IRQn);
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc1Data32, 4);
+}
+
+void app_loop20ms(){
+
+    
+   
+}
+
+void app_loop1000ms(){
+    log_info("enco=%d heater=%d adc1=%lu, temp=%lu, vbat=%lu, vref=%lu", TIM2->CNT, rx_buf[HEATER_POS], adc1Data16[0], adc1Data16[1], adc1Data16[2], adc1Data16[3]);
+}
+
+void app_loop_1ms_irq_context(){
+    //Heater; Wert ist von 0-100; Zyklus dauert 1000ms
+    static uint32_t startOfCycle=uwTick;
+    uint32_t passedTime=uwTick-startOfCycle;
+    if(passedTime>=(10*100)){
+        startOfCycle=uwTick;
+        if(rx_buf[HEATER_POS]>0){
+            //log_info("NEW ON");
+            LL_GPIO_SetOutputPin(BL_ENABLE_OR_LED_GPIO_Port, BL_ENABLE_OR_LED_Pin);
+        }else{
+            //log_info("NEW OFF");
+        }
+    }
+    else if(passedTime>=10*rx_buf[HEATER_POS] && LL_GPIO_IsOutputPinSet(BL_ENABLE_OR_LED_GPIO_Port, BL_ENABLE_OR_LED_Pin)){
+        LL_GPIO_ResetOutputPin(BL_ENABLE_OR_LED_GPIO_Port, BL_ENABLE_OR_LED_Pin);
+        //log_info("OFF after %lu", passedTime);
+    }
+}
+
+
+void app_loop(){
+    static uint32_t last20ms=0;
+    static uint32_t last1000ms=0;
+    uint32_t now=uwTick;
+    uint32_t timePassed20=now-last20ms;
+    if(timePassed20>=20){
+        last20ms=now;
+        app_loop20ms();
+    }
+    uint32_t timePassed1000=now-last1000ms;
+    if(timePassed1000>=1000){
+        last1000ms=now;
+        app_loop1000ms();
+    }
+}
+
+//I2C callbacks
 
 void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
@@ -160,116 +273,4 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
         log_error("I2C Error %d", error_code);
     }
     HAL_I2C_EnableListen_IT(hi2c);
-}
-
-void SetupAndStartI2CSlave(I2C_HandleTypeDef *hi2c)
-{
-    memset(rx_buf, 0, RX_BUFFER_SIZE);
-    memset(tx_buf, 0, TX_BUFFER_SIZE);
-    HAL_ERROR_CHECK(HAL_I2C_EnableListen_IT(hi2c));
-}
-
-void SetServoAngle(uint8_t servo_1_2_3, uint8_t angle_0_180)
-{
-    if(angle_0_180>180){
-        return;
-    }
-    float pulse_length = 1.0 + (angle_0_180 / 180.0);  // 1.0 ms - 2.0 ms Impulsweite
-    uint32_t pulse = (uint32_t)(1000 * pulse_length); 
-    if(servo_1_2_3==1){ 
-        __HAL_TIM_SET_COMPARE(&htim15, TIM_CHANNEL_1, pulse);
-
-    }
-    else if(servo_1_2_3==2){
-        __HAL_TIM_SET_COMPARE(&htim15, TIM_CHANNEL_2, pulse);
-    } else if(servo_1_2_3==3){
-        __HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, pulse);
-    }
-}
-
-void SetFanSpeed(uint8_t power_0_100)
-{
-    if(power_0_100>100){
-        power_0_100=100;
-    }
-    uint32_t pulse = power_0_100*10; 
-    __HAL_TIM_SET_COMPARE(&htim17, TIM_CHANNEL_1, pulse);
-}
-
-void SetHeaterPower(uint8_t power_0_100)
-{
-    if(power_0_100>100){
-        power_0_100=100;
-    }
-    uint32_t pulse = power_0_100*10; 
-    __HAL_TIM_SET_COMPARE(&htim17, TIM_CHANNEL_1, pulse);
-}
-
-void SetLedPowerPower(uint8_t power_0_100)
-{
-    if(power_0_100>100){
-        power_0_100=100;
-    }
-    uint32_t pulse = power_0_100*10; 
-    __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_4, pulse);
-}
-
-void app_setup()
-{
-    SetupAndStartI2CSlave(&hi2c1);
-    HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
-    HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_4);
-    HAL_TIM_PWM_Start(&htim15, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Start(&htim15, TIM_CHANNEL_2);
-    HAL_TIM_PWM_Start(&htim16, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Start(&htim17, TIM_CHANNEL_1);
-    HAL_NVIC_DisableIRQ(DMA1_Channel1_IRQn);
-    HAL_NVIC_DisableIRQ(DMA1_Channel2_IRQn);
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc1Data32, 4);
-}
-
-void app_loop20ms(){
-
-    
-   
-}
-
-void app_loop1000ms(){
-    log_info("enco=%d heater=%d adc1=%lu, temp=%lu, vbat=%lu, vref=%lu", TIM2->CNT, rx_buf[HEATER_POS], adc1Data[0], adc1Data[1], adc1Data[2], adc1Data[3]);
-}
-
-void app_loop_1ms_irq_context(){
-    //Heater; Wert ist von 0-100; Zyklus dauert 1000ms
-    static uint32_t startOfCycle=uwTick;
-    uint32_t passedTime=uwTick-startOfCycle;
-    if(passedTime>=(10*100)){
-        startOfCycle=uwTick;
-        if(rx_buf[HEATER_POS]>0){
-            //log_info("NEW ON");
-            LL_GPIO_SetOutputPin(BL_ENABLE_OR_LED_GPIO_Port, BL_ENABLE_OR_LED_Pin);
-        }else{
-            //log_info("NEW OFF");
-        }
-    }
-    else if(passedTime>=10*rx_buf[HEATER_POS] && LL_GPIO_IsOutputPinSet(BL_ENABLE_OR_LED_GPIO_Port, BL_ENABLE_OR_LED_Pin)){
-        LL_GPIO_ResetOutputPin(BL_ENABLE_OR_LED_GPIO_Port, BL_ENABLE_OR_LED_Pin);
-        //log_info("OFF after %lu", passedTime);
-    }
-}
-
-
-void app_loop(){
-    static uint32_t last20ms=0;
-    static uint32_t last1000ms=0;
-    uint32_t now=uwTick;
-    uint32_t timePassed20=now-last20ms;
-    if(timePassed20>=20){
-        last20ms=now;
-        app_loop20ms();
-    }
-    uint32_t timePassed1000=now-last1000ms;
-    if(timePassed1000>=1000){
-        last1000ms=now;
-        app_loop1000ms();
-    }
 }
