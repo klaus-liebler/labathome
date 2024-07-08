@@ -33,6 +33,7 @@ extern PCD_HandleTypeDef hpcd_USB_FS;
 
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
+extern DAC_HandleTypeDef hdac1;
 
 //TX
 constexpr size_t TX_BUFFER_SIZE{12};
@@ -66,9 +67,9 @@ constexpr size_t THREEPHASE_P3_DUTY_POS{17};
 
 //ADC
 /* Variables for ADC conversion data */
-__IO uint32_t  adc1Data32[4];//ADC1.5 (ADC1), Temp, Vbat, Vrefint
+__IO uint32_t  adc1Data32[2];//ADC1.5 (ADC1), Temp, Vbat, Vrefint
 __IO uint16_t* adc1Data16 = (uint16_t*)adc1Data32;
-__IO uint32_t  adc2Data32[2];//ADC2.12 (Brightness) und ADC2.15 (ADC2)
+__IO uint32_t  adc2Data32[1];//ADC2.12 (Brightness) und ADC2.15 (ADC2)
 __IO uint16_t* adc2Data16 = (uint16_t*)adc2Data32;
 
 
@@ -79,6 +80,33 @@ void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c)
 
 void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
+    //TODO: Dieser Aufruf passiert nur, wenn der komplette buffer übermittelt wird
+    //Falls später mal nur relevante Teile des Buffers übertragen werden sollen, dann muss das intelligenter passieren, also auch bei einem Abbruch
+    //write rx_buffer to my outputs
+    if(ParseU8(rx_buf, RELAY_BLRESET_POS)&& 0b1){
+        LL_GPIO_SetOutputPin(RELAY_GPIO_Port, RELAY_Pin);
+    }else{
+        LL_GPIO_ResetOutputPin(RELAY_GPIO_Port, RELAY_Pin);
+    }
+
+    if(ParseU8(rx_buf, RELAY_BLRESET_POS)&& 0b10){
+        LL_GPIO_SetOutputPin(BL_RESET_GPIO_Port, BL_RESET_Pin);
+    }else{
+        LL_GPIO_ResetOutputPin(BL_RESET_GPIO_Port, BL_RESET_Pin);
+    }
+    
+    SetServoAngle(1, ParseU8(rx_buf, SERVO1_POS));
+    SetServoAngle(2, ParseU8(rx_buf, SERVO2_POS));
+    SetServoAngle(3, ParseU8(rx_buf, SERVO3_POS));
+    SetFanSpeed(ParseU8(rx_buf, FAN_POS));
+    //TODO USBC
+    HAL_DAC_SetValue(&hdac1, DAC1_CHANNEL_1, DAC_ALIGN_12B_R, ParseU16(rx_buf, DAC1_POS));
+    HAL_DAC_SetValue(&hdac1, DAC1_CHANNEL_2, DAC_ALIGN_12B_R, ParseU16(rx_buf, DAC2_POS));
+    SetHeaterPower(ParseU8(rx_buf, HEATER_POS));
+    SetLedPowerPower(ParseU8(rx_buf, LED_POWER_POS));
+    //TODO Brushless Mode
+    //TODO Brushless Speeds
+    //Start the whole process
     HAL_I2C_EnableListen_IT(hi2c);
 }
 
@@ -87,6 +115,19 @@ void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, ui
     UNUSED(AddrMatchCode);
     if (TransferDirection == I2C_DIRECTION_RECEIVE) // TransferDirection is master perspective
     {
+        //write my inputs to tx buffer
+        WriteU8(0, tx_buf, STATUS_POS);
+        uint8_t singleBitInputs = 
+            (LL_GPIO_IsInputPinSet(BTN_RED_GPIO_Port, BTN_RED_Pin)<<0) || 
+            (LL_GPIO_IsInputPinSet(BTN_YEL_GPIO_Port, BTN_YEL_Pin)<<1) || 
+            (LL_GPIO_IsInputPinSet(MOVEMENT_SENSOR_GPIO_Port, MOVEMENT_SENSOR_Pin)<<2) 
+            ||(LL_GPIO_IsInputPinSet(BL_FAULT_GPIO_Port, BL_FAULT_Pin)<<3); 
+        WriteU8(singleBitInputs,tx_buf, BTN_MOVEMENT_BLFAULT_POS);
+        WriteU16(TIM2->CNT, tx_buf, ROTENC_POS);
+        WriteU16(adc2Data16[0], tx_buf, BRIGHTNESS_POS);
+        //USB_PD as is
+        WriteU16(adc1Data16[0], tx_buf, ADC1_POS);
+        WriteU16(adc2Data16[1], tx_buf, ADC2_POS);
         HAL_ERROR_CHECK(HAL_I2C_Slave_Seq_Transmit_IT(hi2c, (uint8_t *)tx_buf, TX_BUFFER_SIZE, I2C_FIRST_AND_LAST_FRAME));
     }
     else
@@ -184,21 +225,13 @@ void app_setup()
     HAL_TIM_PWM_Start(&htim17, TIM_CHANNEL_1);
     HAL_NVIC_DisableIRQ(DMA1_Channel1_IRQn);
     HAL_NVIC_DisableIRQ(DMA1_Channel2_IRQn);
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc1Data, 4);
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc1Data32, 4);
 }
 
 void app_loop20ms(){
-    WriteU8(0, tx_buf, STATUS_POS);
-    WriteU8(3,tx_buf, BTN_MOVEMENT_BLFAULT_POS);
-    WriteU16(TIM2->CNT, tx_buf, ROTENC_POS);
-    WriteU16(adc1Data[0], tx_buf, ADC1_POS);
-    //log_info("TxCplt = %lu, RxCplt = %lu, Addr = %lu ,Listen = %lu; ram content %d %d %d %d\r\n", cntSlaveTxCpltCallback, cntSlaveRxCpltCallback, cntAddrCallback, cntListenCallback, ram[0], ram[1], ram[2], ram[3]);
+
     
-    rx_buf[HEATER_POS]=adc1Data[0]>>5;
-    
-    SetServoAngle(1, ParseU8(rx_buf, SERVO1_POS));
-    SetServoAngle(2, ParseU8(rx_buf, SERVO2_POS));
-    SetServoAngle(3, ParseU8(rx_buf, SERVO3_POS));
+   
 }
 
 void app_loop1000ms(){

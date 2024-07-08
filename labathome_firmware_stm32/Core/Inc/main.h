@@ -71,6 +71,10 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define BTN_YEL_Pin LL_GPIO_PIN_13
+#define BTN_YEL_GPIO_Port GPIOC
+#define MOVEMENT_SENSOR_Pin LL_GPIO_PIN_14
+#define MOVEMENT_SENSOR_GPIO_Port GPIOC
 #define ENC_A_Pin LL_GPIO_PIN_0
 #define ENC_A_GPIO_Port GPIOA
 #define ENC_B_Pin LL_GPIO_PIN_1

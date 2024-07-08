@@ -113,7 +113,7 @@ uint32_t PORT0_PDO_ListSNK[USBPD_MAX_NB_PDO] =
 
     /* Common definitions applicable to all PDOs, defined only in PDO 1 */
     USBPD_PDO_SNK_FIXED_FRS_NOT_SUPPORTED          | /* Fast Role Swap				 */
-    USBPD_PDO_SNK_FIXED_DRD_SUPPORTED          | /* Dual-Role Data              */
+    USBPD_PDO_SNK_FIXED_DRD_NOT_SUPPORTED          | /* Dual-Role Data              */
     USBPD_PDO_SNK_FIXED_USBCOMM_NOT_SUPPORTED      | /* USB Communications          */
     USBPD_PDO_SNK_FIXED_EXT_POWER_NOT_AVAILABLE    | /* External Power              */
     USBPD_PDO_SNK_FIXED_HIGHERCAPAB_NOT_SUPPORTED   | /* Higher Capability           */

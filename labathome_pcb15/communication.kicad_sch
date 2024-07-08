@@ -2031,29 +2031,29 @@
 				)
 			)
 		)
-		(symbol "Switch:SW_SPDT"
+		(symbol "liebler_MECH:SW_SPDT_with_Case"
 			(pin_names
 				(offset 0) hide)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "SW"
-				(at 0 4.318 0)
+			(property "Reference" "SW1"
+				(at 0 7.62 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
 				)
 			)
-			(property "Value" "SW_SPDT"
-				(at 0 -5.08 0)
+			(property "Value" "SW_SPDT_with_Case"
+				(at 0 5.08 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
 				)
 			)
-			(property "Footprint" ""
+			(property "Footprint" "liebler_MECH:SW_SPDT_PCM12_handsolder"
 				(at 0 0 0)
 				(effects
 					(font
@@ -2089,7 +2089,7 @@
 					(hide yes)
 				)
 			)
-			(symbol "SW_SPDT_0_0"
+			(symbol "SW_SPDT_with_Case_0_0"
 				(circle
 					(center -2.032 0)
 					(radius 0.508)
@@ -2113,7 +2113,7 @@
 					)
 				)
 			)
-			(symbol "SW_SPDT_0_1"
+			(symbol "SW_SPDT_with_Case_0_1"
 				(polyline
 					(pts
 						(xy -1.524 0.254) (xy 1.651 2.286)
@@ -2138,7 +2138,7 @@
 					)
 				)
 			)
-			(symbol "SW_SPDT_1_1"
+			(symbol "SW_SPDT_with_Case_1_1"
 				(pin passive line
 					(at 5.08 2.54 180)
 					(length 2.54)
@@ -2186,6 +2186,24 @@
 						)
 					)
 					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -6.35 90)
+					(length 2.54)
+					(name "CASE"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "CASE"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -4878,6 +4896,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 144.78 82.55 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "306efba0-453e-4759-9ec1-21feef790df8")
+		(property "Reference" "#PWR0211"
+			(at 151.13 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 148.0312 82.423 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 144.78 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 144.78 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 144.78 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "ac4dfc0e-d86c-401f-9e34-fc08f2a9b573")
+		)
+		(instances
+			(project "labathome_pcb15"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/30ce59dc-c3cd-4018-ad35-6ea0c32a1935"
+					(reference "#PWR0211")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Interface_UART:MAX3485")
 		(at 34.29 74.93 0)
 		(unit 1)
@@ -5648,7 +5732,7 @@
 		)
 	)
 	(symbol
-		(lib_id "Switch:SW_SPDT")
+		(lib_id "liebler_MECH:SW_SPDT_with_Case")
 		(at 138.43 82.55 90)
 		(unit 1)
 		(exclude_from_sim no)
@@ -5664,7 +5748,7 @@
 				)
 			)
 		)
-		(property "Value" "TERM ON"
+		(property "Value" "ON CAN TERM"
 			(at 139.7 80.01 0)
 			(effects
 				(font
@@ -5690,7 +5774,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Switch, single pole double throw"
 			(at 138.43 82.55 0)
 			(effects
 				(font
@@ -5708,10 +5792,78 @@
 		(pin "3"
 			(uuid "2d465797-e4d0-4e6e-8073-59121d0fcd85")
 		)
+		(pin "CASE"
+			(uuid "be570adc-8fb7-46ce-8ab9-edc5c67cb9f7")
+		)
 		(instances
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/30ce59dc-c3cd-4018-ad35-6ea0c32a1935"
 					(reference "SW3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 57.15 59.69 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "6ff942d3-89e0-4915-8d65-afe3cca02232")
+		(property "Reference" "#PWR0213"
+			(at 63.5 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 58.42 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 57.15 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 57.15 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 57.15 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a6aa6c7e-dbd0-40d1-a03d-44be4d014d3c")
+		)
+		(instances
+			(project "labathome_pcb15"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/30ce59dc-c3cd-4018-ad35-6ea0c32a1935"
+					(reference "#PWR0213")
 					(unit 1)
 				)
 			)
@@ -6047,7 +6199,7 @@
 		)
 	)
 	(symbol
-		(lib_id "Switch:SW_SPDT")
+		(lib_id "liebler_MECH:SW_SPDT_with_Case")
 		(at 57.15 66.04 0)
 		(mirror x)
 		(unit 1)
@@ -6064,7 +6216,7 @@
 				)
 			)
 		)
-		(property "Value" "OFF TERM  ON"
+		(property "Value" "ON RS TERM"
 			(at 57.15 70.9676 0)
 			(effects
 				(font
@@ -6090,7 +6242,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Switch, single pole double throw"
 			(at 57.15 66.04 0)
 			(effects
 				(font
@@ -6107,6 +6259,9 @@
 		)
 		(pin "3"
 			(uuid "9bbc0339-b08a-4179-b4b8-e1852ce58806")
+		)
+		(pin "CASE"
+			(uuid "c985fd26-c389-4409-8620-1463c573b7fa")
 		)
 		(instances
 			(project "labathome_pcb15"

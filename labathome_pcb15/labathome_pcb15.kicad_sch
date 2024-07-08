@@ -4502,12 +4502,6 @@
 		(uuid "167bce93-1d42-41ab-9f0e-f362cb028f5a")
 	)
 	(junction
-		(at 87.63 135.89)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "1b3afbd1-0804-49c4-a683-2a797954fc22")
-	)
-	(junction
 		(at 16.51 82.55)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4542,6 +4536,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "3b77ae06-6cc0-495b-9cc2-c1d9b58a810c")
+	)
+	(junction
+		(at 87.63 138.43)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "462ce832-fe05-4e9d-9939-1f5447cfeedc")
 	)
 	(junction
 		(at 63.5 102.87)
@@ -5161,16 +5161,6 @@
 		)
 		(uuid "9abae965-246a-4aef-9ffd-fe64fa1fd85e")
 	)
-	(wire
-		(pts
-			(xy 87.63 135.89) (xy 91.44 135.89)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9ac4260b-3d65-4697-a7ed-f1221f942598")
-	)
 	(polyline
 		(pts
 			(xy 238.76 62.23) (xy 176.53 62.23)
@@ -5230,16 +5220,6 @@
 			(type default)
 		)
 		(uuid "b0a0bb8b-3841-4021-8325-586d7ada450d")
-	)
-	(wire
-		(pts
-			(xy 85.09 135.89) (xy 87.63 135.89)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b366d80b-c823-4443-baeb-4695a5e13afb")
 	)
 	(wire
 		(pts
@@ -5383,13 +5363,13 @@
 	)
 	(wire
 		(pts
-			(xy 87.63 143.51) (xy 87.63 146.05)
+			(xy 87.63 138.43) (xy 90.17 138.43)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "d3ee69a7-d236-4cc4-8703-76089f2d2bc7")
+		(uuid "d3d20f77-ab28-4764-9403-a298606cfa42")
 	)
 	(wire
 		(pts
@@ -5614,6 +5594,16 @@
 			(justify left bottom)
 		)
 		(uuid "1c4546ed-2618-4ba8-9f4c-45874124059a")
+	)
+	(text "I2C addresses (0-127):\nNAU88C22: 0x1A\nCCS811: 0x5A\nLSM6DS3: 0x6A\nBMPx80: 0x76\nTCS34725 0x29\nBH1750 0x23\nSCD41 0x62\n"
+		(exclude_from_sim no)
+		(at 254.762 88.392 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "245325b8-14b2-4a9f-b0fe-7b2eb4d79b8a")
 	)
 	(text "Pulling"
 		(exclude_from_sim no)
@@ -6636,7 +6626,7 @@
 	)
 	(global_label "BTN_RED"
 		(shape output)
-		(at 91.44 135.89 0)
+		(at 90.17 138.43 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6646,7 +6636,7 @@
 		)
 		(uuid "b0b84455-2ee8-4cbe-abdb-d0e8782648cd")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 102.6499 135.89 0)
+			(at 101.3799 138.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7449,73 +7439,6 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac"
 					(reference "U21")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 81.28 135.89 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "1cf22ab2-dca5-46e3-b7b9-13fb6ce78a15")
-		(property "Reference" "R38"
-			(at 80.01 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "1k"
-			(at 81.28 135.89 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 81.28 134.112 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 81.28 135.89 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 81.28 135.89 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "eccbc2de-d59c-4d35-b324-46464977c231")
-		)
-		(pin "2"
-			(uuid "47e88764-2593-4196-bf29-f6b2c51b9ad1")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac"
-					(reference "R38")
 					(unit 1)
 				)
 			)
@@ -9755,7 +9678,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 87.63 132.08 0)
+		(at 87.63 142.24 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -9763,7 +9686,7 @@
 		(dnp no)
 		(uuid "95d5c4bf-2636-484c-b951-d25204bc899a")
 		(property "Reference" "R39"
-			(at 82.55 132.08 0)
+			(at 82.55 142.24 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9772,7 +9695,7 @@
 			)
 		)
 		(property "Value" "10k"
-			(at 87.63 132.08 90)
+			(at 87.63 142.24 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9780,7 +9703,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 85.852 132.08 90)
+			(at 85.852 142.24 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9789,7 +9712,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 87.63 132.08 0)
+			(at 87.63 142.24 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9798,7 +9721,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 87.63 132.08 0)
+			(at 87.63 142.24 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12256,7 +12179,8 @@
 	)
 	(symbol
 		(lib_id "Switch:SW_Push")
-		(at 77.47 140.97 90)
+		(at 87.63 133.35 90)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -12264,7 +12188,7 @@
 		(dnp no)
 		(uuid "db66966b-35eb-41a3-9d4d-34b93c810c02")
 		(property "Reference" "SW4"
-			(at 78.6892 139.8016 90)
+			(at 88.8492 134.5184 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12273,7 +12197,7 @@
 			)
 		)
 		(property "Value" "RED"
-			(at 78.6892 142.113 90)
+			(at 88.8492 132.207 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12282,7 +12206,7 @@
 			)
 		)
 		(property "Footprint" "Button_Switch_THT:SW_PUSH-12mm"
-			(at 72.39 140.97 0)
+			(at 82.55 133.35 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12291,7 +12215,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 72.39 140.97 0)
+			(at 82.55 133.35 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12300,7 +12224,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 77.47 140.97 0)
+			(at 87.63 133.35 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12531,75 +12455,6 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac"
 					(reference "#PWR050")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 87.63 139.7 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "e677410d-90c2-4506-8d20-1bc034316411")
-		(property "Reference" "C52"
-			(at 90.551 138.5316 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "u1"
-			(at 90.551 140.843 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
-			(at 86.6648 135.89 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 87.63 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 87.63 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "3ca7f2cf-1e8f-4614-9471-284275341f5b")
-		)
-		(pin "2"
-			(uuid "e41b1cb4-f8a2-4602-92f6-8f465df34ff1")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac"
-					(reference "C52")
 					(unit 1)
 				)
 			)

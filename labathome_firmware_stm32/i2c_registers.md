@@ -4,7 +4,7 @@
 |Register  |Width [byte]  |Description |
 |---|---|---|
 || 1  | Status?!?  |
-|| 1  | Bit0=BTN_RED, Bit1=BTN_YEL, Bit2=BTN_RED, Bit3=Movement Sensor, Bit4=Brushless_FAULT|
+|| 1  | Bit0=BTN_RED, Bit1=BTN_YEL, Bit2=Movement Sensor, Bit3=Brushless_FAULT|
 ||2|Rotary Encoder (absolute value as uint_16 with overflow)|
 ||2|Brightness Sensor|
 ||2|USB PD Voltage as is|
