@@ -4773,10 +4773,6 @@
 		(uuid "325891c3-0c33-4070-9636-5507118b7d6d")
 	)
 	(no_connect
-		(at 48.26 113.03)
-		(uuid "5a4ec291-32d3-4d78-9b9d-366df15e2cd3")
-	)
-	(no_connect
 		(at 120.65 107.95)
 		(uuid "709276b8-a0e1-45ab-b200-969179b28bcd")
 	)
@@ -7129,6 +7125,28 @@
 		(uuid "d17d2920-a2cb-4781-a875-9f0c79f1edaa")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 244.3457 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "STM32_RESET"
+		(shape output)
+		(at 48.26 113.03 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "d27ea7e3-1518-4dc7-8374-161d7be1bbf2")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 64.0054 113.03 0)
 			(effects
 				(font
 					(size 1.27 1.27)
