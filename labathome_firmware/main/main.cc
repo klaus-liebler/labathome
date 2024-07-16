@@ -8,27 +8,32 @@
 #include <driver/gpio.h>
 #include <esp_system.h>
 #include <spi_flash_mmap.h>
-
 #include <esp_wifi.h>
-#include <mdns.h>
 #include <driver/gpio.h>
 #include <esp_event.h>
 #include <sys/param.h>
 #include <nvs_flash.h>
 #include <esp_netif.h>
-#include <wifimanager.hh>
-#include <otamanager.hh>
-#include <esp_http_server.h>
+
+#include <mdns.h>
+#ifndef CONFIG_ESP_HTTPS_SERVER_ENABLE
+#error "Enable HTTPS_SERVER in menuconfig!"
+#endif
+#include <esp_https_server.h>
+#include <esp_tls.h>
+#include <webmanager.hh> //include esp_https_server before!!!
+
 #include "http_handlers.hh"
 static const char *TAG = "main";
 #include "HAL.hh"
 
-#include "HAL_labathomeV5.hh"
-HAL *hal = new HAL_labathome(MODE_IO33::SERVO2, MODE_MULTI1_PIN::I2S, MODE_MULTI_2_3_PINS::I2S);
+//#include "HAL_labathomeV5.hh"
+//HAL *hal = new HAL_labathome(MODE_IO33::SERVO2, MODE_MULTI1_PIN::I2S, MODE_MULTI_2_3_PINS::I2S);
 
 //#include "HAL_labathomeV10.hh"
 //static HAL * hal = new HAL_Impl(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR);
-
+#include "HAL_labathomeV15.hh"
+static HAL * hal = new HAL_Impl();
 
 #include "functionblocks.hh"
 #include "rgbled.hh"
@@ -36,11 +41,15 @@ HAL *hal = new HAL_labathome(MODE_IO33::SERVO2, MODE_MULTI1_PIN::I2S, MODE_MULTI
 #include "spiffs.hh"
 #include "winfactboris.hh"
 
-static DeviceManager *devicemanager = new DeviceManager(hal);
+DeviceManager *devicemanager{nullptr};
+httpd_handle_t http_server{nullptr};
+
+
+#ifndef CONFIG_SMOPLA_HTTP_SCRATCHPAD_SIZE
+#define CONFIG_SMOPLA_HTTP_SCRATCHPAD_SIZE 2048
+#endif
 
 uint8_t http_scatchpad[CONFIG_SMOPLA_HTTP_SCRATCHPAD_SIZE] ALL4;
-
-
 
 extern "C" void app_main();
 
@@ -128,77 +137,64 @@ constexpr httpd_uri_t putptnexperiment = {
     .user_ctx = &devicemanager,
 };
 
-static httpd_handle_t SetupAndRunWebserver(void)
-{
-    httpd_handle_t server = NULL;
-    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.uri_match_fn = httpd_uri_match_wildcard;
-    config.max_uri_handlers = 15;
-    config.global_user_ctx = http_scatchpad;
-
-    if (httpd_start(&server, &config) != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Error starting HTTPd!");
-        esp_restart();
-    }
-    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &getroot));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &putfbd));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &getfbd));
-    
-    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &putheaterexperiment));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &putairspeedexperiment));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &putfftexperiment));
-
-    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &getfbdstorejson));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &deletefbdstorejson));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &postfbdstorejson));
-
-    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &postfbddefaultbin));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &postfbddefaultjson));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(server, &putptnexperiment));
-
-    const char *hostnameptr;
-    ESP_ERROR_CHECK(esp_netif_get_hostname(WIFIMGR::wifi_netif_ap, &hostnameptr));
-    ESP_LOGI(TAG, "HTTPd successfully started for website http://%s", hostnameptr);
-    return server;
-}
 
 
 void app_main(void)
 {
+    //Configure Logging
     esp_log_level_set(TAG, ESP_LOG_INFO);
-    ESP_ERROR_CHECK(SpiffsManager::Init());
-    hal->InitAndRun();
-    ESP_LOGI(TAG, "RED %d YEL %d GRN %d", hal->GetButtonRedIsPressed(), hal->GetButtonEncoderIsPressed(), hal->GetButtonGreenIsPressed());
-    esp_err_t err = nvs_flash_init();
-    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
+    esp_log_level_set("esp_https_server", ESP_LOG_WARN);
+
+    //Configure NVS and SPIFFS
+    esp_err_t ret = nvs_flash_init_partition(NVS_PARTITION_NAME);
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
     {
         ESP_ERROR_CHECK(nvs_flash_erase());
-        err = nvs_flash_init();
+        ESP_ERROR_CHECK(nvs_flash_init_partition(NVS_PARTITION_NAME));
     }
-    ESP_ERROR_CHECK(err);
-    ESP_ERROR_CHECK(WIFIMGR::InitAndRun(hal->GetButtonGreenIsPressed() && hal->GetButtonRedIsPressed(), http_scatchpad, sizeof(http_scatchpad)));
-    
-    uint8_t mac[6];
-    char   *hostname;
-    esp_read_mac(mac, ESP_MAC_WIFI_STA);
-    asprintf(&hostname, "%s-%02X%02X%02X", "labathome", mac[3], mac[4], mac[5]);
-    
-    ESP_ERROR_CHECK(mdns_init());
-    ESP_ERROR_CHECK(mdns_hostname_set(hostname));
-    ESP_LOGI(TAG, "mdns hostname set to: [%s]", hostname);
-    const char* MDNS_INSTANCE="SENSACT_MDNS_INSTANCE";
-    ESP_ERROR_CHECK(mdns_instance_name_set(MDNS_INSTANCE));
-    //ESP_ERROR_CHECK(mdns_service_subtype_add_for_host("SENSACT-WebServer", "_http", "_tcp", NULL, "_server") );
-    free(hostname);
+    ESP_ERROR_CHECK(SpiffsManager::Init());
 
-    winfactboris::InitAndRun(devicemanager);
+    //Prepare WebManager (configures Network as well)
+    webmanager::M *wman = webmanager::M::GetSingleton();
+    ESP_ERROR_CHECK(wman->Begin("ESP32AP_", "password", "labathome", gpio_get_level(GPIO_NUM_0) == 1 ? false : true, true));
 
+    //Start HTTPS Server
+    httpd_ssl_config_t httpd_conf = HTTPD_SSL_CONFIG_DEFAULT();
+    httpd_conf.servercert = cert_start;
+    httpd_conf.servercert_len = cert_end - cert_start;
+    httpd_conf.prvtkey_pem = privkey_start;
+    httpd_conf.prvtkey_len = privkey_end - privkey_start;
+    httpd_conf.httpd.uri_match_fn = httpd_uri_match_wildcard;
+    httpd_conf.max_uri_handlers = 15;
+    httpd_conf.global_user_ctx = http_scatchpad;
+    ESP_ERROR_CHECK(httpd_ssl_start(&http_server, &httpd_conf));
+    ESP_LOGI(TAG, "HTTPS Server listening on https://%s:%d", wman->GetHostname(), httpd_conf.port_secure);
 
-    httpd_handle_t httpd_handle = SetupAndRunWebserver();
-    WIFIMGR::RegisterHTTPDHandlers(httpd_handle);
-
+    //Start all managers
+    devicemanager = new DeviceManager(hal);
+    hal->InitAndRun();
     devicemanager->InitAndRun();
+    //winfactboris::InitAndRun(devicemanager);
+    ESP_LOGI(TAG, "RED %d YEL %d GRN %d", hal->GetButtonRedIsPressed(), hal->GetButtonEncoderIsPressed(), hal->GetButtonGreenIsPressed());
+    
+    //Allow Browser Access
+    wman->RegisterHTTPDHandlers(http_server, "/webmanager/*");
+    //TODO: Das alles in den Device-Manager packen (siehe Muster im WebManager)
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &getroot));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putfbd));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &getfbd));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putheaterexperiment));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putairspeedexperiment));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putfftexperiment));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &getfbdstorejson));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &deletefbdstorejson));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &postfbdstorejson));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &postfbddefaultbin));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &postfbddefaultjson));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putptnexperiment));
+
+    //Start eternal supervisor loop
+    wman->CallMeAfterInitializationToMarkCurrentPartitionAsValid();
     while (true)
     {
         hal->OutputOneLineStatus();

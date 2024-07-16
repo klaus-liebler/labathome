@@ -1,0 +1,32 @@
+menu "MQTT Configuration"
+    config BROKER_URL
+        string "Broker URL"
+        default "mqtt://mqtt.eclipse.org"
+        help
+            URL of the broker to connect to
+    config BROKER_USER
+        string "Broker User"
+        default "user"
+        help
+            Username for connection with broker
+    config BROKER_PASSWORD
+        string "Broker Password"
+        default "password"
+        help
+            Passwort of user for connection with broker
+    config BROKER_TOPIC_TEMPLATE1
+        string "Topic template 1"
+        default "/labathome/airquaity/%d"
+        help
+            Define a template for a topic and use a single %d as template parameter
+    config BROKER_TOPIC_TEMPLATE2
+        string "Topic template 2"
+        default "/labathome/devicestatus/%d"
+        help
+            Define a template for a topic and use a single %d as template parameter
+    config BROKER_TOPIC_TEMPLATE3
+        string "Topic template 3"
+        default "/labathome/command/%d"
+        help
+            Define a template for a topic and use a single %d as template parameter
+endmenu

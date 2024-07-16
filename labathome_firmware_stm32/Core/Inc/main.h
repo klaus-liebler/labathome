@@ -71,6 +71,7 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define STM32_I2C_ADDRESS 4
 #define BTN_YEL_Pin LL_GPIO_PIN_13
 #define BTN_YEL_GPIO_Port GPIOC
 #define MOVEMENT_SENSOR_Pin LL_GPIO_PIN_14

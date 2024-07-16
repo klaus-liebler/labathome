@@ -1,0 +1,183 @@
+.develop-ui
+{
+  display: grid;
+  grid-template-rows: auto 1fr;
+  grid-template-columns: 1fr auto;
+  height: 100%;
+}
+
+.develop-toolbar {
+  grid-row: 1;
+  grid-column-start: 1;
+  grid-column-end: 3;
+  overflow: hidden;
+  background-color: #333;
+  a{
+    float: left;
+    font-size: 16px;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+  }
+}
+.develop-workspace {
+  position: relative; /*to allow the operatorLib to be positioned absolute;*/
+  grid-row: 2;
+  grid-column: 1;
+  outline:none; /*to avoid highlighting onclick because "tabindex=0" which ist for catching keydown events*/
+}
+.develop-properties {
+  grid-row: 2;
+  grid-column: 2;
+  margin:5px;
+}
+.dropdown {
+  float: left;
+  overflow: hidden; 
+}
+
+.dropdown .dropbtn {
+  font-size: 16px;  
+  border: none;
+  outline: none;
+  color: white;
+  padding: 14px 16px;
+  background-color: inherit;
+  font-family: inherit;
+  margin: 0;
+}
+  
+  
+.develop-toolbar a:hover, .dropdown:hover .dropbtn, .dropbtn:focus {
+  background-color: red;
+}
+  
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  float: none;
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+
+.dropdown-content a:hover {
+  background-color: #ddd;
+}
+
+.show {
+  display: block;
+}
+
+.flowchart-operatorlibdiv{
+  position: absolute;
+  top:0px;
+  left:0px;
+  width: 300px;
+  height: 100%;
+  background-color: grey;
+  color: #f9f9f9;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  &>ul{
+    margin: 0;
+    padding: 0;
+  }
+}
+
+
+.unselectable {
+  user-select: none;
+}
+
+svg.flowchart-container {
+
+  .operator{
+    cursor: move;
+    &:hover .operator-box{
+      stroke: red;
+    }
+    
+  }
+
+  .operator-box {
+    stroke: #ccc;
+    stroke-width: 1;
+    fill: #fafafa;
+    &.selected{
+      stroke: rgb(63, 204, 75);
+      stroke-width:3;
+    }
+    &.False{
+      fill: #7a7979;
+    }
+    &.True{
+      fill:rgb(55, 68, 253)
+    }
+  }
+  
+  .operator-title {
+    font: italic 16px sans-serif;
+    
+  }
+  .operator-input-caption {
+    font: 12px sans-serif;
+  }
+
+  .operator-debuginfo
+  {
+    font-size: 8px;
+  }
+
+
+  .operator-input-connector,.operator-output-connector {
+    stroke: black;
+    &.BOOLEAN{
+      fill: red;
+    }
+    &.FLOAT{
+      fill: blue;
+    }
+    &.INTEGER{
+      fill: yellow;
+    }
+  }
+ 
+  .operator-input-snapper,.operator-output-snapper {
+    stroke: black;
+    fill: white;
+    opacity: 0;
+    cursor: crosshair;
+  }
+  .operator-output-caption {
+    font: 12px sans-serif;
+    text-anchor: end;
+  }
+  
+
+  .tools-container
+  {
+    fill: #ccc;
+    stroke: #ccc;
+    stroke-width: 1;
+  }
+  .tool-box{
+    stroke-width: 1;
+    stroke: black;
+    fill:white;
+  }
+  .tool-caption{
+    font: 12px sans-serif;
+  }
+ 
+}

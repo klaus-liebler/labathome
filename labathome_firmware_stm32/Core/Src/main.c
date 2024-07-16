@@ -1,20 +1,20 @@
 /* USER CODE BEGIN Header */
 /**
- ******************************************************************************
- * @file           : main.c
- * @brief          : Main program body
- ******************************************************************************
- * @attention
- *
- * Copyright (c) 2024 STMicroelectronics.
- * All rights reserved.
- *
- * This software is licensed under terms that can be found in the LICENSE file
- * in the root directory of this software component.
- * If no LICENSE file comes with this software, it is provided AS-IS.
- *
- ******************************************************************************
- */
+  ******************************************************************************
+  * @file           : main.c
+  * @brief          : Main program body
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2024 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -27,6 +27,9 @@
 extern void app_setup();
 extern void app_loop();
 extern void app_loop_1ms_irq_context();
+#undef UNUSED
+#define UNUSED(x) (void)(x)
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -36,8 +39,7 @@ extern void app_loop_1ms_irq_context();
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#undef UNUSED
-#define UNUSED(x) (void)(x)
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -201,7 +203,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-     app_loop();
   }
   /* USER CODE END 3 */
 }
@@ -1267,7 +1268,6 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-
 /* USER CODE END 4 */
 
 /* USER CODE BEGIN Header_StartDefaultTask */
@@ -1280,6 +1280,7 @@ static void MX_GPIO_Init(void)
 void StartDefaultTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
+  UNUSED(argument);
   /* Infinite loop */
   for(;;)
   {
@@ -1305,7 +1306,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
-  if (htim->Instance == TIM6) {
+   if (htim->Instance == TIM6) {
     app_loop_1ms_irq_context();
   }
   /* USER CODE END Callback 1 */
@@ -1319,8 +1320,8 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
   printf("Error_Handler\r\n");
+  __disable_irq();
   while (1)
   {
   }

@@ -86,7 +86,6 @@ void WriteU32(uint32_t value, uint8_t *buffer, uint32_t offset)
 	buffer[3 + offset] = (value & 0xFFFFFFFF) >> 24;
 }
 
-
 uint8_t ParseU8(const uint8_t *const buffer, uint32_t offset){
 	return buffer[offset];
 }

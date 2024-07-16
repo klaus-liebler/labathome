@@ -4,17 +4,24 @@
 			"path": "labathome_firmware"
 		},
 		{
-			"path": "labathome_webui"
+			"path": "espidf-component-labathome"
 		},
 		{
-			"path": "labathome_buildtools"
+			"path": "../espidf-component-webmanager"
 		}
 	],
 	"settings": {
 		"files.associations": {
 			"*.ipp": "cpp",
 			"cmath": "cpp",
-			"algorithm": "cpp"
+			"algorithm": "cpp",
+			"limits": "cpp",
+			"array": "cpp",
+			"initializer_list": "cpp",
+			"type_traits": "cpp",
+			"vector": "cpp",
+			"xutility": "cpp",
+			"xmemory": "cpp"
 		},
 		"liveServer.settings.multiRootWorkspaceName": "labathome_webui"
 	}
