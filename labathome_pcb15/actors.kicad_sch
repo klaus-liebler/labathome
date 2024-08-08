@@ -3067,16 +3067,6 @@
 	)
 	(wire
 		(pts
-			(xy 184.15 77.47) (xy 184.15 72.39)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2d78fed4-4d11-4373-b621-a571cf063a2a")
-	)
-	(wire
-		(pts
 			(xy 46.99 33.02) (xy 52.07 33.02)
 		)
 		(stroke
@@ -3217,16 +3207,6 @@
 	)
 	(wire
 		(pts
-			(xy 184.15 67.31) (xy 175.26 67.31)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8f0e6083-feab-4dd7-be43-1360732d9115")
-	)
-	(wire
-		(pts
 			(xy 80.01 35.56) (xy 80.01 33.02)
 		)
 		(stroke
@@ -3347,6 +3327,16 @@
 	)
 	(wire
 		(pts
+			(xy 175.26 69.85) (xy 184.15 69.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d765ec7e-90f2-469f-9b29-c9d61cca10de")
+	)
+	(wire
+		(pts
 			(xy 152.4 77.47) (xy 167.64 77.47)
 		)
 		(stroke
@@ -3394,16 +3384,6 @@
 			(type default)
 		)
 		(uuid "fe4632f1-7466-49b6-8d34-1adc687986b4")
-	)
-	(wire
-		(pts
-			(xy 175.26 67.31) (xy 175.26 69.85)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fe7dddfd-f195-4105-a7e8-819eaa459209")
 	)
 	(rectangle
 		(start 13.97 15.24)
@@ -4774,7 +4754,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "GN 5V RGB GN"
+		(property "Value" "3V GN RGB 5V"
 			(at 193.04 74.93 0)
 			(effects
 				(font
@@ -4954,72 +4934,6 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/7cc4a29d-fb70-4313-b60c-aaf23d93fc45"
 					(reference "#PWR0103")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+5V")
-		(at 184.15 69.85 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "32428d8c-01f2-4269-8bad-7957b339f31e")
-		(property "Reference" "#PWR0104"
-			(at 187.96 69.85 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+5V"
-			(at 181.61 69.85 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 184.15 69.85 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 184.15 69.85 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 184.15 69.85 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "c0c5663a-1b85-491d-8d0b-c5b27198f39c")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/7cc4a29d-fb70-4313-b60c-aaf23d93fc45"
-					(reference "#PWR0104")
 					(unit 1)
 				)
 			)
@@ -6908,6 +6822,71 @@
 	)
 	(symbol
 		(lib_id "power:GND")
+		(at 184.15 67.31 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "a5f88ae6-db37-4ae1-95b6-3036bc81f8e8")
+		(property "Reference" "#PWR0104"
+			(at 177.8 67.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 179.578 67.31 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 184.15 67.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 184.15 67.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 184.15 67.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "8261e911-2d5e-49e6-803e-e982f504b503")
+		)
+		(instances
+			(project "labathome_pcb15"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/7cc4a29d-fb70-4313-b60c-aaf23d93fc45"
+					(reference "#PWR0104")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
 		(at 134.62 22.86 270)
 		(unit 1)
 		(exclude_from_sim no)
@@ -7926,6 +7905,71 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/7cc4a29d-fb70-4313-b60c-aaf23d93fc45"
 					(reference "J7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+5V")
+		(at 184.15 72.39 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "f3f8e7af-85dd-4760-82dc-eb4ef05b3deb")
+		(property "Reference" "#PWR0122"
+			(at 187.96 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+5V"
+			(at 179.7558 72.009 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 184.15 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 184.15 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+5V\""
+			(at 184.15 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "def1eb12-7800-49f8-96be-b56c966ba6a5")
+		)
+		(instances
+			(project "labathome_pcb15"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/7cc4a29d-fb70-4313-b60c-aaf23d93fc45"
+					(reference "#PWR0122")
 					(unit 1)
 				)
 			)
