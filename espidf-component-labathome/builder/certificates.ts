@@ -17,47 +17,38 @@ function createRootCaExtensions() {
 
 
 
-function createHostExtensions(dnsHostname: string, authorityKeyIdentifier: string) {
-	return [{
-		name: 'basicConstraints',
-		cA: false
-	},{
-		name: 'subjectKeyIdentifier'
-	}, {
-		name: 'authorityKeyIdentifier',
-		authorityCertIssuer: true,
-		serialNumber: authorityKeyIdentifier
-	}, {
-		name: 'keyUsage',
-		digitalSignature: true,
-		nonRepudiation: true,
-		keyEncipherment: true
-	}, {
-		name: 'extKeyUsage',
-		serverAuth: true,
-		clientAuth: true,
-	}, {
-		name: 'subjectAltName',
-		altNames: [{
-			type: 2, // 2 is DNS type
-			value: dnsHostname
-		}]
-	}];
+function createUniversalAuthExtensions(dnsHostname: string, authorityKeyIdentifier: string) {
+	return [
+		{
+			name: 'authorityKeyIdentifier',
+			authorityCertIssuer: true,
+			serialNumber: authorityKeyIdentifier
+		},{
+			name: 'basicConstraints',
+			cA: false
+		},  {
+			name: 'keyUsage',
+			digitalSignature: true,
+			nonRepudiation: true,
+			keyEncipherment: true,
+			dataEncipherment: true,
+		},{
+			name: 'extKeyUsage',
+			serverAuth: true,
+			clientAuth: true,
+		},{
+			name: 'subjectAltName',
+			altNames: [{
+				type: 2, // 2 is DNS type
+				value: dnsHostname
+				}
+			]
+		},{
+			name: 'subjectKeyIdentifier'
+		}
+	];
 }
 
-function createClientExtensions(username: string, authorityKeyIdentifier: string) {
-	return [{
-		name: 'basicConstraints',
-		cA: false
-	}, {
-		name: 'keyUsage',
-		digitalSignature: true,
-		keyEncipherment: true
-	}, {
-		name: 'extKeyUsage',
-		clientAuth: true,
-	}];
-}
 
 function createSubject(commonName: string): forge.pki.CertificateField[] {
 	return [{
@@ -106,7 +97,7 @@ function certHelper(setPrivateKeyInCertificate: boolean, subject: forge.pki.Cert
 	cert.setSubject(subject);
 	cert.setIssuer(issuer);
 	cert.setExtensions(exts);
-	cert.sign(signWith ?? keypair.privateKey, forge.md.sha512.create());
+	cert.sign(signWith ?? keypair.privateKey, forge.md.sha256.create());
 	return { certificate: forge.pki.certificateToPem(cert), privateKey: forge.pki.privateKeyToPem(keypair.privateKey), };
 }
 
@@ -125,9 +116,9 @@ export function CreateAndSignCert(commonName:string, dnsHostname: string, certif
 	let caPrivateKey = forge.pki.privateKeyFromPem(fs.readFileSync(privateKeyCaPemPath).toString());
 	return certHelper(
 		false,
-		createSubject(commonName), //CN of subject may not contain server hostname (found out by experiments)
+		createSubject(commonName),
 		caCert.subject.attributes, //issuer is the subject of the rootCA
-		createHostExtensions(dnsHostname, caCert.serialNumber),
+		createUniversalAuthExtensions(dnsHostname, caCert.serialNumber),
 		caPrivateKey //sign with private key of rootCA
 	);
 }
@@ -139,7 +130,7 @@ export function CreateAndSignClientCert(username: string, certificateCaPemPath: 
 		false,
 		createSubject(username),
 		caCert.subject.attributes, //issuer is the subject of the rootCA
-		createClientExtensions(username, caCert.serialNumber),
+		createUniversalAuthExtensions(username, caCert.serialNumber),
 		caPrivateKey //sign with private key of rootCA
 	);
 }

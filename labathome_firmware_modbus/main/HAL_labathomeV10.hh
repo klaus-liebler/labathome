@@ -15,9 +15,8 @@
 #include <esp_adc/adc_cali.h>
 #include <esp_adc/adc_cali_scheme.h>
 #include <soc/adc_channel.h>
-#include <driver/i2c.h>
+#include <driver/i2c_master.h>
 #include <esp_check.h>
-#include <onewire_bus.h>
 #include <ds18b20.hh>
 
 #include <errorcodes.hh>
@@ -184,10 +183,18 @@ private:
     RGBLED::M<LED_NUMBER, RGBLED::DeviceType::WS2812> *strip{nullptr};
     cRotaryEncoder *rotenc{nullptr};
     AudioPlayer::Player *mp3player;
+
+    //Busses and bus devices
+    i2c_master_bus_handle_t bus_handle;
     CCS811::M *ccs811dev{nullptr};
     AHT::M *aht21dev{nullptr};
     VL53L0X::M *vl53l0xdev{nullptr};
+    BME280::M* bme280dev{nullptr};
+    BH1750::M* bh1750dev{nullptr};
 
+    OneWire::OneWireBus<PIN_ONEWIRE>* oneWireBus{nullptr};
+    
+    
     // SensorValues
     uint16_t AnalogInputVoltage_Millivolts[ANALOG_INPUTS_LEN] = {0};
     uint32_t buttonState{0}; // see Button-Enum for meaning of bits
@@ -259,100 +266,23 @@ private:
 
     void SensorLoop()
     {
-        int64_t nextOneWireReadout{INT64_MAX};
-        int64_t nextBME280Readout{INT64_MAX};
-        int64_t nextBH1750Readout{INT64_MAX};
+
         int64_t nextBinaryAndAnalogReadout{0};
 
-        uint32_t oneWireReadoutIntervalMs{800}; // 10bit -->187ms Conversion time, 12bit--> 750ms
-        uint32_t bme280ReadoutIntervalMs{200};
-        uint32_t bh1750ReadoutIntervalMs{200};
-
-        // OneWire
-        onewire_bus_handle_t bus{nullptr};
-        onewire_bus_config_t bus_config = {};
-        bus_config.bus_gpio_num = PIN_ONEWIRE;
-        onewire_bus_rmt_config_t rmt_config = {};
-        rmt_config.max_rx_bytes = 10; // 1byte ROM command + 8byte ROM number + 1byte device command
-        ESP_ERROR_CHECK(onewire_new_bus_rmt(&bus_config, &rmt_config, &bus));
-        ESP_LOGI(TAG, "1-Wire bus installed on GPIO%d", PIN_ONEWIRE);
-        assert(bus);
-
-        int ds18b20_device_num = 0;
-        DS18B20 *ds18b20s[ONEWIRE_MAX_DS18B20];
-        onewire_device_iter_handle_t iter = nullptr;
-        onewire_device_t next_onewire_device;
-        esp_err_t search_result = ESP_OK;
-        assert(&iter);
-        // create 1-wire device iterator, which is used for device search
-        ESP_ERROR_CHECK(onewire_new_device_iter(bus, &iter));
-        ESP_LOGI(TAG, "Device iterator created, start searching...");
-        while (true)
-        {
-            search_result = onewire_device_iter_get_next(iter, &next_onewire_device);
-            if (search_result != ESP_OK)
-            {
-                break;
-            }
-            // found a new device, let's check if we can upgrade it to a DS18B20
-            DS18B20 *device = DS18B20::BuildFromOnewireDevice(&next_onewire_device);
-            if (!device)
-            {
-                ESP_LOGI(TAG, "Found an unknown device, address: %016llX", next_onewire_device.address);
-                continue;
-            }
-            ESP_LOGI(TAG, "Found a DS18B20[%d], address: %016llX", ds18b20_device_num, next_onewire_device.address);
-            ds18b20s[ds18b20_device_num++] = device;
-            if (ds18b20_device_num >= ONEWIRE_MAX_DS18B20)
-            {
-                ESP_LOGI(TAG, "Max DS18B20 number reached, stop searching...");
-                break;
-            }
-        }
-        ESP_ERROR_CHECK(onewire_del_device_iter(iter));
-        ESP_LOGI(TAG, "Searching done, %d DS18B20 device(s) found", ds18b20_device_num);
-
-        for (int i = 0; i < ds18b20_device_num; i++)
-        {
-            ds18b20s[i]->TriggerTemperatureConversion();
-            nextOneWireReadout = GetMillis64() + oneWireReadoutIntervalMs;
-        }
-
-        iI2CPort *i2c_port_interface = I2C::GetPort_DoNotForgetToDelete(I2C_PORT);
+        // BH1750
+        bh1750dev = new BH1750::M(bus_handle, BH1750::ADDRESS::LOW, BH1750::OPERATIONMODE::CONTINU_H_RESOLUTION);
 
         // BME280
-        BME280 *bme280 = new BME280(I2C_PORT, BME280_ADRESS::PRIM);
-        if (bme280->Init(&bme280ReadoutIntervalMs) == ESP_OK)
-        {
-            bme280->TriggerNextMeasurement();
-            nextBME280Readout = GetMillis64() + bme280ReadoutIntervalMs;
-            ESP_LOGI(TAG, "I2C: BME280 successfully initialized.");
-        }
-        else
-        {
-            ESP_LOGW(TAG, "I2C: BME280 not found");
-        }
-
-        // BH1750
-        BH1750 *bh1750 = new BH1750(I2C_PORT, BH1750_ADRESS::LOW);
-        if (bh1750->Init(BH1750_OPERATIONMODE::CONTINU_H_RESOLUTION) == ESP_OK)
-        {
-            nextBH1750Readout = GetMillis64() + bh1750ReadoutIntervalMs;
-            ESP_LOGI(TAG, "I2C: BH1750 successfully initialized.");
-        }
-        else
-        {
-            ESP_LOGW(TAG, "I2C: BH1750 not found");
-        }
+        bme280dev = new BME280::M(bus_handle, BME280::ADDRESS::PRIM);
 
         // CCS811
-        ccs811dev = new CCS811::M(i2c_port_interface, CCS811::ADDRESS::ADDR0, CCS811::MODE::_1SEC, (gpio_num_t)GPIO_NUM_NC);
+        ccs811dev = new CCS811::M(bus_handle, CCS811::ADDRESS::ADDR0, CCS811::MODE::_1SEC, (gpio_num_t)GPIO_NUM_NC);
 
         // AHT21
-        aht21dev = new AHT::M(i2c_port_interface, AHT::ADDRESS::default_address);
+        aht21dev = new AHT::M(bus_handle, AHT::ADDRESS::DEFAULT_ADDRESS);
 
         // vl53l0x
-        vl53l0xdev = new VL53L0X::M(i2c_port_interface);
+        vl53l0xdev = new VL53L0X::M(bus_handle);
 
         while (true)
         {
@@ -367,42 +297,11 @@ private:
                 }
             }
 
-            if (GetMillis64() > nextOneWireReadout)
-            {
-                float temp0{std::numeric_limits<float>::quiet_NaN()};
-                float temp1{std::numeric_limits<float>::quiet_NaN()};
-                if (ds18b20s[0])
-                {
-                    ds18b20s[0]->GetTemperature(&(temp0));
-                    ds18b20s[0]->TriggerTemperatureConversion();
-                }
-                if (ds18b20s[1])
-                {
-                    ds18b20s[1]->GetTemperature(&(temp1));
-                    ds18b20s[1]->TriggerTemperatureConversion();
-                }
-                if(!std::isnan(temp0)){
-                    if(!std::isnan(temp1)){
-                        this->heaterTemperature_DegCel = std::max(temp0, temp1);
-                        this->airTemperatureDS18B20_DegCel = std::min(temp0, temp1);
-                    }
-                    else{
-                        this->heaterTemperature_DegCel = temp0;
-                    }
-                }
-                nextOneWireReadout = GetMillis64() + oneWireReadoutIntervalMs;
-            }
-            if (GetMillis64() > nextBME280Readout)
-            {
-                bme280->GetDataAndTriggerNextMeasurement(&this->airTemperatureBME280_DegCel, &this->airPressureBME280_Pa, &this->airRelHumidityBME280_Percent);
-                nextBME280Readout = GetMillis64() + bme280ReadoutIntervalMs;
-            }
-            if (GetMillis64() > nextBH1750Readout)
-            {
-                bh1750->Read(&(this->ambientBrightnessBH1750_Lux));
-                nextBH1750Readout = GetMillis64() + bh1750ReadoutIntervalMs;
-            }
-
+            oneWireBus->Loop(GetMillis64());
+            this->heaterTemperature_DegCel=oneWireBus->GetMaxTemp();
+            this->airTemperatureDS18B20_DegCel=oneWireBus->GetMinTemp();
+            
+            bh1750dev->Loop(GetMillis64());
             ccs811dev->Loop(GetMillis64());
             aht21dev->Loop(GetMillis64());
             vl53l0xdev->Loop(GetMillis64());
@@ -418,6 +317,11 @@ private:
             if (this->aht21dev->HasValidData())
             {
                 this->aht21dev->Read(this->airRelHumidityAHT21_Percent, this->airTemperatureAHT21_DegCel);
+            }
+
+            if (this->bh1750dev->HasValidData())
+            {
+                this->bh1750dev->Read(this->ambientBrightnessBH1750_Lux);
             }
             vTaskDelay(1);
         }
@@ -662,7 +566,7 @@ public:
         config.bitwidth = ADC_BITWIDTH_12;
         config.atten = ADC_ATTEN_DB_0;
         ESP_ERROR_CHECK(adc_oneshot_config_channel(adc1_handle, CHANNEL_SWITCHES, &config));
-        config.atten = ADC_ATTEN_DB_11;
+        config.atten = ADC_ATTEN_DB_12;
         ESP_ERROR_CHECK(adc_oneshot_config_channel(adc1_handle, CHANNEL_ANALOGIN_OR_ROTB, &config));
         ESP_ERROR_CHECK(adc_oneshot_config_channel(adc1_handle, CHANNEL_MOVEMENT_OR_FAN1SENSE, &config));
         ESP_ERROR_CHECK(adc_oneshot_config_channel(adc1_handle, CHANNEL_LDR_OR_ROTA, &config));
@@ -670,7 +574,7 @@ public:
         ESP_LOGI(TAG, "calibration scheme version is %s", "Line Fitting");
         adc_cali_line_fitting_config_t cali_config = {};
         cali_config.unit_id = init_config1.unit_id;
-        cali_config.atten = ADC_ATTEN_DB_11;
+        cali_config.atten = ADC_ATTEN_DB_12;
         cali_config.bitwidth = ADC_BITWIDTH_DEFAULT;
         ESP_ERROR_CHECK(adc_cali_create_scheme_line_fitting(&cali_config, &this->adc1_cali_handle));
 
@@ -720,11 +624,33 @@ public:
         ESP_ERROR_CHECK(mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_HEATER_OR_LED_POWER, &pwm_config));
 
         // I2C Master
-        ESP_ERROR_CHECK(I2C::Init(I2C_PORT, PIN_I2C_SCL, PIN_I2C_SDA));
+                //I2C Master
+        i2c_master_bus_config_t i2c_mst_config = {
+            .i2c_port = I2C_PORT,
+            .sda_io_num = PIN_I2C_SDA,
+            .scl_io_num = PIN_I2C_SCL,
+            .clk_source = I2C_CLK_SRC_DEFAULT,
+            .glitch_ignore_cnt = 7,
+            .intr_priority=0,
+            .trans_queue_depth=0,
+            //.enable_internal_pullup=0,
+            .flags=0,
+        };
+        ESP_ERROR_CHECK(i2c_new_master_bus(&i2c_mst_config, &bus_handle));
+
+        for(uint8_t i=0;i<128;i++){
+            if(i2c_master_probe(bus_handle, i, 50)!=ESP_ERR_NOT_FOUND){
+                ESP_LOGI(TAG, "Found I2C-Device @ 0x%02X", i);
+            }
+        }
+
+        //OneWire-Bus
+        oneWireBus = new OneWire::OneWireBus<PIN_ONEWIRE>();
+        oneWireBus->Init();
 
         // LED Strip
         strip = new RGBLED::M<LED_NUMBER, RGBLED::DeviceType::WS2812>();
-        ESP_ERROR_CHECK(strip->Init(VSPI_HOST, PIN_LED_WS2812, 2));
+        ESP_ERROR_CHECK(strip->Begin(SPI3_HOST, PIN_LED_WS2812));
         ESP_ERROR_CHECK(strip->Clear(100));
 
         readBinaryAndAnalogIOs(); // do this while init to avoid race condition (wifimanager is resettet when red and green buttons are pressed during startup)

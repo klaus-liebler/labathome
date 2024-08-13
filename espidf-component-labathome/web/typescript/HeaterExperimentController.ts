@@ -1,5 +1,5 @@
 import { $ } from "./utils";
-import { Chart} from 'chart.js';
+import { CategoryScale, Chart, LinearScale, LineController, LineElement, PointElement} from 'chart.js';
 import { ScreenController } from "./ScreenController";
 import { AppManagement } from "./AppManagement";
 import { SerializeContext } from "./flowchart/SerializeContext";
@@ -191,6 +191,7 @@ export class HeaterExperimentController extends ScreenController {
         this.inputReset=<HTMLInputElement>document.getElementById("heaterexperiment_inpReset")!;
 
         this.onModeChange(0);
+        Chart.register(LinearScale, LineController, CategoryScale, PointElement, LineElement)
 
         let ctx = <HTMLCanvasElement>document.getElementById('heaterexperiment_chart')!;
         this.chart = new Chart(ctx, {

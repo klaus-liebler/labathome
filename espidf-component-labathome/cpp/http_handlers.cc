@@ -172,8 +172,9 @@ FLASH_FILE(index_compressed_br)
 esp_err_t handle_get_root(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
-    httpd_resp_set_hdr(req, "Content-Encoding", "gzip");
-    httpd_resp_send(req, (const char*)index_compressed_br_start, index_compressed_br_size); // -1 = use strlen()
+    httpd_resp_set_hdr(req, "Content-Encoding", "br");
+    httpd_resp_send(req, (const char*)index_compressed_br_start, index_compressed_br_size);
+    
     return ESP_OK;
 }
 

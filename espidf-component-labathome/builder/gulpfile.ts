@@ -15,7 +15,7 @@ import * as P from "./paths";
 import * as fbc from "../web/typescript/flowchart/FlowchartCompiler"
 
 function compileDefaultFbd(cb: gulp.TaskFunctionCallback){
-  var compiler:fbc.FlowchartCompiler = new fbc.FlowchartCompiler()
+  //var compiler:fbc.FlowchartCompiler = new fbc.FlowchartCompiler()
 }
 
 function clean(cb: gulp.TaskFunctionCallback) {
@@ -50,12 +50,7 @@ function flatbuffers_distribute_ts(cb: gulp.TaskFunctionCallback) {
 
 exports.build = gulp.series(
   clean,
-  usersettings_generate_cpp_code,
-  usersettings_distribute_ts,
-  usersettings_createPartition,
-  snsct.fetchGeneratedFlatbufferSources,
-  snsct.sendCommandImplementation_template,
-  snsct.sensactapps_template,
+
   flatbuffers_generate_c,
   flatbuffers_generate_ts,
   flatbuffers_distribute_ts,
@@ -75,7 +70,7 @@ exports.build = gulp.series(
     const hostname = fs.readFileSync(P.HOSTNAME_FILE).toString();//esp32host_2df5c8
     const this_pc_name = os.hostname();
     
-    let esp32Cert = cert.CreateAndSignCert("SYSTEM_"+hostname, hostname, P.ROOT_CA_PEM_CRT, P.ROOT_CA_PEM_PRVTKEY);
+    let esp32Cert = cert.CreateAndSignCert(hostname, hostname, P.ROOT_CA_PEM_CRT, P.ROOT_CA_PEM_PRVTKEY);
     writeFileCreateDirLazy(P.ESP32_CERT_PEM_CRT, esp32Cert.certificate);
     writeFileCreateDirLazy(P.ESP32_CERT_PEM_PRVTKEY, esp32Cert.privateKey);
     
@@ -118,8 +113,6 @@ exports.build = gulp.series(
     });
   }
 
-
-  exports.flashusersettings = flashusersettings;
   
 
   exports.default = exports.build

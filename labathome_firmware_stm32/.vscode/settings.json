@@ -11,6 +11,9 @@
         "cstdio": "cpp",
         "typeinfo": "cpp",
         "stdio.h": "c",
-        "main.h": "c"
-    }
+        "main.h": "c",
+        "cmsis_os.h": "c",
+        "stm32g4xx_hal.h": "c"
+    },
+    "idf.portWin": "COM6"
 }

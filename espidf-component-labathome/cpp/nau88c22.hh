@@ -6,8 +6,8 @@
 #include <bit>
 #include <algorithm>
 
-#include "driver/i2s_std.h"
-#include "driver/i2c_master.h"
+#include <driver/i2s_std.h>
+#include <driver/i2c_master.h>
 
 #include <esp_log.h>
 #define TAG "NAU88C22"
@@ -41,23 +41,27 @@ namespace nau88c22
         esp_err_t i2cWriteNAU8822(uint8_t addr, int16_t data)
         {
             uint8_t write_buf[2] = {(uint8_t)((addr << 1) | (data >> 8)), (uint8_t)((data & 0x00ff))};
-            return i2c_master_write_to_device(I2C_NUM_0, NAU8822_I2C_ADDRESS, write_buf, sizeof(write_buf), pdMS_TO_TICKS(1000));
+            return i2c_master_transmit(dev_handle, write_buf, sizeof(write_buf), 1000);
         }
 
         esp_err_t i2cReadNAU8822(uint8_t addr, uint16_t &reg_data)
         {
             uint8_t write_buf[1] = {(uint8_t)((addr << 1))};
             uint8_t read_buf[2];
-            esp_err_t espRc = i2c_master_write_read_device(I2C_NUM_0, NAU8822_I2C_ADDRESS, write_buf, sizeof(write_buf), read_buf, sizeof(read_buf), pdMS_TO_TICKS(1000));
+            esp_err_t espRc = i2c_master_transmit_receive(dev_handle, write_buf, sizeof(write_buf), read_buf, sizeof(read_buf), 1000);
             reg_data = read_buf[1] + (read_buf[0] << 8);
             return espRc;
         }
 
         esp_err_t i2cCheckNAU8822()
         {
-            ESP_ERROR_CHECK(i2c_master_probe(bus_handle, NAU8822_I2C_ADDRESS, 1000));
+            esp_err_t err = i2c_master_probe(bus_handle, NAU8822_I2C_ADDRESS, 1000);
+            if(err!=ESP_OK){
+                ESP_LOGE(TAG, "NAU88C22 not responding");
+                return ESP_FAIL;
+            }
             uint16_t data{0};
-            ESP_ERROR_CHECK(i2cReadNAU8822(0x3F, data));
+            i2cReadNAU8822(0x3F, data);
             if (data != 0x1A)
             {
                 ESP_LOGE(TAG, "NAU8822 does respond the wrong id %d", data);
@@ -193,7 +197,10 @@ namespace nau88c22
             };
             ESP_ERROR_CHECK(i2c_master_bus_add_device(bus_handle, &dev_cfg, &(this->dev_handle)));
 
-            ESP_ERROR_CHECK(i2cCheckNAU8822());
+            esp_err_t err = i2cCheckNAU8822();
+            if(err!=ESP_OK){
+                return ErrorCode::GENERIC_ERROR;
+            }
             i2cSetupNAU8822Play(volumeSpeakers);
             return ErrorCode::OK;
         }

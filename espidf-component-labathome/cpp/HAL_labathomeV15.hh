@@ -10,16 +10,24 @@
 
 
 #include <driver/i2c_master.h>
+#include <driver/gpio.h>
+#include <driver/spi_master.h>
+
+#include <sys/unistd.h>
+#include <sys/stat.h>
+#include <esp_vfs_fat.h>
+#include "sdmmc_cmd.h"
+#include <driver/sdmmc_host.h>
+
 
 #include <errorcodes.hh>
 #include <rgbled.hh>
-#include <bh1750.hh>
 #include <bme280.hh>
-#include <ccs811.hh>
 #include <aht_sensor.hh>
 #include <ds18b20.hh>
 #include <AudioPlayer.hh>
 #include "nau88c22.hh"
+#include "spilcd16.hh"
 
 #include "../../labathome_firmware_stm32/Core/Inc/stm32_esp32_buffer_definitions.hh"
 
@@ -87,8 +95,9 @@ constexpr size_t LED_NUMBER{4};
 constexpr i2c_port_t I2C_PORT{I2C_NUM_1};
 constexpr i2s_port_t I2S_PORT{I2S_NUM_0};//must be I2S_NUM_0, as only this hat access to internal DAC
 
+constexpr const char* MOUNT_POINT="/sdcard";
 
-constexpr uint8_t STM32_I2C_ADDRESS{4};
+
 
 class HAL_Impl : public HAL
 {
@@ -97,12 +106,12 @@ private:
 
     i2c_master_bus_handle_t bus_handle;
     AHT::M *aht21dev{nullptr};
-    BME280::M *bme280dev{nullptr};
     OneWire::OneWireBus<PIN_ONEWIRE>* oneWireBus{nullptr};
     i2c_master_dev_handle_t stm32_handle{nullptr};
 
     RGBLED::M<LED_NUMBER, RGBLED::DeviceType::WS2812> *strip{nullptr};
     AudioPlayer::Player *mp3player;
+    spilcd16::M<SPI2_HOST, PIN_LCD_DAT, PIN_LCD_CLK, GPIO_NUM_NC, PIN_LCD_DC, PIN_EXT_IO1, GPIO_NUM_NC, LCD240x240_0, (size_t)8*240, 4096, 0> display;
 
 
     
@@ -132,10 +141,7 @@ private:
 
      
     void MP3Loop(){
-        nau88c22::M *codec = new nau88c22::M(bus_handle,  PIN_I2S_MCLK, PIN_I2S_BCLK, PIN_I2S_FS, PIN_I2S_DAC);
-        mp3player = new AudioPlayer::Player(codec);
-        mp3player->Init();
-        
+      
         while(true){
             mp3player->Loop();
         }
@@ -165,20 +171,34 @@ private:
 
     void SensorLoop()
     {
-        aht21dev = new AHT::M(bus_handle, AHT::ADDRESS::default_address);
-        bme280dev = new BME280::M(bus_handle, BME280::ADDRESS::PRIM);
-        oneWireBus = new OneWire::OneWireBus<PIN_ONEWIRE>();
-        oneWireBus->Init();
+        aht21dev = new AHT::M(bus_handle, AHT::ADDRESS::DEFAULT_ADDRESS);
+        //bme280dev = new BME280::M(bus_handle, BME280::ADDRESS::PRIM);
+        
+        Stm32Init(); //see below loop
  
         while (true)
         {
             int64_t now = GetMillis64();
             oneWireBus->Loop(now);
-            bme280dev->Loop(now);
+            //bme280dev->Loop(now);
             aht21dev->Loop(now);
-            Stm32Loop();
+            Stm32Loop(); //see above Init;
             delayMs(50);
         }
+    }
+
+    void list_dir(const char* dirname)
+    {
+        DIR* dir = opendir(dirname);
+        if (dir == NULL) {
+            ESP_LOGE(TAG, "Failed to open directory: %s", dirname);
+            return;
+        }
+        struct dirent* entry;
+        while ((entry = readdir(dir)) != NULL) {
+            printf("Found file: %s\n", entry->d_name);
+        }
+        closedir(dir);
     }
 
 public:
@@ -253,8 +273,12 @@ public:
             soundNumber = 0;
         }
         this->sound=soundNumber;
-        mp3player->PlayMP3(SOUNDS[soundNumber], SONGS_LEN[soundNumber], 255, true);
         ESP_LOGI(TAG, "Set Sound to %ld", soundNumber);
+        if(!mp3player){
+            ESP_LOGW(TAG, "Audio Player not initialized!");
+            return ErrorCode::OK;
+        }
+        mp3player->PlayMP3(SOUNDS[soundNumber], SONGS_LEN[soundNumber], 255, true);
         return ErrorCode::OK;
     }
 
@@ -270,12 +294,18 @@ public:
 
     ErrorCode GetHeaterTemperature(float *degreesCelcius)
     {
+        if(!this->oneWireBus){
+            return ErrorCode::GENERIC_ERROR;
+        }
         *degreesCelcius = this->oneWireBus->GetMaxTemp();
         return ErrorCode::OK;
     }
 
     ErrorCode GetAirTemperature(float *degreesCelcius)
     {
+        if(!this->aht21dev){
+            return ErrorCode::GENERIC_ERROR;
+        }
         float dummyHumid;
         return this->aht21dev->Read(dummyHumid, *degreesCelcius);
     }
@@ -294,6 +324,9 @@ public:
 
     ErrorCode GetAirRelHumidity(float *percent)
     {
+        if(!this->aht21dev){
+            return ErrorCode::GENERIC_ERROR;
+        }
         float dummyTemp;
         return this->aht21dev->Read(*percent, dummyTemp);
     }
@@ -334,7 +367,7 @@ public:
 
     ErrorCode InitAndRun() override
     {
-        //I2C Master
+        //I2C Master Bus
         i2c_master_bus_config_t i2c_mst_config = {
             .i2c_port = I2C_PORT,
             .sda_io_num = PIN_I2C_SDA,
@@ -348,10 +381,78 @@ public:
         };
         ESP_ERROR_CHECK(i2c_new_master_bus(&i2c_mst_config, &bus_handle));
 
+        for(uint8_t i=0;i<128;i++){
+             if(i2c_master_probe(bus_handle, i, 50)!=ESP_ERR_NOT_FOUND){
+                 ESP_LOGI(TAG, "Found I2C-Device @ 0x%02X", i);
+             }
+         }
+        ESP_ERROR_CHECK(i2c_master_probe(bus_handle, STM32_I2C_ADDRESS, 1000));
+        ESP_ERROR_CHECK(i2c_master_probe(bus_handle, (uint8_t)AHT::ADDRESS::DEFAULT_ADDRESS, 1000));
+        ESP_ERROR_CHECK(i2c_master_probe(bus_handle, 0x6A, 1000)); //LSM6DS3
+        //ESP_ERROR_CHECK(i2c_master_probe(bus_handle, 0x1A, 1000)); //NAU88C22
+        ESP_LOGI(TAG, "I2C bus successfully initialized and probed");
+
+
+
         //LED Strip
         strip = new RGBLED::M<LED_NUMBER, RGBLED::DeviceType::WS2812>();
         ESP_ERROR_CHECK(strip->Begin(SPI3_HOST, PIN_LED_WS2812));
         ESP_ERROR_CHECK(strip->Clear(100));
+
+        //LCD
+        gpio_set_direction(PIN_LCD_BL, GPIO_MODE_OUTPUT);
+        gpio_set_level(PIN_LCD_BL, 1);
+        display.InitSpiAndGpio();
+        display.Init_ST7789(Color::RED);
+        display.Interaction(10000);
+
+        //uSD
+        esp_vfs_fat_sdmmc_mount_config_t mount_config = {
+            .format_if_mount_failed = false,
+            .max_files = 5,
+            .allocation_unit_size = 16 * 1024,
+            .disk_status_check_enable=false,
+        };
+        sdmmc_card_t *card;
+
+        ESP_LOGI(TAG, "Initializing SD card using SDMMC peripheral");
+
+        sdmmc_host_t host = SDMMC_HOST_DEFAULT();
+
+        sdmmc_slot_config_t slot_config = SDMMC_SLOT_CONFIG_DEFAULT();
+        slot_config.width = 1;
+        slot_config.clk = PIN_uSD_CLK;
+        slot_config.cmd = PIN_uSD_CMD;
+        slot_config.d0 = PIN_uSD_D0;
+
+
+        ESP_LOGI(TAG, "Mounting filesystem");
+        esp_err_t ret = esp_vfs_fat_sdmmc_mount(MOUNT_POINT, &host, &slot_config, &mount_config, &card);
+
+        if (ret != ESP_OK) {
+            if (ret == ESP_FAIL) {
+                ESP_LOGE(TAG, "Failed to mount filesystem. "
+                        "If you want the card to be formatted, set the EXAMPLE_FORMAT_IF_MOUNT_FAILED menuconfig option.");
+            } else {
+                ESP_LOGE(TAG, "Failed to initialize the card (%s). "
+                        "Make sure SD card lines have pull-up resistors in place.", esp_err_to_name(ret));
+            }
+            return ErrorCode::GENERIC_ERROR;
+        }
+        ESP_LOGI(TAG, "Filesystem mounted");
+        sdmmc_card_print_info(stdout, card);
+        list_dir(MOUNT_POINT);
+        esp_vfs_fat_sdcard_unmount(MOUNT_POINT, card);
+        ESP_LOGI(TAG, "Card unmounted");
+
+        //MP3
+        nau88c22::M *codec = new nau88c22::M(bus_handle,  PIN_I2S_MCLK, PIN_I2S_BCLK, PIN_I2S_FS, PIN_I2S_DAC);
+        mp3player = new AudioPlayer::Player(codec);
+        mp3player->Init();
+
+
+        GreetUserOnStartup();
+        //Tasks
         xTaskCreate(sensorTask, "sensorTask", 4096 * 4, this, 6, nullptr);
         xTaskCreate(mp3Task, "mp3task", 6144 * 4, this, 16, nullptr); //Stack Size = 4096 --> Stack overflow!!
         return ErrorCode::OK;
@@ -486,13 +587,13 @@ public:
             ColorizeLed(1, CRGB::Yellow);
             ColorizeLed(2, CRGB::DarkGreen);
             ColorizeLed(3, CRGB::DarkBlue);
-            AfterLoop();
+            strip->Refresh();
             vTaskDelay(pdMS_TO_TICKS(150));
             ColorizeLed(0, CRGB::DarkBlue);
             ColorizeLed(1, CRGB::DarkGreen);
             ColorizeLed(2, CRGB::Yellow);
             ColorizeLed(3, CRGB::DarkRed);
-            AfterLoop();
+            strip->Refresh();
             vTaskDelay(pdMS_TO_TICKS(150));
         }    
         SetSound(5);

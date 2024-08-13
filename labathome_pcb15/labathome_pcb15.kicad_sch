@@ -5726,7 +5726,7 @@
 		)
 		(uuid "1c4546ed-2618-4ba8-9f4c-45874124059a")
 	)
-	(text "I2C addresses (0-127):\nNAU88C22: 0x1A\nCCS811: 0x5A\nLSM6DS3: 0x6A\nBMPx80: 0x76\nTCS34725 0x29\nBH1750 0x23\nSCD41 0x62\n"
+	(text "I2C addresses (0-127):\nAHT20:  0x38\nBH1750 0x23\nBMPx80: 0x76\nCCS811: 0x5A\nLSM6DS3: 0x6A\nNAU88C22: 0x1A\nSCD41 0x62\nTCS34725 0x29\n"
 		(exclude_from_sim no)
 		(at 254.762 88.392 0)
 		(effects
