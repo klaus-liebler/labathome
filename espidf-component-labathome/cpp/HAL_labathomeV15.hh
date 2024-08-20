@@ -92,7 +92,7 @@ constexpr Pintype PIN_ONEWIRE = (Pintype)39;
 constexpr size_t ANALOG_INPUTS_LEN{2};
 constexpr size_t LED_NUMBER{4};
 
-constexpr i2c_port_t I2C_PORT{I2C_NUM_1};
+constexpr i2c_port_t I2C_PORT{I2C_NUM_0};
 constexpr i2s_port_t I2S_PORT{I2S_NUM_0};//must be I2S_NUM_0, as only this hat access to internal DAC
 
 constexpr const char* MOUNT_POINT="/sdcard";
@@ -104,14 +104,14 @@ class HAL_Impl : public HAL
 private:
     //management objects
 
-    i2c_master_bus_handle_t bus_handle;
+    i2c_master_bus_handle_t i2c_master_handle;
     AHT::M *aht21dev{nullptr};
     OneWire::OneWireBus<PIN_ONEWIRE>* oneWireBus{nullptr};
     i2c_master_dev_handle_t stm32_handle{nullptr};
 
     RGBLED::M<LED_NUMBER, RGBLED::DeviceType::WS2812> *strip{nullptr};
     AudioPlayer::Player *mp3player;
-    spilcd16::M<SPI2_HOST, PIN_LCD_DAT, PIN_LCD_CLK, GPIO_NUM_NC, PIN_LCD_DC, PIN_EXT_IO1, GPIO_NUM_NC, LCD240x240_0, (size_t)8*240, 4096, 0> display;
+    //spilcd16::M<SPI2_HOST, PIN_LCD_DAT, PIN_LCD_CLK, GPIO_NUM_NC, PIN_LCD_DC, PIN_EXT_IO1, GPIO_NUM_NC, LCD240x240_0, (size_t)8*240, 4096, 0> display;
 
 
     
@@ -148,7 +148,7 @@ private:
     }
 
     void Stm32Init(){
-        if(i2c_master_probe(bus_handle, STM32_I2C_ADDRESS, 1000)!=ESP_OK){
+        if(i2c_master_probe(i2c_master_handle, STM32_I2C_ADDRESS, 1000)!=ESP_OK){
                 
             ESP_LOGW(TAG, "STM32 I2C not responding");
         }
@@ -160,7 +160,7 @@ private:
             .scl_wait_us=0,
             .flags=0,
         };
-        ESP_ERROR_CHECK(i2c_master_bus_add_device(this->bus_handle, &dev_cfg, &this->stm32_handle));
+        ESP_ERROR_CHECK(i2c_master_bus_add_device(this->i2c_master_handle, &dev_cfg, &this->stm32_handle));
     }
     
     void Stm32Loop(){
@@ -171,7 +171,7 @@ private:
 
     void SensorLoop()
     {
-        aht21dev = new AHT::M(bus_handle, AHT::ADDRESS::DEFAULT_ADDRESS);
+        aht21dev = new AHT::M(i2c_master_handle, AHT::ADDRESS::DEFAULT_ADDRESS);
         //bme280dev = new BME280::M(bus_handle, BME280::ADDRESS::PRIM);
         
         Stm32Init(); //see below loop
@@ -202,10 +202,7 @@ private:
     }
 
 public:
-    HAL_Impl()
-        
-    {
-    }
+    HAL_Impl(){}
 
     ErrorCode OutputOneLineStatus() override{
         uint32_t heap = esp_get_free_heap_size();
@@ -376,20 +373,24 @@ public:
             .glitch_ignore_cnt = 7,
             .intr_priority=0,
             .trans_queue_depth=0,
-            //.enable_internal_pullup=0,
-            .flags=0,
+            .flags={
+                .enable_internal_pullup=1,
+            }
         };
-        ESP_ERROR_CHECK(i2c_new_master_bus(&i2c_mst_config, &bus_handle));
 
+        ESP_ERROR_CHECK(i2c_new_master_bus(&i2c_mst_config, &i2c_master_handle));
+
+    
         for(uint8_t i=0;i<128;i++){
-             if(i2c_master_probe(bus_handle, i, 50)!=ESP_ERR_NOT_FOUND){
+             if(i2c_master_probe(i2c_master_handle, i, 100)!=ESP_ERR_NOT_FOUND){
                  ESP_LOGI(TAG, "Found I2C-Device @ 0x%02X", i);
              }
          }
-        ESP_ERROR_CHECK(i2c_master_probe(bus_handle, STM32_I2C_ADDRESS, 1000));
-        ESP_ERROR_CHECK(i2c_master_probe(bus_handle, (uint8_t)AHT::ADDRESS::DEFAULT_ADDRESS, 1000));
-        ESP_ERROR_CHECK(i2c_master_probe(bus_handle, 0x6A, 1000)); //LSM6DS3
+        
         //ESP_ERROR_CHECK(i2c_master_probe(bus_handle, 0x1A, 1000)); //NAU88C22
+        //ESP_ERROR_CHECK(i2c_master_probe(bus_handle, STM32_I2C_ADDRESS, 1000));
+        ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, (uint8_t)AHT::ADDRESS::DEFAULT_ADDRESS, 1000));
+        ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, 0x6A, 1000)); //LSM6DS3
         ESP_LOGI(TAG, "I2C bus successfully initialized and probed");
 
 
@@ -400,13 +401,15 @@ public:
         ESP_ERROR_CHECK(strip->Clear(100));
 
         //LCD
+        /*
         gpio_set_direction(PIN_LCD_BL, GPIO_MODE_OUTPUT);
         gpio_set_level(PIN_LCD_BL, 1);
         display.InitSpiAndGpio();
         display.Init_ST7789(Color::RED);
         display.Interaction(10000);
-
+        */
         //uSD
+        /*
         esp_vfs_fat_sdmmc_mount_config_t mount_config = {
             .format_if_mount_failed = false,
             .max_files = 5,
@@ -444,9 +447,9 @@ public:
         list_dir(MOUNT_POINT);
         esp_vfs_fat_sdcard_unmount(MOUNT_POINT, card);
         ESP_LOGI(TAG, "Card unmounted");
-
+        */
         //MP3
-        nau88c22::M *codec = new nau88c22::M(bus_handle,  PIN_I2S_MCLK, PIN_I2S_BCLK, PIN_I2S_FS, PIN_I2S_DAC);
+        nau88c22::M *codec = new nau88c22::M(i2c_master_handle,  PIN_I2S_MCLK, PIN_I2S_BCLK, PIN_I2S_FS, PIN_I2S_DAC);
         mp3player = new AudioPlayer::Player(codec);
         mp3player->Init();
 
