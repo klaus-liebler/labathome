@@ -17,16 +17,18 @@ Holding Registers:
  0: Not connected
  1: Servo 1, Position in Degrees 0...180
  2: Servo 2, Position in Degrees 0...180
- 3: Fan 1, Power in Percent 0...100
- 4: Fan 2, Power in Percent 0...100
- 5: Heater, Power in Percent 0...100
- 6: White Power LED, Power in Percent 0...100
- 7: RGB LED 1, Color in RGB565
- 8: LED 2
- 9: LED 3
-10: LED 4
-11: Relay State (Alternative to Coil 0), 0 means off, all other values on
-12: Play Sound, 0 means silence; try other values up to 9
+ 3: Servo 3, Position in Degrees 0...180
+ 4: Servo 4, Position in Degrees 0...180
+ 5: Fan 1, Power in Percent 0...100
+ 6: Fan 2, Power in Percent 0...100
+ 7: Heater, Power in Percent 0...100
+ 8: White Power LED, Power in Percent 0...100
+ 9: RGB LED 1, Color in RGB565
+ 10: LED 2
+ 11: LED 3
+12: LED 4
+13: Relay State (Alternative to Coil 0), 0 means off, all other values on
+14: Play Sound, 0 means silence; try other values up to 9
 
 Input Registers:
  0: CO2 [PPM]
@@ -71,8 +73,12 @@ Input Registers:
 static const char *TAG = "main";
 
 #include "HAL.hh"
-#include "HAL_labathomeV10.hh"
-static HAL * hal = new HAL_Impl(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR);
+//#include "HAL_labathomeV10.hh"
+//static HAL * hal = new HAL_Impl(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR);
+
+#include "HAL_labathomeV15.hh"
+static HAL * hal = new HAL_Impl();
+
 modbus::M<100000> *modbusSlave;
 
 constexpr size_t COILS_CNT{16};
@@ -117,33 +123,39 @@ void modbusAfterWriteCallback(uint8_t fc, uint16_t start, size_t len){
             case 0:
                 break;
             case 1:
-                hal->SetServo1Position(holdingRegisterData.at(reg));
+                hal->SetServoPosition(0, holdingRegisterData.at(reg));
                 break;
             case 2:
-                hal->SetServo2Position(holdingRegisterData.at(reg));
+                hal->SetServoPosition(1, holdingRegisterData.at(reg));
                 break;
             case 3:
-                hal->SetFan1Duty(holdingRegisterData.at(reg));
+                hal->SetServoPosition(2, holdingRegisterData.at(reg));
                 break;
             case 4:
-                hal->SetFan2Duty(holdingRegisterData.at(reg));
+                hal->SetServoPosition(3, holdingRegisterData.at(reg));
                 break;
             case 5:
+                hal->SetFanDuty(0, holdingRegisterData.at(reg));
+                break;
+            case 6:
+                hal->SetFanDuty(1, holdingRegisterData.at(reg));
+                break;
+            case 7:
                 hal->SetHeaterDuty(holdingRegisterData.at(reg));
                 break;
-            case 6://PowerWhite
+            case 8://PowerWhite
                 hal->SetLedPowerWhiteDuty(holdingRegisterData.at(reg));
                 break;
-            case 7://RGB LED 0
-            case 8:
-            case 9:
-            case 10: //RGB LED 3
+            case 9://RGB LED 0
+            case 10:
+            case 11:
+            case 12: //RGB LED 3
                 hal->ColorizeLed(reg-7, CRGB::FromRGB565(holdingRegisterData.at(reg)));
                 break;
-            case 11:
+            case 13:
                 hal->SetRelayState(holdingRegisterData.at(reg));
                 break;
-            case 12:
+            case 14:
                 hal->SetSound(holdingRegisterData.at(reg));
                 break;
             default:
@@ -178,28 +190,28 @@ void modbusBeforeReadCallback(uint8_t fc, uint16_t start, size_t len){
     }
     else if(fc==4){//Input Registers
         float tmpVal_F{0.0f};
+        float* tmpPtr_F{nullptr};
         int tmpVal_I32{0};
-        uint16_t* tmpPtr_u16;
         uint16_t tmpVal_U16{0};
 
         for(int reg=start;reg<start+len;reg++){
             switch (reg)
             {
             case 0:
-                hal->GetCO2PPM(&tmpVal_U16);
-                inputRegisterData[reg]=tmpVal_U16;
+                hal->GetCO2PPM(&tmpVal_F);
+                inputRegisterData[reg]=tmpVal_F;
                 break;
             case 1:
-                hal->GetAirPressure_hPa(&tmpVal_U16);
-                inputRegisterData[reg]=tmpVal_U16;
+                hal->GetAirPressure(&tmpVal_F);
+                inputRegisterData[reg]=tmpVal_F;
                 break;
             case 2:
-                hal->GetAmbientBrightness(&tmpVal_U16);
-                inputRegisterData[reg]=tmpVal_U16;
+                hal->GetAmbientBrightness(&tmpVal_F);
+                inputRegisterData[reg]=tmpVal_F;
                 break;
             case 3:
-                hal->GetAnalogInputs(&tmpPtr_u16);
-                inputRegisterData[reg]=tmpPtr_u16[0]; //CHANNEL_ANALOGIN_OR_ROTB, Pin 34
+                hal->GetAnalogInputs(&tmpPtr_F);
+                inputRegisterData[reg]=tmpPtr_F[0]; //CHANNEL_ANALOGIN_OR_ROTB, Pin 34
                 break;
             case 4:
                 inputRegisterData[reg]=hal->GetButtonGreenIsPressed();
@@ -211,8 +223,8 @@ void modbusBeforeReadCallback(uint8_t fc, uint16_t start, size_t len){
                 inputRegisterData[reg]=hal->GetButtonEncoderIsPressed();
                 break;
             case 7:
-                hal->GetFan1Rpm(&tmpVal_F);
-                inputRegisterData[reg]=tmpVal_F;
+                //hal->GetFan1Rpm(&tmpVal_F);
+                inputRegisterData[reg]=0;
                 break;
             case 8:
                 hal->GetHeaterTemperature(&tmpVal_F);
@@ -230,16 +242,16 @@ void modbusBeforeReadCallback(uint8_t fc, uint16_t start, size_t len){
                 inputRegisterData[reg]=tmpVal_U16;
                 break;
             case 12:
-                hal->GetAnalogInputs(&tmpPtr_u16);
-                inputRegisterData[reg]=tmpPtr_u16[1]; //CHANNEL_MOVEMENT_OR_FAN1SENSE I35
+                hal->GetAnalogInputs(&tmpPtr_F);
+                inputRegisterData[reg]=tmpPtr_F[1]; //CHANNEL_MOVEMENT_OR_FAN1SENSE I35
                 break;
             case 13:
-                hal->GetAnalogInputs(&tmpPtr_u16);
-                inputRegisterData[reg]=tmpPtr_u16[2];
+                hal->GetAnalogInputs(&tmpPtr_F);
+                inputRegisterData[reg]=tmpPtr_F[2];
                 break;
             case 14:
-                hal->GetAnalogInputs(&tmpPtr_u16);
-                inputRegisterData[reg]=tmpPtr_u16[3];
+                hal->GetAnalogInputs(&tmpPtr_F);
+                inputRegisterData[reg]=tmpPtr_F[3];
                 break;
             case 15:
                 hal->GetAirRelHumidityAHT21(&tmpVal_F);

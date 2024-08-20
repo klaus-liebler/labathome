@@ -184,19 +184,18 @@ private:
     cRotaryEncoder *rotenc{nullptr};
     AudioPlayer::Player *mp3player;
 
-    //Busses and bus devices
+    // Busses and bus devices
     i2c_master_bus_handle_t bus_handle;
     CCS811::M *ccs811dev{nullptr};
     AHT::M *aht21dev{nullptr};
     VL53L0X::M *vl53l0xdev{nullptr};
-    BME280::M* bme280dev{nullptr};
-    BH1750::M* bh1750dev{nullptr};
+    BME280::M *bme280dev{nullptr};
+    BH1750::M *bh1750dev{nullptr};
 
-    OneWire::OneWireBus<PIN_ONEWIRE>* oneWireBus{nullptr};
-    
-    
+    OneWire::OneWireBus<PIN_ONEWIRE> *oneWireBus{nullptr};
+
     // SensorValues
-    uint16_t AnalogInputVoltage_Millivolts[ANALOG_INPUTS_LEN] = {0};
+    float AnalogInputVoltage_volts[ANALOG_INPUTS_LEN] = {0};
     uint32_t buttonState{0}; // see Button-Enum for meaning of bits
     // int rotaryDetents rotary-Encoder Value in Object
     bool movementIsDetected{false};
@@ -240,19 +239,19 @@ private:
         // Es wird nicht unterschieden, ob der eingang "nur" zum Messen von analogen Spannung verwendet wird oder ob es sich um den Trigger-Eingang des Zeitrelais handelt. Im zweiten Fall muss einfach eine Zeitrelais-Schaltung basierend auf der Grenzüberschreitung des Analogen Messwertes in der Funktionsblock-Spache realisiert werden
         ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, CHANNEL_ANALOGIN_OR_ROTB, &adc_reading));
         ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_handle, adc_reading, &adc_calibrated));
-        this->AnalogInputVoltage_Millivolts[0] = adc_calibrated; // die Multiplikation mit 11 wegen dem Spannungsteiler
+        this->AnalogInputVoltage_volts[0] = adc_calibrated/1000.; // die Multiplikation mit 11 wegen dem Spannungsteiler
 
         ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, CHANNEL_MOVEMENT_OR_FAN1SENSE, &adc_reading));
         ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_handle, adc_reading, &adc_calibrated));
-        this->AnalogInputVoltage_Millivolts[1] = adc_calibrated; // die Multiplikation mit 11 wegen dem Spannungsteiler
+        this->AnalogInputVoltage_volts[1] = adc_calibrated/1000.; // die Multiplikation mit 11 wegen dem Spannungsteiler
 
         ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, CHANNEL_LDR_OR_ROTA, &adc_reading));
         ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_handle, adc_reading, &adc_calibrated));
-        this->AnalogInputVoltage_Millivolts[2] = adc_calibrated;
+        this->AnalogInputVoltage_volts[2] = adc_calibrated/1000.;
 
         ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, CHANNEL_SWITCHES, &adc_reading));
         ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_handle, adc_reading, &adc_calibrated));
-        this->AnalogInputVoltage_Millivolts[3] = adc_calibrated;
+        this->AnalogInputVoltage_volts[3] = adc_calibrated/1000.;
         int i = 0;
         for (i = 0; i < sizeof(sw_limits) / sizeof(uint16_t); i++)
         {
@@ -298,9 +297,9 @@ private:
             }
 
             oneWireBus->Loop(GetMillis64());
-            this->heaterTemperature_DegCel=oneWireBus->GetMaxTemp();
-            this->airTemperatureDS18B20_DegCel=oneWireBus->GetMinTemp();
-            
+            this->heaterTemperature_DegCel = oneWireBus->GetMaxTemp();
+            this->airTemperatureDS18B20_DegCel = oneWireBus->GetMinTemp();
+
             bh1750dev->Loop(GetMillis64());
             ccs811dev->Loop(GetMillis64());
             aht21dev->Loop(GetMillis64());
@@ -312,7 +311,7 @@ private:
             }
             if (vl53l0xdev->HasValidData())
             {
-                this->distanceMillimeters = vl53l0xdev->ReadOut();
+                this->distanceMillimeters = vl53l0xdev->ReadMillimeters();
             }
             if (this->aht21dev->HasValidData())
             {
@@ -333,11 +332,6 @@ public:
     {
     }
 
-    ErrorCode GetFFT64(float *magnitudes64) override
-    {
-        return ErrorCode::OK;
-    }
-
     ErrorCode OutputOneLineStatus() override
     {
         uint32_t heap = esp_get_free_heap_size();
@@ -352,21 +346,21 @@ public:
         GetSound(&sound);
         float spply = GetUSBCVoltage();
 
-        uint16_t bright{0};
+        float bright{0};
         GetAmbientBrightness(&bright);
 
         GetHeaterTemperature(&htrTemp);
         float airTemp{0.f};
         GetAirTemperature(&airTemp);
-        uint16_t airPres{0};
-        GetAirPressure_hPa(&airPres);
+        float airPres{0};
+        GetAirPressure(&airPres);
         float airHumid{0.f};
         GetAirRelHumidity(&airHumid);
-        uint16_t co2{0};
+        float co2{0};
         GetCO2PPM(&co2);
-        uint16_t *analogVolt{nullptr};
+        float *analogVolt{nullptr};
         GetAnalogInputs(&analogVolt);
-        ESP_LOGI(TAG, "Heap %6lu  RED %d YEL %d GRN %d MOV %d ENC %i SOUND %ld SUPPLY %4.1f BRGHT %4d HEAT %4.1f AIRT %4.1f AIRPRS %5d AIRHUM %3.0f CO2 %5d, ANALOGIN [%4d %4d]",
+        ESP_LOGI(TAG, "Heap %6lu  RED %d YEL %d GRN %d MOV %d ENC %i SOUND %ld SUPPLY %4.1f BRGHT %4f HEAT %4.1f AIRT %4.1f AIRPRS %5f AIRHUM %3.0f CO2 %5f, ANALOGIN [%4.1f %4.1f]",
                  heap, red, yel, grn, mov, enc, sound, spply, bright, htrTemp, airTemp, airPres, airHumid, co2, analogVolt[0], analogVolt[1]);
         return ErrorCode::OK;
     }
@@ -386,9 +380,9 @@ public:
         return esp_timer_get_time() / 1000ULL;
     }
 
-    ErrorCode GetAnalogInputs(uint16_t **millivolts)
+    ErrorCode GetAnalogInputs(float **volts)
     {
-        *millivolts = this->AnalogInputVoltage_Millivolts;
+        *volts = this->AnalogInputVoltage_volts;
         return ErrorCode::OK;
     }
 
@@ -431,7 +425,7 @@ public:
         return ErrorCode::OK;
     }
 
-    ErrorCode GetCO2PPM(uint16_t *co2PPM) override
+    ErrorCode GetCO2PPM(float *co2PPM) override
     {
         *co2PPM = this->airCo2CCS811_PPM;
         return ErrorCode::OK;
@@ -474,9 +468,9 @@ public:
         return ErrorCode::OK;
     }
 
-    ErrorCode GetAirPressure_hPa(uint16_t *hPa) override
+    ErrorCode GetAirPressure(float *pa) override
     {
-        *hPa = this->airPressureBME280_Pa/100.0;
+        *pa = this->airPressureBME280_Pa / 100.0;
         return ErrorCode::OK;
     }
 
@@ -510,20 +504,20 @@ public:
         return ErrorCode::OK;
     }
 
-    ErrorCode GetAmbientBrightness(uint16_t *lux) override
+    ErrorCode GetAmbientBrightness(float *lux) override
     {
         // digital value has priority
         *lux = this->ambientBrightnessBH1750_Lux != UINT16_MAX ? this->ambientBrightnessBH1750_Lux : this->ambientBrightnessLDR_Lux;
         return ErrorCode::OK;
     }
 
-    ErrorCode GetAmbientBrightnessAnalog(uint16_t *lux) override
+    ErrorCode GetAmbientBrightnessAnalog(float *lux) override
     {
         *lux = this->ambientBrightnessLDR_Lux;
         return ErrorCode::OK;
     }
 
-    ErrorCode GetAmbientBrightnessDigital(uint16_t *lux) override
+    ErrorCode GetAmbientBrightnessDigital(float *lux) override
     {
         *lux = this->ambientBrightnessBH1750_Lux;
         return ErrorCode::OK;
@@ -535,20 +529,10 @@ public:
         return ErrorCode::OK;
     }
 
-    ErrorCode SetAnalogOutput(float volts)
+    ErrorCode SetAnalogOutput(uint8_t outputIndex, float volts)
     {
 
         // mp3player.OutputConstantVoltage(volts);
-        return ErrorCode::OK;
-    }
-
-    ErrorCode UpdatePinConfiguration(uint8_t *configMessage, size_t configMessagelen)
-    {
-        return ErrorCode::OK;
-    }
-
-    ErrorCode UpdatePinConfiguration()
-    {
         return ErrorCode::OK;
     }
 
@@ -583,7 +567,7 @@ public:
         ESP_ERROR_CHECK(rotenc->Init());
         ESP_ERROR_CHECK(rotenc->Start());
 
-        //CHANNEL_MOVEMENT_OR_FAN1SENSE Input (Auch wenn es nur ein Input ist, muss das passieren, weil dieser Input sonst nur einen Analogwert liefern würde)
+        // CHANNEL_MOVEMENT_OR_FAN1SENSE Input (Auch wenn es nur ein Input ist, muss das passieren, weil dieser Input sonst nur einen Analogwert liefern würde)
         ConfigGpioInput(PIN_MOVEMENT_OR_FAN1SENSE, GPIO_FLOATING);
 
         // Relay K3 output
@@ -624,27 +608,29 @@ public:
         ESP_ERROR_CHECK(mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_HEATER_OR_LED_POWER, &pwm_config));
 
         // I2C Master
-                //I2C Master
+        // I2C Master
         i2c_master_bus_config_t i2c_mst_config = {
             .i2c_port = I2C_PORT,
             .sda_io_num = PIN_I2C_SDA,
             .scl_io_num = PIN_I2C_SCL,
             .clk_source = I2C_CLK_SRC_DEFAULT,
             .glitch_ignore_cnt = 7,
-            .intr_priority=0,
-            .trans_queue_depth=0,
+            .intr_priority = 0,
+            .trans_queue_depth = 0,
             //.enable_internal_pullup=0,
-            .flags=0,
+            .flags = 0,
         };
         ESP_ERROR_CHECK(i2c_new_master_bus(&i2c_mst_config, &bus_handle));
 
-        for(uint8_t i=0;i<128;i++){
-            if(i2c_master_probe(bus_handle, i, 50)!=ESP_ERR_NOT_FOUND){
+        for (uint8_t i = 0; i < 128; i++)
+        {
+            if (i2c_master_probe(bus_handle, i, 50) != ESP_ERR_NOT_FOUND)
+            {
                 ESP_LOGI(TAG, "Found I2C-Device @ 0x%02X", i);
             }
         }
 
-        //OneWire-Bus
+        // OneWire-Bus
         oneWireBus = new OneWire::OneWireBus<PIN_ONEWIRE>();
         oneWireBus->Init();
 
@@ -743,52 +729,46 @@ public:
         return mcpwm_get_duty(MCPWM_UNIT_0, MCPWM_TIMER_HEATER_OR_LED_POWER, MCPWM_GEN_HEATER_OR_LED_POWER);
     }
 
-    ErrorCode SetServo1Position(float angle_0_to_180)
+    ErrorCode SetServoPosition(uint8_t servoIndex, float angle_0_to_180)
     {
-        if (mode_FAN1_OR_SERVO1 != MODE_FAN1_OR_SERVO1::SERVO1)
+        if (servoIndex == 0)
         {
-            ESP_ERROR_CHECK(mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM_IO_SERVO1, PIN_FAN1_DRIVE_OR_SERVO1));
-            mode_FAN1_OR_SERVO1 = MODE_FAN1_OR_SERVO1::SERVO1;
+            if (mode_FAN1_OR_SERVO1 != MODE_FAN1_OR_SERVO1::SERVO1)
+            {
+                ESP_ERROR_CHECK(mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM_IO_SERVO1, PIN_FAN1_DRIVE_OR_SERVO1));
+                mode_FAN1_OR_SERVO1 = MODE_FAN1_OR_SERVO1::SERVO1;
+            }
+            uint32_t cal_pulsewidth = (SERVO_MIN_PULSEWIDTH + (((SERVO_MAX_PULSEWIDTH - SERVO_MIN_PULSEWIDTH) * (angle_0_to_180)) / (SERVO_MAX_DEGREE)));
+            esp_err_t err = mcpwm_set_duty_in_us(MCPWM_UNIT_0, MCPWM_TIMER_SERVO, MCPWM_GEN_SERVO1, cal_pulsewidth);
+            return err == ESP_OK ? ErrorCode::OK : ErrorCode::GENERIC_ERROR;
         }
-        uint32_t cal_pulsewidth = (SERVO_MIN_PULSEWIDTH + (((SERVO_MAX_PULSEWIDTH - SERVO_MIN_PULSEWIDTH) * (angle_0_to_180)) / (SERVO_MAX_DEGREE)));
-        esp_err_t err = mcpwm_set_duty_in_us(MCPWM_UNIT_0, MCPWM_TIMER_SERVO, MCPWM_GEN_SERVO1, cal_pulsewidth);
-        return err == ESP_OK ? ErrorCode::OK : ErrorCode::GENERIC_ERROR;
-    }
-
-    ErrorCode SetServo2Position(float angle_0_to_180)
-    {
-        uint32_t cal_pulsewidth = (SERVO_MIN_PULSEWIDTH + (((SERVO_MAX_PULSEWIDTH - SERVO_MIN_PULSEWIDTH) * (angle_0_to_180)) / (SERVO_MAX_DEGREE)));
-        esp_err_t err = mcpwm_set_duty_in_us(MCPWM_UNIT_0, MCPWM_TIMER_SERVO, MCPWM_GEN_SERVO2, cal_pulsewidth);
-        return err == ESP_OK ? ErrorCode::OK : ErrorCode::GENERIC_ERROR;
-    }
-
-    ErrorCode SetFan1Duty(float dutyInPercent)
-    {
-        if (mode_FAN1_OR_SERVO1 != MODE_FAN1_OR_SERVO1::FAN1)
+        else
         {
-            ESP_ERROR_CHECK(mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM_IO_FAN1, PIN_FAN1_DRIVE_OR_SERVO1));
-            mode_FAN1_OR_SERVO1 = MODE_FAN1_OR_SERVO1::FAN1;
+            uint32_t cal_pulsewidth = (SERVO_MIN_PULSEWIDTH + (((SERVO_MAX_PULSEWIDTH - SERVO_MIN_PULSEWIDTH) * (angle_0_to_180)) / (SERVO_MAX_DEGREE)));
+            esp_err_t err = mcpwm_set_duty_in_us(MCPWM_UNIT_0, MCPWM_TIMER_SERVO, MCPWM_GEN_SERVO2, cal_pulsewidth);
+            return err == ESP_OK ? ErrorCode::OK : ErrorCode::GENERIC_ERROR;
         }
-        dutyInPercent = std::max(0.0f, dutyInPercent);
-        dutyInPercent = std::min(100.0f, dutyInPercent);
-        mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_FAN, MCPWM_GEN_FAN1, dutyInPercent);
-        return ErrorCode::OK;
     }
 
-    float GetFan1State()
+    ErrorCode SetFanDuty(uint8_t fanIndex, float dutyInPercent)
     {
-        return mcpwm_get_duty(MCPWM_UNIT_0, MCPWM_TIMER_FAN, MCPWM_GEN_FAN1);
-    }
-
-    ErrorCode SetFan2Duty(float dutyInPercent)
-    {
-        mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_FAN, MCPWM_GEN_FAN2, dutyInPercent);
-        return ErrorCode::OK;
-    }
-
-    float GetFan2State()
-    {
-        return mcpwm_get_duty(MCPWM_UNIT_0, MCPWM_TIMER_FAN, MCPWM_GEN_FAN2);
+        if (fanIndex == 0)
+        {
+            if (mode_FAN1_OR_SERVO1 != MODE_FAN1_OR_SERVO1::FAN1)
+            {
+                ESP_ERROR_CHECK(mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM_IO_FAN1, PIN_FAN1_DRIVE_OR_SERVO1));
+                mode_FAN1_OR_SERVO1 = MODE_FAN1_OR_SERVO1::FAN1;
+            }
+            dutyInPercent = std::max(0.0f, dutyInPercent);
+            dutyInPercent = std::min(100.0f, dutyInPercent);
+            mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_FAN, MCPWM_GEN_FAN1, dutyInPercent);
+            return ErrorCode::OK;
+        }
+        else
+        {
+            mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_FAN, MCPWM_GEN_FAN2, dutyInPercent);
+            return ErrorCode::OK;
+        }
     }
 
     ErrorCode SetLedPowerWhiteDuty(float dutyInPercent)
