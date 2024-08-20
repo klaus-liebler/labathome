@@ -4,6 +4,12 @@
 	(generator_version "8.0")
 	(uuid "07f59627-794f-43c6-9535-cc39ac582bc0")
 	(paper "A4")
+	(title_block
+		(title "lab@home")
+		(date "2024-08-19")
+		(rev "15.1")
+		(company "Klaus Liebler")
+	)
 	(lib_symbols
 		(symbol "Connector_Audio:AudioJack3_SwitchT"
 			(exclude_from_sim no)

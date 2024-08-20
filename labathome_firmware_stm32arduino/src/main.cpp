@@ -1,10 +1,26 @@
 #include "Arduino.h"
 #include "USBPowerDelivery.h"
+#include <Wire.h>
+#include <pins.hh>
+#include "stm32_esp32_communication.hh"
+
+namespace I2C_SLAVE
+{
+  constexpr uint8_t DATA_TO_SEND_LENGHT{30};
+  uint8_t number[30];
+  uint8_t test[DATA_TO_SEND_LENGHT];
+  void onI2CReceive(int byteNum){
+    return;
+  }
+
+    void onI2CRequest(){
+    return;
+  }
+}
 
 #undef Serial
 #define Serial Serial4
-
-HardwareSerial Serial4(PC11, PC10);
+HardwareSerial Serial4(PIN::UART4_RX, PIN::UART4_TX);
 
 void requestVoltage()
 {
@@ -75,14 +91,36 @@ void handleEvent(PDSinkEventType eventType)
 void setup()
 {
   Serial4.begin(115200);
+#ifdef DEBUG
+  delay(3000); // to give platformIO terminal enough time
+#endif
   Serial4.println("Application started");
-  PowerSink.start(handleEvent);
+  
+  Wire.setSDA(PIN::SDA);
+  Wire.setSCL(PIN::SCL);
+  Wire.onReceive(I2C_SLAVE::onI2CReceive);
+  Wire.onRequest(I2C_SLAVE::onI2CRequest);
+  Wire.begin(I2C::STM32_I2C_ADDRESS);
+ 
 
-  // Uncomment if using X-NUCLEO-SNK1MK1 shield
-  // NucleoSNK1MK1.init();
+
+  PowerSink.start(handleEvent);
 }
 
 void loop()
 {
   PowerSink.poll();
+/*
+  for(uint8_t address = 1; address < 127; address++ )
+  {
+    Wire.beginTransmission(address);
+    auto error = Wire.endTransmission();
+
+    if (!error)
+    {
+      Serial.printf("I2C device found at address 0x%02X\n", address);
+    }
+  }
+  delay(5000);
+ */ 
 }
