@@ -15,9 +15,6 @@
 #include <nvs_flash.h>
 #include <esp_netif.h>
 
-#include "mbedtls/ctr_drbg.h"
-#include "mbedtls/entropy.h"
-
 #include <mdns.h>
 #ifndef CONFIG_ESP_HTTPS_SERVER_ENABLE
 #error "Enable HTTPS_SERVER in menuconfig!"
@@ -162,10 +159,10 @@ void app_main(void)
     ESP_ERROR_CHECK(SpiffsManager::Init());
 
 
+    //Configure Network
     #include "secrets.hh"
     WIFISTA::InitAndRun(WIFI_SSID, WIFI_PASS, "labathome_%02x%02x%02x");
     const char *hostname = WIFISTA::GetHostname();
-    // Start HTTPS Server
     httpd_ssl_config_t httpd_conf = HTTPD_SSL_CONFIG_DEFAULT();
     httpd_conf.servercert = cert_start;
     httpd_conf.servercert_len = cert_end - cert_start;
