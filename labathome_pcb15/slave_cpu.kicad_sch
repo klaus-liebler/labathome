@@ -5213,6 +5213,10 @@
 		(uuid "71d8ee71-29dc-4390-a558-2170dc7e6b3b")
 	)
 	(no_connect
+		(at 68.58 87.63)
+		(uuid "84da824b-762d-466a-b97c-38e4def71d41")
+	)
+	(no_connect
 		(at 219.71 55.88)
 		(uuid "901b77a1-4944-4922-b9c1-6fccb7599a56")
 	)
@@ -5223,6 +5227,10 @@
 	(no_connect
 		(at 207.01 133.35)
 		(uuid "b73f13fa-bd4b-4c92-a7d0-3c5afdf43ffe")
+	)
+	(no_connect
+		(at 68.58 92.71)
+		(uuid "e629ffc6-48c9-4c2c-a2ed-ed97ed402046")
 	)
 	(wire
 		(pts
@@ -6583,7 +6591,7 @@
 		)
 		(uuid "f4b8b9b6-3de1-44e7-9482-f27a11a3b53a")
 	)
-	(global_label "Servo1"
+	(global_label "Servo0"
 		(shape output)
 		(at 33.02 59.69 180)
 		(fields_autoplaced yes)
@@ -6715,7 +6723,7 @@
 			)
 		)
 	)
-	(global_label "Servo4"
+	(global_label "Servo3"
 		(shape input)
 		(at 149.86 187.96 180)
 		(fields_autoplaced yes)
@@ -6847,7 +6855,7 @@
 			)
 		)
 	)
-	(global_label "DAC1_OUT2x"
+	(global_label "DAC1x"
 		(shape output)
 		(at 68.58 176.53 0)
 		(fields_autoplaced yes)
@@ -6859,7 +6867,7 @@
 		)
 		(uuid "3e7a552a-6f5a-4abd-bf0a-39160b7aff44")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 83.2371 176.53 0)
+			(at 77.4314 176.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6935,7 +6943,7 @@
 			)
 		)
 	)
-	(global_label "Servo4"
+	(global_label "Servo3"
 		(shape output)
 		(at 33.02 67.31 180)
 		(fields_autoplaced yes)
@@ -7001,7 +7009,7 @@
 			)
 		)
 	)
-	(global_label "DAC1_OUT2"
+	(global_label "DAC1"
 		(shape output)
 		(at 68.58 49.53 0)
 		(fields_autoplaced yes)
@@ -7013,7 +7021,7 @@
 		)
 		(uuid "49545c2a-067b-484c-a937-81da7f8d5884")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 82.209 49.53 0)
+			(at 76.4033 49.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7023,7 +7031,7 @@
 			)
 		)
 	)
-	(global_label "Servo2"
+	(global_label "Servo1"
 		(shape output)
 		(at 33.02 62.23 180)
 		(fields_autoplaced yes)
@@ -7089,7 +7097,7 @@
 			)
 		)
 	)
-	(global_label "ADC_IN2"
+	(global_label "ADC1"
 		(shape input)
 		(at 33.02 72.39 180)
 		(fields_autoplaced yes)
@@ -7101,7 +7109,7 @@
 		)
 		(uuid "5491b1a9-f10b-42fe-9db5-c3c92be23d5e")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 22.2938 72.39 0)
+			(at 25.1967 72.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7353,7 +7361,7 @@
 			)
 		)
 	)
-	(global_label "Servo2"
+	(global_label "Servo1"
 		(shape input)
 		(at 149.86 172.72 180)
 		(fields_autoplaced yes)
@@ -7419,7 +7427,7 @@
 			)
 		)
 	)
-	(global_label "ADC_IN1"
+	(global_label "ADC0"
 		(shape input)
 		(at 33.02 69.85 180)
 		(fields_autoplaced yes)
@@ -7431,7 +7439,7 @@
 		)
 		(uuid "84969a22-8005-4d2f-bb46-bba456ab7a35")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 22.2938 69.85 0)
+			(at 25.1967 69.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7727,7 +7735,7 @@
 			)
 		)
 	)
-	(global_label "Servo1"
+	(global_label "Servo0"
 		(shape input)
 		(at 149.86 165.1 180)
 		(fields_autoplaced yes)
@@ -7815,7 +7823,7 @@
 			)
 		)
 	)
-	(global_label "DAC1_OUT2x"
+	(global_label "DAC1x"
 		(shape input)
 		(at 233.68 125.73 180)
 		(fields_autoplaced yes)
@@ -7827,7 +7835,7 @@
 		)
 		(uuid "b0ad0fa1-55dd-4124-b80d-00632d11426b")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 219.0229 125.73 0)
+			(at 224.8286 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7837,7 +7845,7 @@
 			)
 		)
 	)
-	(global_label "DAC1_OUT1"
+	(global_label "DAC0"
 		(shape output)
 		(at 68.58 46.99 0)
 		(fields_autoplaced yes)
@@ -7849,7 +7857,7 @@
 		)
 		(uuid "b0f5813d-a52f-4e30-9eb0-d6e84092a9d2")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 82.209 46.99 0)
+			(at 76.4033 46.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7903,7 +7911,7 @@
 			)
 		)
 	)
-	(global_label "ADC_IN1"
+	(global_label "ADC0"
 		(shape output)
 		(at 233.68 128.27 180)
 		(fields_autoplaced yes)
@@ -7915,7 +7923,7 @@
 		)
 		(uuid "b9da1ddf-2873-4abe-9e12-aedd36af55b7")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 222.9538 128.27 0)
+			(at 225.8567 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7925,7 +7933,7 @@
 			)
 		)
 	)
-	(global_label "Servo3"
+	(global_label "Servo2"
 		(shape output)
 		(at 33.02 64.77 180)
 		(fields_autoplaced yes)
@@ -8101,7 +8109,7 @@
 			)
 		)
 	)
-	(global_label "FAN2_DRIVE"
+	(global_label "FAN_DRIVE"
 		(shape output)
 		(at 68.58 41.91 0)
 		(fields_autoplaced yes)
@@ -8113,7 +8121,7 @@
 		)
 		(uuid "d08f9402-d840-432c-8cab-9a84bc526915")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 82.6324 41.91 0)
+			(at 81.4229 41.91 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8211,7 +8219,7 @@
 			)
 		)
 	)
-	(global_label "DAC1_OUT2"
+	(global_label "DAC1"
 		(shape input)
 		(at 31.75 181.61 180)
 		(fields_autoplaced yes)
@@ -8223,7 +8231,7 @@
 		)
 		(uuid "e176bf91-59c2-4480-8b8c-a5656f7dc184")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 18.121 181.61 0)
+			(at 23.9267 181.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8277,7 +8285,7 @@
 			)
 		)
 	)
-	(global_label "Servo3"
+	(global_label "Servo2"
 		(shape input)
 		(at 149.86 180.34 180)
 		(fields_autoplaced yes)
@@ -8409,7 +8417,7 @@
 			)
 		)
 	)
-	(global_label "ADC_IN2"
+	(global_label "ADC1"
 		(shape output)
 		(at 233.68 130.81 180)
 		(fields_autoplaced yes)
@@ -8421,7 +8429,7 @@
 		)
 		(uuid "f31ca9eb-5c6a-4b82-a151-a5a8c3aa7466")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 222.9538 130.81 0)
+			(at 225.8567 130.81 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8453,7 +8461,7 @@
 			)
 		)
 	)
-	(global_label "DAC1_OUT1"
+	(global_label "DAC0"
 		(shape input)
 		(at 233.68 123.19 180)
 		(fields_autoplaced yes)
@@ -8465,7 +8473,7 @@
 		)
 		(uuid "fc92df3e-c480-4b1f-965a-c33fdf50811f")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 220.051 123.19 0)
+			(at 225.8567 123.19 0)
 			(effects
 				(font
 					(size 1.27 1.27)

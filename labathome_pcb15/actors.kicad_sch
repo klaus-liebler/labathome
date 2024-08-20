@@ -3887,7 +3887,7 @@
 			)
 		)
 	)
-	(global_label "FAN2_DRIVE"
+	(global_label "FAN_DRIVE"
 		(shape input)
 		(at 45.72 55.88 270)
 		(fields_autoplaced yes)
@@ -3899,7 +3899,7 @@
 		)
 		(uuid "ebc8506b-48e9-4192-acee-1cb738d66e44")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 45.72 69.1988 90)
+			(at 45.72 68.7229 90)
 			(effects
 				(font
 					(size 1.27 1.27)
