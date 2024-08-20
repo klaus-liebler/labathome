@@ -1,16 +1,11 @@
 #pragma once
 
-#include <stdio.h>
+#include <cstdio>
 #include "sdkconfig.h"
 #include "esp_system.h"
 #include "errorcodes.hh"
 #include "crgb.hh"
 
-enum class Servo : uint8_t
-{
-    Servo1 = 0,
-    Servo2 = 1,
-};
 
 class HAL
 {
@@ -25,18 +20,16 @@ class HAL
         virtual ErrorCode SetRelayState(bool state)=0;
         virtual ErrorCode SetHeaterDuty(float dutyInPercent)=0;
         virtual float GetHeaterState()=0;
-        virtual ErrorCode SetFanDuty(float dutyInPercent)=0;
-        virtual float GetFanState()=0;
+        virtual ErrorCode SetFanDuty(uint8_t fanIndex, float dutyInPercent)=0;
+        virtual ErrorCode GetFanDuty(uint8_t fanIndex, float* dutyInPercent)=0;
         virtual ErrorCode SetLedPowerWhiteDuty(float dutyInpercent)=0;
         virtual bool GetButtonRedIsPressed()=0;
         virtual bool GetButtonEncoderIsPressed()=0;
         virtual ErrorCode GetEncoderValue(int *value)=0;
         virtual bool GetButtonGreenIsPressed()=0;
         virtual bool IsMovementDetected()=0;
-        virtual ErrorCode SetServo1Position(float angle_0_to_180)=0;
-        virtual ErrorCode SetServo2Position(float angle_0_to_180)=0;
-        virtual ErrorCode SetServo3Position(float angle_0_to_180)=0;
-        virtual ErrorCode SetAnalogOutput(float volts)=0;
+        virtual ErrorCode SetServoPosition(uint8_t servoIndex, float angle_0_to_180)=0;
+        virtual ErrorCode SetAnalogOutput(uint8_t outputIndex, float volts)=0;
         virtual ErrorCode BeforeLoop()=0;
         virtual ErrorCode AfterLoop()=0;
         virtual float GetUSBCVoltage()=0;
@@ -54,8 +47,6 @@ class HAL
         virtual ErrorCode GetWifiRssiDb(float *db)=0;
         virtual int64_t GetMicros()=0;
         virtual uint32_t GetMillis()=0; 
-        virtual ErrorCode GetFFT64(float *magnitudes64)=0;
-        virtual ErrorCode UpdatePinConfiguration(uint8_t* configMessage, size_t configMessagelen)=0;
         virtual ErrorCode OutputOneLineStatus()=0;
         virtual ErrorCode GreetUserOnStartup()=0;
 };

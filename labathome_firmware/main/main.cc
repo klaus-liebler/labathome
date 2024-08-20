@@ -128,13 +128,14 @@ constexpr httpd_uri_t putairspeedexperiment = {
     .handler = handle_put_airspeedexperiment,
     .user_ctx = &devicemanager,
 };
-
+/*
 constexpr httpd_uri_t putfftexperiment = {
     .uri = "/fftexperiment",
     .method = HTTP_PUT,
     .handler = handle_put_fftexperiment,
     .user_ctx = &devicemanager,
 };
+*/
 
 constexpr httpd_uri_t putptnexperiment = {
     .uri = "/ptnexperiment",
@@ -187,7 +188,7 @@ void app_main(void)
     ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &getfbd));
     ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putheaterexperiment));
     ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putairspeedexperiment));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putfftexperiment));
+    //ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putfftexperiment));
     ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &getfbdstorejson));
     ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &deletefbdstorejson));
     ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &postfbdstorejson));

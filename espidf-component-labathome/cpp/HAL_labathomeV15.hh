@@ -23,13 +23,14 @@
 #include <errorcodes.hh>
 #include <rgbled.hh>
 #include <bme280.hh>
+#include <bh1750.hh>
+#include <ccs811.hh>
+#include <vl53l0x.hh>
 #include <aht_sensor.hh>
 #include <ds18b20.hh>
 #include <AudioPlayer.hh>
-#include "nau88c22.hh"
-#include "spilcd16.hh"
 
-#include "../../labathome_firmware_stm32/Core/Inc/stm32_esp32_buffer_definitions.hh"
+#include "../../labathome_firmware_stm32arduino/src/stm32_esp32_communication.hh"
 
 
 FLASH_FILE(alarm_co2_mp3)
@@ -106,6 +107,10 @@ private:
 
     i2c_master_bus_handle_t i2c_master_handle;
     AHT::M *aht21dev{nullptr};
+    BH1750::M* bh1750dev{nullptr};
+    CCS811::M* ccs811dev{nullptr};
+    BME280::M* bme280dev{nullptr};
+    VL53L0X::M* vl53l0xdev{nullptr};
     OneWire::OneWireBus<PIN_ONEWIRE>* oneWireBus{nullptr};
     i2c_master_dev_handle_t stm32_handle{nullptr};
 
@@ -117,7 +122,7 @@ private:
     
 
     //SensorValues
-    uint8_t stm2esp_buf[STM2ESP_SIZE]={0};
+    uint8_t stm2esp_buf[S2E::STM2ESP_SIZE]={0};
     float analogInputsVolt[ANALOG_INPUTS_LEN]={0};
     float wifiRssiDb{std::numeric_limits<float>::quiet_NaN()};
 #if 0
@@ -133,7 +138,7 @@ private:
 #endif
 
     //Actor Values
-    uint8_t esp2stm_buf[ESP2STM_SIZE]={0};
+    uint8_t esp2stm_buf[E2S::ESP2STM_SIZE]={0};
     uint32_t sound{0};
     
     //Safety
@@ -142,20 +147,20 @@ private:
      
     void MP3Loop(){
       
-        while(true){
+        while(mp3player){
             mp3player->Loop();
         }
     }
 
     void Stm32Init(){
-        if(i2c_master_probe(i2c_master_handle, STM32_I2C_ADDRESS, 1000)!=ESP_OK){
+        if(i2c_master_probe(i2c_master_handle, I2C_SETUP::STM32_I2C_ADDRESS, 1000)!=ESP_OK){
                 
             ESP_LOGW(TAG, "STM32 I2C not responding");
         }
             
         i2c_device_config_t dev_cfg = {
             .dev_addr_length = I2C_ADDR_BIT_LEN_7,
-            .device_address = STM32_I2C_ADDRESS,
+            .device_address = I2C_SETUP::STM32_I2C_ADDRESS,
             .scl_speed_hz = 100000,
             .scl_wait_us=0,
             .flags=0,
@@ -164,7 +169,7 @@ private:
     }
     
     void Stm32Loop(){
-        if(i2c_master_transmit_receive(this->stm32_handle, esp2stm_buf, ESP2STM_SIZE, stm2esp_buf, STM2ESP_SIZE, 1000)!=ESP_OK){
+        if(i2c_master_transmit_receive(this->stm32_handle, esp2stm_buf, E2S::ESP2STM_SIZE, stm2esp_buf, S2E::STM2ESP_SIZE, 1000)!=ESP_OK){
             ESP_LOGW(TAG, "Error while communicating with STM32 slave chip on address");
         }
     }
@@ -172,34 +177,26 @@ private:
     void SensorLoop()
     {
         aht21dev = new AHT::M(i2c_master_handle, AHT::ADDRESS::DEFAULT_ADDRESS);
-        //bme280dev = new BME280::M(bus_handle, BME280::ADDRESS::PRIM);
-        
+        bme280dev = new BME280::M(i2c_master_handle, BME280::ADDRESS::PRIM);
+        bh1750dev = new BH1750::M(i2c_master_handle, BH1750::ADDRESS::LOW, BH1750::OPERATIONMODE::CONTINU_H_RESOLUTION);
+        ccs811dev = new CCS811::M(i2c_master_handle, CCS811::ADDRESS::ADDR0, CCS811::MODE::_1SEC, (gpio_num_t)GPIO_NUM_NC);
+        aht21dev = new AHT::M(i2c_master_handle, AHT::ADDRESS::DEFAULT_ADDRESS);
+        vl53l0xdev = new VL53L0X::M(i2c_master_handle);
         Stm32Init(); //see below loop
  
         while (true)
         {
             int64_t now = GetMillis64();
             oneWireBus->Loop(now);
-            //bme280dev->Loop(now);
-            aht21dev->Loop(now);
+            bh1750dev->Loop(GetMillis64());
+            ccs811dev->Loop(GetMillis64());
+            aht21dev->Loop(GetMillis64());
+            vl53l0xdev->Loop(GetMillis64());
             Stm32Loop(); //see above Init;
             delayMs(50);
         }
     }
 
-    void list_dir(const char* dirname)
-    {
-        DIR* dir = opendir(dirname);
-        if (dir == NULL) {
-            ESP_LOGE(TAG, "Failed to open directory: %s", dirname);
-            return;
-        }
-        struct dirent* entry;
-        while ((entry = readdir(dir)) != NULL) {
-            printf("Found file: %s\n", entry->d_name);
-        }
-        closedir(dir);
-    }
 
 public:
     HAL_Impl(){}
@@ -253,28 +250,29 @@ public:
 
     ErrorCode GetAnalogInputs(float **voltages)
     {
-        this->analogInputsVolt[0] = ParseU16(this->stm2esp_buf, ADC1_POS);
-        this->analogInputsVolt[1] = ParseU16(this->stm2esp_buf, ADC2_POS);
+        this->analogInputsVolt[0] = ParseU16(this->stm2esp_buf, S2E::ADC0_POS);
+        this->analogInputsVolt[1] = ParseU16(this->stm2esp_buf, S2E::ADC1_POS);
         *voltages = this->analogInputsVolt;
         return ErrorCode::OK;
     }
 
     ErrorCode GetEncoderValue(int *value){
-        ParseU16(this->stm2esp_buf, ROTENC_POS);
+        ParseU16(this->stm2esp_buf, S2E::ROTENC_POS);
         return ErrorCode::OK;
     }
 
     ErrorCode SetSound(int32_t soundNumber)
     {
+        if(!mp3player){
+            ESP_LOGW(TAG, "Audio Player not initialized!");
+            return ErrorCode::OK;
+        }
         if (soundNumber<0  || soundNumber >= sizeof(SOUNDS) / sizeof(uint8_t*)){
             soundNumber = 0;
         }
         this->sound=soundNumber;
         ESP_LOGI(TAG, "Set Sound to %ld", soundNumber);
-        if(!mp3player){
-            ESP_LOGW(TAG, "Audio Player not initialized!");
-            return ErrorCode::OK;
-        }
+        
         mp3player->PlayMP3(SOUNDS[soundNumber], SONGS_LEN[soundNumber], 255, true);
         return ErrorCode::OK;
     }
@@ -334,31 +332,26 @@ public:
         return ErrorCode::OK;
     }
 
-    ErrorCode GetAmbientBrightness(float *lux)
+    ErrorCode GetAmbientBrightness(float *lux) override
     {
+        uint16_t temp;
         //digital value has priority
-        uint16_t temp=ParseU16(stm2esp_buf, BRIGHTNESS_POS);
+        if(bh1750dev->HasValidData()){
+            bh1750dev->Read(temp);
+        }else{
+            temp=ParseU16(stm2esp_buf, S2E::BRIGHTNESS_POS);
+        }
         *lux=temp;
-        //*lux = std::isnan(this->ambientBrightnessLux_digital)?this->ambientBrightnessLux_analog:this->ambientBrightnessLux_digital;
         return ErrorCode::OK;
     }
 
-    ErrorCode GetWifiRssiDb(float *db){
+    ErrorCode GetWifiRssiDb(float *db) override{
         *db=this->wifiRssiDb;
         return ErrorCode::OK;
     }
 
-    ErrorCode SetAnalogOutput(float volts){
+    ErrorCode SetAnalogOutput(uint8_t outputIndex, float volts) override{
 
-        return ErrorCode::OK;
-    }
-    
-    //see https://github.com/squix78/esp32-mic-fft/blob/master/esp32-mic-fft.ino
-    ErrorCode GetFFT64(float *magnitudes64_param){
-        return ErrorCode::OK;
-    }
-
-    ErrorCode UpdatePinConfiguration(uint8_t* configMessage, size_t configMessagelen){
         return ErrorCode::OK;
     }
 
@@ -387,8 +380,7 @@ public:
              }
          }
         
-        //ESP_ERROR_CHECK(i2c_master_probe(bus_handle, 0x1A, 1000)); //NAU88C22
-        //ESP_ERROR_CHECK(i2c_master_probe(bus_handle, STM32_I2C_ADDRESS, 1000));
+        ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, I2C_SETUP::STM32_I2C_ADDRESS, 1000));
         ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, (uint8_t)AHT::ADDRESS::DEFAULT_ADDRESS, 1000));
         ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, 0x6A, 1000)); //LSM6DS3
         ESP_LOGI(TAG, "I2C bus successfully initialized and probed");
@@ -400,68 +392,20 @@ public:
         ESP_ERROR_CHECK(strip->Begin(SPI3_HOST, PIN_LED_WS2812));
         ESP_ERROR_CHECK(strip->Clear(100));
 
-        //LCD
-        /*
-        gpio_set_direction(PIN_LCD_BL, GPIO_MODE_OUTPUT);
-        gpio_set_level(PIN_LCD_BL, 1);
-        display.InitSpiAndGpio();
-        display.Init_ST7789(Color::RED);
-        display.Interaction(10000);
-        */
-        //uSD
-        /*
-        esp_vfs_fat_sdmmc_mount_config_t mount_config = {
-            .format_if_mount_failed = false,
-            .max_files = 5,
-            .allocation_unit_size = 16 * 1024,
-            .disk_status_check_enable=false,
-        };
-        sdmmc_card_t *card;
-
-        ESP_LOGI(TAG, "Initializing SD card using SDMMC peripheral");
-
-        sdmmc_host_t host = SDMMC_HOST_DEFAULT();
-
-        sdmmc_slot_config_t slot_config = SDMMC_SLOT_CONFIG_DEFAULT();
-        slot_config.width = 1;
-        slot_config.clk = PIN_uSD_CLK;
-        slot_config.cmd = PIN_uSD_CMD;
-        slot_config.d0 = PIN_uSD_D0;
-
-
-        ESP_LOGI(TAG, "Mounting filesystem");
-        esp_err_t ret = esp_vfs_fat_sdmmc_mount(MOUNT_POINT, &host, &slot_config, &mount_config, &card);
-
-        if (ret != ESP_OK) {
-            if (ret == ESP_FAIL) {
-                ESP_LOGE(TAG, "Failed to mount filesystem. "
-                        "If you want the card to be formatted, set the EXAMPLE_FORMAT_IF_MOUNT_FAILED menuconfig option.");
-            } else {
-                ESP_LOGE(TAG, "Failed to initialize the card (%s). "
-                        "Make sure SD card lines have pull-up resistors in place.", esp_err_to_name(ret));
-            }
-            return ErrorCode::GENERIC_ERROR;
-        }
-        ESP_LOGI(TAG, "Filesystem mounted");
-        sdmmc_card_print_info(stdout, card);
-        list_dir(MOUNT_POINT);
-        esp_vfs_fat_sdcard_unmount(MOUNT_POINT, card);
-        ESP_LOGI(TAG, "Card unmounted");
-        */
         //MP3
-        nau88c22::M *codec = new nau88c22::M(i2c_master_handle,  PIN_I2S_MCLK, PIN_I2S_BCLK, PIN_I2S_FS, PIN_I2S_DAC);
-        mp3player = new AudioPlayer::Player(codec);
-        mp3player->Init();
+        //nau88c22::M *codec = new nau88c22::M(i2c_master_handle,  PIN_I2S_MCLK, PIN_I2S_BCLK, PIN_I2S_FS, PIN_I2S_DAC);
+        //mp3player = new AudioPlayer::Player(codec);
+        //mp3player->Init();
 
 
         GreetUserOnStartup();
         //Tasks
         xTaskCreate(sensorTask, "sensorTask", 4096 * 4, this, 6, nullptr);
-        xTaskCreate(mp3Task, "mp3task", 6144 * 4, this, 16, nullptr); //Stack Size = 4096 --> Stack overflow!!
+        //xTaskCreate(mp3Task, "mp3task", 6144 * 4, this, 16, nullptr); //Stack Size = 4096 --> Stack overflow!!
         return ErrorCode::OK;
     }
 
-    ErrorCode BeforeLoop()
+    ErrorCode BeforeLoop() override
     {
         float ht;
         GetHeaterTemperature(&ht);
@@ -473,114 +417,96 @@ public:
         return ErrorCode::OK;
     }
 
-    ErrorCode AfterLoop()
+    ErrorCode AfterLoop() override
     {
         strip->Refresh(100);  //checks internally, whether data is dirty and has to be pushed out
         return ErrorCode::OK;
     }
 
-    ErrorCode StartBuzzer(float freqHz)
+    ErrorCode StartBuzzer(float freqHz) override
     {
         return ErrorCode::OK;
     }
 
-    ErrorCode EndBuzzer()
+    ErrorCode EndBuzzer() override
     {
         return ErrorCode::OK;
     }
 
-    ErrorCode ColorizeLed(uint8_t ledIndex, CRGB colorCRGB)
+    ErrorCode ColorizeLed(uint8_t ledIndex, CRGB colorCRGB) override
     {
         if(ledIndex>=LED_NUMBER) return ErrorCode::INDEX_OUT_OF_BOUNDS;
         strip->SetPixel(LED_NUMBER-ledIndex-1, colorCRGB);
         return ErrorCode::OK;
     }
 
-    ErrorCode UnColorizeAllLed()
+    ErrorCode UnColorizeAllLed() override
     {
         strip->Clear(1000);
         return ErrorCode::OK;
     }
 
-    ErrorCode SetRelayState(bool state)
+    ErrorCode SetRelayState(bool state) override
     {
         if(state){
-            SetBitIdx(this->esp2stm_buf[RELAY_BLRESET_POS], 0);
+            SetBitIdx(this->esp2stm_buf[E2S::RELAY_BLRESET_POS], 0);
         }else{
-            ClearBitIdx(this->esp2stm_buf[RELAY_BLRESET_POS], 0);
+            ClearBitIdx(this->esp2stm_buf[E2S::RELAY_BLRESET_POS], 0);
         }
 
         return ErrorCode::OK;
     }
 
-    ErrorCode SetHeaterDuty(float power_0_100)
-    {
-        this->esp2stm_buf[HEATER_POS]=power_0_100;
+    ErrorCode SetHeaterDuty(float power_0_100) override {
+        this->esp2stm_buf[E2S::HEATER_POS]=power_0_100;
         return ErrorCode::OK;
     }
 
-    float GetHeaterState()
-    {
-        return this->esp2stm_buf[HEATER_POS];
+    float GetHeaterState() override {
+        return this->esp2stm_buf[E2S::HEATER_POS];
     }
 
-    ErrorCode SetServo1Position(float angle_0_to_180)
-    {
-        this->esp2stm_buf[SERVO1_POS]=angle_0_to_180;
+    ErrorCode SetServoPosition(uint8_t servoIndex, float angle_0_to_180) override {
+        if(servoIndex>=4) return ErrorCode::NONE_AVAILABLE;
+        this->esp2stm_buf[E2S::SERVO0_POS+servoIndex]=angle_0_to_180;
         return ErrorCode::OK;
     }
 
-    ErrorCode SetServo2Position(float angle_0_to_180)
-    {
-        this->esp2stm_buf[SERVO2_POS]=angle_0_to_180;
+
+    ErrorCode SetFanDuty(uint8_t fanIndex, float power_0_100) override {               
+        if(fanIndex>=1) return ErrorCode::NONE_AVAILABLE;
+        this->esp2stm_buf[E2S::FAN0_POS]=power_0_100;
         return ErrorCode::OK;
     }
 
-    ErrorCode SetServo3Position(float angle_0_to_180)
-    {
-        this->esp2stm_buf[SERVO3_POS]=angle_0_to_180;
+    ErrorCode GetFanDuty(uint8_t fanIndex, float* power_0_100) override {               
+        *power_0_100 = this->esp2stm_buf[E2S::FAN0_POS];
         return ErrorCode::OK;
     }
 
-    ErrorCode SetFanDuty(float power_0_100)
-    {               
-        this->esp2stm_buf[FAN_POS]=power_0_100;
+    ErrorCode SetLedPowerWhiteDuty(float power_0_100) override {
+        this->esp2stm_buf[E2S::LED_POWER_POS]=power_0_100;
         return ErrorCode::OK;
     }
 
-    float GetFanState()
-    {
-        return this->esp2stm_buf[FAN_POS];
+    bool GetButtonRedIsPressed() override {
+        return GetBitIdx(this->stm2esp_buf[S2E::BTN_MOVEMENT_BLFAULT_POS], 0);
     }
 
-    ErrorCode SetLedPowerWhiteDuty(float power_0_100)
-    {
-        this->esp2stm_buf[LED_POWER_POS]=power_0_100;
-        return ErrorCode::OK;
+    bool GetButtonEncoderIsPressed() override {
+        return GetBitIdx(this->stm2esp_buf[S2E::BTN_MOVEMENT_BLFAULT_POS], 1);
     }
 
-    bool GetButtonRedIsPressed()
-    {
-        return GetBitIdx(this->stm2esp_buf[BTN_MOVEMENT_BLFAULT_POS], 0);
-    }
-
-    bool GetButtonEncoderIsPressed()
-    {
-        return GetBitIdx(this->stm2esp_buf[BTN_MOVEMENT_BLFAULT_POS], 1);
-    }
-
-    bool GetButtonGreenIsPressed()
-    {
+    bool GetButtonGreenIsPressed() override {
         return gpio_get_level(PIN_BTN_GREEN)!=0;
     }
 
-    bool IsMovementDetected()
-    {
-        return GetBitIdx(this->stm2esp_buf[BTN_MOVEMENT_BLFAULT_POS], 2);
+    bool IsMovementDetected() override {
+        return GetBitIdx(this->stm2esp_buf[S2E::BTN_MOVEMENT_BLFAULT_POS], 2);
     }
 
-    float GetUSBCVoltage(){
-        return ParseU16(this->stm2esp_buf, USBPD_VOLTAGE_IS_POS);
+    float GetUSBCVoltage() override{
+        return ParseU16(this->stm2esp_buf, S2E::USBPD_VOLTAGE_IS_POS);
     }
 
     ErrorCode GreetUserOnStartup() override{  
@@ -615,7 +541,62 @@ public:
         HAL_Impl *hal = (HAL_Impl *)pvParameters;
         hal->MP3Loop();
     }
+/*
+    ErrorCode GetAmbientBrightnessAnalog(float *lux){
+        uint16_t temp;
+        temp=ParseU16(stm2esp_buf, S2E::BRIGHTNESS_POS);
+        *lux=temp;
+        return ErrorCode::OK;
+    }
+
+    ErrorCode GetAmbientBrightnessDigital(float *lux){
+        uint16_t temp;
+        bh1750dev->Read(temp);
+        *lux=temp;
+        return ErrorCode::OK;
+    }
+    virtual ErrorCode GetAirTemperatureDS18B20(float *degreesCelcius){
+        *degreesCelcius = this->oneWireBus->GetMinTemp();
+        return ErrorCode::OK;
+    }
+    ErrorCode GetAirTemperatureAHT21(float *degreesCelcius){
+        if(!this->aht21dev){
+            return ErrorCode::GENERIC_ERROR;
+        }
+        float dummyHumid;
+        this->aht21dev->Read(dummyHumid, *degreesCelcius);
+        return ErrorCode::OK;
+    }
+    
+    ErrorCode GetAirTemperatureBME280(float *degreesCelcius){
+        if(!this->bme280dev){
+            return ErrorCode::GENERIC_ERROR;
+        }
+        float dummy1;
+        float dummy2;
+        this->bme280dev->GetData(degreesCelcius, &dummy1, &dummy2);
+        return ErrorCode::OK;
+    }
+    ErrorCode GetAirRelHumidityAHT21(float *percent){
+        if(!this->aht21dev){
+            return ErrorCode::GENERIC_ERROR;
+        }
+        float dummyTemp;
+        this->aht21dev->Read(*percent, dummyTemp);
+        return ErrorCode::OK;
+    }
+    ErrorCode GetAirRelHumidityBME280(float *percent){
+        if(!this->bme280dev){
+            return ErrorCode::GENERIC_ERROR;
+        }
+        float dummy1;
+        float dummy2;
+        this->bme280dev->GetData(&dummy1, &dummy2, percent);
+        return ErrorCode::OK;
+    }
+    ErrorCode GetDistanceMillimeters(uint16_t *value){
+        *value=this->vl53l0xdev->ReadMillimeters();
+        return ErrorCode::OK;
+    }
+*/
 };
-
-
-

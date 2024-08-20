@@ -539,9 +539,9 @@ ErrorCode DeviceManager::Loop()
     }
     if(this->experimentMode!=previousExperimentMode){
         //Safe settings on mode change!
-        hal->SetFanDuty(0);
+        hal->SetFanDuty(0, 0.);
         hal->SetHeaterDuty(0);
-        hal->SetServo1Position(0);
+        hal->SetServoPosition(0, 0.);
         //hal->SetAnalogOutput(0); do not set a out voltage here as this may interfere with MP3 play
         this->setpointAirspeed=0;
         this->setpointFan2=0.0;
@@ -560,7 +560,7 @@ ErrorCode DeviceManager::Loop()
     else if(experimentMode==ExperimentMode::openloop_heater){
         heaterPIDController->SetMode(PID_T1::Mode::OFF, nowMsSteady);
         hal->SetHeaterDuty(this->setpointHeater);
-        hal->SetFanDuty(this->setpointFan2);
+        hal->SetFanDuty(0, this->setpointFan2);
     }
     else if(experimentMode==ExperimentMode::closedloop_heater){
         if(heaterReset){
@@ -578,7 +578,7 @@ ErrorCode DeviceManager::Loop()
              ESP_LOGI(TAG, "Computed a new  setpointHeater %F", setpointHeater);
         }
         hal->SetHeaterDuty(this->setpointHeater);
-        hal->SetFanDuty(this->setpointFan2);
+        hal->SetFanDuty(0, this->setpointFan2);
     }
     else if(experimentMode==ExperimentMode::openloop_ptn){
         ptnPIDController->SetMode(PID_T1::Mode::OFF, nowMsSteady);
@@ -588,7 +588,7 @@ ErrorCode DeviceManager::Loop()
         hal->ColorizeLed(1, CRGB::FromTemperature(0, 3.3, voltages[1]));
         hal->ColorizeLed(2, CRGB::FromTemperature(0, 3.3, voltages[2]));
         hal->ColorizeLed(3, CRGB::FromTemperature(0, 3.3, voltages[3]));
-        hal->SetAnalogOutput(this->setpointVoltageOut);
+        hal->SetAnalogOutput(0, this->setpointVoltageOut);
     }
     else if(experimentMode==ExperimentMode::closedloop_ptn){
         if(ptnReset){
@@ -609,7 +609,7 @@ ErrorCode DeviceManager::Loop()
         if(ptnPIDController->Compute(nowMsSteady)==ErrorCode::OK){ //OK means: Value changed
              ESP_LOGI(TAG, "Computed a new  setpointPtn %F", setpointVoltageOut);
         }
-        hal->SetAnalogOutput(this->setpointVoltageOut);
+        hal->SetAnalogOutput(0, this->setpointVoltageOut);
     }
     else if(experimentMode==ExperimentMode::closedloop_airspeed){
         /*File
@@ -658,9 +658,9 @@ ErrorCode DeviceManager::TriggerHeaterExperimentClosedLoop(float setpointTempera
     this->heaterTN_secs=TN;
     this->heaterTV_secs=TV;
     //Fill return data
-    data->Fan=hal->GetFanState();
+    hal->GetFanDuty(0, &data->Fan);
     data->Heater=hal->GetHeaterState();
-    hal->GetHeaterTemperature(&(data->ActualTemperature));
+    hal->GetHeaterTemperature(&data->ActualTemperature);
     data->SetpointTemperature=this->setpointTemperature;
     return ErrorCode::OK;
 }
@@ -672,7 +672,7 @@ ErrorCode DeviceManager::TriggerHeaterExperimentOpenLoop(float setpointHeater, f
     this->setpointHeater=setpointHeater;
     this->setpointFan2=setpointFan;
     //Fill return data
-    data->Fan=hal->GetFanState();
+    hal->GetFanDuty(0, &data->Fan);
     data->Heater=hal->GetHeaterState();
     hal->GetHeaterTemperature(&(data->ActualTemperature));
     data->SetpointTemperature=0;
@@ -683,7 +683,7 @@ ErrorCode DeviceManager::TriggerHeaterExperimentFunctionblock(HeaterExperimentDa
     this->lastExperimentTrigger=hal->GetMillis();
     this->experimentMode=ExperimentMode::functionblock;
     //Fill return data
-    data->Fan=hal->GetFanState();
+    hal->GetFanDuty(0, &data->Fan);
     data->Heater=hal->GetHeaterState();
     hal->GetHeaterTemperature(&(data->ActualTemperature));
     data->SetpointTemperature=0;
@@ -734,7 +734,7 @@ ErrorCode DeviceManager::TriggerAirspeedExperimentClosedLoop(float setpointAirsp
     this->airspeedTN_secs=TN;
     this->airspeedTV_secs=TV;
     //Fill return data 
-    data->Fan=hal->GetFanState();
+    hal->GetFanDuty(0, &data->Fan);
     hal->GetAirSpeed(&(data->ActualAirspeed));
     data->SetpointAirspeed=setpointAirspeed;
     data->Servo=this->setpointServo1;
@@ -748,7 +748,7 @@ ErrorCode DeviceManager::TriggerAirspeedExperimentOpenLoop(float setpointFan2, f
     this->setpointFan2=setpointFan2;
     this->setpointServo1=setpointServo1;
     //Fill return data
-    data->Fan=hal->GetFanState();
+    hal->GetFanDuty(0, &data->Fan);
     hal->GetAirSpeed(&(data->ActualAirspeed));
     data->SetpointAirspeed=setpointAirspeed;
     data->Servo=this->setpointServo1;
@@ -759,12 +759,13 @@ ErrorCode DeviceManager::TriggerAirspeedExperimentFunctionblock(AirspeedExperime
     this->lastExperimentTrigger=hal->GetMillis();
     this->experimentMode=ExperimentMode::functionblock;
     //Fill return data
-    data->Fan=hal->GetFanState();
+    hal->GetFanDuty(0, &data->Fan);
     hal->GetAirSpeed(&(data->ActualAirspeed));
     data->SetpointAirspeed=setpointAirspeed;
     data->Servo=this->setpointServo1;
     return ErrorCode::OK;
 }
+/*
 ErrorCode DeviceManager::TriggerBorisUDP(uint8_t *requestU8, size_t requestLen, uint8_t* responseU8, size_t& responseLen){
     //Trigger
     this->lastExperimentTrigger=hal->GetMillis();
@@ -804,13 +805,13 @@ ErrorCode DeviceManager::TriggerBorisUDP(uint8_t *requestU8, size_t requestLen, 
            
 
             if(!std::isnan(output->AnalogOutputVolts)){
-                hal->SetAnalogOutput(output->AnalogOutputVolts);
+                hal->SetAnalogOutput(0, output->AnalogOutputVolts);
             }
             if(!std::isnan(output->AngleServo1Degress)){
-                hal->SetServo1Position(output->AngleServo1Degress);
+                hal->SetServoPosition(0, output->AngleServo1Degress);
             }
             if(!std::isnan(output->AngleServo2Degress)){
-                hal->SetServo1Position(output->AngleServo2Degress);
+                hal->SetServo1Position(1, output->AngleServo2Degress);
             }
             if(!std::isnan(output->DutyFan1Percent)){
                 hal->SetFanDuty(output->DutyFan1Percent);
@@ -876,7 +877,7 @@ ErrorCode DeviceManager::TriggerBorisUDP(uint8_t *requestU8, size_t requestLen, 
             
             LOGD(TAG, "Got a MESSAGE_TYPE_OUTPUTDATA_Ptnchen with Output %f LED0 %lu", output->AnalogOutputVolts, output->LED0);
             if(!std::isnan(output->AnalogOutputVolts)){
-                hal->SetAnalogOutput(output->AnalogOutputVolts);
+                hal->SetAnalogOutput(0, output->AnalogOutputVolts);
             }
             hal->ColorizeLed(0, output->LED0);
             hal->ColorizeLed(1, output->LED1);
@@ -899,3 +900,4 @@ ErrorCode DeviceManager::TriggerBorisUDP(uint8_t *requestU8, size_t requestLen, 
     }
     return ErrorCode::OK;
 }
+*/

@@ -274,6 +274,7 @@ esp_err_t handle_put_ptnexperiment(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*
 esp_err_t handle_put_fftexperiment(httpd_req_t *req){
     DeviceManager *devicemanager = *static_cast<DeviceManager **>(req->user_ctx);
     int ret=0;
@@ -304,7 +305,7 @@ esp_err_t handle_put_fftexperiment(httpd_req_t *req){
     httpd_resp_send(req, (const char*)magnitudes, sizeof(magnitudes));
     return ESP_OK;
 }
-
+*/
 
 esp_err_t handle_put_heaterexperiment(httpd_req_t *req)
 {    

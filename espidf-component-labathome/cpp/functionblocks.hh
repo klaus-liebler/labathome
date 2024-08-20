@@ -337,7 +337,7 @@ class FB_FAN: public FunctionBlock{
     size_t input;
     public:
         ErrorCode execute(FBContext *ctx){
-            ctx->GetHAL()->SetFanDuty(ctx->GetFloat(input));
+            ctx->GetHAL()->SetFanDuty(0, ctx->GetFloat(input));
             return ErrorCode::OK;;
         }
         FB_FAN(uint32_t IdOnWebApp, size_t input):FunctionBlock(IdOnWebApp), input(input){}
@@ -360,7 +360,7 @@ class FB_AnalogOutput0: public FunctionBlock{
     size_t input;
     public:
         ErrorCode execute(FBContext *ctx){
-            ctx->GetHAL()->SetAnalogOutput(ctx->GetFloat(input));
+            ctx->GetHAL()->SetAnalogOutput(0, ctx->GetFloat(input));
             return ErrorCode::OK;;
         }
         FB_AnalogOutput0(uint32_t IdOnWebApp, size_t input):FunctionBlock(IdOnWebApp), input(input){}
