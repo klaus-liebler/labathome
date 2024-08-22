@@ -1,9 +1,11 @@
 constexpr int FIRMWARE_VERSION{5};
-//Query Inputs:      modpoll -r 1 -c 9 -t 1 COM8
-//Set Coil Outputs:  modpoll -r 1 -c 1 -t 0 COM8 1 bzw 0
-//Set LED Color      modpoll -r 1 -c 1 -t 4 COM8 65535
+//The Register "r" is 1-based
+//Query Inputs:      modpoll -r 1 -c 9 -t 1 -b 9600 COM17
+//Set Coil Outputs:  modpoll -r 1 -c 1 -t 0 -b 9600 COM17 0
+//Set LED Color      modpoll -r 10 -c 1 -t 4 -b 9600 COM17 65535
 
 /*
+Adresses are 0-Based
 Coils:
  0: Relay K3
 
@@ -54,8 +56,9 @@ Input Registers:
                 
 */
 
-#include <stdio.h>
-#include <stdint.h>
+#include <cstdio>
+#include <cstdint>
+#include <cstring>
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -73,6 +76,7 @@ Input Registers:
 static const char *TAG = "main";
 
 #include "HAL.hh"
+
 //#include "HAL_labathomeV10.hh"
 //static HAL * hal = new HAL_Impl(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR);
 
@@ -88,7 +92,7 @@ constexpr size_t HOLDING_REGISTERS_CNT{16};
 
 
 
-constexpr uart_port_t uart_num = UART_NUM_2;
+
 
 
 static std::vector<bool> coilData(COILS_CNT);
@@ -146,11 +150,11 @@ void modbusAfterWriteCallback(uint8_t fc, uint16_t start, size_t len){
             case 8://PowerWhite
                 hal->SetLedPowerWhiteDuty(holdingRegisterData.at(reg));
                 break;
-            case 9://RGB LED 0
+            case 9://RGB LED 0, this number has to be inserted in call in "case 12"
             case 10:
             case 11:
             case 12: //RGB LED 3
-                hal->ColorizeLed(reg-7, CRGB::FromRGB565(holdingRegisterData.at(reg)));
+                hal->ColorizeLed(reg-9, CRGB::FromRGB565(holdingRegisterData.at(reg)));
                 break;
             case 13:
                 hal->SetRelayState(holdingRegisterData.at(reg));
@@ -280,34 +284,69 @@ void modbusBeforeReadCallback(uint8_t fc, uint16_t start, size_t len){
 }
 
 constexpr size_t UART_BUF_SIZE{1024};
-constexpr uart_port_t UART_NUM{UART_NUM_2};
-constexpr gpio_num_t UART_TX{GPIO_NUM_21};//Pin 4 am Diplay Connector ("SPI_MOSI")
-constexpr gpio_num_t UART_RX{GPIO_NUM_23};
 
-#if CONFIG_ESP_CONSOLE_UART_CUSTOM != 1 | CONFIG_ESP_CONSOLE_UART_TX_GPIO!=21
-#warning "CONFIG_ESP_CONSOLE_UART_CUSTOM != 1 | CONFIG_ESP_CONSOLE_UART_TX_GPIO!=21"
+
+#if defined(LABATHOME_V10)
+    constexpr uart_port_t MODBUS_UART_NUM{UART_NUM_2};
+    constexpr gpio_num_t UART_TX{GPIO_NUM_21};//Pin 4 am Diplay Connector ("SPI_MOSI")
+    constexpr gpio_num_t UART_RX{GPIO_NUM_23};
+
+    #if CONFIG_ESP_CONSOLE_UART_CUSTOM != 1 | CONFIG_ESP_CONSOLE_UART_TX_GPIO!=21 |  CONFIG_ESP_CONSOLE_UART_RX_GPIO!=23
+        #error "CONFIG_ESP_CONSOLE_UART_CUSTOM != 1 | CONFIG_ESP_CONSOLE_UART_TX_GPIO!=21 |  CONFIG_ESP_CONSOLE_UART_RX_GPIO!=23"
+    #endif
+#elif defined(LABATHOME_V15)
+#include "tinyusb.h"
+#include "tusb_cdc_acm.h"
+
+
+
+
+#else
+#error "No Labathome version defined, see main.cc"
 #endif
-
 
 void mainTask(void* args){   
     ESP_LOGI(TAG, "Main Manager started");
-
-    uart_config_t uart_config = {};
-
-    uart_config.baud_rate = 9600;
-    uart_config.data_bits = UART_DATA_8_BITS;
-    uart_config.parity    = UART_PARITY_EVEN;
-    uart_config.stop_bits = UART_STOP_BITS_1;
-    uart_config.flow_ctrl = UART_HW_FLOWCTRL_DISABLE;
-    uart_config.source_clk = UART_SCLK_DEFAULT;
+#if defined(LABATHOME_V10)
+    uart_config_t uart_config = {
+        .baud_rate=9600,
+        .data_bits=UART_DATA_8_BITS,
+        .parity=UART_PARITY_EVEN,
+        .stop_bits=UART_STOP_BITS_1,
+        .flow_ctrl=UART_HW_FLOWCTRL_DISABLE,
+        .rx_flow_ctrl_thresh=0,
+        .source_clk=UART_SCLK_DEFAULT,
+    };
     int intr_alloc_flags = 0;
 
 
 
-    ESP_ERROR_CHECK(uart_driver_install(UART_NUM, UART_BUF_SIZE, 0, 0, nullptr, intr_alloc_flags));
-    ESP_ERROR_CHECK(uart_param_config(UART_NUM, &uart_config));
-    ESP_ERROR_CHECK(uart_set_pin(UART_NUM, PIN_TXD0 , PIN_RXD0, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+    ESP_ERROR_CHECK(uart_driver_install(MODBUS_UART_NUM, UART_BUF_SIZE, 0, 0, nullptr, intr_alloc_flags));
+    ESP_ERROR_CHECK(uart_param_config(MODBUS_UART_NUM, &uart_config));
+    ESP_ERROR_CHECK(uart_set_pin(MODBUS_UART_NUM, PIN_TXD0 , PIN_RXD0, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+#elif defined(LABATHOME_V15)
+ const tinyusb_config_t tusb_cfg = {
+        .device_descriptor = NULL,
+        .string_descriptor = NULL,
+        .external_phy = false,
+        .configuration_descriptor = NULL,
+    };
 
+    ESP_ERROR_CHECK(tinyusb_driver_install(&tusb_cfg));
+
+    tinyusb_config_cdcacm_t acm_cfg = {
+        .usb_dev = TINYUSB_USBDEV_0,
+        .cdc_port = TINYUSB_CDC_ACM_0,
+        .rx_unread_buf_sz = 64,
+        .callback_rx = nullptr, // the first way to register a callback
+        .callback_rx_wanted_char = nullptr,
+        .callback_line_state_changed = nullptr,
+        .callback_line_coding_changed = nullptr
+    };
+
+    ESP_ERROR_CHECK(tusb_cdc_acm_init(&acm_cfg));
+    ESP_LOGI(TAG, "USB initialization DONE");
+#endif
 
     TickType_t xLastWakeTime;
     const TickType_t xFrequency = 10;
@@ -318,25 +357,47 @@ void mainTask(void* args){
     size_t tx_size{64};
     uint8_t tx_buf[256+1];
     uint8_t* rx_buf{nullptr};
-
+#if defined(LABATHOME_V15)
+    static uint8_t rx_buf_tmp[CFG_TUD_CDC_RX_BUFSIZE + 1];
+#endif
     ESP_LOGI(TAG, "Main Manager Loop starts");
     modbusSlave = new modbus::M<100000>(1, modbusAfterWriteCallback, modbusBeforeReadCallback, &coilData, &discreteInputsData, &inputRegisterData, &holdingRegisterData);
     while (true)
     {
-        vTaskDelayUntil(&xLastWakeTime, xFrequency);
+        xTaskDelayUntil(&xLastWakeTime, xFrequency);
         hal->BeforeLoop();
         size_t length{0};
-        ESP_ERROR_CHECK(uart_get_buffered_data_len(uart_num, &length));
+#if defined(LABATHOME_V15)
+        ESP_ERROR_CHECK(tinyusb_cdcacm_read(TINYUSB_CDC_ACM_0, rx_buf_tmp, CONFIG_TINYUSB_CDC_RX_BUFSIZE, &length));
+#elif defined(#ifdef LABATHOME_V10)
+        ESP_ERROR_CHECK(uart_get_buffered_data_len(MODBUS_UART_NUM, &length));
+#endif
         if(length>0){
             ESP_LOGD(TAG, "Got Data Length %d", length);
             modbusSlave->ReceiveBytesPhase1(&rx_buf, &rx_size_max);
-            rx_size = uart_read_bytes(uart_num, rx_buf, rx_size_max, 0);
+            //In den rx_buf kann jetzt reingeschrieben werden, allerdings maximal rx_size_max bytes!
+#if defined(LABATHOME_V15)
+            if(length>rx_size_max){
+                ESP_LOGE(TAG, "length %d >rx_size_max %d", length, rx_size_max);
+                continue;
+            }
+            std::memcpy(rx_buf, rx_buf_tmp, length);
+            rx_size=length;
+#elif defined(#ifdef LABATHOME_V10)
+            rx_size = uart_read_bytes(MODBUS_UART_NUM, rx_buf, rx_size_max, 0);
+#endif
+            
             if(rx_size>0){
                 modbusSlave->ReceiveBytesPhase2(rx_size, tx_buf, tx_size);
                 if(tx_size>0){
                     vTaskDelay(pdMS_TO_TICKS(10));
-                    uart_write_bytes(uart_num, tx_buf, tx_size);
-                    uart_wait_tx_done(uart_num, 1000);
+#if defined(LABATHOME_V15)
+                    tinyusb_cdcacm_write_queue(TINYUSB_CDC_ACM_0, tx_buf, tx_size);
+                    tinyusb_cdcacm_write_flush(TINYUSB_CDC_ACM_0, 0);
+#elif defined(#ifdef LABATHOME_V10)
+                    uart_write_bytes(MODBUS_UART_NUM, tx_buf, tx_size);
+                    uart_wait_tx_done(MODBUS_UART_NUM, 1000);
+#endif
                 }
             }
         }

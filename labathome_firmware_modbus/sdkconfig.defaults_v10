@@ -1,0 +1,9 @@
+# This file was generated using idf.py save-defconfig. It can be edited manually.
+# Espressif IoT Development Framework (ESP-IDF) 5.3.0 Project Minimal Configuration
+#
+CONFIG_ESP_CONSOLE_UART_CUSTOM=y
+CONFIG_ESP_CONSOLE_UART_CUSTOM_NUM_1=y
+CONFIG_ESP_CONSOLE_UART_TX_GPIO=21
+CONFIG_ESP_CONSOLE_UART_RX_GPIO=23
+CONFIG_ESP_WIFI_GMAC_SUPPORT=n
+CONFIG_MBEDTLS_GCM_SUPPORT_NON_AES_CIPHER=n

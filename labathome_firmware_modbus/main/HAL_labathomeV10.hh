@@ -1,5 +1,5 @@
 #pragma once
-
+#define LABATHOME_V10
 #include "HAL.hh"
 
 #include <inttypes.h>
@@ -767,6 +767,20 @@ public:
         else
         {
             mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_FAN, MCPWM_GEN_FAN2, dutyInPercent);
+            return ErrorCode::OK;
+        }
+    }
+
+    ErrorCode GetFanDuty(uint8_t fanIndex, float *dutyInPercent)
+    {
+        if (fanIndex == 0)
+        {
+            *dutyInPercent = mcpwm_get_duty(MCPWM_UNIT_0, MCPWM_TIMER_FAN, MCPWM_GEN_FAN1);
+            return ErrorCode::OK;
+        }
+        else
+        {
+             *dutyInPercent = mcpwm_get_duty(MCPWM_UNIT_0, MCPWM_TIMER_FAN, MCPWM_GEN_FAN2);
             return ErrorCode::OK;
         }
     }

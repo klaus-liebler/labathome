@@ -1,5 +1,6 @@
 #pragma once
 
+#define LABATHOME_V15
 #include "HAL.hh"
 
 #include <inttypes.h>
