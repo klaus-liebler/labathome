@@ -7,32 +7,31 @@
 #include <array>
 #define TAG "SINGLE_LED"
 
-typedef int64_t time_t;
 
 namespace SINGLE_LED
 {
     class AnimationPattern
     {
     public:
-        virtual void Reset(time_t now) = 0;
-        virtual bool Animate(time_t now) = 0;
+        virtual void Reset(uint32_t now) = 0;
+        virtual bool Animate(uint32_t now) = 0;
     };
 
     class BlinkPattern : public AnimationPattern
     {
     private:
-        time_t nextChange{0};
+        uint32_t nextChange{0};
         bool state{false};
-        time_t timeOn;
-        time_t timeOff;
+        uint32_t timeOn;
+        uint32_t timeOff;
 
     public:
-        void Reset(time_t now) override
+        void Reset(uint32_t now) override
         {
-            nextChange = now+timeOn;
+            nextChange = now+timeOn;//TODO Problem nach ca 50 Tagen!
             state = true;
         }
-        bool Animate(time_t now) override
+        bool Animate(uint32_t now) override
         {
             if(now < nextChange) return state;
             if (state)
@@ -47,17 +46,17 @@ namespace SINGLE_LED
             }
             return state;
         }
-        BlinkPattern(time_t timeOn, time_t timeOff) : timeOn(timeOn), timeOff(timeOff) {}
+        BlinkPattern(uint32_t timeOn, uint32_t timeOff) : timeOn(timeOn), timeOff(timeOff) {}
     };
 
     class :public AnimationPattern{
-        void Reset(time_t now){}
-        bool Animate(time_t now){return false;}
+        void Reset(uint32_t now){}
+        bool Animate(uint32_t now){return false;}
     }CONST_OFF;
 
     class :public AnimationPattern{
-        void Reset(time_t now){}
-        bool Animate(time_t now){return true;}
+        void Reset(uint32_t now){}
+        bool Animate(uint32_t now){return true;}
     }CONST_ON;
 
 
@@ -68,17 +67,17 @@ namespace SINGLE_LED
         uint32_t gpio{NUM_DIGITAL_PINS};
         bool invert{false};
         AnimationPattern* pattern;
-        time_t timeToAutoOff=INT64_MAX;//time is absolute!
+        uint32_t timeToAutoOff=UINT32_MAX;//time is absolute!
         AnimationPattern* standbyPattern;
     public:
         M(uint32_t  gpio, bool invert=false, AnimationPattern* standbyPattern=&CONST_OFF):gpio(gpio), invert(invert), standbyPattern(standbyPattern) {}
 
-        void AnimatePixel(time_t now, AnimationPattern *pattern, time_t timeToAutoOff=0)//time is relative, "0" means: no auto off
+        void AnimatePixel(time_t now, AnimationPattern *pattern, uint32_t timeToAutoOff=0)//time is relative, "0" means: no auto off
         {
             if(pattern==nullptr) this->pattern=standbyPattern;
             
             if(timeToAutoOff==0){
-                this->timeToAutoOff=INT64_MAX;
+                this->timeToAutoOff=UINT32_MAX;
             }else{
                 this->timeToAutoOff=now+timeToAutoOff;
             }
@@ -86,19 +85,20 @@ namespace SINGLE_LED
             this->pattern = pattern;
         }
 
-        void Loop(time_t now)
+        void Loop(uint32_t now)
         {
             if(now>=timeToAutoOff){
                 this->pattern=standbyPattern;
             } 
             bool on = this->pattern->Animate(now);
             
-            digitalWrite(gpio, (on^invert)?GPIO_PIN_SET:GPIO_PIN_RESET);
+            digitalWrite(gpio, (on^invert)?HIGH:LOW);
             
         }
 
-        void Begin(time_t now, AnimationPattern *pattern=&CONST_OFF, time_t timeToAutoOff=0)
+        void Begin(uint32_t now, AnimationPattern *pattern=&CONST_OFF, uint32_t timeToAutoOff=0)
         {
+            pinMode(gpio, OUTPUT);
             this->AnimatePixel(now, pattern, timeToAutoOff);
         }
     };

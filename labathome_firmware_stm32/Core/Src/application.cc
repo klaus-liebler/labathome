@@ -191,9 +191,7 @@ void app_loop20ms(time_t now){
             gotDataInfoAlreadyPrinted=true;
         }
         noDataWarningAlreadyPrinted=false;
-    }
-    
-    
+    }  
 }
 
 void app_loop1000ms(time_t now){

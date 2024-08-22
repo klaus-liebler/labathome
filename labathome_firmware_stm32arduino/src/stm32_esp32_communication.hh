@@ -27,8 +27,8 @@ namespace E2S{
     constexpr size_t FAN0_POS{6};
     constexpr size_t FAN1_POS{7};
     constexpr size_t USBPD_VOLTAGE_SHOULD_POS{8};
-    constexpr size_t DAC1_POS{10};
-    constexpr size_t DAC2_POS{12};
+    constexpr size_t DAC0_POS{10};
+    constexpr size_t DAC1_POS{12};
     constexpr size_t HEATER_POS{14};
     constexpr size_t LED_POWER_POS{15};
     constexpr size_t THREEPHASE_MODE_POS{16};

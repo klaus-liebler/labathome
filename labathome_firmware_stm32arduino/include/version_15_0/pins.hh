@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
-//Version 15.0
+#include <Arduino.h>
+
 namespace PIN{
     constexpr uint32_t HEATER{PC4};
     constexpr uint32_t BL_ENABLE{PC6};
@@ -19,19 +20,19 @@ namespace PIN{
     constexpr uint32_t BTN_RED{PB8};
     constexpr uint32_t LED_WHITE_P{PB9};
     constexpr uint32_t NC{PB10};
-    constexpr uint32_t RELAIS{PB11};
+    constexpr uint32_t RELAY{PB11};
     constexpr uint32_t BL_RESET{PB12};
     constexpr uint32_t BL_FAULT{PB13};
-    constexpr uint32_t ADC_IN1{PB14};
-    constexpr uint32_t ADC_IN2{PB15};
+    constexpr uint32_t ADC_0{PB14};
+    constexpr uint32_t ADC_1{PB15};
     constexpr uint32_t ROT_A{PA0};
     constexpr uint32_t ROT_B{PA1};
-    constexpr uint32_t Servo1{PA2};
-    constexpr uint32_t Servo2{PA3};
-    constexpr uint32_t DAC_1{PA4};
-    constexpr uint32_t DAC_2{PA5};
-    constexpr uint32_t Servo3{PA6};
-    constexpr uint32_t FAN2{PA7};
+    constexpr uint32_t Servo0{PA2};
+    constexpr uint32_t Servo1{PA3};
+    constexpr uint32_t DAC_0{PA4};
+    constexpr uint32_t DAC_1{PA5};
+    constexpr uint32_t Servo2{PA6};
+    constexpr uint32_t FAN{PA7};
     constexpr uint32_t BL_DRV1{PA8};
     constexpr uint32_t BL_DRV2{PA9};
     constexpr uint32_t BL_DRV{PA10};

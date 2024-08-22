@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdbool.h>
+#include <Arduino.h>
 
 
 //to avoid intellisense errors, see https://github.com/microsoft/vscode-cpptools/issues/11164
