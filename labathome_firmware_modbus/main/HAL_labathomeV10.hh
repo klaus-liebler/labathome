@@ -636,8 +636,8 @@ public:
 
         // LED Strip
         strip = new RGBLED::M<LED_NUMBER, RGBLED::DeviceType::WS2812>();
-        ESP_ERROR_CHECK(strip->Begin(SPI3_HOST, PIN_LED_WS2812));
-        ESP_ERROR_CHECK(strip->Clear(100));
+        ERRORCODE_CHECK(strip->Begin(SPI3_HOST, PIN_LED_WS2812));
+        ERRORCODE_CHECK(strip->Clear(100));
 
         readBinaryAndAnalogIOs(); // do this while init to avoid race condition (wifimanager is resettet when red and green buttons are pressed during startup)
         xTaskCreate(sensorTask, "sensorTask", 4096 * 4, this, 6, nullptr);

@@ -507,7 +507,7 @@ ErrorCode DeviceManager::CheckForNewExecutable()
         i->deinit(this);
     }
     delete this->currentExecutable; //Destructor takes care for all internal data structures
-    ESP_LOGI(TAG, "Removed old executable completely --> CHECK THIS AGAIN!!");
+    ESP_LOGI(TAG, "Removed old executable completely");
     this->currentExecutable = this->nextExecutable;
     this->nextExecutable = nullptr;
     for (const auto &i : this->currentExecutable->functionBlocks)

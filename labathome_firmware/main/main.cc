@@ -31,8 +31,8 @@ static const char *TAG = "main";
 // #include "HAL_labathomeV5.hh"
 // HAL *hal = new HAL_labathome(MODE_IO33::SERVO2, MODE_MULTI1_PIN::I2S, MODE_MULTI_2_3_PINS::I2S);
 
-// #include "HAL_labathomeV10.hh"
-// static HAL * hal = new HAL_Impl(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR);
+//#include "HAL_labathomeV10.hh"
+//static HAL * hal = new HAL_Impl(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR);
 #include "HAL_labathomeV15.hh"
 static HAL *hal = new HAL_Impl();
 

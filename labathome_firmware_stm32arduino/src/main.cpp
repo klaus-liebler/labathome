@@ -6,18 +6,23 @@
 #include <common.hh>
 #include <single_led.hh>
 #include "Encoder.hh"
+#include "errorcheck.hh"
 
 #include <version_15_0/pins.hh>
 #include "stm32_esp32_communication.hh"
+#include "errormanager.hh"
 
 constexpr time_t TIMEOUT_FOR_FAILSAFE{3000};
-bool noDataWarningAlreadyPrinted{false};
+bool alreadySetToFailsafe{false};
 bool gotDataInfoAlreadyPrinted{false};
 
 // Time related
-time_t timeToPutActorsInFailsafe{TIMEOUT_FOR_FAILSAFE};
+uint32_t timeToPutActorsInFailsafe{TIMEOUT_FOR_FAILSAFE};
 
 // Manager
+
+ErrorManager<8, uint32_t> errMan;
+
 SINGLE_LED::M *led{nullptr};
 
 HardwareTimer *TIM_BL_DRV{nullptr}; // TIM1 for Brushless
@@ -50,37 +55,64 @@ SINGLE_LED::BlinkPattern UNDER_CONTROL_FROM_MASTER(100, 900);
 SINGLE_LED::BlinkPattern PROBLEM(100, 100);
 
 void SetPhysicalOutputs();
+uint8_t CollectBitInputs();
+
 
 namespace I2C_SLAVE
 {
+  uint32_t receivedEvents{0};
+  uint32_t requestEvents{0};
+  uint8_t e2s_buffer[E2S::SIZE];
+  uint8_t s2e_buffer[S2E::SIZE];
+}
 
-  uint8_t e2s_buffer[E2S::ESP2STM_SIZE];
-  uint8_t s2e_buffer[S2E::STM2ESP_SIZE];
-  size_t currentAddress = 0; // Aktuelle Lese-/Schreibadresse
-  void onI2CReceive(int howMany)
-  {
-    if (howMany >= 1)
-    {
-      // Erstes empfangenes Byte ist die Adresse
-      currentAddress = Wire.read();
-      howMany--;
-    }
 
-    while (howMany-- > 0)
-    {
-      uint8_t data = Wire.read();
-      currentAddress %= E2S::ESP2STM_SIZE;
-      e2s_buffer[currentAddress++] = data;
-    }
+//I2C callbacks
+
+extern "C" void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+    HAL_I2C_EnableListen_IT(hi2c);
+}
+
+
+extern "C" void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
+{
     SetPhysicalOutputs();
-  }
+    timeToPutActorsInFailsafe=millis()+3000;
+    ClearBitIdx(I2C_SLAVE::s2e_buffer[S2E::STATUS_POS], 2);
+    //HAL_I2C_EnableListen_IT(hi2c);
+}
 
-  void onI2CRequest()
-  {
-    currentAddress %= S2E::STM2ESP_SIZE;
-    Wire.write(s2e_buffer[currentAddress]);
-    currentAddress++;
-  }
+extern "C" void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, uint16_t AddrMatchCode)
+{
+      
+    UNUSED(AddrMatchCode);
+    if (TransferDirection == I2C_DIRECTION_RECEIVE) // TransferDirection is master perspective
+    {
+        I2C_SLAVE::requestEvents++;  
+        HAL_ERROR_CHECK(HAL_I2C_Slave_Seq_Transmit_IT(hi2c, I2C_SLAVE::s2e_buffer, S2E::SIZE, I2C_LAST_FRAME));
+        //HAL_ERROR_CHECK(HAL_I2C_Slave_Seq_Transmit_IT(hi2c, test_buf, 12, I2C_LAST_FRAME));
+    }
+    else
+    {
+        I2C_SLAVE::receivedEvents++;
+        HAL_ERROR_CHECK(HAL_I2C_Slave_Seq_Receive_IT(hi2c, I2C_SLAVE::e2s_buffer, E2S::SIZE, I2C_LAST_FRAME));
+    }
+    timeToPutActorsInFailsafe=millis()+TIMEOUT_FOR_FAILSAFE;
+}
+
+extern "C" void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+    HAL_I2C_EnableListen_IT(hi2c);
+}
+
+extern "C" void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
+{
+
+    uint32_t error_code = HAL_I2C_GetError(hi2c);
+    
+    SetPhysicalOutputs();
+    HAL_I2C_EnableListen_IT(hi2c);
 }
 
 namespace USB_PD
@@ -106,7 +138,7 @@ namespace USB_PD
         return;
       }
     }
-    Serial.println("Neither 20V nor 15V is supported");
+    log_warn("Neither 20V nor 15V is supported");
   }
 
   void handleUsbPdEvent(PDSinkEventType eventType)
@@ -117,10 +149,10 @@ namespace USB_PD
       // source capabilities have changed
       if (PowerSink.isConnected())
       {
-        Serial.println("PD supply is connected");
+        log_info("PD supply is connected");
         for (int i = 0; i < PowerSink.numSourceCapabilities; i += 1)
         {
-          Serial.printf("minVoltage: %d maxVoltage:%d current:%d\n", PowerSink.sourceCapabilities[i].minVoltage, PowerSink.sourceCapabilities[i].maxVoltage, PowerSink.sourceCapabilities[i].maxCurrent);
+          log_info("minVoltage: %d maxVoltage:%d current:%d\n", PowerSink.sourceCapabilities[i].minVoltage, PowerSink.sourceCapabilities[i].maxVoltage, PowerSink.sourceCapabilities[i].maxCurrent);
         }
         requestVoltage();
       }
@@ -135,19 +167,18 @@ namespace USB_PD
       // voltage has changed
       if (PowerSink.activeVoltage != 0)
       {
-        Serial.printf("Voltage: %d mV @ %d mA (max)", PowerSink.activeVoltage, PowerSink.activeCurrent);
-        Serial.println();
+        log_info("Voltage: %d mV @ %d mA (max)", PowerSink.activeVoltage, PowerSink.activeCurrent);
       }
       else
       {
-        Serial.println("Disconnected");
+        log_info("Disconnected");
       }
     }
     else if (eventType == PDSinkEventType::powerRejected)
     {
       // rare case: power supply rejected requested power
-      Serial.println("Power request rejected");
-      Serial.printf("Voltage: %d mV @ %d mA (max)", PowerSink.activeVoltage, PowerSink.activeCurrent);
+      log_info("Power request rejected");
+      log_info("Voltage: %d mV @ %d mA (max)", PowerSink.activeVoltage, PowerSink.activeCurrent);
     }
   }
 }
@@ -162,7 +193,7 @@ void SetServoAngle(uint8_t servo_0_1_2_3, uint8_t angle_0_180)
   if (angle_0_180 > 180)
     angle_0_180 = 180;
   uint32_t us = degree2us(angle_0_180);
-  log_info("Set Servo %d to %lu us", servo_0_1_2_3, us);
+  //log_info("Set Servo %d to %lu us", servo_0_1_2_3, us);
   switch (servo_0_1_2_3)
   {
   case 0:
@@ -200,7 +231,7 @@ void SetLedPowerPower(uint8_t power_0_100)
 void SetPhysicalOutputs()
 {
   // write rx_buffer to my outputs
-  if (ParseU8(I2C_SLAVE::e2s_buffer, E2S::RELAY_BLRESET_POS) && 0b1)
+  if (ParseU8(I2C_SLAVE::e2s_buffer, E2S::RELAY_BLRESET_POS) & 0b1)
   {
     digitalWrite(PIN::RELAY, HIGH);
   }
@@ -209,7 +240,7 @@ void SetPhysicalOutputs()
     digitalWrite(PIN::RELAY, LOW);
   }
 
-  if (ParseU8(I2C_SLAVE::e2s_buffer, E2S::RELAY_BLRESET_POS) && 0b10)
+  if (ParseU8(I2C_SLAVE::e2s_buffer, E2S::RELAY_BLRESET_POS) & 0b10)
   {
     digitalWrite(PIN::BL_RESET, HIGH); //
   }
@@ -218,9 +249,9 @@ void SetPhysicalOutputs()
     digitalWrite(PIN::BL_RESET, LOW);
   }
 
+  SetServoAngle(0, ParseU8(I2C_SLAVE::e2s_buffer, E2S::SERVO0_POS));
   SetServoAngle(1, ParseU8(I2C_SLAVE::e2s_buffer, E2S::SERVO1_POS));
   SetServoAngle(2, ParseU8(I2C_SLAVE::e2s_buffer, E2S::SERVO2_POS));
-  SetServoAngle(3, ParseU8(I2C_SLAVE::e2s_buffer, E2S::SERVO3_POS));
   SetFanSpeed(ParseU8(I2C_SLAVE::e2s_buffer, E2S::FAN0_POS));
   // TODO USBC
   // HAL_DAC_SetValue(&hdac1, DAC1_CHANNEL_1, DAC_ALIGN_12B_R, ParseU16(esp2stm_buf, DAC1_POS));
@@ -233,7 +264,7 @@ void SetPhysicalOutputs()
 
 void setActorsToSafeSetting()
 {
-  memset(I2C_SLAVE::e2s_buffer, 0, E2S::ESP2STM_SIZE);
+  memset(I2C_SLAVE::e2s_buffer, 0, E2S::SIZE);
   SetPhysicalOutputs();
 }
 
@@ -260,15 +291,17 @@ void app_loop20ms(uint32_t now)
 
   if (now >= timeToPutActorsInFailsafe)
   {
-    if (!noDataWarningAlreadyPrinted)
+    if (!alreadySetToFailsafe)
     {
       log_warn("No Data from ESP32 - goto failsafe!");
-      noDataWarningAlreadyPrinted = true;
+      alreadySetToFailsafe = true;
+      gotDataInfoAlreadyPrinted = false;
+      setActorsToSafeSetting();
+      SetBitIdx(I2C_SLAVE::s2e_buffer[S2E::STATUS_POS], 2);
+      led->AnimatePixel(millis(), &PROBLEM);
     }
-    gotDataInfoAlreadyPrinted = false;
-    setActorsToSafeSetting();
-    SetBitIdx(I2C_SLAVE::s2e_buffer[S2E::STATUS_POS], 2);
-    timeToPutActorsInFailsafe = INT64_MAX;
+    
+    
   }
   else
   {
@@ -276,15 +309,23 @@ void app_loop20ms(uint32_t now)
     {
       log_info("Got Data from ESP32");
       gotDataInfoAlreadyPrinted = true;
+      led->AnimatePixel(millis(), &UNDER_CONTROL_FROM_MASTER);
     }
-    noDataWarningAlreadyPrinted = false;
+    alreadySetToFailsafe = false;
   }
 }
 
+char logBuffer1[96];
+char logBuffer2[96];
 void app_loop1000ms(uint32_t now)
 {
   (void)now;
-  log_info("stat=0x%02X, input_bits=0x%02X, enco=%d heater=%d", I2C_SLAVE::s2e_buffer[S2E::STATUS_POS], CollectBitInputs(), ParseU16(I2C_SLAVE::s2e_buffer, S2E::ROTENC_POS), I2C_SLAVE::e2s_buffer[E2S::HEATER_POS]);
+
+  //char* buf = errMan.GetLast8AsCharBuf_DoNotForgetToFree();
+  byteBuf2hexCharBuf(logBuffer1, 96, I2C_SLAVE::s2e_buffer, S2E::SIZE);
+  byteBuf2hexCharBuf(logBuffer2, 96, I2C_SLAVE::e2s_buffer, E2S::SIZE);
+  log_info("s2e=%s, e2s=%s", logBuffer1, logBuffer2);
+
 }
 
 void app_loop(uint32_t now)
@@ -312,33 +353,26 @@ void app_loop(uint32_t now)
 
 void setup()
 {
-#ifdef DEBUG
-  delay(3000); // to give platformIO terminal enough time
-#endif
+
   // Serial.println("Application started Serial.println");
   log_info("Application started");
+  while(false){
+    log_info("STM32 inactive!!!, see main.cpp");
+    delay(100);
+  }
   log_info("Init gpio");
   pinMode(PIN::BTN_RED, INPUT);
   pinMode(PIN::BTN_YELLOW, INPUT);
   pinMode(PIN::MOVEMENT, INPUT);
   pinMode(PIN::BL_FAULT, INPUT);
   pinMode(PIN::HEATER, OUTPUT);
+  pinMode(PIN::RELAY, OUTPUT);
   pinMode(PIN::ADC_0, INPUT_ANALOG);
   pinMode(PIN::ADC_1, INPUT_ANALOG);
 
   log_info("Init Rotary Encoder");
-  if (encoder.Setup())
-  {
-    log_info("Encoder Initialization OK\n");
-  }
-  else
-  {
-    log_warn("Encoder Initialization Failed\n");
-    while (1)
-      ;
-  }
-  // rotary_encoder->bind((uint16_t *)(&I2C_SLAVE::s2e_buffer[S2E::ROTENC_POS]));
-
+  encoder.Setup();
+  
   log_info("Init Timer");
   // Problem: Die All-In-One-Funktion "setPWM" kann nur ganzzahlige Prozentangaben setzen, Dies ist zu Wenig für Servos
   // Lösung: Hier diese Funktion zum grundsätzlichen Initialisieren verwenden und oben die "setCaptureCompare"
@@ -351,7 +385,7 @@ void setup()
   TIM_SERVO_0_1->setPWM(SERVO0_CH, PA_2_ALT1, 50, 0);
   TIM_SERVO_0_1->setPWM(SERVO1_CH, PA_3_ALT1, 50, 0);
   TIM_SERVO_2->setPWM(SERVO2_CH, PA_6_ALT1, 50, 0);
-  TIM_FAN->setPWM(FAN_CH, PA_7_ALT3, 1000, 0);
+  TIM_FAN->setPWM(FAN_CH, PA_7_ALT3, 50, 0);
 
   log_info("Init Info LED");
   led = new SINGLE_LED::M(PIN::LED_INFO, true, &WAITING_FOR_CONNECTION);
@@ -361,12 +395,11 @@ void setup()
   PowerSink.start(USB_PD::handleUsbPdEvent);
 
   log_info("Init I2C");
-  memset(I2C_SLAVE::s2e_buffer, 0, S2E::STM2ESP_SIZE);
+  memset(I2C_SLAVE::s2e_buffer, 0, S2E::SIZE);
   setActorsToSafeSetting();
+  
   Wire.setSDA(PIN::SDA);
   Wire.setSCL(PIN::SCL);
-  Wire.onReceive(I2C_SLAVE::onI2CReceive);
-  Wire.onRequest(I2C_SLAVE::onI2CRequest);
   Wire.begin(I2C_SETUP::STM32_I2C_ADDRESS);
 
   log_info("Init completed - eternal loop starts");

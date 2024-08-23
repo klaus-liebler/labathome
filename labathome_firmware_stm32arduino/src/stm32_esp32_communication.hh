@@ -1,12 +1,12 @@
 #pragma once
 #include <cstdint>
 namespace I2C_SETUP{
-    constexpr uint8_t STM32_I2C_ADDRESS{4};
+    constexpr uint8_t STM32_I2C_ADDRESS{126};
 }
 
 //STM32 to ESP32
 namespace S2E{
-    constexpr size_t STM2ESP_SIZE{12};
+    constexpr size_t SIZE{12};
     constexpr size_t STATUS_POS{0};//bit0==1->INITIALIZED, bit1->go to failsafe due to no communication, bit2 -> safety off because of overheat
     constexpr size_t BTN_MOVEMENT_BLFAULT_POS{1};
     constexpr size_t ROTENC_POS{2};
@@ -17,7 +17,7 @@ namespace S2E{
 }
 //ESP32 to STM32
 namespace E2S{
-    constexpr size_t ESP2STM_SIZE{20};
+    constexpr size_t SIZE{20};
     constexpr size_t ADDRESS_POINTER_POS{0};
     constexpr size_t RELAY_BLRESET_POS{1};
     constexpr size_t SERVO0_POS{2};

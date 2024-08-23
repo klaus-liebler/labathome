@@ -1,7 +1,9 @@
 #pragma once
-#include <stdint.h>
-#include <stddef.h>
+#include <cstdint>
+#include <cstddef>
+#include <cstdio>
 #include <array>
+
 
 #define ALL4  __attribute__ ((aligned (16)))
 
@@ -72,6 +74,8 @@ template <typename T>
 T clip(const T& n, const T& lower, const T& upper) {
   return std::max(lower, std::min(n, upper));
 }
+
+size_t byteBuf2hexCharBuf(char* charBuf, size_t charBufLen, const uint8_t* byteBuf, size_t byteBufLen);
 
 
 

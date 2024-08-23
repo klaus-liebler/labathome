@@ -1,5 +1,23 @@
 #include "common.hh"
 
+size_t byteBuf2hexCharBuf(char* charBuf, size_t charBufLen, const uint8_t* byteBuf, size_t byteBufLen){
+
+    const size_t outstrlen = 3*byteBufLen+2/*[]*/+1/*final null*/;
+    
+    char * p = charBuf;
+	*p='[';
+	p++;
+	int byteIndex{0};
+	while(p+2<charBuf+charBufLen && byteIndex<byteBufLen){
+		p += sprintf(p, "%02X ", byteBuf[byteIndex]);
+		byteIndex++;
+	}
+    *p=']';
+	p++;
+	*(p)=0;
+    return p-charBuf;
+}
+
 bool GetBitInU8Buf(const uint8_t *buf, size_t offset, size_t bitIdx)
 {
 	uint8_t b = buf[offset + (bitIdx >> 3)];

@@ -37,6 +37,7 @@ target_sources(stm32cubemx INTERFACE
     ../../Core/Src/app_freertos.c
     ../../Core/Src/stm32g4xx_it.c
     ../../Core/Src/stm32g4xx_hal_msp.c
+    ../../Core/Src/stm32g4xx_hal_timebase_tim.c
     ../../USBPD/usbpd_dpm_user.c
     ../../USBPD/usbpd_pwr_user.c
     ../../USBPD/usbpd_pwr_if.c

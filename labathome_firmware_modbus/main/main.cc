@@ -1,10 +1,15 @@
 constexpr int FIRMWARE_VERSION{5};
-//The Register "r" is 1-based
+// Hints for the command line test software "modpoll", that I used during development
+//In this tool, the register addresses ("r") is 1-based
+// COMxy has to be replaced with your specific com port.
+
 //Query Inputs:      modpoll -r 1 -c 9 -t 1 -b 9600 COM17
 //Set Coil Outputs:  modpoll -r 1 -c 1 -t 0 -b 9600 COM17 0
 //Set LED Color      modpoll -r 10 -c 1 -t 4 -b 9600 COM17 65535
+//Set Servo          modpoll -r 2 -c 1 -t 4 -b 9600 COM7 50
 
 /*
+These are the addresses and the formats at LabAtHome
 Adresses are 0-Based
 Coils:
  0: Relay K3
@@ -17,20 +22,20 @@ Discrete Input:
 
 Holding Registers:
  0: Not connected
- 1: Servo 1, Position in Degrees 0...180
- 2: Servo 2, Position in Degrees 0...180
- 3: Servo 3, Position in Degrees 0...180
- 4: Servo 4, Position in Degrees 0...180
- 5: Fan 1, Power in Percent 0...100
- 6: Fan 2, Power in Percent 0...100
+ 1: Servo 0, Position in Degrees 0...180
+ 2: Servo 1, Position in Degrees 0...180
+ 3: Servo 2, Position in Degrees 0...180
+ 4: Servo 3, Position in Degrees 0...180
+ 5: Fan 0, Power in Percent 0...100
+ 6: Fan 1, Power in Percent 0...100
  7: Heater, Power in Percent 0...100
  8: White Power LED, Power in Percent 0...100
- 9: RGB LED 1, Color in RGB565
- 10: LED 2
- 11: LED 3
-12: LED 4
-13: Relay State (Alternative to Coil 0), 0 means off, all other values on
-14: Play Sound, 0 means silence; try other values up to 9
+ 9: RGB LED 0, Color in RGB565
+ 10: LED 1
+ 11: LED 2
+ 12: LED 3
+ 13: Relay State (Alternative to Coil 0), 0 means off, all other values on
+ 14: Play Sound, 0 means silence; try other values up to 9
 
 Input Registers:
  0: CO2 [PPM]
@@ -77,11 +82,11 @@ static const char *TAG = "main";
 
 #include "HAL.hh"
 
-//#include "HAL_labathomeV10.hh"
-//static HAL * hal = new HAL_Impl(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR);
+#include "HAL_labathomeV10.hh"
+static HAL * hal = new HAL_Impl(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR);
 
-#include "HAL_labathomeV15.hh"
-static HAL * hal = new HAL_Impl();
+//#include "HAL_labathomeV15.hh"
+//static HAL * hal = new HAL_Impl();
 
 modbus::M<100000> *modbusSlave;
 
@@ -90,25 +95,17 @@ constexpr size_t DISCRETE_INPUTS_CNT{16};
 constexpr size_t INPUT_REGISTERS_CNT{101};
 constexpr size_t HOLDING_REGISTERS_CNT{16};
 
-
-
-
-
-
 static std::vector<bool> coilData(COILS_CNT);
 static std::vector<bool> discreteInputsData(DISCRETE_INPUTS_CNT);
 static std::vector<uint16_t> inputRegisterData(INPUT_REGISTERS_CNT);
 static std::vector<uint16_t> holdingRegisterData(HOLDING_REGISTERS_CNT);
 
 
-
-
-
-
-
 void modbusAfterWriteCallback(uint8_t fc, uint16_t start, size_t len){
-    ESP_LOGD(TAG, "Modbus Registers changed! fc:%d, start:%d len:%d.", fc, start, len);
+    
     if(fc==15 || fc==5){
+        bool b=coilData.at(start);
+        ESP_LOGI(TAG, "Modbus Coil Registers changed! fc:%d, start:%d len:%d, firstChangedBit=%d", fc, start, len, b);
         for(int i=start;i<start+len;i++){
             switch (i)
             {
@@ -121,6 +118,8 @@ void modbusAfterWriteCallback(uint8_t fc, uint16_t start, size_t len){
         }
     }
     else if(fc==16 || fc==6){
+        ESP_LOGI(TAG, "Modbus Output Registers changed! fc:%d, start:%d len:%d, firstChangesValues=%d", fc, start, len, holdingRegisterData.at(start));
+        
         for(int reg=start;reg<start+len;reg++){
             switch (reg)
             {
@@ -170,7 +169,7 @@ void modbusAfterWriteCallback(uint8_t fc, uint16_t start, size_t len){
 }
 
 void modbusBeforeReadCallback(uint8_t fc, uint16_t start, size_t len){
-    ESP_LOGD(TAG, "Modbus Register Read! fc:%d, start:%d len:%d.", fc, start, len);
+    ESP_LOGI(TAG, "Modbus Register Read! fc:%d, start:%d len:%d.", fc, start, len);
     if(fc==2){ // Discrete Inputs --> Green, Red, Yellow, Movement
         for(int reg=start;reg<start+len;reg++){
             switch (reg)
@@ -369,7 +368,7 @@ void mainTask(void* args){
         size_t length{0};
 #if defined(LABATHOME_V15)
         ESP_ERROR_CHECK(tinyusb_cdcacm_read(TINYUSB_CDC_ACM_0, rx_buf_tmp, CONFIG_TINYUSB_CDC_RX_BUFSIZE, &length));
-#elif defined(#ifdef LABATHOME_V10)
+#elif defined(LABATHOME_V10)
         ESP_ERROR_CHECK(uart_get_buffered_data_len(MODBUS_UART_NUM, &length));
 #endif
         if(length>0){
@@ -383,7 +382,7 @@ void mainTask(void* args){
             }
             std::memcpy(rx_buf, rx_buf_tmp, length);
             rx_size=length;
-#elif defined(#ifdef LABATHOME_V10)
+#elif defined(LABATHOME_V10)
             rx_size = uart_read_bytes(MODBUS_UART_NUM, rx_buf, rx_size_max, 0);
 #endif
             
@@ -394,7 +393,7 @@ void mainTask(void* args){
 #if defined(LABATHOME_V15)
                     tinyusb_cdcacm_write_queue(TINYUSB_CDC_ACM_0, tx_buf, tx_size);
                     tinyusb_cdcacm_write_flush(TINYUSB_CDC_ACM_0, 0);
-#elif defined(#ifdef LABATHOME_V10)
+#elif defined(LABATHOME_V10)
                     uart_write_bytes(MODBUS_UART_NUM, tx_buf, tx_size);
                     uart_wait_tx_done(MODBUS_UART_NUM, 1000);
 #endif

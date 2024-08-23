@@ -1,5 +1,6 @@
 #pragma once
 
+#define LABATHOME_V15
 #include "HAL.hh"
 
 #include <inttypes.h>
@@ -31,6 +32,9 @@
 #include <AudioPlayer.hh>
 
 #include "../../labathome_firmware_stm32arduino/src/stm32_esp32_communication.hh"
+#include "spilcd16.hh"
+#include "FullTextLineRenderer.hh"
+#include "lcd_font.hh"
 
 
 FLASH_FILE(alarm_co2_mp3)
@@ -115,14 +119,15 @@ private:
     i2c_master_dev_handle_t stm32_handle{nullptr};
 
     RGBLED::M<LED_NUMBER, RGBLED::DeviceType::WS2812> *strip{nullptr};
-    AudioPlayer::Player *mp3player;
-    //spilcd16::M<SPI2_HOST, PIN_LCD_DAT, PIN_LCD_CLK, GPIO_NUM_NC, PIN_LCD_DC, PIN_EXT_IO1, GPIO_NUM_NC, LCD240x240_0, (size_t)8*240, 4096, 0> display;
-
+    AudioPlayer::Player *mp3player{nullptr};
+    spilcd16::M<SPI2_HOST, PIN_LCD_DAT, PIN_LCD_CLK, GPIO_NUM_NC, PIN_LCD_DC, PIN_EXT_IO1, GPIO_NUM_NC, LCD240x240_0, (size_t)8*240, 4096, 0> display;
+    spilcd16::FullTextlineRenderer<24, 240, 5,5 >* lineRenderer{nullptr};
 
     
 
     //SensorValues
-    uint8_t stm2esp_buf[S2E::STM2ESP_SIZE]={0};
+    uint8_t stm2esp_buf[S2E::SIZE]={0};
+
     float analogInputsVolt[ANALOG_INPUTS_LEN]={0};
     float wifiRssiDb{std::numeric_limits<float>::quiet_NaN()};
 #if 0
@@ -138,7 +143,7 @@ private:
 #endif
 
     //Actor Values
-    uint8_t esp2stm_buf[E2S::ESP2STM_SIZE]={0};
+    uint8_t esp2stm_buf[E2S::SIZE]={0};
     uint32_t sound{0};
     
     //Safety
@@ -163,14 +168,16 @@ private:
             .device_address = I2C_SETUP::STM32_I2C_ADDRESS,
             .scl_speed_hz = 100000,
             .scl_wait_us=0,
-            .flags=0,
+            .flags={
+                .disable_ack_check=0,
+            },
         };
         ESP_ERROR_CHECK(i2c_master_bus_add_device(this->i2c_master_handle, &dev_cfg, &this->stm32_handle));
     }
     
     void Stm32Loop(){
-        if(i2c_master_transmit_receive(this->stm32_handle, esp2stm_buf, E2S::ESP2STM_SIZE, stm2esp_buf, S2E::STM2ESP_SIZE, 1000)!=ESP_OK){
-            ESP_LOGW(TAG, "Error while communicating with STM32 slave chip on address");
+        if(i2c_master_transmit_receive(this->stm32_handle, esp2stm_buf, E2S::SIZE, stm2esp_buf, S2E::SIZE, 1000)!=ESP_OK){
+            ESP_LOGW(TAG, "Error while exchanging data with STM32 slave chip on address %d", I2C_SETUP::STM32_I2C_ADDRESS);
         }
     }
 
@@ -182,6 +189,8 @@ private:
         ccs811dev = new CCS811::M(i2c_master_handle, CCS811::ADDRESS::ADDR0, CCS811::MODE::_1SEC, (gpio_num_t)GPIO_NUM_NC);
         aht21dev = new AHT::M(i2c_master_handle, AHT::ADDRESS::DEFAULT_ADDRESS);
         vl53l0xdev = new VL53L0X::M(i2c_master_handle);
+        oneWireBus = new OneWire::OneWireBus<PIN_ONEWIRE>();
+        oneWireBus->Init();
         Stm32Init(); //see below loop
  
         while (true)
@@ -372,15 +381,9 @@ public:
         };
 
         ESP_ERROR_CHECK(i2c_new_master_bus(&i2c_mst_config, &i2c_master_handle));
-
-    
-        for(uint8_t i=0;i<128;i++){
-             if(i2c_master_probe(i2c_master_handle, i, 100)!=ESP_ERR_NOT_FOUND){
-                 ESP_LOGI(TAG, "Found I2C-Device @ 0x%02X", i);
-             }
-         }
         
-        ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, I2C_SETUP::STM32_I2C_ADDRESS, 1000));
+        
+        //ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, I2C_SETUP::STM32_I2C_ADDRESS, 1000));
         ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, (uint8_t)AHT::ADDRESS::DEFAULT_ADDRESS, 1000));
         ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, 0x6A, 1000)); //LSM6DS3
         ESP_LOGI(TAG, "I2C bus successfully initialized and probed");
@@ -389,8 +392,19 @@ public:
 
         //LED Strip
         strip = new RGBLED::M<LED_NUMBER, RGBLED::DeviceType::WS2812>();
-        ESP_ERROR_CHECK(strip->Begin(SPI3_HOST, PIN_LED_WS2812));
-        ESP_ERROR_CHECK(strip->Clear(100));
+        ERRORCODE_CHECK(strip->Begin(SPI3_HOST, PIN_LED_WS2812));
+        ERRORCODE_CHECK(strip->Clear(100));
+
+        //Display
+        display.InitSpiAndGpio();
+        display.Init_ST7789(Color::GREEN);
+
+        lineRenderer=new spilcd16::FullTextlineRenderer<24, 240, 5,5 >(&arial_and_symbols_24px1bpp::font);
+        lineRenderer->printfl(0, Color::WHITE, Color::BLACK, "Welcome!");
+        display.Draw(lineRenderer);
+
+        lineRenderer->printfl(1, Color::WHITE, Color::BLACK, WIFISTA::GetHostname());
+        display.Draw(lineRenderer);
 
         //MP3
         //nau88c22::M *codec = new nau88c22::M(i2c_master_handle,  PIN_I2S_MCLK, PIN_I2S_BCLK, PIN_I2S_FS, PIN_I2S_DAC);
@@ -419,6 +433,13 @@ public:
 
     ErrorCode AfterLoop() override
     {
+        static esp_ip4_addr_t savedIpAddress{0};
+        esp_ip4_addr_t newIpAddress = WIFISTA::GetIpAddress();
+        if(newIpAddress.addr!=savedIpAddress.addr){
+            lineRenderer->printfl(2, Color::WHITE, Color::BLACK, "IP:" IPSTR, IP2STR(&newIpAddress));
+            display.Draw(lineRenderer);
+            savedIpAddress=newIpAddress;
+        }
         strip->Refresh(100);  //checks internally, whether data is dirty and has to be pushed out
         return ErrorCode::OK;
     }
@@ -436,8 +457,8 @@ public:
     ErrorCode ColorizeLed(uint8_t ledIndex, CRGB colorCRGB) override
     {
         if(ledIndex>=LED_NUMBER) return ErrorCode::INDEX_OUT_OF_BOUNDS;
-        strip->SetPixel(LED_NUMBER-ledIndex-1, colorCRGB);
-        return ErrorCode::OK;
+        return strip->SetPixel(LED_NUMBER-ledIndex-1, colorCRGB, true);
+
     }
 
     ErrorCode UnColorizeAllLed() override
@@ -453,7 +474,7 @@ public:
         }else{
             ClearBitIdx(this->esp2stm_buf[E2S::RELAY_BLRESET_POS], 0);
         }
-
+        ESP_LOGI(TAG, "this->esp2stm_buf[E2S::RELAY_BLRESET_POS] is %d", this->esp2stm_buf[E2S::RELAY_BLRESET_POS]);
         return ErrorCode::OK;
     }
 
@@ -498,7 +519,7 @@ public:
     }
 
     bool GetButtonGreenIsPressed() override {
-        return gpio_get_level(PIN_BTN_GREEN)!=0;
+        return gpio_get_level(PIN_BTN_GREEN)==0;
     }
 
     bool IsMovementDetected() override {
@@ -541,7 +562,7 @@ public:
         HAL_Impl *hal = (HAL_Impl *)pvParameters;
         hal->MP3Loop();
     }
-/*
+
     ErrorCode GetAmbientBrightnessAnalog(float *lux){
         uint16_t temp;
         temp=ParseU16(stm2esp_buf, S2E::BRIGHTNESS_POS);
@@ -598,5 +619,5 @@ public:
         *value=this->vl53l0xdev->ReadMillimeters();
         return ErrorCode::OK;
     }
-*/
+
 };
