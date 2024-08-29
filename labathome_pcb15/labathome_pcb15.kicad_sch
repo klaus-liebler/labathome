@@ -5754,9 +5754,9 @@
 		)
 		(uuid "4bb9bb1d-ce1c-4ec1-b0dd-777b7eb70723")
 	)
-	(text "Strap JTAG"
+	(text "GPIO 3-->Strap JTAG"
 		(exclude_from_sim no)
-		(at 68.58 40.64 0)
+		(at 68.326 39.37 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6130,7 +6130,7 @@
 	)
 	(global_label "CAN_TX"
 		(shape output)
-		(at 38.1 35.56 180)
+		(at 38.1 38.1 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6140,7 +6140,7 @@
 		)
 		(uuid "2a2e3c51-24d2-4d44-8380-84007bbf1435")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 28.281 35.56 0)
+			(at 28.281 38.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6436,7 +6436,7 @@
 	)
 	(global_label "CAN_RX"
 		(shape input)
-		(at 38.1 38.1 180)
+		(at 38.1 35.56 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6446,7 +6446,7 @@
 		)
 		(uuid "7bb05ebb-5a79-439e-8d90-ff3ef18b1256")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 27.9786 38.1 0)
+			(at 27.9786 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7783,7 +7783,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "liebler_MECH:SW_SPST_TL3342_smaller_handsolder"
+		(property "Footprint" "liebler_MECH:Button_2x4x3,5_handsolder"
 			(at 12.7 44.45 0)
 			(effects
 				(font

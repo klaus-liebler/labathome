@@ -5295,7 +5295,7 @@
 				)
 			)
 		)
-		(property "Value" "Bead"
+		(property "Value" "600R"
 			(at 125.6919 33.02 90)
 			(effects
 				(font

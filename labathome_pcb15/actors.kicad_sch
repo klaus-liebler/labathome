@@ -936,260 +936,6 @@
 				)
 			)
 		)
-		(symbol "LED:WS2812B"
-			(pin_names
-				(offset 0.254)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "D"
-				(at 5.08 5.715 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify right bottom)
-				)
-			)
-			(property "Value" "WS2812B"
-				(at 1.27 -5.715 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left top)
-				)
-			)
-			(property "Footprint" "LED_SMD:LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm"
-				(at 1.27 -7.62 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left top)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf"
-				(at 2.54 -9.525 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left top)
-					(hide yes)
-				)
-			)
-			(property "Description" "RGB LED with integrated controller"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "RGB LED NeoPixel addressable"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_fp_filters" "LED*WS2812*PLCC*5.0x5.0mm*P3.2mm*"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "WS2812B_0_0"
-				(text "RGB"
-					(at 2.286 -4.191 0)
-					(effects
-						(font
-							(size 0.762 0.762)
-						)
-					)
-				)
-			)
-			(symbol "WS2812B_0_1"
-				(polyline
-					(pts
-						(xy 1.27 -3.556) (xy 1.778 -3.556)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.27 -2.54) (xy 1.778 -2.54)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 4.699 -3.556) (xy 2.667 -3.556)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 2.286 -2.54) (xy 1.27 -3.556) (xy 1.27 -3.048)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 2.286 -1.524) (xy 1.27 -2.54) (xy 1.27 -2.032)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 3.683 -1.016) (xy 3.683 -3.556) (xy 3.683 -4.064)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 4.699 -1.524) (xy 2.667 -1.524) (xy 3.683 -3.556) (xy 4.699 -1.524)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start 5.08 5.08)
-					(end -5.08 -5.08)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-			)
-			(symbol "WS2812B_1_1"
-				(pin power_in line
-					(at 0 7.62 270)
-					(length 2.54)
-					(name "VDD"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 7.62 0 180)
-					(length 2.54)
-					(name "DOUT"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at 0 -7.62 90)
-					(length 2.54)
-					(name "VSS"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -7.62 0 0)
-					(length 2.54)
-					(name "DIN"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-		)
 		(symbol "Relay:G6K-2"
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -2402,6 +2148,260 @@
 				)
 			)
 		)
+		(symbol "liebler_OPTO:SK6812MINI-E_Reverse"
+			(pin_names
+				(offset 0.254)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "D"
+				(at 5.08 5.715 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify right bottom)
+				)
+			)
+			(property "Value" "SK6812MINI-E_Reverse"
+				(at 1.27 -5.715 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left top)
+				)
+			)
+			(property "Footprint" "liebler_OPTO:SK6812MINI-E_REV"
+				(at 1.27 -7.62 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left top)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 2.54 -9.525 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left top)
+					(hide yes)
+				)
+			)
+			(property "Description" ""
+				(at 1.778 22.86 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "RGB LED NeoPixel addressable"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "LED*SK6812*PLCC*5.0x5.0mm*P3.2mm*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "SK6812MINI-E_Reverse_0_0"
+				(text "RGB"
+					(at 2.286 -4.191 0)
+					(effects
+						(font
+							(size 0.762 0.762)
+						)
+					)
+				)
+			)
+			(symbol "SK6812MINI-E_Reverse_0_1"
+				(rectangle
+					(start -5.08 5.08)
+					(end 5.08 -5.08)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 -3.556) (xy 1.778 -3.556)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 -2.54) (xy 1.778 -2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 4.699 -3.556) (xy 2.667 -3.556)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.286 -2.54) (xy 1.27 -3.556) (xy 1.27 -3.048)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.286 -1.524) (xy 1.27 -2.54) (xy 1.27 -2.032)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 3.683 -1.016) (xy 3.683 -3.556) (xy 3.683 -4.064)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 4.699 -1.524) (xy 2.667 -1.524) (xy 3.683 -3.556) (xy 4.699 -1.524)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "SK6812MINI-E_Reverse_1_1"
+				(pin power_in line
+					(at 0 7.62 270)
+					(length 2.54)
+					(name "VDD"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 7.62 0 180)
+					(length 2.54)
+					(name "DOUT"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 0 -7.62 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -7.62 0 0)
+					(length 2.54)
+					(name "DIN"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
 		(symbol "power:+24V"
 			(power)
 			(pin_numbers hide)
@@ -2924,10 +2924,10 @@
 		)
 	)
 	(junction
-		(at 128.27 62.23)
+		(at 158.75 62.23)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "0935f438-2ae6-4941-8c80-536d50fb3799")
+		(uuid "02a316e3-c70b-4a09-912f-5ce384b8b804")
 	)
 	(junction
 		(at 25.4 73.66)
@@ -2942,16 +2942,22 @@
 		(uuid "0f004cb1-a914-494e-8411-6a8fb65c5ec1")
 	)
 	(junction
+		(at 128.27 77.47)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "17f0770a-5faa-4429-b7a9-dfb211d3009b")
+	)
+	(junction
 		(at 33.02 78.74)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "1cd9d26c-2e25-481f-875d-8e5707890636")
 	)
 	(junction
-		(at 128.27 77.47)
+		(at 143.51 62.23)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "3d34d744-8743-4313-8712-7a9e6238f5e5")
+		(uuid "42f9efb8-6bad-42ff-8594-727260570ead")
 	)
 	(junction
 		(at 25.4 81.28)
@@ -2960,16 +2966,10 @@
 		(uuid "47b6da85-2725-4aaf-bf1e-a0229a71e0d1")
 	)
 	(junction
-		(at 158.75 62.23)
+		(at 128.27 62.23)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "508841e4-ea12-464f-bebe-f1528a09cbb2")
-	)
-	(junction
-		(at 143.51 62.23)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "7baf5721-dc90-460f-b311-9634013e02f0")
+		(uuid "498a754f-802a-4ecc-a547-7fac88b4f12a")
 	)
 	(junction
 		(at 48.26 63.5)
@@ -2988,12 +2988,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "ab96fed3-6af5-413e-a63a-ca40fcd6c69d")
-	)
-	(junction
-		(at 113.03 62.23)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "b05bc0a9-a343-446f-a0e2-75f1cac6350b")
 	)
 	(junction
 		(at 60.96 45.72)
@@ -3024,6 +3018,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "e192f961-fbba-40ab-b7ff-600933951d22")
+	)
+	(junction
+		(at 113.03 62.23)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "eeedfd44-2f12-4bf2-a6c4-a1bc25fdb085")
 	)
 	(wire
 		(pts
@@ -3187,6 +3187,16 @@
 	)
 	(wire
 		(pts
+			(xy 128.27 77.47) (xy 143.51 77.47)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "969930be-f563-4acd-9c8a-ce695ff7ff0f")
+	)
+	(wire
+		(pts
 			(xy 80.01 35.56) (xy 80.01 33.02)
 		)
 		(stroke
@@ -3197,7 +3207,7 @@
 	)
 	(wire
 		(pts
-			(xy 128.27 77.47) (xy 113.03 77.47)
+			(xy 113.03 77.47) (xy 128.27 77.47)
 		)
 		(stroke
 			(width 0)
@@ -3224,16 +3234,6 @@
 			(type default)
 		)
 		(uuid "a7a633cb-efe2-43e7-92c0-0aa7a07eb009")
-	)
-	(wire
-		(pts
-			(xy 143.51 77.47) (xy 128.27 77.47)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "adecca58-2e46-464f-b093-01db72e06dcc")
 	)
 	(wire
 		(pts
@@ -4544,7 +4544,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "LED_SMD:LED_0805_2012Metric_Pad1.15x1.40mm_HandSolder"
+		(property "Footprint" "liebler_OPTO:LED_1206_3216Metric_ReverseMount"
 			(at 17.78 69.85 0)
 			(effects
 				(font
@@ -4788,6 +4788,81 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/7cc4a29d-fb70-4313-b60c-aaf23d93fc45"
 					(reference "J8")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "liebler_OPTO:SK6812MINI-E_Reverse")
+		(at 158.75 69.85 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "2deb675f-55cc-4f80-8826-dd97589cf6a7")
+		(property "Reference" "D17"
+			(at 155.702 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "RGB0"
+			(at 156.464 71.882 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "liebler_OPTO:SK6812MINI-E_REV"
+			(at 160.02 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 161.29 79.375 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 160.528 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "714e6de2-e9bb-409c-a38f-19834aea3c43")
+		)
+		(pin "2"
+			(uuid "6b1ae490-1f34-42d3-b6c5-0344e0d3719c")
+		)
+		(pin "3"
+			(uuid "8b91d85d-7339-46bb-a2b9-6af1b21dd699")
+		)
+		(pin "4"
+			(uuid "61808a8e-a82a-4325-b71a-59ea8a706972")
+		)
+		(instances
+			(project "labathome_pcb15"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/7cc4a29d-fb70-4313-b60c-aaf23d93fc45"
+					(reference "D17")
 					(unit 1)
 				)
 			)
@@ -5270,6 +5345,81 @@
 		)
 	)
 	(symbol
+		(lib_id "liebler_OPTO:SK6812MINI-E_Reverse")
+		(at 128.27 69.85 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "429293d8-3bbd-4384-b260-863a2d3c6294")
+		(property "Reference" "D15"
+			(at 125.222 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "RGB2"
+			(at 125.984 71.882 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "liebler_OPTO:SK6812MINI-E_REV"
+			(at 129.54 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 130.81 79.375 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 130.048 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "3"
+			(uuid "4e70410c-0364-497b-be7f-6b5b5a88231f")
+		)
+		(pin "2"
+			(uuid "575068e6-e480-4e28-9630-31fb973d08b2")
+		)
+		(pin "1"
+			(uuid "a3ba4d94-eeaf-4910-a202-d0d431c2bea4")
+		)
+		(pin "4"
+			(uuid "3bf86903-26de-4082-8ad5-a61820f5c86b")
+		)
+		(instances
+			(project "labathome_pcb15"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/7cc4a29d-fb70-4313-b60c-aaf23d93fc45"
+					(reference "D15")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R")
 		(at 17.78 77.47 180)
 		(unit 1)
@@ -5286,7 +5436,7 @@
 				)
 			)
 		)
-		(property "Value" "k22"
+		(property "Value" "1k"
 			(at 17.78 77.47 90)
 			(effects
 				(font
@@ -5540,83 +5690,6 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/7cc4a29d-fb70-4313-b60c-aaf23d93fc45"
 					(reference "Q2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "LED:WS2812B")
-		(at 158.75 69.85 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "5b10ae32-6f11-4801-8bea-cbfa65797fe0")
-		(property "Reference" "D18"
-			(at 153.67 63.5 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "RGB0"
-			(at 160.02 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "liebler_OPTO:WS2812b_handsolder"
-			(at 160.02 77.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf"
-			(at 161.29 79.375 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 158.75 69.85 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "c8f81a3b-34ef-47c7-9bf2-1b08205f2f7f")
-		)
-		(pin "2"
-			(uuid "da0db3f4-2a1f-4667-ba1d-523d3abb8977")
-		)
-		(pin "3"
-			(uuid "3dddd5a4-8fa9-4779-8698-17264c0c7ed3")
-		)
-		(pin "4"
-			(uuid "293e0327-ff0c-4f79-9dd5-9afaddae4864")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/7cc4a29d-fb70-4313-b60c-aaf23d93fc45"
-					(reference "D18")
 					(unit 1)
 				)
 			)
@@ -5888,33 +5961,31 @@
 		)
 	)
 	(symbol
-		(lib_id "LED:WS2812B")
+		(lib_id "liebler_OPTO:SK6812MINI-E_Reverse")
 		(at 113.03 69.85 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "71c7a8d4-1ac7-4ad8-b983-3dc92bbc79e0")
-		(property "Reference" "D15"
-			(at 107.95 63.5 0)
+		(uuid "747edb80-2a7b-414f-9918-6d4a8fc61f8e")
+		(property "Reference" "D21"
+			(at 109.982 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
 			)
 		)
 		(property "Value" "RGB3"
-			(at 114.3 76.2 0)
+			(at 110.744 71.882 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
 			)
 		)
-		(property "Footprint" "liebler_OPTO:WS2812b_handsolder"
+		(property "Footprint" "liebler_OPTO:SK6812MINI-E_REV"
 			(at 114.3 77.47 0)
 			(effects
 				(font
@@ -5924,7 +5995,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf"
+		(property "Datasheet" ""
 			(at 115.57 79.375 0)
 			(effects
 				(font
@@ -5935,7 +6006,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 113.03 69.85 0)
+			(at 114.808 46.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5943,22 +6014,22 @@
 				(hide yes)
 			)
 		)
-		(pin "1"
-			(uuid "e3d9143c-75dc-4f8f-80fc-3a9fccb4bb64")
+		(pin "3"
+			(uuid "50a809dd-5d4e-42fb-bdda-9e8b6a58d5a6")
 		)
 		(pin "2"
-			(uuid "7a4c27b1-9326-48b5-af76-592346dc21e9")
+			(uuid "adc60a17-df97-4180-8e05-69aaa62988c7")
 		)
-		(pin "3"
-			(uuid "d74a39f9-758f-4c31-9daf-7da3445bb4e2")
+		(pin "1"
+			(uuid "74fb454e-351d-45ce-9bd9-544156b220e8")
 		)
 		(pin "4"
-			(uuid "98693614-d223-4b52-9c39-dbcbdf9bb1d7")
+			(uuid "6e0c315e-0fee-473e-ba62-98f4dfd13a9d")
 		)
 		(instances
-			(project "labathome_pcb15"
+			(project ""
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/7cc4a29d-fb70-4313-b60c-aaf23d93fc45"
-					(reference "D15")
+					(reference "D21")
 					(unit 1)
 				)
 			)
@@ -6164,83 +6235,6 @@
 		)
 	)
 	(symbol
-		(lib_id "LED:WS2812B")
-		(at 143.51 69.85 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "8174fdf8-8aa1-427f-ad1e-4091db3efd49")
-		(property "Reference" "D17"
-			(at 138.43 63.5 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "RGB1"
-			(at 144.78 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "liebler_OPTO:WS2812b_handsolder"
-			(at 144.78 77.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf"
-			(at 146.05 79.375 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 143.51 69.85 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "1145f070-b176-4910-84d7-0a44782a020a")
-		)
-		(pin "2"
-			(uuid "1e870d8c-aa5b-4651-a697-ed03ea5ba7c9")
-		)
-		(pin "3"
-			(uuid "c7f9483d-80a4-432b-b270-3717f6479084")
-		)
-		(pin "4"
-			(uuid "0b657f96-f9ec-4bf2-b8d2-7c7ddc458077")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/7cc4a29d-fb70-4313-b60c-aaf23d93fc45"
-					(reference "D17")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:C")
 		(at 132.08 62.23 270)
 		(unit 1)
@@ -6432,83 +6426,6 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/7cc4a29d-fb70-4313-b60c-aaf23d93fc45"
 					(reference "#PWR080")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "LED:WS2812B")
-		(at 128.27 69.85 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "929eca5f-bd42-4e24-a795-b90e9d03dcef")
-		(property "Reference" "D16"
-			(at 123.19 63.5 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "RGB2"
-			(at 129.54 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "liebler_OPTO:WS2812b_handsolder"
-			(at 129.54 77.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf"
-			(at 130.81 79.375 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 128.27 69.85 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "bbbdcc9d-924d-4063-ae6c-ccb6a914b052")
-		)
-		(pin "2"
-			(uuid "174c09e5-8070-4de4-b107-946df4dd4879")
-		)
-		(pin "3"
-			(uuid "85412ef0-1db7-4f9c-aadc-6b4a7fc5f743")
-		)
-		(pin "4"
-			(uuid "4b93ea1c-12a1-4352-899e-0c31aea2e2b0")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/7cc4a29d-fb70-4313-b60c-aaf23d93fc45"
-					(reference "D16")
 					(unit 1)
 				)
 			)
@@ -6992,6 +6909,81 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/7cc4a29d-fb70-4313-b60c-aaf23d93fc45"
 					(reference "#PWR097")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "liebler_OPTO:SK6812MINI-E_Reverse")
+		(at 143.51 69.85 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "b2208016-4ddf-404b-9631-07e31493ccdf")
+		(property "Reference" "D16"
+			(at 140.462 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "RGB1"
+			(at 141.224 71.882 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "liebler_OPTO:SK6812MINI-E_REV"
+			(at 144.78 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 146.05 79.375 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 145.288 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "c6e85b59-971c-4fa8-b268-aeb327a77c07")
+		)
+		(pin "2"
+			(uuid "ab6a1dd8-dce5-42c4-a420-3965b4268e39")
+		)
+		(pin "3"
+			(uuid "a898799b-d08e-4b0d-9287-b4cc16f6cabd")
+		)
+		(pin "4"
+			(uuid "dbcdfc97-7906-40e8-96d3-6a214ae12429")
+		)
+		(instances
+			(project "labathome_pcb15"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/7cc4a29d-fb70-4313-b60c-aaf23d93fc45"
+					(reference "D16")
 					(unit 1)
 				)
 			)
