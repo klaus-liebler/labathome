@@ -34,7 +34,9 @@
 #include "../../labathome_firmware_stm32arduino/src/stm32_esp32_communication.hh"
 #include "spilcd16.hh"
 #include "FullTextLineRenderer.hh"
+#include "qr_code_renderer.hh"
 #include "lcd_font.hh"
+#include "fonts/sans12pt1bpp.hh"
 
 
 FLASH_FILE(alarm_co2_mp3)
@@ -50,49 +52,47 @@ const uint8_t *SOUNDS[]  = {nullptr, alarm_co2_mp3_start, alarm_temperature_mp3_
 const size_t SONGS_LEN[] = {0,       alarm_co2_mp3_size,  alarm_temperature_mp3_size,  nok_mp3_size,  ok_mp3_size,  ready_mp3_size,  fanfare_mp3_size,  negative_mp3_size,  positive_mp3_size,  siren_mp3_size};
 
 
-typedef gpio_num_t Pintype;
+constexpr gpio_num_t PIN_BTN_GREEN = (gpio_num_t)0;
 
-constexpr Pintype PIN_BTN_GREEN = (Pintype)0;
+constexpr gpio_num_t PIN_CANTX = (gpio_num_t)1;
+constexpr gpio_num_t PIN_CANRX = (gpio_num_t)2;
 
-constexpr Pintype PIN_CANTX = (Pintype)1;
-constexpr Pintype PIN_CANRX = (Pintype)2;
+constexpr gpio_num_t PIN_RS485_DI = (gpio_num_t)40;
+constexpr gpio_num_t PIN_RS485_DE = (gpio_num_t)41;
+constexpr gpio_num_t PIN_RS485_RO = (gpio_num_t)42;
 
-constexpr Pintype PIN_RS485_DI = (Pintype)40;
-constexpr Pintype PIN_RS485_DE = (Pintype)41;
-constexpr Pintype PIN_RS485_RO = (Pintype)42;
+constexpr gpio_num_t PIN_EXT_CS = (gpio_num_t)3;
+constexpr gpio_num_t PIN_EXT_MISO = (gpio_num_t)9;
+constexpr gpio_num_t PIN_EXT_CLK = (gpio_num_t)10;
+constexpr gpio_num_t PIN_EXT_IO1 = (gpio_num_t)11;
+constexpr gpio_num_t PIN_EXT_IO2 = (gpio_num_t)12;
+constexpr gpio_num_t PIN_EXT_MOSI = (gpio_num_t)46;
 
-constexpr Pintype PIN_EXT_CS = (Pintype)3;
-constexpr Pintype PIN_EXT_MISO = (Pintype)9;
-constexpr Pintype PIN_EXT_CLK = (Pintype)10;
-constexpr Pintype PIN_EXT_IO1 = (Pintype)11;
-constexpr Pintype PIN_EXT_IO2 = (Pintype)12;
-constexpr Pintype PIN_EXT_MOSI = (Pintype)46;
+constexpr gpio_num_t PIN_I2C_SDA = (gpio_num_t)4;
+constexpr gpio_num_t PIN_I2C_SCL = (gpio_num_t)5;
+constexpr gpio_num_t PIN_I2C_IRQ = (gpio_num_t)6;
 
-constexpr Pintype PIN_I2C_SDA = (Pintype)4;
-constexpr Pintype PIN_I2C_SCL = (Pintype)5;
-constexpr Pintype PIN_I2C_IRQ = (Pintype)6;
+constexpr gpio_num_t PIN_uSD_CMD = (gpio_num_t)7;
+constexpr gpio_num_t PIN_uSD_CLK = (gpio_num_t)15;
+constexpr gpio_num_t PIN_uSD_D0 = (gpio_num_t)16;
 
-constexpr Pintype PIN_uSD_CMD = (Pintype)7;
-constexpr Pintype PIN_uSD_CLK = (Pintype)15;
-constexpr Pintype PIN_uSD_D0 = (Pintype)16;
+constexpr gpio_num_t PIN_LCD_DC = (gpio_num_t)8;
+constexpr gpio_num_t PIN_LCD_CLK = (gpio_num_t)17;
+constexpr gpio_num_t PIN_LCD_DAT = (gpio_num_t)18;
+constexpr gpio_num_t PIN_LCD_BL = (gpio_num_t)38;
 
-constexpr Pintype PIN_LCD_DC = (Pintype)8;
-constexpr Pintype PIN_LCD_CLK = (Pintype)17;
-constexpr Pintype PIN_LCD_DAT = (Pintype)18;
-constexpr Pintype PIN_LCD_BL = (Pintype)38;
+constexpr gpio_num_t PIN_TXD0 = (gpio_num_t)43;
+constexpr gpio_num_t PIN_RXD0 = (gpio_num_t)44;
 
-constexpr Pintype PIN_TXD0 = (Pintype)43;
-constexpr Pintype PIN_RXD0 = (Pintype)44;
+constexpr gpio_num_t PIN_I2S_MCLK = (gpio_num_t)14;
+constexpr gpio_num_t PIN_I2S_FS = (gpio_num_t)21;
+constexpr gpio_num_t PIN_I2S_DAC = (gpio_num_t)45;
+constexpr gpio_num_t PIN_I2S_ADC = (gpio_num_t)47;
+constexpr gpio_num_t PIN_I2S_BCLK = (gpio_num_t)48;
 
-constexpr Pintype PIN_I2S_MCLK = (Pintype)14;
-constexpr Pintype PIN_I2S_FS = (Pintype)21;
-constexpr Pintype PIN_I2S_DAC = (Pintype)45;
-constexpr Pintype PIN_I2S_ADC = (Pintype)47;
-constexpr Pintype PIN_I2S_BCLK = (Pintype)48;
+constexpr gpio_num_t PIN_LED_WS2812 = (gpio_num_t)13;
 
-constexpr Pintype PIN_LED_WS2812 = (Pintype)13;
-
-constexpr Pintype PIN_ONEWIRE = (Pintype)39;
+constexpr gpio_num_t PIN_ONEWIRE = (gpio_num_t)39;
 
 constexpr size_t ANALOG_INPUTS_LEN{2};
 constexpr size_t LED_NUMBER{4};
@@ -109,7 +109,7 @@ class HAL_Impl : public HAL
 private:
     //management objects
 
-    i2c_master_bus_handle_t i2c_master_handle;
+    i2c_master_bus_handle_t i2c_master_handle{nullptr};
     AHT::M *aht21dev{nullptr};
     BH1750::M* bh1750dev{nullptr};
     CCS811::M* ccs811dev{nullptr};
@@ -121,8 +121,8 @@ private:
     RGBLED::M<LED_NUMBER, RGBLED::DeviceType::WS2812> *strip{nullptr};
     AudioPlayer::Player *mp3player{nullptr};
     spilcd16::M<SPI2_HOST, PIN_LCD_DAT, PIN_LCD_CLK, GPIO_NUM_NC, PIN_LCD_DC, PIN_EXT_IO1, GPIO_NUM_NC, LCD240x240_0, (size_t)8*240, 4096, 0> display;
-    spilcd16::FullTextlineRenderer<24, 240, 5,5 >* lineRenderer{nullptr};
-
+    spilcd16::FullTextlineRenderer<32, 240, 5,5, 24>* lineRenderer{nullptr};
+    lcd_common::QrCodeRenderer<240, 240, 3>* qrRenderer{nullptr};
     
 
     //SensorValues
@@ -207,10 +207,40 @@ private:
     }
 
 
+    void ShowTextOnLcd(){
+        lineRenderer->printfl(0, Color::WHITE, Color::BLACK, "LabAtHomeV15");
+        display.Draw(lineRenderer);
+        lineRenderer->printfl(1, Color::WHITE, Color::BLACK, "ready for rumble");
+        display.Draw(lineRenderer);
+        lineRenderer->printfl(2, Color::WHITE, Color::BLACK, WIFISTA::GetHostname());
+        display.Draw(lineRenderer);
+        
+        if(WIFISTA::GetState()==WIFISTA::ConnectionState::CONNECTED){
+            lineRenderer->printfl(3, Color::WHITE, Color::GREEN, "WIFI Connected!");
+            esp_ip4_addr_t newIpAddress = WIFISTA::GetIpAddress();
+            lineRenderer->printfl(4, Color::WHITE, Color::BLACK, "IP:" IPSTR, IP2STR(&newIpAddress));
+            display.Draw(lineRenderer);
+        }
+        else{
+            lineRenderer->printfl(3, Color::WHITE, Color::RED, "WIFI NOT connected!");
+        }
+        display.Draw(lineRenderer);
+    }
+    void ShowQrCodeOnLcd(){
+        
+        if(!qrRenderer->HasValidData())
+            return;
+        qrRenderer->AllowRedraw();
+        display.Draw(qrRenderer);
+    }
+
 public:
     HAL_Impl(){}
 
     ErrorCode OutputOneLineStatus() override{
+        static uint32_t counter{0};
+        static esp_ip4_addr_t savedIpAddress{0};
+        
         uint32_t heap = esp_get_free_heap_size();
         bool red=GetButtonRedIsPressed();
         bool yel=GetButtonEncoderIsPressed();
@@ -239,6 +269,20 @@ public:
         GetAnalogInputs(&analogVolt);  
         ESP_LOGI(TAG, "Heap %6lu  RED %d YEL %d GRN %d MOV %d ENC %i SOUND %ld SUPPLY %4.1f BRGHT %4.1f HEAT %4.1f AIRT %4.1f AIRPRS %5.0f AIRHUM %3.0f CO2 %5.0f, ANALOGIN %4.1f",
                          heap,   red,   yel,   grn,   mov,   enc,   sound,    spply,      bright,     htrTemp,   airTemp,   airPres,     airHumid,     co2,       analogVolt[0]);
+        esp_ip4_addr_t newIpAddress = WIFISTA::GetIpAddress();
+        if(newIpAddress.addr!=savedIpAddress.addr){
+            char buffer [32];
+            snprintf(buffer, 31, "https://" IPSTR, IP2STR(&newIpAddress));//IPSTR, because Smartphones do not always have a MDNS service running
+            qrRenderer->DisplayText(buffer);
+            savedIpAddress=newIpAddress;
+
+        }
+        if(counter%2==0){
+            ShowTextOnLcd();
+        }else{
+            ShowQrCodeOnLcd();
+        }
+        counter++;
         return ErrorCode::OK;
     }
 
@@ -266,7 +310,7 @@ public:
     }
 
     ErrorCode GetEncoderValue(int *value){
-        ParseU16(this->stm2esp_buf, S2E::ROTENC_POS);
+        *value=ParseU16(this->stm2esp_buf, S2E::ROTENC_POS);
         return ErrorCode::OK;
     }
 
@@ -399,12 +443,8 @@ public:
         display.InitSpiAndGpio();
         display.Init_ST7789(Color::GREEN);
 
-        lineRenderer=new spilcd16::FullTextlineRenderer<24, 240, 5,5 >(&arial_and_symbols_24px1bpp::font);
-        lineRenderer->printfl(0, Color::WHITE, Color::BLACK, "Welcome!");
-        display.Draw(lineRenderer);
-
-        lineRenderer->printfl(1, Color::WHITE, Color::BLACK, WIFISTA::GetHostname());
-        display.Draw(lineRenderer);
+        lineRenderer=new spilcd16::FullTextlineRenderer<32, 240, 5,5, 24 >(&sans12pt1bpp::font);
+        qrRenderer=new lcd_common::QrCodeRenderer<240, 240, 3>();
 
         //MP3
         //nau88c22::M *codec = new nau88c22::M(i2c_master_handle,  PIN_I2S_MCLK, PIN_I2S_BCLK, PIN_I2S_FS, PIN_I2S_DAC);
@@ -433,13 +473,7 @@ public:
 
     ErrorCode AfterLoop() override
     {
-        static esp_ip4_addr_t savedIpAddress{0};
-        esp_ip4_addr_t newIpAddress = WIFISTA::GetIpAddress();
-        if(newIpAddress.addr!=savedIpAddress.addr){
-            lineRenderer->printfl(2, Color::WHITE, Color::BLACK, "IP:" IPSTR, IP2STR(&newIpAddress));
-            display.Draw(lineRenderer);
-            savedIpAddress=newIpAddress;
-        }
+
         strip->Refresh(100);  //checks internally, whether data is dirty and has to be pushed out
         return ErrorCode::OK;
     }

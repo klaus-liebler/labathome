@@ -81,12 +81,13 @@ Input Registers:
 static const char *TAG = "main";
 
 #include "HAL.hh"
-
-#include "HAL_labathomeV10.hh"
-static HAL * hal = new HAL_Impl(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR);
-
-//#include "HAL_labathomeV15.hh"
-//static HAL * hal = new HAL_Impl();
+#if (CONFIG_IDF_TARGET_ESP32)
+    #include "HAL_labathomeV10.hh"
+    static HAL * hal = new HAL_Impl(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR);
+#elif(CONFIG_IDF_TARGET_ESP32S3)
+#include "HAL_labathomeV15.hh"
+static HAL * hal = new HAL_Impl();
+#endif
 
 modbus::M<100000> *modbusSlave;
 

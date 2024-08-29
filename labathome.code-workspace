@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "espidf-component-labathome"
+		},
+		{
+			"path": "../espidf-components-lcd"
 		}
 	],
 	"settings": {
@@ -77,7 +80,32 @@
 			"xstddef": "cpp",
 			"xstring": "cpp",
 			"xtr1common": "cpp",
-			"xtree": "cpp"
+			"xtree": "cpp",
+			"condition_variable": "cpp",
+			"csetjmp": "cpp",
+			"cstdarg": "cpp",
+			"cwctype": "cpp",
+			"deque": "cpp",
+			"numbers": "cpp",
+			"numeric": "cpp",
+			"queue": "cpp",
+			"random": "cpp",
+			"semaphore": "cpp",
+			"set": "cpp",
+			"span": "cpp",
+			"stack": "cpp",
+			"unordered_set": "cpp",
+			"*.tcc": "cpp",
+			"bitset": "cpp",
+			"complex": "cpp",
+			"memory_resource": "cpp",
+			"netfwd": "cpp",
+			"regex": "cpp",
+			"string_view": "cpp",
+			"fstream": "cpp",
+			"future": "cpp",
+			"iostream": "cpp",
+			"variant": "cpp"
 		},
 		"liveServer.settings.multiRootWorkspaceName": "labathome_webui"
 	}

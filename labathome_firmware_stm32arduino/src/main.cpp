@@ -29,7 +29,7 @@ HardwareTimer *TIM_BL_DRV{nullptr}; // TIM1 for Brushless
 constexpr uint32_t BL_DRV_PH1_CH = 1;
 constexpr uint32_t BL_DRV_PH2_CH = 2;
 constexpr uint32_t BL_DRV_PH3_CH = 3;
-ROTARY_ENCODER::M encoder(PA0, PA1, ROTARY_ENCODER::MODE::SINGLE);
+ROTARY_ENCODER::M encoder;
 constexpr uint32_t ROTENC_A_CH = 1;
 constexpr uint32_t ROTENC_B_CH = 2;
 HardwareTimer *TIM_HALL{nullptr}; // TIM3 for Hall Sensors, ch 2,3,4
@@ -324,7 +324,7 @@ void app_loop1000ms(uint32_t now)
   //char* buf = errMan.GetLast8AsCharBuf_DoNotForgetToFree();
   byteBuf2hexCharBuf(logBuffer1, 96, I2C_SLAVE::s2e_buffer, S2E::SIZE);
   byteBuf2hexCharBuf(logBuffer2, 96, I2C_SLAVE::e2s_buffer, E2S::SIZE);
-  log_info("s2e=%s, e2s=%s", logBuffer1, logBuffer2);
+  log_info("enc=%d s2e=%s, e2s=%s", encoder.GetTicks(), logBuffer1, logBuffer2);
 
 }
 
