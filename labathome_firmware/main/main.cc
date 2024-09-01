@@ -15,6 +15,7 @@
 #include <nvs_flash.h>
 #include <esp_netif.h>
 
+constexpr TickType_t xFrequency {pdMS_TO_TICKS(50)};
 
 #ifndef CONFIG_ESP_HTTPS_SERVER_ENABLE
 #error "Enable HTTPS_SERVER in menuconfig!"
@@ -28,13 +29,13 @@
 static const char *TAG = "main";
 #include "HAL.hh"
 
-// #include "HAL_labathomeV5.hh"
-// HAL *hal = new HAL_labathome(MODE_IO33::SERVO2, MODE_MULTI1_PIN::I2S, MODE_MULTI_2_3_PINS::I2S);
-
-//#include "HAL_labathomeV10.hh"
-//static HAL * hal = new HAL_Impl(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR);
+#if (CONFIG_IDF_TARGET_ESP32)
+#include "HAL_labathomeV10.hh"
+static HAL * hal = new HAL_Impl(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR);
+#elif(CONFIG_IDF_TARGET_ESP32S3)
 #include "HAL_labathomeV15.hh"
-static HAL *hal = new HAL_Impl();
+static HAL * hal = new HAL_Impl();
+#endif
 
 #include "functionblocks.hh"
 #include "rgbled.hh"
@@ -196,9 +197,11 @@ void app_main(void)
     ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putptnexperiment));
 
     // Start eternal supervisor loop
+    TickType_t xLastWakeTime = xTaskGetTickCount();
     while (true)
     {
-        hal->OutputOneLineStatus();
-        vTaskDelay(pdMS_TO_TICKS(5000));
+        xTaskDelayUntil(&xLastWakeTime, xFrequency);
+        hal->DoMonitoring();
+        
     }
 }

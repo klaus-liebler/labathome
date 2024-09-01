@@ -91,6 +91,8 @@ static const char *TAG = "main";
 static HAL * hal = new HAL_Impl();
 #endif
 
+constexpr TickType_t xFrequency {pdMS_TO_TICKS(50)};
+
 modbus::M<100000> *modbusSlave;
 
 constexpr size_t COILS_CNT{16};
@@ -348,7 +350,7 @@ void mainTask(void* args){
 #endif
 
     TickType_t xLastWakeTime;
-    const TickType_t xFrequency = 10;
+    
     xLastWakeTime = xTaskGetTickCount();
     hal->GreetUserOnStartup();
     size_t rx_size{0};
@@ -422,10 +424,11 @@ extern "C" void app_main(void)
     
     hal->InitAndRun();
     xTaskCreate(mainTask, "mainTask", 4096 * 4, nullptr, 6, nullptr);
-    
+    TickType_t xLastWakeTime = xTaskGetTickCount();
     while (true)
     {
-        hal->OutputOneLineStatus();
-        vTaskDelay(pdMS_TO_TICKS(5000));
+         xTaskDelayUntil(&xLastWakeTime, xFrequency);
+        hal->DoMonitoring();
+    
     }
 }

@@ -239,19 +239,19 @@ private:
         // Es wird nicht unterschieden, ob der eingang "nur" zum Messen von analogen Spannung verwendet wird oder ob es sich um den Trigger-Eingang des Zeitrelais handelt. Im zweiten Fall muss einfach eine Zeitrelais-Schaltung basierend auf der Grenzüberschreitung des Analogen Messwertes in der Funktionsblock-Spache realisiert werden
         ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, CHANNEL_ANALOGIN_OR_ROTB, &adc_reading));
         ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_handle, adc_reading, &adc_calibrated));
-        this->AnalogInputVoltage_volts[0] = adc_calibrated/1000.; // die Multiplikation mit 11 wegen dem Spannungsteiler
+        this->AnalogInputVoltage_volts[0] = adc_calibrated / 1000.; // die Multiplikation mit 11 wegen dem Spannungsteiler
 
         ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, CHANNEL_MOVEMENT_OR_FAN1SENSE, &adc_reading));
         ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_handle, adc_reading, &adc_calibrated));
-        this->AnalogInputVoltage_volts[1] = adc_calibrated/1000.; // die Multiplikation mit 11 wegen dem Spannungsteiler
+        this->AnalogInputVoltage_volts[1] = adc_calibrated / 1000.; // die Multiplikation mit 11 wegen dem Spannungsteiler
 
         ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, CHANNEL_LDR_OR_ROTA, &adc_reading));
         ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_handle, adc_reading, &adc_calibrated));
-        this->AnalogInputVoltage_volts[2] = adc_calibrated/1000.;
+        this->AnalogInputVoltage_volts[2] = adc_calibrated / 1000.;
 
         ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, CHANNEL_SWITCHES, &adc_reading));
         ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_handle, adc_reading, &adc_calibrated));
-        this->AnalogInputVoltage_volts[3] = adc_calibrated/1000.;
+        this->AnalogInputVoltage_volts[3] = adc_calibrated / 1000.;
         int i = 0;
         for (i = 0; i < sizeof(sw_limits) / sizeof(uint16_t); i++)
         {
@@ -324,37 +324,42 @@ public:
     {
     }
 
-    ErrorCode OutputOneLineStatus() override
+    void DoMonitoring() override
     {
-        uint32_t heap = esp_get_free_heap_size();
-        bool red = GetButtonRedIsPressed();
-        bool yel = GetButtonEncoderIsPressed();
-        bool grn = GetButtonGreenIsPressed();
-        bool mov = IsMovementDetected();
-        float htrTemp{0.f};
-        int enc{0};
-        GetEncoderValue(&enc);
-        int32_t sound{0};
-        GetSound(&sound);
-        float spply = GetUSBCVoltage();
+        static int64_t nextOneLineStatus{0};
+        int64_t now = millis();
+        if (now > nextOneLineStatus)
+        {
+            uint32_t heap = esp_get_free_heap_size();
+            bool red = GetButtonRedIsPressed();
+            bool yel = GetButtonEncoderIsPressed();
+            bool grn = GetButtonGreenIsPressed();
+            bool mov = IsMovementDetected();
+            float htrTemp{0.f};
+            int enc{0};
+            GetEncoderValue(&enc);
+            int32_t sound{0};
+            GetSound(&sound);
+            float spply = GetUSBCVoltage();
 
-        float bright{0};
-        GetAmbientBrightness(&bright);
+            float bright{0};
+            GetAmbientBrightness(&bright);
 
-        GetHeaterTemperature(&htrTemp);
-        float airTemp{0.f};
-        GetAirTemperature(&airTemp);
-        float airPres{0};
-        GetAirPressure(&airPres);
-        float airHumid{0.f};
-        GetAirRelHumidity(&airHumid);
-        float co2{0};
-        GetCO2PPM(&co2);
-        float *analogVolt{nullptr};
-        GetAnalogInputs(&analogVolt);
-        ESP_LOGI(TAG, "Heap %6lu  RED %d YEL %d GRN %d MOV %d ENC %i SOUND %ld SUPPLY %4.1f BRGHT %4f HEAT %4.1f AIRT %4.1f AIRPRS %5f AIRHUM %3.0f CO2 %5f, ANALOGIN [%4.1f %4.1f]",
-                 heap, red, yel, grn, mov, enc, sound, spply, bright, htrTemp, airTemp, airPres, airHumid, co2, analogVolt[0], analogVolt[1]);
-        return ErrorCode::OK;
+            GetHeaterTemperature(&htrTemp);
+            float airTemp{0.f};
+            GetAirTemperature(&airTemp);
+            float airPres{0};
+            GetAirPressure(&airPres);
+            float airHumid{0.f};
+            GetAirRelHumidity(&airHumid);
+            float co2{0};
+            GetCO2PPM(&co2);
+            float *analogVolt{nullptr};
+            GetAnalogInputs(&analogVolt);
+            ESP_LOGI(TAG, "Heap %6lu  RED %d YEL %d GRN %d MOV %d ENC %i SOUND %ld SUPPLY %4.1f BRGHT %4f HEAT %4.1f AIRT %4.1f AIRPRS %5f AIRHUM %3.0f CO2 %5f, ANALOGIN [%4.1f %4.1f]",
+                     heap, red, yel, grn, mov, enc, sound, spply, bright, htrTemp, airTemp, airPres, airHumid, co2, analogVolt[0], analogVolt[1]);
+            nextOneLineStatus += 5000;
+        }
     }
 
     int64_t IRAM_ATTR GetMicros()
@@ -768,7 +773,7 @@ public:
         }
         else
         {
-             *dutyInPercent = mcpwm_get_duty(MCPWM_UNIT_0, MCPWM_TIMER_FAN, MCPWM_GEN_FAN2);
+            *dutyInPercent = mcpwm_get_duty(MCPWM_UNIT_0, MCPWM_TIMER_FAN, MCPWM_GEN_FAN2);
             return ErrorCode::OK;
         }
     }

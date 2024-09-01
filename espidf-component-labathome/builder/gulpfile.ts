@@ -104,7 +104,7 @@ exports.speech = async (cb: gulp.TaskFunctionCallback) => {
       // Select the language and SSML voice gender (optional)
       voice: { name: 'de-DE-Neural2-F', languageCode:"de-DE"},
       // select the type of audio encoding
-      audioConfig: { audioEncoding: google.cloud.texttospeech.v1.AudioEncoding.MP3 },
+      audioConfig: { audioEncoding: google.cloud.texttospeech.v1.AudioEncoding.MP3, sampleRateHertz: 22050 },
     };
     const [response] = await client.synthesizeSpeech(request);
     // Write the binary audio content to a local file

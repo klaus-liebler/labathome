@@ -47,7 +47,7 @@ class HAL
         virtual ErrorCode GetWifiRssiDb(float *db)=0;
         virtual int64_t GetMicros()=0;
         virtual uint32_t GetMillis()=0; 
-        virtual ErrorCode OutputOneLineStatus()=0;
+        virtual void DoMonitoring()=0;
         virtual ErrorCode GreetUserOnStartup()=0;
 
         virtual ErrorCode GetAmbientBrightnessAnalog(float *lux)=0;
