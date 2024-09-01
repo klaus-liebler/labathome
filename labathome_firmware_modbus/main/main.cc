@@ -77,6 +77,8 @@ Input Registers:
 #include <array>
 #include <nvs_flash.h>
 #include <spiffs.hh>
+#include <wifi_sta.hh>
+#include <breakout_renderer.hh>
 
 static const char *TAG = "main";
 
@@ -100,6 +102,7 @@ static std::vector<bool> coilData(COILS_CNT);
 static std::vector<bool> discreteInputsData(DISCRETE_INPUTS_CNT);
 static std::vector<uint16_t> inputRegisterData(INPUT_REGISTERS_CNT);
 static std::vector<uint16_t> holdingRegisterData(HOLDING_REGISTERS_CNT);
+#define NVS_PARTITION_NAME NVS_DEFAULT_PART_NAME
 
 
 void modbusAfterWriteCallback(uint8_t fc, uint16_t start, size_t len){
@@ -297,10 +300,6 @@ constexpr size_t UART_BUF_SIZE{1024};
 #elif defined(LABATHOME_V15)
 #include "tinyusb.h"
 #include "tusb_cdc_acm.h"
-
-
-
-
 #else
 #error "No Labathome version defined, see main.cc"
 #endif
@@ -356,6 +355,7 @@ void mainTask(void* args){
     size_t rx_size_max{0};
     size_t tx_size{64};
     uint8_t tx_buf[256+1];
+
     uint8_t* rx_buf{nullptr};
 #if defined(LABATHOME_V15)
     static uint8_t rx_buf_tmp[CFG_TUD_CDC_RX_BUFSIZE + 1];
@@ -408,16 +408,19 @@ void mainTask(void* args){
 
 extern "C" void app_main(void)
 {
-    hal->InitAndRun();
-    ESP_LOGI(TAG, "RED %d YEL %d GRN %d", hal->GetButtonRedIsPressed(), hal->GetButtonEncoderIsPressed(), hal->GetButtonGreenIsPressed());
-    esp_err_t err = nvs_flash_init();
-    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
+    
+    esp_err_t ret = nvs_flash_init_partition(NVS_PARTITION_NAME);
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
     {
         ESP_ERROR_CHECK(nvs_flash_erase());
-        err = nvs_flash_init();
+        ESP_ERROR_CHECK(nvs_flash_init_partition(NVS_PARTITION_NAME));
     }
-    ESP_ERROR_CHECK(err);
+
+    //Configure Network
+    #include "secrets.hh"
+    WIFISTA::InitAndRun(WIFI_SSID, WIFI_PASS, "labathome_%02x%02x%02x");
     
+    hal->InitAndRun();
     xTaskCreate(mainTask, "mainTask", 4096 * 4, nullptr, 6, nullptr);
     
     while (true)

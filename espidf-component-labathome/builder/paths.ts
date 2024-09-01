@@ -14,6 +14,7 @@ export const CERTIFICATES = path.join(ROOT, "certificates");
 export const FLATBUFFERS = path.join(ROOT, "flatbuffers");
 export const GENERATED = path.join(ROOT, "generated");
 export const TESTSERVER = path.join(ROOT, "testserver");
+export const SOUNDS = path.join(ROOT, "sounds");
 
 export const ROOT_CA_PEM_CRT = path.join(CERTIFICATES, "rootCA.pem.crt");
 export const ROOT_CA_PEM_PRVTKEY = path.join(CERTIFICATES, "rootCA.pem.key");

@@ -49,4 +49,13 @@ class HAL
         virtual uint32_t GetMillis()=0; 
         virtual ErrorCode OutputOneLineStatus()=0;
         virtual ErrorCode GreetUserOnStartup()=0;
+
+        virtual ErrorCode GetAmbientBrightnessAnalog(float *lux)=0;
+        virtual ErrorCode GetAmbientBrightnessDigital(float *lux)=0;
+        virtual ErrorCode GetAirTemperatureDS18B20(float *degreesCelcius)=0;
+        virtual ErrorCode GetAirTemperatureAHT21(float *degreesCelcius)=0;
+        virtual ErrorCode GetAirTemperatureBME280(float *degreesCelcius)=0;
+        virtual ErrorCode GetAirRelHumidityAHT21(float *percent)=0;
+        virtual ErrorCode GetAirRelHumidityBME280(float *percent)=0;
+        virtual ErrorCode GetDistanceMillimeters(uint16_t *value)=0;
 };

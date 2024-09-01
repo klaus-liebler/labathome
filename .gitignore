@@ -1,8 +1,8 @@
 **/node_modules
-labathome_firmware/build
+**/build
+**/certificates/
+**/managed_components/
+**/generated/
+**/dist/
 *-backups/
 doc/labathome.mp4
-labathome_borisuserdll/__history
-labathome_borisuserdll/__recovery
-ptnchen_borisuserdll/__history
-ptnchen_borisuserdll/__recovery

@@ -7,5 +7,6 @@ managed_components/
 .vscode/launch.json
 .vscode/ipch
 main/secrets.hh
+**/*secret*.*
 CMakeFiles/
 config/

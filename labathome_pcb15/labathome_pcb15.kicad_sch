@@ -4519,6 +4519,102 @@
 				)
 			)
 		)
+		(symbol "power:GNDA"
+			(power)
+			(pin_numbers hide)
+			(pin_names
+				(offset 0) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "#PWR"
+				(at 0 -6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Value" "GNDA"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Power symbol creates a global label with name \"GNDA\" , analog ground"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "global power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "GNDA_0_1"
+				(polyline
+					(pts
+						(xy 0 0) (xy 0 -1.27) (xy 1.27 -1.27) (xy 0 -2.54) (xy -1.27 -1.27) (xy 0 -1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "GNDA_1_1"
+				(pin power_in line
+					(at 0 0 270)
+					(length 0)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
 		(symbol "power:PWR_FLAG"
 			(power)
 			(pin_numbers hide)
@@ -4617,12 +4713,6 @@
 		)
 	)
 	(junction
-		(at 101.6 123.19)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "031b10fc-7dd6-40da-8751-b46fef3389bc")
-	)
-	(junction
 		(at 16.51 82.55)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4701,6 +4791,12 @@
 		(uuid "5ce365e8-a6e7-44ea-8a1b-c2798888d3f9")
 	)
 	(junction
+		(at 101.6 123.19)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "5e516c08-b40b-4d0c-8def-091113837ad1")
+	)
+	(junction
 		(at 203.2 38.1)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4717,12 +4813,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "784c54f1-2ffb-4c8d-81ca-22e677f518d5")
-	)
-	(junction
-		(at 100.33 123.19)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "9fa7ef8d-510b-4d2a-ad88-6e8133bba47d")
 	)
 	(junction
 		(at 24.13 31.75)
@@ -5328,16 +5418,6 @@
 		)
 		(uuid "a341ec18-c81d-4b13-8f72-01b873b3976d")
 	)
-	(wire
-		(pts
-			(xy 92.71 123.19) (xy 100.33 123.19)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ab137c63-5524-4714-a68e-2d6bf84253e4")
-	)
 	(polyline
 		(pts
 			(xy 12.7 95.25) (xy 173.99 95.25)
@@ -5627,16 +5707,6 @@
 			(type default)
 		)
 		(uuid "faee0972-8d64-4c3d-9c8c-85439a371d39")
-	)
-	(wire
-		(pts
-			(xy 100.33 123.19) (xy 101.6 123.19)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fb2a5759-5448-430a-808c-4cc1f68da16f")
 	)
 	(rectangle
 		(start 176.53 77.47)
@@ -7561,6 +7631,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GNDA")
+		(at 92.71 123.19 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "1f491f24-3cc5-4e93-9483-0843195becc6")
+		(property "Reference" "#PWR0125"
+			(at 92.71 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GNDA"
+			(at 92.71 128.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 92.71 123.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 92.71 123.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GNDA\" , analog ground"
+			(at 92.71 123.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "56af9fb0-db69-43d2-be49-50449979916e")
+		)
+		(instances
+			(project "labathome_pcb15"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac"
+					(reference "#PWR0125")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 33.02 102.87 90)
 		(unit 1)
@@ -8079,7 +8215,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0201_0603Metric"
 			(at 150.1648 128.27 0)
 			(effects
 				(font
@@ -8138,7 +8274,7 @@
 				)
 			)
 		)
-		(property "Value" "PROG"
+		(property "Value" "PROG ESP"
 			(at 195.58 81.8896 0)
 			(effects
 				(font
@@ -8232,7 +8368,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 17.272 114.3 90)
 			(effects
 				(font
@@ -8507,7 +8643,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 154.432 109.22 90)
 			(effects
 				(font
@@ -8697,7 +8833,7 @@
 				)
 			)
 		)
-		(property "Value" "1k"
+		(property "Value" "10k"
 			(at 85.09 121.92 90)
 			(effects
 				(font
@@ -8705,7 +8841,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 86.868 121.92 90)
 			(effects
 				(font
@@ -8779,7 +8915,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 109.982 144.78 90)
 			(effects
 				(font
@@ -8822,71 +8958,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 100.33 123.19 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "6796401e-0c88-4ced-a8a6-9855c4acf157")
-		(property "Reference" "#PWR0125"
-			(at 100.33 129.54 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 104.394 125.73 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 100.33 123.19 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 100.33 123.19 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 100.33 123.19 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "ac7843e2-067b-4803-8e91-a79cc3641626")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac"
-					(reference "#PWR0125")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:C")
 		(at 110.49 116.84 180)
 		(unit 1)
@@ -8913,7 +8984,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0201_0603Metric"
 			(at 109.5248 113.03 0)
 			(effects
 				(font
@@ -8982,7 +9053,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0201_0603Metric"
 			(at 17.4752 90.17 0)
 			(effects
 				(font
@@ -9187,7 +9258,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 140.462 116.84 90)
 			(effects
 				(font
@@ -9321,7 +9392,7 @@
 				)
 			)
 		)
-		(property "Value" "1k"
+		(property "Value" "k22"
 			(at 105.41 148.59 90)
 			(effects
 				(font
@@ -9398,7 +9469,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0201_0603Metric"
 			(at 110.7948 148.59 0)
 			(effects
 				(font
@@ -9538,7 +9609,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 134.112 121.92 90)
 			(effects
 				(font
@@ -9653,6 +9724,71 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 101.6 123.19 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "8c3675b9-0b6a-4195-b8ec-23013ee94d57")
+		(property "Reference" "#PWR0203"
+			(at 101.6 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 101.6 128.27 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 101.6 123.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 101.6 123.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 101.6 123.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "94fd095d-ba93-4f2b-a157-363456eaafed")
+		)
+		(instances
+			(project "labathome_pcb15"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac"
+					(reference "#PWR0203")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C")
 		(at 22.86 106.68 180)
 		(unit 1)
@@ -9679,7 +9815,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0201_0603Metric"
 			(at 21.8948 102.87 0)
 			(effects
 				(font
@@ -9747,7 +9883,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 79.502 148.59 90)
 			(effects
 				(font
@@ -10075,7 +10211,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 149.352 111.76 90)
 			(effects
 				(font
@@ -11680,7 +11816,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Button_Switch_THT:SW_PUSH-12mm"
+		(property "Footprint" "liebler_MECH:SW_Push_1P1T_NO_6x6mm_H6.5mm_Reverse"
 			(at 96.52 153.67 0)
 			(effects
 				(font
@@ -11746,7 +11882,7 @@
 				)
 			)
 		)
-		(property "Value" "1k"
+		(property "Value" "k22"
 			(at 105.41 113.03 90)
 			(effects
 				(font
@@ -11894,7 +12030,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 25.908 27.94 90)
 			(effects
 				(font
@@ -12316,7 +12452,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Button_Switch_THT:SW_PUSH-12mm"
+		(property "Footprint" "liebler_MECH:SW_Push_1P1T_NO_6x6mm_H6.5mm_Reverse"
 			(at 76.2 139.7 0)
 			(effects
 				(font
@@ -12391,7 +12527,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0201_0603Metric"
 			(at 25.0952 39.37 0)
 			(effects
 				(font
@@ -12597,7 +12733,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 108.712 109.22 90)
 			(effects
 				(font
@@ -12880,7 +13016,7 @@
 				)
 			)
 		)
-		(property "Value" "1k"
+		(property "Value" "10k"
 			(at 85.09 109.22 90)
 			(effects
 				(font
@@ -12888,7 +13024,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 86.868 109.22 90)
 			(effects
 				(font

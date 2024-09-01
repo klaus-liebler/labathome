@@ -15,7 +15,7 @@
 #include <nvs_flash.h>
 #include <esp_netif.h>
 
-#include <mdns.h>
+
 #ifndef CONFIG_ESP_HTTPS_SERVER_ENABLE
 #error "Enable HTTPS_SERVER in menuconfig!"
 #endif
@@ -158,7 +158,6 @@ void app_main(void)
         ESP_ERROR_CHECK(nvs_flash_init_partition(NVS_PARTITION_NAME));
     }
     ESP_ERROR_CHECK(SpiffsManager::Init());
-
 
     //Configure Network
     #include "secrets.hh"

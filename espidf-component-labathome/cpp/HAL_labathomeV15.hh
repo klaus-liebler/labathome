@@ -29,6 +29,8 @@
 #include <vl53l0x.hh>
 #include <aht_sensor.hh>
 #include <ds18b20.hh>
+
+#include <nau88c22.hh>
 #include <AudioPlayer.hh>
 
 #include "../../labathome_firmware_stm32arduino/src/stm32_esp32_communication.hh"
@@ -69,7 +71,8 @@ constexpr gpio_num_t PIN_EXT_IO2 = (gpio_num_t)12;
 constexpr gpio_num_t PIN_EXT_MOSI = (gpio_num_t)46;
 
 constexpr gpio_num_t PIN_I2C_SDA = (gpio_num_t)4;
-constexpr gpio_num_t PIN_I2C_SCL = (gpio_num_t)5;
+//constexpr gpio_num_t PIN_I2C_SCL = (gpio_num_t)5;
+constexpr gpio_num_t PIN_I2C_SCL = (gpio_num_t)10;
 constexpr gpio_num_t PIN_I2C_IRQ = (gpio_num_t)6;
 
 constexpr gpio_num_t PIN_uSD_CMD = (gpio_num_t)7;
@@ -152,7 +155,7 @@ private:
      
     void MP3Loop(){
       
-        while(mp3player){
+        while(true){
             mp3player->Loop();
         }
     }
@@ -210,21 +213,25 @@ private:
     void ShowTextOnLcd(){
         lineRenderer->printfl(0, Color::WHITE, Color::BLACK, "LabAtHomeV15");
         display.Draw(lineRenderer);
-        lineRenderer->printfl(1, Color::WHITE, Color::BLACK, "ready for rumble");
+        lineRenderer->printfl(1, Color::WHITE, Color::BLACK, "SSID: %s", WIFISTA::GetSsid());
         display.Draw(lineRenderer);
         lineRenderer->printfl(2, Color::WHITE, Color::BLACK, WIFISTA::GetHostname());
         display.Draw(lineRenderer);
         
         if(WIFISTA::GetState()==WIFISTA::ConnectionState::CONNECTED){
             lineRenderer->printfl(3, Color::WHITE, Color::GREEN, "WIFI Connected!");
+            display.Draw(lineRenderer);
             esp_ip4_addr_t newIpAddress = WIFISTA::GetIpAddress();
             lineRenderer->printfl(4, Color::WHITE, Color::BLACK, "IP:" IPSTR, IP2STR(&newIpAddress));
             display.Draw(lineRenderer);
         }
         else{
             lineRenderer->printfl(3, Color::WHITE, Color::RED, "WIFI NOT connected!");
+            display.Draw(lineRenderer);
+            lineRenderer->printfl(4, Color::WHITE, Color::BLACK, "IP: undefined");
+            display.Draw(lineRenderer);
         }
-        display.Draw(lineRenderer);
+        
     }
     void ShowQrCodeOnLcd(){
         
@@ -238,8 +245,8 @@ public:
     HAL_Impl(){}
 
     ErrorCode OutputOneLineStatus() override{
-        static uint32_t counter{0};
-        static esp_ip4_addr_t savedIpAddress{0};
+        
+        
         
         uint32_t heap = esp_get_free_heap_size();
         bool red=GetButtonRedIsPressed();
@@ -269,20 +276,7 @@ public:
         GetAnalogInputs(&analogVolt);  
         ESP_LOGI(TAG, "Heap %6lu  RED %d YEL %d GRN %d MOV %d ENC %i SOUND %ld SUPPLY %4.1f BRGHT %4.1f HEAT %4.1f AIRT %4.1f AIRPRS %5.0f AIRHUM %3.0f CO2 %5.0f, ANALOGIN %4.1f",
                          heap,   red,   yel,   grn,   mov,   enc,   sound,    spply,      bright,     htrTemp,   airTemp,   airPres,     airHumid,     co2,       analogVolt[0]);
-        esp_ip4_addr_t newIpAddress = WIFISTA::GetIpAddress();
-        if(newIpAddress.addr!=savedIpAddress.addr){
-            char buffer [32];
-            snprintf(buffer, 31, "https://" IPSTR, IP2STR(&newIpAddress));//IPSTR, because Smartphones do not always have a MDNS service running
-            qrRenderer->DisplayText(buffer);
-            savedIpAddress=newIpAddress;
-
-        }
-        if(counter%2==0){
-            ShowTextOnLcd();
-        }else{
-            ShowQrCodeOnLcd();
-        }
-        counter++;
+        
         return ErrorCode::OK;
     }
 
@@ -429,10 +423,13 @@ public:
         
         //ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, I2C_SETUP::STM32_I2C_ADDRESS, 1000));
         ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, (uint8_t)AHT::ADDRESS::DEFAULT_ADDRESS, 1000));
-        ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, 0x6A, 1000)); //LSM6DS3
+        //ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, 0x6A, 1000)); //LSM6DS3
         ESP_LOGI(TAG, "I2C bus successfully initialized and probed");
 
-
+        nau88c22::M *codec = new nau88c22::M(i2c_master_handle, PIN_I2S_MCLK, PIN_I2S_BCLK, PIN_I2S_FS, PIN_I2S_DAC);
+        mp3player = new AudioPlayer::Player(codec);
+        mp3player->Init();
+        xTaskCreate(mp3Task, "mp3task", 32768 * 4, this, 16, nullptr); //Stack Size = 4096 --> Stack overflow!!
 
         //LED Strip
         strip = new RGBLED::M<LED_NUMBER, RGBLED::DeviceType::WS2812>();
@@ -446,16 +443,10 @@ public:
         lineRenderer=new spilcd16::FullTextlineRenderer<32, 240, 5,5, 24 >(&sans12pt1bpp::font);
         qrRenderer=new lcd_common::QrCodeRenderer<240, 240, 3>();
 
-        //MP3
-        //nau88c22::M *codec = new nau88c22::M(i2c_master_handle,  PIN_I2S_MCLK, PIN_I2S_BCLK, PIN_I2S_FS, PIN_I2S_DAC);
-        //mp3player = new AudioPlayer::Player(codec);
-        //mp3player->Init();
-
-
-        GreetUserOnStartup();
+        //GreetUserOnStartup(); GreetUser is done in DeviceManager or in the main loop
         //Tasks
         xTaskCreate(sensorTask, "sensorTask", 4096 * 4, this, 6, nullptr);
-        //xTaskCreate(mp3Task, "mp3task", 6144 * 4, this, 16, nullptr); //Stack Size = 4096 --> Stack overflow!!
+        
         return ErrorCode::OK;
     }
 
@@ -470,11 +461,50 @@ public:
         }
         return ErrorCode::OK;
     }
-
+    uint16_t enc_old{0};
+    BREAKOUT::Renderer<240, 240> *breakout;
     ErrorCode AfterLoop() override
     {
-
+        static int easterEggCounter=0;
+        static uint32_t qr_info_counter{0};
+        static esp_ip4_addr_t savedIpAddress{0};
+        static int64_t nextPlannedScreenChange{0};
+        int64_t now = millis();
+        esp_ip4_addr_t newIpAddress = WIFISTA::GetIpAddress();
         strip->Refresh(100);  //checks internally, whether data is dirty and has to be pushed out
+        //ESP_LOGI(TAG, "Value=%d", !((easterEggCounter&0b1) ^ GetButtonGreenIsPressed()));
+        if(easterEggCounter<(INT_MAX-10) && !((easterEggCounter&0b1) ^ GetButtonGreenIsPressed())){
+            easterEggCounter++;
+            ESP_LOGI(TAG, "Noch %d", 6-easterEggCounter);
+        }
+        if(now<10000 && easterEggCounter>6 && easterEggCounter<(INT_MAX-1)) easterEggCounter=INT_MAX-1;
+        if(easterEggCounter==INT_MAX-1){
+            ESP_LOGI(TAG, "Das ist das Osterei!");
+            breakout = new BREAKOUT::Renderer<240, 240>(&sans12pt1bpp::font);
+            breakout->GameInit(&display);
+            easterEggCounter=INT_MAX;
+        }else if(easterEggCounter==INT_MAX){
+                uint16_t enc=ParseU16(stm2esp_buf, S2E::ROTENC_POS);
+                int diff = (int)enc-(int)enc_old;
+                breakout->GameLoop(diff*2, GetButtonRedIsPressed(), &display);
+                display.Draw(breakout);
+                enc_old=enc;
+        }else if(newIpAddress.addr!=savedIpAddress.addr){
+            char buffer [32];
+            snprintf(buffer, 31, "https://" IPSTR, IP2STR(&newIpAddress));//IPSTR, because Smartphones do not always have a MDNS service running
+            qrRenderer->DisplayText(buffer);
+            savedIpAddress=newIpAddress;
+            nextPlannedScreenChange+=3000;
+            qr_info_counter=1;
+        }else if(nextPlannedScreenChange>now && qr_info_counter%2==0){
+            ShowTextOnLcd();
+            qr_info_counter++;
+            nextPlannedScreenChange+=5000;
+        }else if(nextPlannedScreenChange>now && qr_info_counter%2==1){
+            ShowQrCodeOnLcd();
+            qr_info_counter++;
+            nextPlannedScreenChange+=5000;
+        }
         return ErrorCode::OK;
     }
 
@@ -580,7 +610,7 @@ public:
             strip->Refresh();
             vTaskDelay(pdMS_TO_TICKS(150));
         }    
-        SetSound(5);
+        mp3player->PlayMP3(ready_mp3_start, ready_mp3_size, 200, true);
         UnColorizeAllLed();
         return ErrorCode::OK;
     }

@@ -38,6 +38,6 @@ direct_dependencies:
 - espressif/ds18b20
 - espressif/mdns
 - idf
-manifest_hash: 5fb43e3f73b4cb8ab1f4544033b0f14f562a151652bd3df185142c6efc17e1e4
+manifest_hash: 50611bb858223f887817095c9071d875f6a5d247966bfc361dd73a2e0d8a6d38
 target: esp32s3
 version: 2.0.0
