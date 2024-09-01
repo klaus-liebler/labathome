@@ -8,6 +8,7 @@
 #include "devicemanager.hh"
 
 constexpr uint32_t TRIGGER_FALLBACK_TIME_MS = 3000;
+constexpr TickType_t xFrequency {pdMS_TO_TICKS(50)};
 constexpr const char *TAG = "devicemanager";
 
 #define SetBit(A, k) (A[(k / 32)] |= (1 << (k % 32)))
@@ -202,7 +203,7 @@ void DeviceManager::plcTask(void *pvParameters)
 void DeviceManager::EternalLoop(){   
     ESP_LOGI(TAG, "PLC Manager started");
     TickType_t xLastWakeTime;
-    const TickType_t xFrequency = 10;
+    
     // Initialise the xLastWakeTime variable with the current time.
     xLastWakeTime = xTaskGetTickCount();
     this->FindInitialExecutable();
@@ -211,7 +212,7 @@ void DeviceManager::EternalLoop(){
     ESP_LOGD(TAG, "devicemanager main loop starts");
     while (true)
     {
-        vTaskDelayUntil(&xLastWakeTime, xFrequency);
+        xTaskDelayUntil(&xLastWakeTime, xFrequency);
         ESP_LOGD(TAG, "CheckForNewExecutable");
         CheckForNewExecutable();
         ESP_LOGD(TAG, "BeforeLoop");

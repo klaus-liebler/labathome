@@ -78,7 +78,7 @@ Input Registers:
 #include <nvs_flash.h>
 #include <spiffs.hh>
 #include <wifi_sta.hh>
-#include <breakout_renderer.hh>
+
 
 static const char *TAG = "main";
 

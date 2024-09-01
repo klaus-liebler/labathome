@@ -37,6 +37,7 @@
 #include "spilcd16.hh"
 #include "FullTextLineRenderer.hh"
 #include "qr_code_renderer.hh"
+#include "breakout_renderer.hh"
 #include "lcd_font.hh"
 #include "fonts/sans12pt1bpp.hh"
 
@@ -475,11 +476,11 @@ public:
         //ESP_LOGI(TAG, "Value=%d", !((easterEggCounter&0b1) ^ GetButtonGreenIsPressed()));
         if(easterEggCounter<(INT_MAX-10) && !((easterEggCounter&0b1) ^ GetButtonGreenIsPressed())){
             easterEggCounter++;
-            ESP_LOGI(TAG, "Noch %d", 6-easterEggCounter);
+            //ESP_LOGI(TAG, "Noch %d", 6-easterEggCounter);
         }
         if(now<10000 && easterEggCounter>6 && easterEggCounter<(INT_MAX-1)) easterEggCounter=INT_MAX-1;
         if(easterEggCounter==INT_MAX-1){
-            ESP_LOGI(TAG, "Das ist das Osterei!");
+            ESP_LOGI(TAG, "Sie haben das Osterei gefunden!");
             breakout = new BREAKOUT::Renderer<240, 240>(&sans12pt1bpp::font);
             breakout->GameInit(&display);
             easterEggCounter=INT_MAX;
@@ -496,11 +497,11 @@ public:
             savedIpAddress=newIpAddress;
             nextPlannedScreenChange+=3000;
             qr_info_counter=1;
-        }else if(nextPlannedScreenChange>now && qr_info_counter%2==0){
+        }else if(now>nextPlannedScreenChange && qr_info_counter%2==0){
             ShowTextOnLcd();
             qr_info_counter++;
             nextPlannedScreenChange+=5000;
-        }else if(nextPlannedScreenChange>now && qr_info_counter%2==1){
+        }else if(now>nextPlannedScreenChange && qr_info_counter%2==1){
             ShowQrCodeOnLcd();
             qr_info_counter++;
             nextPlannedScreenChange+=5000;
