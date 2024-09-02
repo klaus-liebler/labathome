@@ -13588,7 +13588,7 @@
 				)
 			)
 		)
-		(property "Footprint" "liebler_CONN:IDC_2x03_P1.27mm_Vertical"
+		(property "Footprint" "liebler_CONN:PinHeader_2x03_P1.27mm_Vertical_SMD_handsolder"
 			(at 149.86 110.49 0)
 			(effects
 				(font
