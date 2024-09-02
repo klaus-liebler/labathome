@@ -108,7 +108,7 @@ exports.speech = async (cb: gulp.TaskFunctionCallback) => {
     };
     const [response] = await client.synthesizeSpeech(request);
     // Write the binary audio content to a local file
-    writeFileCreateDirLazy(path.join(P.SOUNDS, e.filename), response.audioContent as Uint8Array);
+    writeFileCreateDirLazy(path.join(P.SOUNDS, e.filename+".mp3"), response.audioContent as Uint8Array);
   });
 
 }
