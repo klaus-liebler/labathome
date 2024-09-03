@@ -4822,7 +4822,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "4k7"
+		(property "Value" "10k"
 			(at 92.71 86.36 90)
 			(effects
 				(font
@@ -4830,7 +4830,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 90.932 86.36 90)
 			(effects
 				(font
@@ -7389,7 +7389,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 93.472 40.64 90)
 			(effects
 				(font

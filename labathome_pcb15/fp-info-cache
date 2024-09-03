@@ -1,4 +1,4 @@
-24189890341685411
+24224095164518166
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -2305,7 +2305,7 @@ tactile switch Omron B3F right angle through hole
 Button_Switch_THT
 SW_Slide-03_Wuerth-WS-SLTV_10x2.5x6.4_P2.54mm
 Wuerth, WS-SLTV, 450301014042, https://www.we-online.com/components/products/datasheet/450301014042.pdf
-switch single-pole double-throw SPDT würth wurth
+switch single-pole opposite-side-connection double-throw SPDT würth wurth
 0
 3
 3
@@ -8316,6 +8316,13 @@ Combo Connector microSD and microSIM
 25
 18
 Connector_Card
+SD_Card_Device_16mm_SlotDepth
+SD card device PCB layout, contacts and mechanicalm, 16mm slot depth. Manufacture with PCB thickness of 1.4mm, http://www.convict.lu/pdf/ProdManualSDCardv1.9.pdf
+SD Card
+0
+9
+9
+Connector_Card
 SD_Hirose_DM1AA_SF_PEJ82
 SD, SMD, top-mount, push-push (https://www.hirose.com/product/document?clcode=CL0609-0004-8-82&productname=DM1AA-SF-PEJ(82)&series=DM1&documenttype=2DDrawing&lang=en&documentid=0000915301)
 SD card connector
@@ -8590,6 +8597,13 @@ SMA THT Female Jack Horizontal
 2
 Connector_Coaxial
 SMA_Samtec_SMA-J-P-H-ST-EM1_EdgeMount
+Connector SMA, 0Hz to 20GHz, 50Ohm, Edge Mount (http://suddendocs.samtec.com/prints/sma-j-p-x-st-em1-mkt.pdf)
+SMA Straight Samtec Edge Mount
+0
+5
+2
+Connector_Coaxial
+SMA_Samtec_SMA-J-P-X-ST-EM1_EdgeMount
 Connector SMA, 0Hz to 20GHz, 50Ohm, Edge Mount (http://suddendocs.samtec.com/prints/sma-j-p-x-st-em1-mkt.pdf)
 SMA Straight Samtec Edge Mount
 0
@@ -48488,258 +48502,6 @@ conn samtec discrete wire terminal
 0
 22
 21
-Connector_Samtec_MicroPower
-Samtec_UMPS-02-XX.X-X-V-S-W_1x02-1MP_P2.0mm_Socket_WeldTab
-2.00 mm mPOWER Ultra Micro Power Socket (source: https://suddendocs.samtec.com/prints/umps-xx-xx.x-xx-v-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power socket
-0
-10
-3
-Connector_Samtec_MicroPower
-Samtec_UMPS-02-XX.X-X-V-S_1x02_P2.0mm_Socket
-2.00 mm mPOWER Ultra Micro Power Socket (source: https://suddendocs.samtec.com/prints/umps-xx-xx.x-xx-v-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power socket
-0
-2
-2
-Connector_Samtec_MicroPower
-Samtec_UMPS-03-XX.X-X-V-S-W_1x03-1MP_P2.0mm_Socket_WeldTab
-2.00 mm mPOWER Ultra Micro Power Socket (source: https://suddendocs.samtec.com/prints/umps-xx-xx.x-xx-v-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power socket
-0
-11
-4
-Connector_Samtec_MicroPower
-Samtec_UMPS-03-XX.X-X-V-S_1x03_P2.0mm_Socket
-2.00 mm mPOWER Ultra Micro Power Socket (source: https://suddendocs.samtec.com/prints/umps-xx-xx.x-xx-v-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power socket
-0
-3
-3
-Connector_Samtec_MicroPower
-Samtec_UMPS-04-XX.X-X-V-S-W_1x04-1MP_P2.0mm_Socket_WeldTab
-2.00 mm mPOWER Ultra Micro Power Socket (source: https://suddendocs.samtec.com/prints/umps-xx-xx.x-xx-v-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power socket
-0
-12
-5
-Connector_Samtec_MicroPower
-Samtec_UMPS-04-XX.X-X-V-S_1x04_P2.0mm_Socket
-2.00 mm mPOWER Ultra Micro Power Socket (source: https://suddendocs.samtec.com/prints/umps-xx-xx.x-xx-v-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power socket
-0
-4
-4
-Connector_Samtec_MicroPower
-Samtec_UMPS-05-XX.X-X-V-S-W_1x05-1MP_P2.0mm_Socket_WeldTab
-2.00 mm mPOWER Ultra Micro Power Socket (source: https://suddendocs.samtec.com/prints/umps-xx-xx.x-xx-v-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power socket
-0
-13
-6
-Connector_Samtec_MicroPower
-Samtec_UMPS-05-XX.X-X-V-S_1x05_P2.0mm_Socket
-2.00 mm mPOWER Ultra Micro Power Socket (source: https://suddendocs.samtec.com/prints/umps-xx-xx.x-xx-v-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power socket
-0
-5
-5
-Connector_Samtec_MicroPower
-Samtec_UMPS-06-XX.X-X-V-S-W_1x06-1MP_P2.0mm_Socket_WeldTab
-2.00 mm mPOWER Ultra Micro Power Socket (source: https://suddendocs.samtec.com/prints/umps-xx-xx.x-xx-v-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power socket
-0
-14
-7
-Connector_Samtec_MicroPower
-Samtec_UMPS-06-XX.X-X-V-S_1x06_P2.0mm_Socket
-2.00 mm mPOWER Ultra Micro Power Socket (source: https://suddendocs.samtec.com/prints/umps-xx-xx.x-xx-v-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power socket
-0
-6
-6
-Connector_Samtec_MicroPower
-Samtec_UMPS-07-XX.X-X-V-S-W_1x07-1MP_P2.0mm_Socket_WeldTab
-2.00 mm mPOWER Ultra Micro Power Socket (source: https://suddendocs.samtec.com/prints/umps-xx-xx.x-xx-v-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power socket
-0
-15
-8
-Connector_Samtec_MicroPower
-Samtec_UMPS-07-XX.X-X-V-S_1x07_P2.0mm_Socket
-2.00 mm mPOWER Ultra Micro Power Socket (source: https://suddendocs.samtec.com/prints/umps-xx-xx.x-xx-v-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power socket
-0
-7
-7
-Connector_Samtec_MicroPower
-Samtec_UMPS-08-XX.X-X-V-S-W_1x08-1MP_P2.0mm_Socket_WeldTab
-2.00 mm mPOWER Ultra Micro Power Socket (source: https://suddendocs.samtec.com/prints/umps-xx-xx.x-xx-v-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power socket
-0
-16
-9
-Connector_Samtec_MicroPower
-Samtec_UMPS-08-XX.X-X-V-S_1x08_P2.0mm_Socket
-2.00 mm mPOWER Ultra Micro Power Socket (source: https://suddendocs.samtec.com/prints/umps-xx-xx.x-xx-v-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power socket
-0
-8
-8
-Connector_Samtec_MicroPower
-Samtec_UMPS-09-XX.X-X-V-S-W_1x09-1MP_P2.0mm_Socket_WeldTab
-2.00 mm mPOWER Ultra Micro Power Socket (source: https://suddendocs.samtec.com/prints/umps-xx-xx.x-xx-v-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power socket
-0
-17
-10
-Connector_Samtec_MicroPower
-Samtec_UMPS-09-XX.X-X-V-S_1x09_P2.0mm_Socket
-2.00 mm mPOWER Ultra Micro Power Socket (source: https://suddendocs.samtec.com/prints/umps-xx-xx.x-xx-v-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power socket
-0
-9
-9
-Connector_Samtec_MicroPower
-Samtec_UMPS-10-XX.X-X-V-S-W_1x10-1MP_P2.0mm_Socket_WeldTab
-2.00 mm mPOWER Ultra Micro Power Socket (source: https://suddendocs.samtec.com/prints/umps-xx-xx.x-xx-v-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power socket
-0
-18
-11
-Connector_Samtec_MicroPower
-Samtec_UMPS-10-XX.X-X-V-S_1x10_P2.0mm_Socket
-2.00 mm mPOWER Ultra Micro Power Socket (source: https://suddendocs.samtec.com/prints/umps-xx-xx.x-xx-v-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power socket
-0
-10
-10
-Connector_Samtec_MicroPower
-Samtec_UMPT-02-XX.X-X-V-S-W_1x02-1MP_P2.0mm_Terminal_WeldTab
-2.00 mm mPOWER Ultra Micro Power Terminal, Vertical (source: https://suddendocs.samtec.com/prints/umpt-xx-xx.x-xx-v-x-x-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power terminal
-0
-10
-3
-Connector_Samtec_MicroPower
-Samtec_UMPT-02-XX.X-X-V-S_1x02_P2.0mm_Terminal
-2.00 mm mPOWER Ultra Micro Power Terminal, Vertical (source: https://suddendocs.samtec.com/prints/umpt-xx-xx.x-xx-v-x-x-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power terminal
-0
-2
-2
-Connector_Samtec_MicroPower
-Samtec_UMPT-03-XX.X-X-V-S-W_1x03-1MP_P2.0mm_Terminal_WeldTab
-2.00 mm mPOWER Ultra Micro Power Terminal, Vertical (source: https://suddendocs.samtec.com/prints/umpt-xx-xx.x-xx-v-x-x-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power terminal
-0
-11
-4
-Connector_Samtec_MicroPower
-Samtec_UMPT-03-XX.X-X-V-S_1x03_P2.0mm_Terminal
-2.00 mm mPOWER Ultra Micro Power Terminal, Vertical (source: https://suddendocs.samtec.com/prints/umpt-xx-xx.x-xx-v-x-x-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power terminal
-0
-3
-3
-Connector_Samtec_MicroPower
-Samtec_UMPT-04-XX.X-X-V-S-W_1x04-1MP_P2.0mm_Terminal_WeldTab
-2.00 mm mPOWER Ultra Micro Power Terminal, Vertical (source: https://suddendocs.samtec.com/prints/umpt-xx-xx.x-xx-v-x-x-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power terminal
-0
-12
-5
-Connector_Samtec_MicroPower
-Samtec_UMPT-04-XX.X-X-V-S_1x04_P2.0mm_Terminal
-2.00 mm mPOWER Ultra Micro Power Terminal, Vertical (source: https://suddendocs.samtec.com/prints/umpt-xx-xx.x-xx-v-x-x-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power terminal
-0
-4
-4
-Connector_Samtec_MicroPower
-Samtec_UMPT-05-XX.X-X-V-S-W_1x05-1MP_P2.0mm_Terminal_WeldTab
-2.00 mm mPOWER Ultra Micro Power Terminal, Vertical (source: https://suddendocs.samtec.com/prints/umpt-xx-xx.x-xx-v-x-x-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power terminal
-0
-13
-6
-Connector_Samtec_MicroPower
-Samtec_UMPT-05-XX.X-X-V-S_1x05_P2.0mm_Terminal
-2.00 mm mPOWER Ultra Micro Power Terminal, Vertical (source: https://suddendocs.samtec.com/prints/umpt-xx-xx.x-xx-v-x-x-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power terminal
-0
-5
-5
-Connector_Samtec_MicroPower
-Samtec_UMPT-06-XX.X-X-V-S-W_1x06-1MP_P2.0mm_Terminal_WeldTab
-2.00 mm mPOWER Ultra Micro Power Terminal, Vertical (source: https://suddendocs.samtec.com/prints/umpt-xx-xx.x-xx-v-x-x-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power terminal
-0
-14
-7
-Connector_Samtec_MicroPower
-Samtec_UMPT-06-XX.X-X-V-S_1x06_P2.0mm_Terminal
-2.00 mm mPOWER Ultra Micro Power Terminal, Vertical (source: https://suddendocs.samtec.com/prints/umpt-xx-xx.x-xx-v-x-x-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power terminal
-0
-6
-6
-Connector_Samtec_MicroPower
-Samtec_UMPT-07-XX.X-X-V-S-W_1x07-1MP_P2.0mm_Terminal_WeldTab
-2.00 mm mPOWER Ultra Micro Power Terminal, Vertical (source: https://suddendocs.samtec.com/prints/umpt-xx-xx.x-xx-v-x-x-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power terminal
-0
-15
-8
-Connector_Samtec_MicroPower
-Samtec_UMPT-07-XX.X-X-V-S_1x07_P2.0mm_Terminal
-2.00 mm mPOWER Ultra Micro Power Terminal, Vertical (source: https://suddendocs.samtec.com/prints/umpt-xx-xx.x-xx-v-x-x-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power terminal
-0
-7
-7
-Connector_Samtec_MicroPower
-Samtec_UMPT-08-XX.X-X-V-S-W_1x08-1MP_P2.0mm_Terminal_WeldTab
-2.00 mm mPOWER Ultra Micro Power Terminal, Vertical (source: https://suddendocs.samtec.com/prints/umpt-xx-xx.x-xx-v-x-x-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power terminal
-0
-16
-9
-Connector_Samtec_MicroPower
-Samtec_UMPT-08-XX.X-X-V-S_1x08_P2.0mm_Terminal
-2.00 mm mPOWER Ultra Micro Power Terminal, Vertical (source: https://suddendocs.samtec.com/prints/umpt-xx-xx.x-xx-v-x-x-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power terminal
-0
-8
-8
-Connector_Samtec_MicroPower
-Samtec_UMPT-09-XX.X-X-V-S-W_1x09-1MP_P2.0mm_Terminal_WeldTab
-2.00 mm mPOWER Ultra Micro Power Terminal, Vertical (source: https://suddendocs.samtec.com/prints/umpt-xx-xx.x-xx-v-x-x-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power terminal
-0
-17
-10
-Connector_Samtec_MicroPower
-Samtec_UMPT-09-XX.X-X-V-S_1x09_P2.0mm_Terminal
-2.00 mm mPOWER Ultra Micro Power Terminal, Vertical (source: https://suddendocs.samtec.com/prints/umpt-xx-xx.x-xx-v-x-x-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power terminal
-0
-9
-9
-Connector_Samtec_MicroPower
-Samtec_UMPT-10-XX.X-X-V-S-W_1x10-1MP_P2.0mm_Terminal_WeldTab
-2.00 mm mPOWER Ultra Micro Power Terminal, Vertical (source: https://suddendocs.samtec.com/prints/umpt-xx-xx.x-xx-v-x-x-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power terminal
-0
-18
-11
-Connector_Samtec_MicroPower
-Samtec_UMPT-10-XX.X-X-V-S_1x10_P2.0mm_Terminal
-2.00 mm mPOWER Ultra Micro Power Terminal, Vertical (source: https://suddendocs.samtec.com/prints/umpt-xx-xx.x-xx-v-x-x-x-x-xr-footprint.pdf)
-conn samtec ultra-mirco-power terminal
-0
-10
-10
 Connector_Stocko
 Stocko_MKS_1651-6-0-202_1x2_P2.50mm_Vertical
 Stocko MKS 16xx series connector, (https://www.stocko-contact.com/downloads/steckverbindersystem-raster-2,5-mm.pdf#page=15), generated with kicad-footprint-generator
@@ -49615,6 +49377,13 @@ usb usb-c 2.0 pd
 0
 20
 17
+Connector_USB
+USB_C_Receptacle_HRO_TYPE-C-31-M-17
+USB Type-C receptacle for USB 2.0, 6 pin, https://omo-oss-file.thefastfile.com/portal-saas/new2023011311465142457/cms/file/134891b2-9b01-4104-89d3-96207243f692.pdf
+usb usb-c 2.0 pd
+0
+10
+7
 Connector_USB
 USB_C_Receptacle_JAE_DX07S016JA1R1500
 USB TYPE C, USB 2.0, SMT, https://www.jae.com/en/connectors/series/detail/product/id=91780
@@ -71400,9 +71169,16 @@ DFN 0.45
 11
 9
 Package_DFN_QFN
+DFN-8-1EP_2x3mm_P0.5mm_EP0.56x2.15mm
+DFN, 8 Pin (https://www.analog.com/media/en/technical-documentation/data-sheets/2451fg.pdf#page=17), generated with kicad-footprint-generator ipc_noLead_generator.py
+DFN NoLead
+0
+11
+9
+Package_DFN_QFN
 DFN-8-1EP_2x3mm_P0.5mm_EP0.61x2.2mm
 DFN, 8 Pin (https://www.analog.com/media/en/package-pcb-resources/package/pkg_pdf/ltc-legacy-dfn/05081702_c_ddb8.pdf), generated with kicad-footprint-generator ipc_noLead_generator.py
-DFN NoLead Linear-DDB
+DFN NoLead
 0
 11
 9
@@ -74633,6 +74409,13 @@ ti vqfn-hr rnn0018a
 0
 26
 18
+Package_DFN_QFN
+Texas_RPU0010A_VQFN-HR-10_2x2mm_P0.5mm
+VQFN-HR, 10 Pin (https://www.ti.com/lit/ds/symlink/tps62912.pdf#page=39)
+VQFN-HR NO LEAD
+0
+10
+10
 Package_DFN_QFN
 Texas_RSA_VQFN-16-1EP_4x4mm_P0.65mm_EP2.7x2.7mm
 Texas RSA VQFN, 16 Pin (http://www.ti.com/lit/ds/symlink/msp430g2001.pdf#page=44), generated with kicad-footprint-generator ipc_noLead_generator.py
@@ -78106,6 +77889,13 @@ Rohm LGA NoLead
 10
 10
 Package_LGA
+Rohm_MLGA010V020A_LGA-10_2x2mm_P0.45mm_LayoutBorder_3x2y
+Rohm  LGA, 10 Pin (https://fscdn.rohm.com/en/techdata_basic/ic/package/Jisso_MLGA010V020A-1-2_Rev005s_E2(MSL3).pdf)
+Rohm LGA NoLead
+0
+10
+10
+Package_LGA
 ST_HLGA-10_2.5x2.5mm_P0.6mm_LayoutBorder3x2y
 ST  HLGA, 10 Pin (https://www.st.com/resource/en/datasheet/lps25hb.pdf#page=46), generated with kicad-footprint-generator ipc_noLead_generator.py
 ST HLGA NoLead
@@ -81427,6 +81217,20 @@ Package_SO
 VSSOP-8_2.3x2mm_P0.5mm
 VSSOP, 8 Pin (https://www.jedec.org/standards-documents/docs/mo-187-f), generated with kicad-footprint-generator ipc_gullwing_generator.py
 VSSOP SO JEDEC-MO-187-CA TI-DCU0008A
+0
+8
+8
+Package_SO
+VSSOP-8_2.4x2.1mm_P0.5mm
+http://www.ti.com/lit/ml/mpds050d/mpds050d.pdf
+VSSOP DCU R-PDSO-G8 Pitch0.5mm
+0
+8
+8
+Package_SO
+VSSOP-8_3.0x3.0mm_P0.65mm
+VSSOP-8 3.0 x 3.0, http://www.ti.com/lit/ds/symlink/lm75b.pdf
+VSSOP-8 3.0 x 3.0
 0
 8
 8
@@ -87150,6 +86954,13 @@ DPDT relay, Finder 40.52, 8A, 250V, body size 29x12.4mm, height 25mm, pitch 5x7.
 8
 8
 Relay_THT
+Relay_DPDT_Finder_40.62
+DPDT relay, Finder 40.62, 10A, 250V, body size 29x12.4mm, height 25mm, pitch 5x7.5mm, https://cdn.findernet.com/app/uploads/S40EN.pdf
+2-Form-C
+0
+8
+8
+Relay_THT
 Relay_DPDT_Fujitsu_FTR-F1C
 https://www.fujitsu.com/downloads/MICRO/fcai/relays/ftr-f1.pdf
 relay dpdt fujitsu tht
@@ -87352,6 +87163,13 @@ SPDT relay, Finder 40.52, 10/12A, 250V, body size 29x12.4mm, height 25mm, pitch 
 0
 5
 5
+Relay_THT
+Relay_SPDT_Finder_40.61
+SPDT relay, Finder 40.61, 16A, 250V, body size 29x12.4mm, height 25mm, pitch 5x7.5mm, https://cdn.findernet.com/app/uploads/S40EN.pdf
+2-Form-C
+0
+8
+8
 Relay_THT
 Relay_SPDT_Fujitsu_FTR-LYCA005x_FormC_Vertical
 Relay, SPDT Form C, vertical mount, 6A, 5-60V, https://www.fujitsu.com/sg/imagesgig5/ftr-ly.pdf
@@ -89543,6 +89361,13 @@ hall current
 0
 6
 6
+Sensor_Current
+LEM_LA25-NP
+LEM LA 25-NP Current Transducer (https://www.lem.com/sites/default/files/products_datasheets/la%2025-np.pdf)
+Current sensor LEM
+0
+13
+13
 Sensor_Current
 LEM_LA25-P
 LEM Current Transducer (https://www.lem.com/sites/default/files/products_datasheets/la_25-p.pdf)
@@ -97160,13 +96985,6 @@ Through hole pin header THT 1x03 2.54mm single row
 3
 3
 liebler_CONN
-PinHeader_2x03_P1.27mm_Vertical_SMD_handsolder
-surface-mounted straight pin header, 2x03, 1.27mm pitch, double rows
-Surface mounted pin header SMD 2x03 1.27mm double row
-0
-6
-6
-liebler_CONN
 PinHeader_2x04_P1.27mm_Horizontal_CenterRef
 Through hole angled pin header, 2x04, 1.27mm pitch, 4.0mm pin length, double rows
 Through hole angled pin header THT 2x04 1.27mm double row
@@ -97646,13 +97464,6 @@ liebler_MECH
 SW_PUSH_6mm_narrow
 https://www.omron.com/ecb/products/pdf/en-b3f.pdf
 tact sw push 6mm
-0
-4
-2
-liebler_MECH
-SW_Push_1P1T_NO_6x6mm_H6.5mm_Reverse
-tactile push button, 6x6mm e.g. PTS645xx series, height=9.5mm
-tact sw push 6mm smd
 0
 4
 2
