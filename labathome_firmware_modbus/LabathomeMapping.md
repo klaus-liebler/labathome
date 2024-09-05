@@ -1,26 +1,50 @@
-# Modbus Mapping
+# General Modbus Informations
 
-These are the addresses and the formats at LabAtHome
+## Register
+
+| REGISTERNUMBER | REGISTERADRESS HEX | TYP | NAME | TYP |
+|:---:|:---:|:---:|:---:|:---:|
+|1-9999| 0000 to 270E| Read / Write | Discrete Output Coils| DO|
+|10001-19999| 0000 to 270E| Read | Discrete Input Contacts| DI|
+|30001-39999| 0000 to 270E| Write | Analog Input Registers| AI|
+|40001-49999| 0000 to 270E| Read / Write | Analog Output / Holding Registers| AO|
+
+## Functioncodes
+
+| FUNCTIONCODES | FUNCTION | TYPE | ACCESTYPE |
+|:---:|:---:|:---:|:---:|
+| 01 (0x01) | Read DO, Read Discrete Output Coil | Bool | Read |
+| 02 (0x02) | Read DI, Read Discrete Input Contact | Bool | Read |
+| 03 (0x03) | Read AO, Read Analog Output Holding Register | 16 Bit | Read |
+| 04 (0x04) | Read AI, Read Analog Input Register | 16 Bit | Read |
+| 05 (0x05) | Write Discrete Output Coil | Bool | Write |
+| 06 (0x06) | Write Single Analog Output / Holding Registers | 16 Bit | Write |
+| 15 (0x0F) | Write Multiple Discrete Output Coils | Bool | Write Multiple |
+| 16 (0x10) | Write Multiple Analog Outputs / Holding Registers | 16 Bit | Write Multiple |
+
+## Modbus Mapping
+
+These are the addresses and the formats at Lab@Home by Klaus Liebler.  
 Adresses are **0-Based**.
 
-## Discrete Output Coils
+### Discrete Output Coils (FC5 / FC15)
 
-|Registrer (0-Based)| Function|
+|Registrer (0-Based) [Offset]| Function|
 |:---:|:---:|
 |0|Relay K3|
 
-## Discrete Input Contacts
+### Discrete Input Contacts (FC2)
 
-|Registrer (0-Based)| Function|
+|Registrer (0-Based) [Offset]| Function|
 |:---:|:---:|
 |0|Green Button|
 |1|Red Button|
 |2|Yellow / Encoder Button |
 |3|Movement Sensor|
 
-## Holding Registers
+### Holding Registers (FC3 / FC6)
 
-|Registrer (0-Based)| Function|
+|Registrer (0-Based) [Offset]| Function|
 |:---:|:---:|
 | 0| Not connected|
 | 1| Servo 0, Position in Degrees 0...180|
@@ -38,9 +62,9 @@ Adresses are **0-Based**.
 |13| Relay State (Alternative to Coil 0), 0 means off, all other values on|
 |14| Play Sound, 0 means silence; try other values up to 9|
 
-## Input Registers
+### Input Registers (FC 4)
 
-|Registrer (0-Based)| Function|
+|Registrer (0-Based) [Offset]| Function|
 |:---:|:---:|
 |0| CO2 [PPM]|
 |1| Air Pressure [hPa]|
