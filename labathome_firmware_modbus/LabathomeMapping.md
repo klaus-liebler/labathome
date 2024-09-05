@@ -1,4 +1,4 @@
-# General Modbus Informations
+# General Modbus Information
 
 ## Register
 
@@ -9,7 +9,7 @@
 |30001-39999| 0000 to 270E| Write | Analog Input Registers| AI|
 |40001-49999| 0000 to 270E| Read / Write | Analog Output / Holding Registers| AO|
 
-## Functioncodes
+## Function Codes
 
 | FUNCTIONCODES | FUNCTION | TYPE | ACCESTYPE |
 |:---:|:---:|:---:|:---:|
@@ -29,13 +29,13 @@ Adresses are **0-Based**.
 
 ### Discrete Output Coils (FC5 / FC15)
 
-|Registrer (0-Based) [Offset]| Function|
+|Register (0-Based) [Offset]| Function|
 |:---:|:---:|
 |0|Relay K3|
 
 ### Discrete Input Contacts (FC2)
 
-|Registrer (0-Based) [Offset]| Function|
+|Register (0-Based) [Offset]| Function|
 |:---:|:---:|
 |0|Green Button|
 |1|Red Button|
@@ -44,7 +44,7 @@ Adresses are **0-Based**.
 
 ### Holding Registers (FC3 / FC6)
 
-|Registrer (0-Based) [Offset]| Function|
+|Register (0-Based) [Offset]| Function|
 |:---:|:---:|
 | 0| Not connected|
 | 1| Servo 0, Position in Degrees 0...180|
@@ -64,7 +64,7 @@ Adresses are **0-Based**.
 
 ### Input Registers (FC 4)
 
-|Registrer (0-Based) [Offset]| Function|
+|Register (0-Based) [Offset]| Function|
 |:---:|:---:|
 |0| CO2 [PPM]|
 |1| Air Pressure [hPa]|
