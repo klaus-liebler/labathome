@@ -1,16 +1,78 @@
 #include <cstdio>
 #include "Arduino.h"
-#include "USBPowerDelivery.h"
-#include "log.h"
 #include <Wire.h>
+#include "USBPowerDelivery.h"
+#include <SimpleFOC.h>
+#include "log.h"
 #include <common.hh>
 #include <single_led.hh>
-#include "Encoder.hh"
+#include "encoder.hh"
 #include "errorcheck.hh"
-
-#include <version_15_0/pins.hh>
 #include "stm32_esp32_communication.hh"
 #include "errormanager.hh"
+
+namespace PIN{
+    constexpr uint32_t HEATER{PC4};
+    constexpr uint32_t BL_ENABLE{PC6};
+    constexpr uint32_t UART4_TX{PC10};
+    constexpr uint32_t UART4_RX{PC11};
+    constexpr uint32_t BTN_YELLOW{PC13};
+    constexpr uint32_t MOVEMENT{PC14};
+    constexpr uint32_t BL_HALL2{PB0};
+    constexpr uint32_t BL_HALL1{PB1};
+    constexpr uint32_t BRIGHTNESS{PB2};
+    constexpr uint32_t LED_INFO{PB3};
+    constexpr uint32_t USBPD_CC2{PB4};
+    constexpr uint32_t BL_HALL3{PB5};
+    constexpr uint32_t USBPD_CC1{PB6};
+    constexpr uint32_t SDA{PB7};
+    constexpr uint32_t BTN_RED{PB8};
+    constexpr uint32_t LED_WHITE_P{PB9};
+    constexpr uint32_t NC{PB10};
+    constexpr uint32_t RELAY{PB11};
+    constexpr uint32_t BL_RESET{PB12};
+    constexpr uint32_t BL_FAULT{PB13};
+    constexpr uint32_t ADC_0{PB14};
+    constexpr uint32_t ADC_1{PB15};
+    constexpr uint32_t ROT_A{PA0};
+    constexpr uint32_t ROT_B{PA1};
+    constexpr uint32_t Servo0{PA2};
+    constexpr uint32_t Servo1{PA3};
+    constexpr uint32_t DAC_0{PA4};
+    constexpr uint32_t DAC_1{PA5};
+    constexpr uint32_t Servo2{PA6};
+    constexpr uint32_t FAN{PA7};
+    constexpr uint32_t BL_DRV1{PA8};
+    constexpr uint32_t BL_DRV2{PA9};
+    constexpr uint32_t BL_DRV3{PA10};
+    constexpr uint32_t USB_M{PA11};
+    constexpr uint32_t USB_P{PA12};
+    constexpr uint32_t SWDIO{PA13};
+    constexpr uint32_t SWCLK{PA14};
+    constexpr uint32_t SCL{PA15};
+}
+
+constexpr int POLE_PAIRS{7};
+
+
+BLDCMotor motor = BLDCMotor(POLE_PAIRS);
+BLDCDriver3PWM driver = BLDCDriver3PWM(PIN::BL_DRV1, PIN::BL_DRV2, PIN::BL_DRV3, PIN::BL_ENABLE);
+
+
+
+
+//target variable
+float target_velocity = 0;
+
+// instantiate the commander
+Commander command = Commander(Serial);
+void doTarget(char* cmd) {
+  command.scalar(&target_velocity, cmd);
+}
+void doLimit(char* cmd) {
+  command.scalar(&motor.voltage_limit, cmd);
+}
+
 
 constexpr time_t TIMEOUT_FOR_FAILSAFE{3000};
 bool alreadySetToFailsafe{false};
@@ -351,7 +413,7 @@ void app_loop(uint32_t now)
   }
 }
 
-void setup()
+void setup_default()
 {
 
   // Serial.println("Application started Serial.println");
@@ -401,8 +463,60 @@ void setup()
   Wire.setSDA(PIN::SDA);
   Wire.setSCL(PIN::SCL);
   Wire.begin(I2C_SETUP::STM32_I2C_ADDRESS);
+    log_info("Init completed - eternal loop starts");
+}
+void setup(){
+  
 
-  log_info("Init completed - eternal loop starts");
+  SimpleFOCDebug::enable(&Serial);
+
+  // driver config
+  // power supply voltage [V]
+  driver.voltage_power_supply = 12;
+  // limit the maximal dc voltage the driver can set
+  // as a protection measure for the low-resistance motors
+  // this value is fixed on startup
+  driver.voltage_limit = 6;
+  if(!driver.init()){
+    Serial.println("Driver init failed!");
+    return;
+  }
+  // link the motor and the driver
+  motor.linkDriver(&driver);
+
+  // limiting motor movements
+  // limit the voltage to be set to the motor
+  // start very low for high resistance motors
+  // current = voltage / resistance, so try to be well under 1Amp
+  motor.voltage_limit = 3;   // [V]
+ 
+  // open loop control config
+  motor.controller = MotionControlType::velocity_openloop;
+
+  // init motor hardware
+  if(!motor.init()){
+    Serial.println("Motor init failed!");
+    return;
+  }
+
+  // add target command T
+  command.add('T', doTarget, "target velocity");
+  command.add('L', doLimit, "voltage limit");
+
+  Serial.println("Motor ready!");
+  Serial.println("Set target velocity [rad/s]");
+  _delay(1000);
+}
+
+void loop() {
+
+  // open loop velocity movement
+  // using motor.voltage_limit and motor.velocity_limit
+  // to turn the motor "backwards", just set a negative target_velocity
+  motor.move(target_velocity);
+
+  // user communication
+  command.run();
 }
 
 void loop_servotest()
@@ -425,7 +539,7 @@ void loop_servotest()
   }
 }
 
-void loop()
+void loop_default()
 {
   PowerSink.poll();
   static uint32_t last20ms = 0;
