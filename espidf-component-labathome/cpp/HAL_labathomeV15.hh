@@ -1,5 +1,6 @@
 #pragma once
-
+#define LCD_DISPLAY 0
+#define AUDIO 0
 #define LABATHOME_V15
 #include "HAL.hh"
 
@@ -32,13 +33,15 @@
 #include <AudioPlayer.hh>
 
 #include "../../labathome_firmware_stm32arduino/src/stm32_esp32_communication.hh"
+#if(LCD_DISPLAY>0)
 #include "spilcd16.hh"
 #include "FullTextLineRenderer.hh"
 #include "qr_code_renderer.hh"
 #include "breakout_renderer.hh"
 #include "lcd_font.hh"
 #include "fonts/sans12pt1bpp.hh"
-
+#endif
+#if(AUDIO>0)
 FLASH_FILE(alarm_co2_mp3)
 FLASH_FILE(alarm_temperature_mp3)
 FLASH_FILE(nok_mp3)
@@ -50,7 +53,7 @@ FLASH_FILE(positive_mp3)
 FLASH_FILE(siren_mp3)
 const uint8_t *SOUNDS[] = {nullptr, alarm_co2_mp3_start, alarm_temperature_mp3_start, nok_mp3_start, ok_mp3_start, ready_mp3_start, fanfare_mp3_start, negative_mp3_start, positive_mp3_start, siren_mp3_start};
 const size_t SONGS_LEN[] = {0, alarm_co2_mp3_size, alarm_temperature_mp3_size, nok_mp3_size, ok_mp3_size, ready_mp3_size, fanfare_mp3_size, negative_mp3_size, positive_mp3_size, siren_mp3_size};
-
+#endif
 constexpr gpio_num_t PIN_BTN_GREEN = (gpio_num_t)0;
 
 constexpr gpio_num_t PIN_CANTX = (gpio_num_t)1;
@@ -117,11 +120,15 @@ private:
     i2c_master_dev_handle_t stm32_handle{nullptr};
 
     RGBLED::M<LED_NUMBER, RGBLED::DeviceType::WS2812> *strip{nullptr};
+
+#if(AUDIO>0)
     AudioPlayer::Player *mp3player{nullptr};
+#endif
+#if(LCD_DISPLAY>0)
     spilcd16::M<SPI2_HOST, PIN_LCD_DAT, PIN_LCD_CLK, GPIO_NUM_NC, PIN_LCD_DC, PIN_EXT_IO1, GPIO_NUM_NC, LCD240x240_0, (size_t)8 * 240, 4096, 0> display;
     spilcd16::FullTextlineRenderer<32, 240, 5, 5, 24> *lineRenderer{nullptr};
     lcd_common::QrCodeRenderer<240, 240, 3> *qrRenderer{nullptr};
-
+#endif
     // SensorValues
     uint8_t stm2esp_buf[S2E::SIZE] = {0};
     float analogInputsVolt[ANALOG_INPUTS_LEN] = {0};
@@ -134,14 +141,7 @@ private:
     // Safety
     bool heaterEmergencyShutdown{false};
 
-    void MP3Loop()
-    {
 
-        while (true)
-        {
-            mp3player->Loop();
-        }
-    }
 
     void Stm32Init()
     {
@@ -171,7 +171,7 @@ private:
         }
     }
 
-    void SensorLoop()
+    void HalLoop()
     {
         aht21dev = new AHT::M(i2c_master_handle, AHT::ADDRESS::DEFAULT_ADDRESS);
         bme280dev = new BME280::M(i2c_master_handle, BME280::ADDRESS::PRIM);
@@ -183,8 +183,13 @@ private:
         oneWireBus->Init();
         Stm32Init(); // see below loop
 
+        TickType_t lastWakeTime;
+        const TickType_t FREQUENCY = pdMS_TO_TICKS(50);
         while (true)
         {
+            if(!xTaskDelayUntil( &lastWakeTime, FREQUENCY) && lastWakeTime>pdMS_TO_TICKS(10000)){
+                ESP_LOGW(TAG, "HAL Loop took too long");
+            }
             int64_t now = GetMillis64();
             oneWireBus->Loop(now);
             bh1750dev->Loop(GetMillis64());
@@ -192,12 +197,22 @@ private:
             aht21dev->Loop(GetMillis64());
             vl53l0xdev->Loop(GetMillis64());
             Stm32Loop(); // see above Init;
-            delayMs(50);
         }
     }
+#if(AUDIO>0)
+    void AudioLoop(){
+        TickType_t lastWakeTime;
+        const TickType_t FREQUENCY = pdMS_TO_TICKS(20);
+        while(mp3player){
+            xTaskDelayUntil( &lastWakeTime, FREQUENCY);
+            mp3player->Loop();
+        }
+    }
+#endif
 
     void ShowTextOnLcd()
     {
+#if(LCD_DISPLAY>0)
         lineRenderer->printfl(0, Color::WHITE, Color::BLACK, "LabAtHomeV15");
         display.Draw(lineRenderer);
         lineRenderer->printfl(1, Color::WHITE, Color::BLACK, "SSID: %s", WIFISTA::GetSsid());
@@ -220,15 +235,17 @@ private:
             lineRenderer->printfl(4, Color::WHITE, Color::BLACK, "IP: undefined");
             display.Draw(lineRenderer);
         }
+#endif
     }
 
     void ShowQrCodeOnLcd()
     {
-
+#if(LCD_DISPLAY>0)
         if (!qrRenderer->HasValidData())
             return;
         qrRenderer->AllowRedraw();
         display.Draw(qrRenderer);
+#endif
     }
 
     
@@ -239,7 +256,6 @@ public:
     void DoMonitoring() override
     {
         static uint16_t enc_old{0};
-        static BREAKOUT::Renderer<240, 240> *breakout;
         static int easterEggCounter = 0;
         static uint32_t qr_info_counter{0};
         static esp_ip4_addr_t savedIpAddress{0};
@@ -249,6 +265,7 @@ public:
         int64_t now = millis();
         esp_ip4_addr_t newIpAddress = WIFISTA::GetIpAddress();
         //GetButtonGreenIsPressed does not work, if ESP_PROG is connected!
+#if(LCD_DISPLAY>0)
         if (easterEggCounter < (INT_MAX - 10) && !((easterEggCounter & 0b1) ^ GetButtonGreenIsPressed())){
             easterEggCounter++;
         }
@@ -286,7 +303,7 @@ public:
             qr_info_counter++;
             nextPlannedScreenChange += 5000;
         }
-        
+#endif      
         
         if (now > nextOneLineStatus){
             uint32_t heap = esp_get_free_heap_size();
@@ -350,6 +367,7 @@ public:
 
     ErrorCode SetSound(int32_t soundNumber)
     {
+#if(AUDIO>0)
         if (!mp3player)
         {
             ESP_LOGW(TAG, "Audio Player not initialized!");
@@ -363,6 +381,7 @@ public:
         ESP_LOGI(TAG, "Set Sound to %ld", soundNumber);
 
         mp3player->PlayMP3(SOUNDS[soundNumber], SONGS_LEN[soundNumber], 255, true);
+#endif
         return ErrorCode::OK;
     }
 
@@ -475,27 +494,30 @@ public:
         ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, (uint8_t)AHT::ADDRESS::DEFAULT_ADDRESS, 1000));
         // ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, 0x6A, 1000)); //LSM6DS3
         ESP_LOGI(TAG, "I2C bus successfully initialized and probed");
-
+#if(AUDIO>0)
         nau88c22::M *codec = new nau88c22::M(i2c_master_handle, PIN_I2S_MCLK, PIN_I2S_BCLK, PIN_I2S_FS, PIN_I2S_DAC);
         mp3player = new AudioPlayer::Player(codec);
         mp3player->Init();
-        xTaskCreate(mp3Task, "mp3task", 32768 * 4, this, 16, nullptr); // Stack Size = 4096 --> Stack overflow!!
+#endif
         // LED Strip
         strip = new RGBLED::M<LED_NUMBER, RGBLED::DeviceType::WS2812>();
         ERRORCODE_CHECK(strip->Begin(SPI3_HOST, PIN_LED_WS2812));
         ERRORCODE_CHECK(strip->Clear(100));
 
         // Display
+#if(LCD_DISPLAY>0)
         display.InitSpiAndGpio();
         display.Init_ST7789(Color::GREEN);
 
         lineRenderer = new spilcd16::FullTextlineRenderer<32, 240, 5, 5, 24>(&sans12pt1bpp::font);
         qrRenderer = new lcd_common::QrCodeRenderer<240, 240, 3>();
-
+#endif
         // GreetUserOnStartup(); GreetUser is done in DeviceManager or in the main loop
         // Tasks
-        xTaskCreate(sensorTask, "sensorTask", 4096 * 4, this, 6, nullptr);
-
+        xTaskCreate([](void *p){((HAL_Impl*)p)->HalLoop();}, "halTask", 4096 * 4, this, 6, nullptr);
+#if(AUDIO>0)
+        xTaskCreate([](void *p){((HAL_Impl*)p)->AudioLoop();}, "audioTask", 8192 * 4, this, 8, nullptr);;
+#endif
         return ErrorCode::OK;
     }
 
@@ -636,21 +658,11 @@ public:
             strip->Refresh();
             vTaskDelay(pdMS_TO_TICKS(150));
         }
+#if(AUDIO>0)
         mp3player->PlayMP3(ready_mp3_start, ready_mp3_size, 200, true);
+#endif
         UnColorizeAllLed();
         return ErrorCode::OK;
-    }
-
-    static void sensorTask(void *pvParameters)
-    {
-        HAL_Impl *hal = (HAL_Impl *)pvParameters;
-        hal->SensorLoop();
-    }
-
-    static void mp3Task(void *pvParameters)
-    {
-        HAL_Impl *hal = (HAL_Impl *)pvParameters;
-        hal->MP3Loop();
     }
 
     ErrorCode GetAmbientBrightnessAnalog(float *lux)

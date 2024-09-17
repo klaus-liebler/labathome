@@ -312,7 +312,7 @@ esp_err_t handle_put_heaterexperiment(httpd_req_t *req)
     DeviceManager *devicemanager = *static_cast<DeviceManager **>(req->user_ctx);
     int ret=0;
     int remaining = req->content_len;
-    if(remaining!=28){
+    if(remaining!=32){
         ESP_LOGE(TAG, "Unexpected Data length %d in handle_put_heaterexperiment", remaining);
         return ESP_FAIL;
     }
@@ -338,14 +338,15 @@ esp_err_t handle_put_heaterexperiment(httpd_req_t *req)
     float TN = bufF32[4];
     float TV = bufF32[5];
     bool reset = bufU32[6]!=0;
+    float workingpoint = bufF32[7];
     
-    ESP_LOGI(TAG, "Set mode %lu and setpointTempOrHeater %F and Setpoint Fan %F", modeU32, setpointTempOrHeater, setpointFan);
+    ESP_LOGD(TAG, "Set mode %lu and setpointTempOrHeater %F and Setpoint Fan %F", modeU32, setpointTempOrHeater, setpointFan);
     HeaterExperimentData returnData;
     switch (modeU32)
     {
     case 0: devicemanager->TriggerHeaterExperimentFunctionblock(&returnData); break;
     case 1: devicemanager->TriggerHeaterExperimentOpenLoop(setpointTempOrHeater, setpointFan, &returnData); break;
-    case 2: devicemanager->TriggerHeaterExperimentClosedLoop(setpointTempOrHeater, setpointFan, KP, TN, TV, reset, &returnData); break;
+    case 2: devicemanager->TriggerHeaterExperimentClosedLoop(setpointTempOrHeater, setpointFan, KP, TN, TV, reset, workingpoint, &returnData); break;
     default:break;
     }
     

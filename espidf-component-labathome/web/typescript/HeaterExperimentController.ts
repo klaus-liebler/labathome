@@ -21,6 +21,7 @@ export class HeaterExperimentController extends ScreenController {
     private inputTN: HTMLInputElement;
     private inputTV: HTMLInputElement;
     private inputReset:HTMLInputElement;
+    private inputWP:HTMLInputElement;
     private timer: number | undefined;
     private chart: Chart;
 
@@ -109,6 +110,7 @@ export class HeaterExperimentController extends ScreenController {
         ctx.writeF32(this.inputTN.valueAsNumber);
         ctx.writeF32(this.inputTV.valueAsNumber);
         ctx.writeU32(this.inputReset.checked?1:0);
+        ctx.writeF32(this.inputWP.valueAsNumber);
         let xhr = new XMLHttpRequest;
         xhr.onerror = (e) => { console.log("Fehler beim XMLHttpRequest!"); };
         xhr.open("PUT", "/heaterexperiment", true);
@@ -188,6 +190,7 @@ export class HeaterExperimentController extends ScreenController {
         this.inputKP = <HTMLInputElement>document.getElementById("heaterexperiment_inpKP")!;
         this.inputTN = <HTMLInputElement>document.getElementById("heaterexperiment_inpTN")!;
         this.inputTV = <HTMLInputElement>document.getElementById("heaterexperiment_inpTV")!;
+        this.inputWP = <HTMLInputElement>document.getElementById("heaterexperiment_inpWP")!;
         this.inputReset=<HTMLInputElement>document.getElementById("heaterexperiment_inpReset")!;
 
         this.onModeChange(0);

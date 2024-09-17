@@ -1,20 +1,7 @@
-/*
- *******************************************************************************
- * Copyright (c) 2020, STMicroelectronics
- * All rights reserved.
- *
- * This software component is licensed by ST under BSD 3-Clause license,
- * the "License"; You may not use this file except in compliance with the
- * License. You may obtain a copy of the License at:
- *                        opensource.org/licenses/BSD-3-Clause
- *
- *******************************************************************************
- */
-#pragma once
 
-/*----------------------------------------------------------------------------
- *        STM32 pins number
- *----------------------------------------------------------------------------*/
+#pragma once
+#include <stdint.h>
+
 #define PA0                     PIN_A0
 #define PA1                     PIN_A1
 #define PA2                     PIN_A2
@@ -158,18 +145,13 @@
 #endif
 
 // UART Definitions
-#ifndef SERIAL_UART_INSTANCE
-  #define SERIAL_UART_INSTANCE  101
-#endif
+#define SERIAL_UART_INSTANCE 4
+#define PIN_CC1_ARDUINO PB6
+#define PIN_CC2_ARDUINO PB4
+#define PIN_SERIAL_TX PC10
+#define PIN_SERIAL_RX PC11
+#define DEBUG_UART_BAUDRATE 115200
 
-// Default pin used for generic 'Serial' instance
-// Mandatory for Firmata
-#ifndef PIN_SERIAL_RX
-  #define PIN_SERIAL_RX         PA3
-#endif
-#ifndef PIN_SERIAL_TX
-  #define PIN_SERIAL_TX         PA2
-#endif
 
 // Extra HAL modules
 #if !defined(HAL_DAC_MODULE_DISABLED)

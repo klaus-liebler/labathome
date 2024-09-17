@@ -11,6 +11,7 @@
 #include "stm32_esp32_communication.hh"
 #include "errormanager.hh"
 
+#if defined(__cplusplus)
 namespace PIN{
     constexpr uint32_t HEATER{PC4};
     constexpr uint32_t BL_ENABLE{PC6};
@@ -52,26 +53,13 @@ namespace PIN{
     constexpr uint32_t SCL{PA15};
 }
 
+#endif
+
+
+float brushless_motor_velocity{0.0};
 constexpr int POLE_PAIRS{7};
-
-
 BLDCMotor motor = BLDCMotor(POLE_PAIRS);
 BLDCDriver3PWM driver = BLDCDriver3PWM(PIN::BL_DRV1, PIN::BL_DRV2, PIN::BL_DRV3, PIN::BL_ENABLE);
-
-
-
-
-//target variable
-float target_velocity = 0;
-
-// instantiate the commander
-Commander command = Commander(Serial);
-void doTarget(char* cmd) {
-  command.scalar(&target_velocity, cmd);
-}
-void doLimit(char* cmd) {
-  command.scalar(&motor.voltage_limit, cmd);
-}
 
 
 constexpr time_t TIMEOUT_FOR_FAILSAFE{3000};
@@ -81,12 +69,10 @@ bool gotDataInfoAlreadyPrinted{false};
 // Time related
 uint32_t timeToPutActorsInFailsafe{TIMEOUT_FOR_FAILSAFE};
 
-// Manager
 
 ErrorManager<8, uint32_t> errMan;
 
 SINGLE_LED::M *led{nullptr};
-
 HardwareTimer *TIM_BL_DRV{nullptr}; // TIM1 for Brushless
 constexpr uint32_t BL_DRV_PH1_CH = 1;
 constexpr uint32_t BL_DRV_PH2_CH = 2;
@@ -136,7 +122,6 @@ extern "C" void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c)
     HAL_I2C_EnableListen_IT(hi2c);
 }
 
-
 extern "C" void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
     SetPhysicalOutputs();
@@ -181,12 +166,12 @@ namespace USB_PD
 {
   void requestVoltage()
   {
-    // check if 20V is supported
+    // check if 12V is supported
     for (int i = 0; i < PowerSink.numSourceCapabilities; i += 1)
     {
-      if (PowerSink.sourceCapabilities[i].minVoltage <= 20000 && PowerSink.sourceCapabilities[i].maxVoltage >= 20000)
+      if (PowerSink.sourceCapabilities[i].minVoltage <= 12000 && PowerSink.sourceCapabilities[i].maxVoltage >= 12000)
       {
-        PowerSink.requestPower(20000);
+        PowerSink.requestPower(12000);
         return;
       }
     }
@@ -200,11 +185,10 @@ namespace USB_PD
         return;
       }
     }
-    log_warn("Neither 20V nor 15V is supported");
+    log_warn("Neither 12V nor 15V is supported");
   }
 
-  void handleUsbPdEvent(PDSinkEventType eventType)
-  {
+  void handleUsbPdEvent(PDSinkEventType eventType){
 
     if (eventType == PDSinkEventType::sourceCapabilitiesChanged)
     {
@@ -321,6 +305,9 @@ void SetPhysicalOutputs()
   // SetHeaterPower: loop1ms automatically fetches correct value from buffer
   SetLedPowerPower(ParseU8(I2C_SLAVE::e2s_buffer, E2S::LED_POWER_POS));
   // TODO Brushless Mode
+  if(ParseU8(I2C_SLAVE::e2s_buffer, E2S::THREEPHASE_MODE_POS)==0){
+    brushless_motor_velocity=ParseU8(I2C_SLAVE::e2s_buffer, E2S::THREEPHASE_P1_DUTY_POS);
+  }
   // TODO Brushless Speeds
 }
 
@@ -387,10 +374,12 @@ void app_loop1000ms(uint32_t now)
   byteBuf2hexCharBuf(logBuffer1, 96, I2C_SLAVE::s2e_buffer, S2E::SIZE);
   byteBuf2hexCharBuf(logBuffer2, 96, I2C_SLAVE::e2s_buffer, E2S::SIZE);
   log_info("enc=%d s2e=%s, e2s=%s", encoder.GetTicks(), logBuffer1, logBuffer2);
-
+  //printf("printf\n");
+  //Serial.printf("Serial.printf\n");
+  //Serial4.printf("Serial4.printf\n");
 }
 
-void app_loop(uint32_t now)
+void app_loop_superfast(uint32_t now)
 {
   // Heater; Wert ist von 0-100; Zyklus dauert 1000ms
   static uint32_t startOfCycle = 0;
@@ -413,9 +402,11 @@ void app_loop(uint32_t now)
   }
 }
 
-void setup_default()
-{
 
+
+void setup()
+{
+  Serial.begin(115200);
   // Serial.println("Application started Serial.println");
   log_info("Application started");
   while(false){
@@ -463,9 +454,6 @@ void setup_default()
   Wire.setSDA(PIN::SDA);
   Wire.setSCL(PIN::SCL);
   Wire.begin(I2C_SETUP::STM32_I2C_ADDRESS);
-    log_info("Init completed - eternal loop starts");
-}
-void setup(){
   
 
   SimpleFOCDebug::enable(&Serial);
@@ -478,7 +466,7 @@ void setup(){
   // this value is fixed on startup
   driver.voltage_limit = 6;
   if(!driver.init()){
-    Serial.println("Driver init failed!");
+    log_error("Driver init failed!");
     return;
   }
   // link the motor and the driver
@@ -495,29 +483,15 @@ void setup(){
 
   // init motor hardware
   if(!motor.init()){
-    Serial.println("Motor init failed!");
+    log_error("Motor init failed!");
     return;
   }
+  log_info("Motor ready!");
 
-  // add target command T
-  command.add('T', doTarget, "target velocity");
-  command.add('L', doLimit, "voltage limit");
-
-  Serial.println("Motor ready!");
-  Serial.println("Set target velocity [rad/s]");
-  _delay(1000);
+  log_info("Init completed - eternal loop starts");
 }
 
-void loop() {
 
-  // open loop velocity movement
-  // using motor.voltage_limit and motor.velocity_limit
-  // to turn the motor "backwards", just set a negative target_velocity
-  motor.move(target_velocity);
-
-  // user communication
-  command.run();
-}
 
 void loop_servotest()
 {
@@ -542,10 +516,11 @@ void loop_servotest()
 void loop_default()
 {
   PowerSink.poll();
+  motor.move(brushless_motor_velocity);
   static uint32_t last20ms = 0;
   static uint32_t last1000ms = 0;
   uint32_t now = millis();
-  app_loop(now);
+  app_loop_superfast(now);
   uint32_t timePassed20 = now - last20ms;
   if (timePassed20 >= 20)
   {
@@ -571,4 +546,9 @@ void loop_default()
     }
     delay(5000);
    */
+}
+
+
+void loop(){
+  loop_default();
 }

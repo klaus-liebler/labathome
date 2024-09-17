@@ -186,14 +186,17 @@
               value="0" step="0.1" />
 
             <label class="ptnexperiment_closedloopctrl">T<sub>N</sub></label>
-            <input class="ptnexperiment_closedloopctrl" type="number" id="ptnexperiment_inpTN" min="0" max="1"
-              value="0" step="0.01" />
+            <input class="ptnexperiment_closedloopctrl" type="number" id="ptnexperiment_inpTN" min="0" max="1000"
+              value="0" step="1" />
 
             <label class="ptnexperiment_closedloopctrl">T<sub>V</sub></label>
-            <input class="ptnexperiment_closedloopctrl" type="number" id="ptnexperiment_inpTV" min="0" max="100"
-              value="0" step="0.25" />
+            <input class="ptnexperiment_closedloopctrl" type="number" id="ptnexperiment_inpTV" min="0" max="1000"
+              value="0" step="1" />
             <label class="ptnexperiment_closedloopctrl">Reset</label>
             <input class="ptnexperiment_closedloopctrl" type="checkbox" id="ptnexperiment_inpReset" checked />
+            <label class="ptnexperiment_closedloopctrl">Working Point Offset</sub></label>
+            <input class="ptnexperiment_closedloopctrl" type="number" id="ptnexperiment_inpWP" min="0" max="100"
+              value="0" step="0.25" />
           </form>
           <div style="height: 300px; width: 100%;"><canvas id="ptnexperiment_chart"
               style="height: 300px; width: 100%;"></canvas></div>
@@ -318,6 +321,9 @@
               value="0" step="0.25" />
             <label class="heaterexperiment_closedloopctrl">Reset</label>
             <input class="heaterexperiment_closedloopctrl" type="checkbox" id="heaterexperiment_inpReset" checked />
+            <label class="heaterexperiment_closedloopctrl">Working Point Offset</label>
+            <input class="heaterexperiment_closedloopctrl" type="number" id="heaterexperiment_inpWP" min="0" max="100"
+              value="0" step="0.25" />
           </form>
           <!-- <div id="experiment_chart" style="height: 300px;" class="ct-chart ct-perfect-fourth"></div>-->
           <div style="height: 300px; width: 100%;"><canvas id="heaterexperiment_chart"

@@ -7,7 +7,7 @@
 #include "winfactboris_messages.hh"
 #include "devicemanager.hh"
 
-constexpr uint32_t TRIGGER_FALLBACK_TIME_MS = 3000;
+constexpr uint32_t TRIGGER_FALLBACK_TIME_MS{10000};
 constexpr TickType_t xFrequency {pdMS_TO_TICKS(50)};
 constexpr const char *TAG = "devicemanager";
 
@@ -19,7 +19,7 @@ DeviceManager::DeviceManager(HAL *hal):hal(hal)
 {
     currentExecutable = this->createInitialExecutable();
     nextExecutable = nullptr;
-    heaterPIDController = new PID_T1::Controller<float>(&actualTemperature, &setpointHeater, &setpointTemperature, 0, 100, PID_T1::Mode::OFF, PID_T1::AntiWindup::ON_SWICH_OFF_INTEGRATOR, PID_T1::Direction::DIRECT, 1000);
+    heaterPIDController = new PID::Controller<float>(&actualTemperature, &setpointHeater, &setpointTemperature, 0, 100, PID::Mode::OFF, PID::AntiWindup::ON_LIMIT_INTEGRATOR, PID::Direction::DIRECT, 1000);
     airspeedPIDController = new PID_T1::Controller<float>(&actualAirspeed, &setpointFan2, &setpointAirspeed, 0, 100, PID_T1::Mode::OFF, PID_T1::AntiWindup::ON_SWICH_OFF_INTEGRATOR, PID_T1::Direction::DIRECT, 1000);
     ptnPIDController = new PID_T1::Controller<float>(&actualPtn, &setpointVoltageOut, &setpointPtn, 0, 3.3, PID_T1::Mode::OFF, PID_T1::AntiWindup::ON_SWICH_OFF_INTEGRATOR, PID_T1::Direction::DIRECT, 1000);
 }
@@ -559,7 +559,7 @@ ErrorCode DeviceManager::Loop()
         }
     }
     else if(experimentMode==ExperimentMode::openloop_heater){
-        heaterPIDController->SetMode(PID_T1::Mode::OFF, nowMsSteady);
+        heaterPIDController->SetMode(PID::Mode::OFF, nowMsSteady);
         hal->SetHeaterDuty(this->setpointHeater);
         hal->SetFanDuty(0, this->setpointFan2);
     }
@@ -567,16 +567,14 @@ ErrorCode DeviceManager::Loop()
         if(heaterReset){
             heaterPIDController->Reset();
         }
-        heaterPIDController->SetMode(PID_T1::Mode::CLOSEDLOOP, nowMsSteady);
-        if(heaterPIDController->SetKpTnTv(heaterKP, heaterTN_secs*1000, heaterTV_secs*1000, heaterTV_secs*200)==ErrorCode::OK)
-        {
-            ESP_LOGI(TAG, "SetKpTnTv to %F %F %F", heaterKP, heaterTN_secs, heaterTV_secs);
-        }
+        heaterPIDController->SetMode(PID::Mode::CLOSEDLOOP, nowMsSteady);
+        heaterPIDController->SetWorkingPointOffset(this->heaterWorkingPointOffset);
+        heaterPIDController->SetKpTnTv(heaterKP, heaterTN_secs*1000, heaterTV_secs*1000/*, heaterTV_secs*200*/);
         float act =0;
         hal->GetHeaterTemperature(&act);
         this->actualTemperature=act;
         if(heaterPIDController->Compute(nowMsSteady)==ErrorCode::OK){ //OK means: Value changed
-             ESP_LOGI(TAG, "Computed a new  setpointHeater %F", setpointHeater);
+             ESP_LOGI(TAG, "Computed a new setpointHeater %F", setpointHeater);
         }
         hal->SetHeaterDuty(this->setpointHeater);
         hal->SetFanDuty(0, this->setpointFan2);
@@ -647,7 +645,7 @@ ErrorCode DeviceManager::Loop()
     return ErrorCode::OK;
 }
 
-ErrorCode DeviceManager::TriggerHeaterExperimentClosedLoop(float setpointTemperature, float setpointFan, float KP, float TN, float TV, bool reset, HeaterExperimentData *data){
+ErrorCode DeviceManager::TriggerHeaterExperimentClosedLoop(float setpointTemperature, float setpointFan, float KP, float TN, float TV, bool reset, float workingPointOffset, HeaterExperimentData *data){
     //Trigger
     this->lastExperimentTrigger=hal->GetMillis();
     this->heaterReset=reset;
@@ -658,6 +656,7 @@ ErrorCode DeviceManager::TriggerHeaterExperimentClosedLoop(float setpointTempera
     this->heaterKP=KP;
     this->heaterTN_secs=TN;
     this->heaterTV_secs=TV;
+    this->heaterWorkingPointOffset=workingPointOffset;
     //Fill return data
     hal->GetFanDuty(0, &data->Fan);
     data->Heater=hal->GetHeaterState();

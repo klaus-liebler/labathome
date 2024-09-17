@@ -9,6 +9,7 @@
 #include <vector>
 #include <cstring>
 #include <pid_t1_controller.hh>
+#include <pidcontroller.hh>
 
 
 class FunctionBlock;
@@ -119,7 +120,7 @@ class DeviceManager:public FBContext
 {
  private:
         HAL *hal;
-        PID_T1::Controller<float> *heaterPIDController;
+        PID::Controller<float> *heaterPIDController;
         PID_T1::Controller<float> *airspeedPIDController;
         PID_T1::Controller<float> *ptnPIDController;
         Executable *currentExecutable;
@@ -132,6 +133,7 @@ class DeviceManager:public FBContext
         float ptnKP=0, ptnTN_secs=0, ptnTV_secs=0; ; bool ptnReset=true;
         float actualTemperature=0;
         float setpointTemperature=0;
+        float heaterWorkingPointOffset{0};
         float actualAirspeed=0;
         float setpointAirspeed=0;
         float actualPtn=0;
@@ -184,7 +186,7 @@ class DeviceManager:public FBContext
         ErrorCode TriggerAirspeedExperimentClosedLoop(float setpointAirspeed, float setpointServo1, float KP, float TN, float TV, bool reset, AirspeedExperimentData *data);
         ErrorCode TriggerAirspeedExperimentOpenLoop(float setpointFan2, float setpointServo1, AirspeedExperimentData *data);
         ErrorCode TriggerAirspeedExperimentFunctionblock(AirspeedExperimentData *data);
-        ErrorCode TriggerHeaterExperimentClosedLoop(float setpointTemperature, float setpointFan, float KP, float TN, float TV, bool reset, HeaterExperimentData *data);
+        ErrorCode TriggerHeaterExperimentClosedLoop(float setpointTemperature, float setpointFan, float KP, float TN, float TV, bool reset, float workingPointOffset, HeaterExperimentData *data);
         ErrorCode TriggerHeaterExperimentOpenLoop(float setpointHeater, float setpointFan, HeaterExperimentData *data);
         ErrorCode TriggerHeaterExperimentFunctionblock(HeaterExperimentData *data);
 
