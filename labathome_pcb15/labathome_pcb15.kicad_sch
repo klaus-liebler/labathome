@@ -7224,6 +7224,28 @@
 			)
 		)
 	)
+	(global_label "LCD_RES"
+		(shape input)
+		(at 19.05 118.11 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "f9600c9b-9907-4e9f-88f7-068e45c77c87")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 7.9006 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "LCD_DAT"
 		(shape input)
 		(at 31.75 115.57 180)

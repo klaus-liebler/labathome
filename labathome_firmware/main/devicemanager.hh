@@ -146,8 +146,6 @@ class DeviceManager:public FBContext
         float setpointHeater=0;
         float setpointVoltageOut=0;
 
-        static void plcTask(void *pvParameters);
-
         void EternalLoop();
         ErrorCode FindInitialExecutable();
         ErrorCode CheckForNewExecutable();

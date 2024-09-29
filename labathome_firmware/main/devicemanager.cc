@@ -24,8 +24,11 @@ DeviceManager::DeviceManager(HAL *hal):hal(hal)
     ptnPIDController = new PID_T1::Controller<float>(&actualPtn, &setpointVoltageOut, &setpointPtn, 0, 3.3, PID_T1::Mode::OFF, PID_T1::AntiWindup::ON_SWICH_OFF_INTEGRATOR, PID_T1::Direction::DIRECT, 1000);
 }
 
-ErrorCode DeviceManager::InitAndRun(){
-    xTaskCreate(DeviceManager::plcTask, "plcTask", 4096 * 4, this, 6, NULL);
+
+ErrorCode DeviceManager::InitAndRun()
+{
+
+    xTaskCreate([](void* p){((DeviceManager*)p)->EternalLoop();}, "plcTask", 4096 * 4, this, 6, NULL);
     return ErrorCode::OK;
 }
 
@@ -192,13 +195,6 @@ public:
         return ErrorCode::OK;
     }
 };
-
-
-void DeviceManager::plcTask(void *pvParameters)
-{
-    DeviceManager *plc = (DeviceManager *)pvParameters;
-    plc->EternalLoop();
-}
 
 void DeviceManager::EternalLoop(){   
     ESP_LOGI(TAG, "PLC Manager started");

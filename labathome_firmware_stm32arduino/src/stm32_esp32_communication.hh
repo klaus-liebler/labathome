@@ -4,35 +4,36 @@ namespace I2C_SETUP{
     constexpr uint8_t STM32_I2C_ADDRESS{126};
 }
 
-//STM32 to ESP32
-namespace S2E{
-    constexpr size_t SIZE{12};
-    constexpr size_t STATUS_POS{0};//bit0==1->INITIALIZED, bit1->go to failsafe due to no communication, bit2 -> safety off because of overheat
-    constexpr size_t BTN_MOVEMENT_BLFAULT_POS{1};
-    constexpr size_t ROTENC_POS{2};
-    constexpr size_t BRIGHTNESS_POS{4};
-    constexpr size_t USBPD_VOLTAGE_IS_POS{6};
-    constexpr size_t ADC0_POS{8};
-    constexpr size_t ADC1_POS{10};
-}
-//ESP32 to STM32
-namespace E2S{
-    constexpr size_t SIZE{20};
-    constexpr size_t ADDRESS_POINTER_POS{0};
-    constexpr size_t RELAY_BLRESET_POS{1};
-    constexpr size_t SERVO0_POS{2};
-    constexpr size_t SERVO1_POS{3};
-    constexpr size_t SERVO2_POS{4};
-    constexpr size_t SERVO3_POS{5};
-    constexpr size_t FAN0_POS{6};
-    constexpr size_t FAN1_POS{7};
-    constexpr size_t USBPD_VOLTAGE_SHOULD_POS{8};
-    constexpr size_t DAC0_POS{10};
-    constexpr size_t DAC1_POS{12};
-    constexpr size_t HEATER_POS{14};
-    constexpr size_t LED_POWER_POS{15};
-    constexpr size_t THREEPHASE_MODE_POS{16};
-    constexpr size_t THREEPHASE_P1_DUTY_POS{17};
-    constexpr size_t THREEPHASE_P2_DUTY_POS{18};
-    constexpr size_t THREEPHASE_P3_DUTY_POS{19};
-}
+struct __attribute__((packed)) S2E_t
+{
+    uint8_t Status;
+    uint8_t ButtonRed:1;
+    uint8_t ButtonYellow:1;
+    uint8_t Movement:1;
+    uint8_t Blfault:1;
+    uint16_t Rotenc;
+    uint16_t Brightness;
+    uint16_t UsbpdVoltage_mv;
+    uint16_t Adc0;
+    uint16_t Adc1;
+};
+
+struct __attribute__((packed)) E2S_t{
+    uint8_t AddressPointer;
+    uint8_t Relay:1;
+    uint8_t Blreset:1;
+    uint8_t Servo[4];
+    uint8_t Fan[2];
+    uint16_t UsbpdVoltage_mv;
+    uint16_t Dac0;
+    uint16_t Dac1;
+    uint8_t Heater;
+    uint8_t LedPower;
+    uint8_t ThreephaseMode;
+    uint8_t ThreephaseP1;
+    uint8_t ThreephaseP2;
+    uint8_t ThreephaseP3;
+};
+
+constexpr int E2S_s = sizeof(E2S_t);
+constexpr int S2E_s = sizeof(S2E_t);

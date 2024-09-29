@@ -13,10 +13,7 @@ import { writeFileCreateDirLazy } from "./gulpfile_utils";
 import { CLIENT_CERT_USER_NAME, COM_PORT, ESP32_HOSTNAME_TEMPLATE, PUBLIC_SERVER_FQDN } from "./gulpfile_config";
 import * as P from "./paths";
 
-import * as fbc from "../web/typescript/flowchart/FlowchartCompiler"
 import { google } from "@google-cloud/text-to-speech/build/protos/protos";
-import util from "util"
-import * as SEC from "./secrets"
 
 function compileDefaultFbd(cb: gulp.TaskFunctionCallback) {
   //var compiler:fbc.FlowchartCompiler = new fbc.FlowchartCompiler()
@@ -84,7 +81,7 @@ exports.listvoices = async (cb: gulp.TaskFunctionCallback) => {
 class FilenameAndSsml{constructor(public filename:string, public ssml:string){}}
 
 const voicedefinitions:Array<FilenameAndSsml>=[
-  new FilenameAndSsml("ready", '<speak>Willkommen! <lang xml:lang="en-US">Lab@Home</lang> ist bereit</speak>'),
+  new FilenameAndSsml("ready", '<speak>Willkommen! <lang xml:lang="en-US">Lab@Home</lang><say-as interpret-as="characters">'+fs.readFileSync(P.HOSTNAME_FILE).toString().split("_")[1]+'</say-as> ist bereit</speak>'),
   new FilenameAndSsml("resistor_hot", '<speak>Achtung! Der Heizwiderstand wird zu heiß!</speak>'),
   new FilenameAndSsml("boring", '<speak>Mir wird langweilig</speak>'),
   new FilenameAndSsml("ok", '<speak>Alles ok</speak>'),
@@ -113,14 +110,22 @@ exports.speech = async (cb: gulp.TaskFunctionCallback) => {
 
 }
 
-exports.certificates = (cb: gulp.TaskFunctionCallback) => {
+exports.cert = (cb: gulp.TaskFunctionCallback) => {
   const hostname = fs.readFileSync(P.HOSTNAME_FILE).toString();//esp32host_2df5c8
-  const this_pc_name = os.hostname();
-
   let esp32Cert = cert.CreateAndSignCert(hostname, hostname, P.ROOT_CA_PEM_CRT, P.ROOT_CA_PEM_PRVTKEY);
-  writeFileCreateDirLazy(P.ESP32_CERT_PEM_CRT, esp32Cert.certificate);
   writeFileCreateDirLazy(P.ESP32_CERT_PEM_PRVTKEY, esp32Cert.privateKey);
+  writeFileCreateDirLazy(P.ESP32_CERT_PEM_CRT, esp32Cert.certificate, cb);
+  
+}
 
+exports.cert_gk = (cb: gulp.TaskFunctionCallback) => {
+  const hostname = fs.readFileSync(P.HOSTNAME_FILE).toString();//esp32host_2df5c8
+  var esp32Cert=cert.CreateAndSignCertWithGivenPublicKey(P.ESP32_CERT_PEM_PUBKEY, hostname, hostname, P.ROOT_CA_PEM_CRT, P.ROOT_CA_PEM_PRVTKEY);
+  writeFileCreateDirLazy(P.ESP32_CERT_PEM_CRT, esp32Cert, cb);
+}
+
+exports.certificates_servers = (cb: gulp.TaskFunctionCallback) => {
+  const this_pc_name = os.hostname();
   let testserverCert = cert.CreateAndSignCert("Testserver", this_pc_name, P.ROOT_CA_PEM_CRT, P.ROOT_CA_PEM_PRVTKEY);
   writeFileCreateDirLazy(P.TESTSERVER_CERT_PEM_CRT, testserverCert.certificate);
   writeFileCreateDirLazy(P.TESTSERVER_CERT_PEM_PRVTKEY, testserverCert.privateKey);

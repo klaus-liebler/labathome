@@ -234,12 +234,10 @@ export async function getMac(comPort: string):Promise<Uint8Array> {
         case 0x09:
             esp32type = new ESP32S3();
         default:
-            break;
+            console.error("No implementation for this ESP32 type available")
+            return Promise.reject();
     }
-    if (esp32type == null) {
-        console.error("No implementation for this ESP32 type available")
-        return Promise.reject();
-    }
+    
     console.info(`Found a connected ${esp32type.constructor.name}`)
 
     var mac =  await esp32type.macAddr(loader);

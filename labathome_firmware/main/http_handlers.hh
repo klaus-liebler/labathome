@@ -24,3 +24,5 @@ esp_err_t handle_put_ptnexperiment(httpd_req_t *req);
 esp_err_t handle_put_airspeedexperiment(httpd_req_t *req);
 esp_err_t handle_put_fftexperiment(httpd_req_t *req);
 
+void RegisterHandlers();
+

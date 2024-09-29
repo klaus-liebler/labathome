@@ -14,12 +14,13 @@ export const CERTIFICATES = path.join(ROOT, "certificates");
 export const FLATBUFFERS = path.join(ROOT, "flatbuffers");
 export const GENERATED = path.join(ROOT, "generated");
 export const TESTSERVER = path.join(ROOT, "testserver");
-export const SOUNDS = path.join(ROOT, "sounds");
+export const SOUNDS = path.join(ROOT, "speech_de");
 
 export const ROOT_CA_PEM_CRT = path.join(CERTIFICATES, "rootCA.pem.crt");
 export const ROOT_CA_PEM_PRVTKEY = path.join(CERTIFICATES, "rootCA.pem.key");
 export const ESP32_CERT_PEM_CRT = path.join(CERTIFICATES, "esp32.pem.crt");
 export const ESP32_CERT_PEM_PRVTKEY = path.join(CERTIFICATES, "esp32.pem.key");
+export const ESP32_CERT_PEM_PUBKEY = path.join(CERTIFICATES, "esp32.pem.pubkey");
 export const TESTSERVER_CERT_PEM_CRT = path.join(CERTIFICATES, "testserver.pem.crt");
 export const TESTSERVER_CERT_PEM_PRVTKEY = path.join(CERTIFICATES, "testserver.pem.key");
 export const PUBLICSERVER_CERT_PEM_CRT = path.join(CERTIFICATES, "publicserver.pem.crt");

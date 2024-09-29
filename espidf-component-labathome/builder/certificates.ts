@@ -53,20 +53,25 @@ function createUniversalAuthExtensions(dnsHostname: string, authorityKeyIdentifi
 function createSubject(commonName: string): forge.pki.CertificateField[] {
 	return [{
 		shortName: 'C',
-		value: DEFAULT_COUNTRY
+		value: DEFAULT_COUNTRY,
+		
 	}, {
 		shortName: 'ST',
-		value: DEFAULT_STATE
+		value: DEFAULT_STATE,
+		valueTagClass: forge.asn1.Type.UTF8
 	}, {
 		shortName: 'L',
-		value: DEFAULT_LOCALITY
+		value: DEFAULT_LOCALITY,
+		valueTagClass: forge.asn1.Type.UTF8
 	}, {
 		shortName: 'O',
-		value: DEFAULT_ORGANIZATION//hier muss vermutlich was stehen
+		value: DEFAULT_ORGANIZATION,//hier muss vermutlich was stehen
+		valueTagClass: forge.asn1.Type.UTF8
 	}, 
 	{
 		shortName: 'CN',
-		value: commonName//hier muss vermutlich beim host certificate etwas anderes stehen, als der Hostname
+		value: commonName,//hier muss vermutlich beim host certificate etwas anderes stehen, als der Hostname
+		valueTagClass: forge.asn1.Type.UTF8
 	}];
 }
 
@@ -76,7 +81,7 @@ function createSubject(commonName: string): forge.pki.CertificateField[] {
 // http://www.ietf.org/rfc/rfc5280.txt
 function randomSerialNumber(numberOfBytes: number) {
 	let buf = crypto.randomBytes(numberOfBytes);
-	buf[0] = buf[0] & 0x7F;
+	buf[0] = buf[0] & 0x7F | 0x20;
 	return buf.toString("hex");
 }
 
@@ -92,13 +97,29 @@ function certHelper(setPrivateKeyInCertificate: boolean, subject: forge.pki.Cert
 	cert.publicKey = keypair.publicKey;
 	if (setPrivateKeyInCertificate) cert.privateKey = keypair.privateKey;
 	cert.serialNumber = randomSerialNumber(20);
-	cert.validity.notBefore = new Date();
-	cert.validity.notAfter = DateNDaysInFuture(100 * 365);//validity 100 years from now
+	cert.validity.notBefore = DateNDaysInFuture(-1);
+	cert.validity.notAfter = DateNDaysInFuture(3000);//8 Years
 	cert.setSubject(subject);
 	cert.setIssuer(issuer);
 	cert.setExtensions(exts);
 	cert.sign(signWith ?? keypair.privateKey, forge.md.sha256.create());
 	return { certificate: forge.pki.certificateToPem(cert), privateKey: forge.pki.privateKeyToPem(keypair.privateKey), };
+}
+export function CreateAndSignCertWithGivenPublicKey(publicKeyPemPath: fs.PathOrFileDescriptor, commonName:string, dnsHostname: string, certificateCaPemPath: fs.PathOrFileDescriptor, caPrivateKeyPemPath:fs.PathOrFileDescriptor) {
+
+	let caCert = forge.pki.certificateFromPem(fs.readFileSync(certificateCaPemPath).toString());
+	let caPrivateKey = forge.pki.privateKeyFromPem(fs.readFileSync(caPrivateKeyPemPath).toString());
+	let publicKey = forge.pki.publicKeyFromPem(fs.readFileSync(publicKeyPemPath).toString());
+	const cert = forge.pki.createCertificate();
+	cert.publicKey = publicKey;
+	cert.serialNumber = "221C437144A1E22843406AC8AF89931FC347258D";//randomSerialNumber(20);
+	cert.validity.notBefore = DateNDaysInFuture(-1);//8 Years
+	cert.validity.notAfter = DateNDaysInFuture(3000);//8 Years
+	cert.setSubject(createSubject(commonName));
+	cert.setIssuer(caCert.subject.attributes); //issuer is the subject of the rootCA);
+	cert.setExtensions(createUniversalAuthExtensions(dnsHostname, caCert.serialNumber));
+	cert.sign(caPrivateKey, forge.md.sha256.create());
+	return forge.pki.certificateToPem(cert);
 }
 
 export function CreateRootCA() {

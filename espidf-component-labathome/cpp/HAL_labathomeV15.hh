@@ -1,7 +1,9 @@
 #pragma once
-#define LCD_DISPLAY 0
-#define AUDIO 0
+#define LCD_DISPLAY 1
+#define AUDIO 1
 #define LABATHOME_V15
+#define LABATHOME_V15_1
+//#define LABATHOME_V15_0
 #include "HAL.hh"
 
 #include <inttypes.h>
@@ -26,6 +28,7 @@
 #include <bh1750.hh>
 #include <ccs811.hh>
 #include <vl53l0x.hh>
+#include <lsm6ds3.hh>
 #include <aht_sensor.hh>
 #include <ds18b20.hh>
 
@@ -54,6 +57,7 @@ FLASH_FILE(siren_mp3)
 const uint8_t *SOUNDS[] = {nullptr, alarm_co2_mp3_start, alarm_temperature_mp3_start, nok_mp3_start, ok_mp3_start, ready_mp3_start, fanfare_mp3_start, negative_mp3_start, positive_mp3_start, siren_mp3_start};
 const size_t SONGS_LEN[] = {0, alarm_co2_mp3_size, alarm_temperature_mp3_size, nok_mp3_size, ok_mp3_size, ready_mp3_size, fanfare_mp3_size, negative_mp3_size, positive_mp3_size, siren_mp3_size};
 #endif
+#ifdef LABATHOME_V15_0
 constexpr gpio_num_t PIN_BTN_GREEN = (gpio_num_t)0;
 
 constexpr gpio_num_t PIN_CANTX = (gpio_num_t)1;
@@ -98,6 +102,58 @@ constexpr gpio_num_t PIN_LED_WS2812 = (gpio_num_t)13;
 constexpr gpio_num_t PIN_ONEWIRE = (gpio_num_t)39;
 
 constexpr size_t ANALOG_INPUTS_LEN{2};
+#endif
+#ifdef LABATHOME_V15_1
+constexpr gpio_num_t PIN_BTN_GREEN = (gpio_num_t)0;
+
+constexpr gpio_num_t PIN_CANRX = (gpio_num_t)1;
+constexpr gpio_num_t PIN_CANTX = (gpio_num_t)2;
+constexpr gpio_num_t PIN_EXT_CS = (gpio_num_t)3;
+constexpr gpio_num_t PIN_I2C_IRQ = (gpio_num_t)4;
+constexpr gpio_num_t PIN_I2C_SDA = (gpio_num_t)5;
+constexpr gpio_num_t PIN_I2C_SCL = (gpio_num_t)6;
+
+constexpr gpio_num_t PIN_uSD_CMD = (gpio_num_t)7;
+constexpr gpio_num_t PIN_LCD_DC = (gpio_num_t)8;
+
+constexpr gpio_num_t PIN_EXT_MISO = (gpio_num_t)9;
+constexpr gpio_num_t PIN_EXT_CLK = (gpio_num_t)10;
+constexpr gpio_num_t PIN_EXT_IO1 = (gpio_num_t)11;
+constexpr gpio_num_t PIN_EXT_IO2 = (gpio_num_t)12;
+
+constexpr gpio_num_t PIN_LED_WS2812 = (gpio_num_t)13;
+
+constexpr gpio_num_t PIN_I2S_MCLK = (gpio_num_t)14;
+
+constexpr gpio_num_t PIN_uSD_CLK = (gpio_num_t)15;
+constexpr gpio_num_t PIN_uSD_D0 = (gpio_num_t)16;
+
+constexpr gpio_num_t PIN_LCD_CLK = (gpio_num_t)17;
+constexpr gpio_num_t PIN_LCD_DAT = (gpio_num_t)18;
+
+constexpr gpio_num_t PIN_TXD0 = (gpio_num_t)43;
+constexpr gpio_num_t PIN_RXD0 = (gpio_num_t)44;
+
+constexpr gpio_num_t PIN_RS485_DI = (gpio_num_t)40;
+constexpr gpio_num_t PIN_RS485_DE = (gpio_num_t)41;
+constexpr gpio_num_t PIN_RS485_RO = (gpio_num_t)42;
+
+
+constexpr gpio_num_t PIN_I2S_FS = (gpio_num_t)21;
+constexpr gpio_num_t PIN_I2S_DAC = (gpio_num_t)45;
+constexpr gpio_num_t PIN_EXT_MOSI = (gpio_num_t)46;
+constexpr gpio_num_t PIN_I2S_ADC = (gpio_num_t)47;
+constexpr gpio_num_t PIN_I2S_BCLK = (gpio_num_t)48;
+
+constexpr gpio_num_t PIN_LCD_BL = (gpio_num_t)38;
+constexpr gpio_num_t PIN_LCD_RESET = (gpio_num_t)35;
+
+
+constexpr gpio_num_t PIN_ONEWIRE = (gpio_num_t)39;
+
+constexpr size_t ANALOG_INPUTS_LEN{2};
+
+#endif
 constexpr size_t LED_NUMBER{4};
 
 constexpr i2c_port_t I2C_PORT{I2C_NUM_0};
@@ -125,17 +181,18 @@ private:
     AudioPlayer::Player *mp3player{nullptr};
 #endif
 #if(LCD_DISPLAY>0)
-    spilcd16::M<SPI2_HOST, PIN_LCD_DAT, PIN_LCD_CLK, GPIO_NUM_NC, PIN_LCD_DC, PIN_EXT_IO1, GPIO_NUM_NC, LCD240x240_0, (size_t)8 * 240, 4096, 0> display;
+//TODO: Das Backlight muss noch "irgendwie" aktiviert werden. Wenn ich hier den Pin konfiguriere, dann bleibt es aus!
+    spilcd16::M<SPI2_HOST, PIN_LCD_DAT, PIN_LCD_CLK, GPIO_NUM_NC, PIN_LCD_DC, PIN_LCD_RESET, PIN_LCD_BL, LCD240x240_0, (size_t)8 * 240, 4095, 4095> display;
     spilcd16::FullTextlineRenderer<32, 240, 5, 5, 24> *lineRenderer{nullptr};
     lcd_common::QrCodeRenderer<240, 240, 3> *qrRenderer{nullptr};
 #endif
     // SensorValues
-    uint8_t stm2esp_buf[S2E::SIZE] = {0};
+    S2E_t stm2esp_buf{};
     float analogInputsVolt[ANALOG_INPUTS_LEN] = {0};
     float wifiRssiDb{std::numeric_limits<float>::quiet_NaN()};
 
     // Actor Values
-    uint8_t esp2stm_buf[E2S::SIZE] = {0};
+    E2S_t esp2stm_buf{};
     uint32_t sound{0};
 
     // Safety
@@ -165,7 +222,7 @@ private:
 
     void Stm32Loop()
     {
-        if (i2c_master_transmit_receive(this->stm32_handle, esp2stm_buf, E2S::SIZE, stm2esp_buf, S2E::SIZE, 1000) != ESP_OK)
+        if (i2c_master_transmit_receive(this->stm32_handle, (uint8_t*)&esp2stm_buf, sizeof(esp2stm_buf), (uint8_t*)&stm2esp_buf, sizeof(stm2esp_buf), 1000) != ESP_OK)
         {
             ESP_LOGW(TAG, "Error while exchanging data with STM32 slave chip on address %d", I2C_SETUP::STM32_I2C_ADDRESS);
         }
@@ -213,7 +270,11 @@ private:
     void ShowTextOnLcd()
     {
 #if(LCD_DISPLAY>0)
-        lineRenderer->printfl(0, Color::WHITE, Color::BLACK, "LabAtHomeV15");
+#if defined(LABATHOME_V15_0)
+        lineRenderer->printfl(0, Color::WHITE, Color::BLACK, "LabAtHomeV15.0");
+#elif defined(LABATHOME_V15_1)
+        lineRenderer->printfl(0, Color::WHITE, Color::BLACK, "LabAtHomeV15.1");
+#endif
         display.Draw(lineRenderer);
         lineRenderer->printfl(1, Color::WHITE, Color::BLACK, "SSID: %s", WIFISTA::GetSsid());
         display.Draw(lineRenderer);
@@ -256,7 +317,6 @@ public:
     void DoMonitoring() override
     {
         static uint16_t enc_old{0};
-        static int easterEggCounter = 0;
         static uint32_t qr_info_counter{0};
         static esp_ip4_addr_t savedIpAddress{0};
         static int64_t nextPlannedScreenChange{0};
@@ -266,26 +326,7 @@ public:
         esp_ip4_addr_t newIpAddress = WIFISTA::GetIpAddress();
         //GetButtonGreenIsPressed does not work, if ESP_PROG is connected!
 #if(LCD_DISPLAY>0)
-        if (easterEggCounter < (INT_MAX - 10) && !((easterEggCounter & 0b1) ^ GetButtonGreenIsPressed())){
-            easterEggCounter++;
-        }
-        if (now < 10000 && easterEggCounter > 6 && easterEggCounter < (INT_MAX - 1)){
-            easterEggCounter = INT_MAX - 1;
-        }
-        if (easterEggCounter == INT_MAX - 1){
-            ESP_LOGI(TAG, "Sie haben das Osterei gefunden!");
-            breakout = new BREAKOUT::Renderer<240, 240>(&sans12pt1bpp::font);
-            breakout->GameInit(&display);
-            easterEggCounter = INT_MAX;
-        }
-        else if (easterEggCounter == INT_MAX){
-            uint16_t enc = ParseU16(stm2esp_buf, S2E::ROTENC_POS);
-            int diff = (int)enc - (int)enc_old;
-            breakout->GameLoop(diff * 2, GetButtonRedIsPressed(), &display);
-            display.Draw(breakout);
-            enc_old = enc;
-        }
-        else if (newIpAddress.addr != savedIpAddress.addr){
+        if (newIpAddress.addr != savedIpAddress.addr){
             char buffer[32];
             snprintf(buffer, 31, "https://" IPSTR, IP2STR(&newIpAddress)); // IPSTR, because Smartphones do not always have a MDNS service running
             qrRenderer->DisplayText(buffer);
@@ -353,15 +394,15 @@ public:
 
     ErrorCode GetAnalogInputs(float **voltages)
     {
-        this->analogInputsVolt[0] = ParseU16(this->stm2esp_buf, S2E::ADC0_POS);
-        this->analogInputsVolt[1] = ParseU16(this->stm2esp_buf, S2E::ADC1_POS);
+        this->analogInputsVolt[0] = this->stm2esp_buf.Adc0;
+        this->analogInputsVolt[1] = this->stm2esp_buf.Adc1;
         *voltages = this->analogInputsVolt;
         return ErrorCode::OK;
     }
 
     ErrorCode GetEncoderValue(int *value)
     {
-        *value = ParseU16(this->stm2esp_buf, S2E::ROTENC_POS);
+        *value = this->stm2esp_buf.Rotenc;
         return ErrorCode::OK;
     }
 
@@ -455,7 +496,7 @@ public:
         }
         else
         {
-            temp = ParseU16(stm2esp_buf, S2E::BRIGHTNESS_POS);
+            temp = stm2esp_buf.Brightness;
         }
         *lux = temp;
         return ErrorCode::OK;
@@ -490,10 +531,22 @@ public:
 
         ESP_ERROR_CHECK(i2c_new_master_bus(&i2c_mst_config, &i2c_master_handle));
 
-        // ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, I2C_SETUP::STM32_I2C_ADDRESS, 1000));
+        ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, I2C_SETUP::STM32_I2C_ADDRESS, 1000));
         ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, (uint8_t)AHT::ADDRESS::DEFAULT_ADDRESS, 1000));
-        // ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, 0x6A, 1000)); //LSM6DS3
+        ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, lsm6ds3::ADDRESS, 1000)); //LSM6DS3
         ESP_LOGI(TAG, "I2C bus successfully initialized and probed");
+
+        lsm6ds3::M gyro(i2c_master_handle);
+        int64_t waitTillFirstTrigger{0};
+        const float* gyroXYZ{nullptr};
+        
+        while(false){
+            gyro.Loop(millis());
+            gyroXYZ=gyro.GetGyroXYZ();
+            ESP_LOGI(TAG, "X=%6.1f, Y=%6.1f, Z=%6.1f", gyroXYZ[0], gyroXYZ[1], gyroXYZ[2]);
+            vTaskDelay(pdMS_TO_TICKS(300));
+        }
+
 #if(AUDIO>0)
         nau88c22::M *codec = new nau88c22::M(i2c_master_handle, PIN_I2S_MCLK, PIN_I2S_BCLK, PIN_I2S_FS, PIN_I2S_DAC);
         mp3player = new AudioPlayer::Player(codec);
@@ -516,7 +569,7 @@ public:
         // Tasks
         xTaskCreate([](void *p){((HAL_Impl*)p)->HalLoop();}, "halTask", 4096 * 4, this, 6, nullptr);
 #if(AUDIO>0)
-        xTaskCreate([](void *p){((HAL_Impl*)p)->AudioLoop();}, "audioTask", 8192 * 4, this, 8, nullptr);;
+        xTaskCreatePinnedToCore([](void *p){((HAL_Impl*)p)->AudioLoop();}, "audioTask", 8192 * 4, this, 8, nullptr, 1);;
 #endif
         return ErrorCode::OK;
     }
@@ -565,34 +618,28 @@ public:
 
     ErrorCode SetRelayState(bool state) override
     {
-        if (state)
-        {
-            SetBitIdx(this->esp2stm_buf[E2S::RELAY_BLRESET_POS], 0);
-        }
-        else
-        {
-            ClearBitIdx(this->esp2stm_buf[E2S::RELAY_BLRESET_POS], 0);
-        }
-        ESP_LOGI(TAG, "this->esp2stm_buf[E2S::RELAY_BLRESET_POS] is %d", this->esp2stm_buf[E2S::RELAY_BLRESET_POS]);
+
+        this->esp2stm_buf.Relay=state?1:0;
+        //ESP_LOGI(TAG, "this->esp2stm_buf[E2S::RELAY_BLRESET_POS] is %d", this->esp2stm_buf.RelayBlreset);
         return ErrorCode::OK;
     }
 
     ErrorCode SetHeaterDuty(float power_0_100) override
     {
-        this->esp2stm_buf[E2S::HEATER_POS] = power_0_100;
+        this->esp2stm_buf.Heater = power_0_100;
         return ErrorCode::OK;
     }
 
     float GetHeaterState() override
     {
-        return this->esp2stm_buf[E2S::HEATER_POS];
+        return this->esp2stm_buf.Heater;
     }
 
     ErrorCode SetServoPosition(uint8_t servoIndex, float angle_0_to_180) override
     {
         if (servoIndex >= 4)
             return ErrorCode::NONE_AVAILABLE;
-        this->esp2stm_buf[E2S::SERVO0_POS + servoIndex] = angle_0_to_180;
+        this->esp2stm_buf.Servo[servoIndex] = angle_0_to_180;
         return ErrorCode::OK;
     }
 
@@ -600,30 +647,30 @@ public:
     {
         if (fanIndex >= 1)
             return ErrorCode::NONE_AVAILABLE;
-        this->esp2stm_buf[E2S::FAN0_POS] = power_0_100;
+        this->esp2stm_buf.Fan[fanIndex] = power_0_100;
         return ErrorCode::OK;
     }
 
     ErrorCode GetFanDuty(uint8_t fanIndex, float *power_0_100) override
     {
-        *power_0_100 = this->esp2stm_buf[E2S::FAN0_POS];
+        *power_0_100 = this->esp2stm_buf.Fan[fanIndex];
         return ErrorCode::OK;
     }
 
     ErrorCode SetLedPowerWhiteDuty(float power_0_100) override
     {
-        this->esp2stm_buf[E2S::LED_POWER_POS] = power_0_100;
+        this->esp2stm_buf.LedPower = power_0_100;
         return ErrorCode::OK;
     }
 
     bool GetButtonRedIsPressed() override
     {
-        return GetBitIdx(this->stm2esp_buf[S2E::BTN_MOVEMENT_BLFAULT_POS], 0);
+        return this->stm2esp_buf.ButtonRed;
     }
 
     bool GetButtonEncoderIsPressed() override
     {
-        return GetBitIdx(this->stm2esp_buf[S2E::BTN_MOVEMENT_BLFAULT_POS], 1);
+        return this->stm2esp_buf.ButtonYellow;
     }
 
     bool GetButtonGreenIsPressed() override
@@ -633,12 +680,12 @@ public:
 
     bool IsMovementDetected() override
     {
-        return GetBitIdx(this->stm2esp_buf[S2E::BTN_MOVEMENT_BLFAULT_POS], 2);
+        return this->stm2esp_buf.Movement;
     }
 
     float GetUSBCVoltage() override
     {
-        return ParseU16(this->stm2esp_buf, S2E::USBPD_VOLTAGE_IS_POS);
+        return this->stm2esp_buf.UsbpdVoltage_mv;
     }
 
     ErrorCode GreetUserOnStartup() override
@@ -667,8 +714,7 @@ public:
 
     ErrorCode GetAmbientBrightnessAnalog(float *lux)
     {
-        uint16_t temp;
-        temp = ParseU16(stm2esp_buf, S2E::BRIGHTNESS_POS);
+        uint16_t temp=this->stm2esp_buf.Brightness;
         *lux = temp;
         return ErrorCode::OK;
     }

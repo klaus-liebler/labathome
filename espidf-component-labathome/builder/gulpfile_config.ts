@@ -2,11 +2,11 @@ import { X02 } from "./gulpfile_utils";
 
 export const USERSETTINGS_PARTITION_NAME="nvs"
 export const USERSETTINGS_PARTITION_SIZE_KILOBYTES=16;
-export const COM_PORT = "COM7";
+export const COM_PORT = "COM23";
 export const IDF_PATH=globalThis.process.env.IDF_PATH as string;
 
 export const ESP32_HOSTNAME_TEMPLATE = (mac:Uint8Array)=>{
-    return `esp32host_${X02(mac[3])}${X02(mac[4])}${X02(mac[5])}`;
+    return `labathome_${X02(mac[3])}${X02(mac[4])}${X02(mac[5])}`;
 }
 
 export const DEFAULT_COUNTRY = 'DE';

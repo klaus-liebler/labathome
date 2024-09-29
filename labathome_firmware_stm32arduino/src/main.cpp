@@ -11,49 +11,7 @@
 #include "stm32_esp32_communication.hh"
 #include "errormanager.hh"
 
-#if defined(__cplusplus)
-namespace PIN{
-    constexpr uint32_t HEATER{PC4};
-    constexpr uint32_t BL_ENABLE{PC6};
-    constexpr uint32_t UART4_TX{PC10};
-    constexpr uint32_t UART4_RX{PC11};
-    constexpr uint32_t BTN_YELLOW{PC13};
-    constexpr uint32_t MOVEMENT{PC14};
-    constexpr uint32_t BL_HALL2{PB0};
-    constexpr uint32_t BL_HALL1{PB1};
-    constexpr uint32_t BRIGHTNESS{PB2};
-    constexpr uint32_t LED_INFO{PB3};
-    constexpr uint32_t USBPD_CC2{PB4};
-    constexpr uint32_t BL_HALL3{PB5};
-    constexpr uint32_t USBPD_CC1{PB6};
-    constexpr uint32_t SDA{PB7};
-    constexpr uint32_t BTN_RED{PB8};
-    constexpr uint32_t LED_WHITE_P{PB9};
-    constexpr uint32_t NC{PB10};
-    constexpr uint32_t RELAY{PB11};
-    constexpr uint32_t BL_RESET{PB12};
-    constexpr uint32_t BL_FAULT{PB13};
-    constexpr uint32_t ADC_0{PB14};
-    constexpr uint32_t ADC_1{PB15};
-    constexpr uint32_t ROT_A{PA0};
-    constexpr uint32_t ROT_B{PA1};
-    constexpr uint32_t Servo0{PA2};
-    constexpr uint32_t Servo1{PA3};
-    constexpr uint32_t DAC_0{PA4};
-    constexpr uint32_t DAC_1{PA5};
-    constexpr uint32_t Servo2{PA6};
-    constexpr uint32_t FAN{PA7};
-    constexpr uint32_t BL_DRV1{PA8};
-    constexpr uint32_t BL_DRV2{PA9};
-    constexpr uint32_t BL_DRV3{PA10};
-    constexpr uint32_t USB_M{PA11};
-    constexpr uint32_t USB_P{PA12};
-    constexpr uint32_t SWDIO{PA13};
-    constexpr uint32_t SWCLK{PA14};
-    constexpr uint32_t SCL{PA15};
-}
-
-#endif
+#include "hal.hh"
 
 
 float brushless_motor_velocity{0.0};
@@ -85,6 +43,7 @@ constexpr uint32_t HALL_PH1_CH_CH = 4;
 constexpr uint32_t HALL_PH2_CH_CH = 3;
 constexpr uint32_t HALL_PH3_CH_CH = 2;
 
+#ifdef ARDUINO_LABATHOME_15_0
 HardwareTimer *TIM_LED_WHITE{nullptr}; // TIM4 for Power LED, ch 4
 constexpr uint32_t LED_WHITE_CH = 4;
 
@@ -97,7 +56,23 @@ constexpr uint32_t SERVO2_CH = 1;
 
 HardwareTimer *TIM_FAN{nullptr}; // TIM17 for Fan, ch1
 constexpr uint32_t FAN_CH = 1;
+#elif defined(ARDUINO_LABATHOME_15_1)
+HardwareTimer *TIM_SERVO{nullptr}; // TIM1
+constexpr uint32_t SERVO0_CH = 1;
+constexpr uint32_t SERVO1_CH = 2;
+constexpr uint32_t SERVO2_CH = 3;
+constexpr uint32_t SERVO3_CH = 4;
 
+HardwareTimer *TIM_FAN_LED_WHITE{nullptr}; // TIM15
+constexpr uint32_t FAN_CH = 1;
+constexpr uint32_t LED_WHITE_CH = 2;
+
+OPAMP_HandleTypeDef hopamp2;
+OPAMP_HandleTypeDef hopamp3;
+
+#else
+#error "No known board defined"
+#endif
 SINGLE_LED::BlinkPattern WAITING_FOR_CONNECTION(500, 500);
 SINGLE_LED::BlinkPattern UNDER_CONTROL_FROM_MASTER(100, 900);
 SINGLE_LED::BlinkPattern PROBLEM(100, 100);
@@ -106,13 +81,12 @@ void SetPhysicalOutputs();
 uint8_t CollectBitInputs();
 
 
-namespace I2C_SLAVE
-{
-  uint32_t receivedEvents{0};
-  uint32_t requestEvents{0};
-  uint8_t e2s_buffer[E2S::SIZE];
-  uint8_t s2e_buffer[S2E::SIZE];
-}
+
+uint32_t receivedEvents{0};
+uint32_t requestEvents{0};
+E2S_t e2s_buffer;
+S2E_t s2e_buffer;
+
 
 
 //I2C callbacks
@@ -126,7 +100,7 @@ extern "C" void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
     SetPhysicalOutputs();
     timeToPutActorsInFailsafe=millis()+3000;
-    ClearBitIdx(I2C_SLAVE::s2e_buffer[S2E::STATUS_POS], 2);
+    ClearBitIdx(s2e_buffer.Status, 2);
     //HAL_I2C_EnableListen_IT(hi2c);
 }
 
@@ -136,14 +110,14 @@ extern "C" void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDi
     UNUSED(AddrMatchCode);
     if (TransferDirection == I2C_DIRECTION_RECEIVE) // TransferDirection is master perspective
     {
-        I2C_SLAVE::requestEvents++;  
-        HAL_ERROR_CHECK(HAL_I2C_Slave_Seq_Transmit_IT(hi2c, I2C_SLAVE::s2e_buffer, S2E::SIZE, I2C_LAST_FRAME));
+        requestEvents++;  
+        HAL_ERROR_CHECK(HAL_I2C_Slave_Seq_Transmit_IT(hi2c, (uint8_t*)&s2e_buffer, sizeof(s2e_buffer), I2C_LAST_FRAME));
         //HAL_ERROR_CHECK(HAL_I2C_Slave_Seq_Transmit_IT(hi2c, test_buf, 12, I2C_LAST_FRAME));
     }
     else
     {
-        I2C_SLAVE::receivedEvents++;
-        HAL_ERROR_CHECK(HAL_I2C_Slave_Seq_Receive_IT(hi2c, I2C_SLAVE::e2s_buffer, E2S::SIZE, I2C_LAST_FRAME));
+        receivedEvents++;
+        HAL_ERROR_CHECK(HAL_I2C_Slave_Seq_Receive_IT(hi2c, (uint8_t*)&e2s_buffer, sizeof(e2s_buffer), I2C_LAST_FRAME));
     }
     timeToPutActorsInFailsafe=millis()+TIMEOUT_FOR_FAILSAFE;
 }
@@ -240,6 +214,7 @@ void SetServoAngle(uint8_t servo_0_1_2_3, uint8_t angle_0_180)
     angle_0_180 = 180;
   uint32_t us = degree2us(angle_0_180);
   //log_info("Set Servo %d to %lu us", servo_0_1_2_3, us);
+#ifdef ARDUINO_LABATHOME_15_0
   switch (servo_0_1_2_3)
   {
   case 0:
@@ -254,6 +229,10 @@ void SetServoAngle(uint8_t servo_0_1_2_3, uint8_t angle_0_180)
   default:
     break;
   }
+#elif defined(ARDUINO_LABATHOME_15_1)
+  if(servo_0_1_2_3>3) return;
+  TIM_SERVO->setCaptureCompare(servo_0_1_2_3+1, us, MICROSEC_COMPARE_FORMAT);
+#endif
 }
 
 void SetFanSpeed(uint8_t power_0_100)
@@ -262,7 +241,11 @@ void SetFanSpeed(uint8_t power_0_100)
   {
     power_0_100 = 100;
   }
+#ifdef ARDUINO_LABATHOME_15_0
   TIM_FAN->setCaptureCompare(FAN_CH, power_0_100, PERCENT_COMPARE_FORMAT);
+#elif defined(ARDUINO_LABATHOME_15_1)
+  TIM_FAN_LED_WHITE->setCaptureCompare(FAN_CH, power_0_100, PERCENT_COMPARE_FORMAT);
+#endif
 }
 
 void SetLedPowerPower(uint8_t power_0_100)
@@ -271,72 +254,57 @@ void SetLedPowerPower(uint8_t power_0_100)
   {
     power_0_100 = 100;
   }
+#ifdef ARDUINO_LABATHOME_15_0
   TIM_LED_WHITE->setCaptureCompare(LED_WHITE_CH, power_0_100, PERCENT_COMPARE_FORMAT);
+#elif defined(ARDUINO_LABATHOME_15_1)
+TIM_FAN_LED_WHITE->setCaptureCompare(LED_WHITE_CH, power_0_100, PERCENT_COMPARE_FORMAT);
+#endif
 }
 
 void SetPhysicalOutputs()
 {
   // write rx_buffer to my outputs
-  if (ParseU8(I2C_SLAVE::e2s_buffer, E2S::RELAY_BLRESET_POS) & 0b1)
-  {
-    digitalWrite(PIN::RELAY, HIGH);
-  }
-  else
-  {
-    digitalWrite(PIN::RELAY, LOW);
-  }
-
-  if (ParseU8(I2C_SLAVE::e2s_buffer, E2S::RELAY_BLRESET_POS) & 0b10)
-  {
-    digitalWrite(PIN::BL_RESET, HIGH); //
-  }
-  else
-  {
-    digitalWrite(PIN::BL_RESET, LOW);
-  }
-
-  SetServoAngle(0, ParseU8(I2C_SLAVE::e2s_buffer, E2S::SERVO0_POS));
-  SetServoAngle(1, ParseU8(I2C_SLAVE::e2s_buffer, E2S::SERVO1_POS));
-  SetServoAngle(2, ParseU8(I2C_SLAVE::e2s_buffer, E2S::SERVO2_POS));
-  SetFanSpeed(ParseU8(I2C_SLAVE::e2s_buffer, E2S::FAN0_POS));
+  
+  digitalWrite(PIN::RELAY, e2s_buffer.Relay);
+  digitalWrite(PIN::BL_RESET, e2s_buffer.Blreset); 
+  SetServoAngle(0, e2s_buffer.Servo[0]);
+  SetServoAngle(1, e2s_buffer.Servo[1]);
+  SetServoAngle(2, e2s_buffer.Servo[2]);
+  SetServoAngle(3, e2s_buffer.Servo[3]);
+  SetFanSpeed(e2s_buffer.Fan[0]);
   // TODO USBC
   // HAL_DAC_SetValue(&hdac1, DAC1_CHANNEL_1, DAC_ALIGN_12B_R, ParseU16(esp2stm_buf, DAC1_POS));
   // HAL_DAC_SetValue(&hdac1, DAC1_CHANNEL_2, DAC_ALIGN_12B_R, ParseU16(esp2stm_buf, DAC2_POS));
   // SetHeaterPower: loop1ms automatically fetches correct value from buffer
-  SetLedPowerPower(ParseU8(I2C_SLAVE::e2s_buffer, E2S::LED_POWER_POS));
+  SetLedPowerPower(e2s_buffer.LedPower);
   // TODO Brushless Mode
-  if(ParseU8(I2C_SLAVE::e2s_buffer, E2S::THREEPHASE_MODE_POS)==0){
-    brushless_motor_velocity=ParseU8(I2C_SLAVE::e2s_buffer, E2S::THREEPHASE_P1_DUTY_POS);
+  if(e2s_buffer.ThreephaseMode==0){
+    brushless_motor_velocity=e2s_buffer.ThreephaseP1;
   }
   // TODO Brushless Speeds
 }
 
 void setActorsToSafeSetting()
 {
-  memset(I2C_SLAVE::e2s_buffer, 0, E2S::SIZE);
+  memset((void*)&e2s_buffer, 0, sizeof(e2s_buffer));
   SetPhysicalOutputs();
 }
 
-uint8_t CollectBitInputs()
-{
-  return (digitalRead(PIN::BTN_RED) << 0) |
-         ((!digitalRead(PIN::BTN_YELLOW)) << 1) |
-         (digitalRead(PIN::MOVEMENT) << 2) |
-         ((!digitalRead(PIN::BL_FAULT)) << 3);
-}
 
 void app_loop20ms(uint32_t now)
 {
   led->Loop(now);
 
   //I2C_SLAVE::e2s_buffer[E2S::HEATER_POS] = encoder.GetTicks(); // COMMENT OUT FOR TESTING ONLY
-
-  WriteU8(CollectBitInputs(), I2C_SLAVE::s2e_buffer, S2E::BTN_MOVEMENT_BLFAULT_POS);
-  WriteU16(encoder.GetTicks(), I2C_SLAVE::s2e_buffer, S2E::ROTENC_POS);
-  WriteU16(0, I2C_SLAVE::s2e_buffer, S2E::BRIGHTNESS_POS);
-  WriteU16(PowerSink.activeVoltage, I2C_SLAVE::s2e_buffer, S2E::USBPD_VOLTAGE_IS_POS);
-  WriteU16(analogRead(PIN::ADC_0), I2C_SLAVE::s2e_buffer, S2E::ADC0_POS);
-  WriteU16(analogRead(PIN::ADC_1), I2C_SLAVE::s2e_buffer, S2E::ADC1_POS);
+  s2e_buffer.ButtonRed=digitalRead(PIN::BTN_RED);
+  s2e_buffer.Movement=digitalRead(PIN::MOVEMENT);
+  s2e_buffer.Blfault=(!digitalRead(PIN::BL_FAULT));
+  s2e_buffer.ButtonYellow=(!digitalRead(PIN::BTN_YELLOW));
+  s2e_buffer.Rotenc=encoder.GetTicks();
+  s2e_buffer.Brightness=analogRead(PIN::BRIGHTNESS);
+  s2e_buffer.UsbpdVoltage_mv=PowerSink.activeVoltage;
+  s2e_buffer.Adc0=analogRead(PIN::ADC_0);
+  s2e_buffer.Adc1=analogRead(PIN::ADC_1);
 
   if (now >= timeToPutActorsInFailsafe)
   {
@@ -346,7 +314,7 @@ void app_loop20ms(uint32_t now)
       alreadySetToFailsafe = true;
       gotDataInfoAlreadyPrinted = false;
       setActorsToSafeSetting();
-      SetBitIdx(I2C_SLAVE::s2e_buffer[S2E::STATUS_POS], 2);
+      SetBitIdx(s2e_buffer.Status, 2);
       led->AnimatePixel(millis(), &PROBLEM);
     }
     
@@ -366,13 +334,14 @@ void app_loop20ms(uint32_t now)
 
 char logBuffer1[96];
 char logBuffer2[96];
+
 void app_loop1000ms(uint32_t now)
 {
   (void)now;
 
   //char* buf = errMan.GetLast8AsCharBuf_DoNotForgetToFree();
-  byteBuf2hexCharBuf(logBuffer1, 96, I2C_SLAVE::s2e_buffer, S2E::SIZE);
-  byteBuf2hexCharBuf(logBuffer2, 96, I2C_SLAVE::e2s_buffer, E2S::SIZE);
+  byteBuf2hexCharBuf(logBuffer1, 96, (uint8_t*)&s2e_buffer, sizeof(s2e_buffer));
+  byteBuf2hexCharBuf(logBuffer2, 96, (uint8_t*)&e2s_buffer, sizeof(e2s_buffer));
   log_info("enc=%d s2e=%s, e2s=%s", encoder.GetTicks(), logBuffer1, logBuffer2);
   //printf("printf\n");
   //Serial.printf("Serial.printf\n");
@@ -387,7 +356,7 @@ void app_loop_superfast(uint32_t now)
   if (passedTime >= (10 * 100))
   {
     startOfCycle = now;
-    if (I2C_SLAVE::e2s_buffer[E2S::HEATER_POS] > 0)
+    if (e2s_buffer.Heater > 0)
     {
       digitalWrite(PIN::HEATER, HIGH);
     }
@@ -396,13 +365,11 @@ void app_loop_superfast(uint32_t now)
       digitalWrite(PIN::HEATER, LOW);
     }
   }
-  else if (passedTime >= 10 * I2C_SLAVE::e2s_buffer[E2S::HEATER_POS])
+  else if (passedTime >= 10 * e2s_buffer.Heater)
   {
     digitalWrite(PIN::HEATER, LOW);
   }
 }
-
-
 
 void setup()
 {
@@ -422,13 +389,35 @@ void setup()
   pinMode(PIN::RELAY, OUTPUT);
   pinMode(PIN::ADC_0, INPUT_ANALOG);
   pinMode(PIN::ADC_1, INPUT_ANALOG);
+  pinMode(PIN::BRIGHTNESS, INPUT_ANALOG);
+#ifdef ARDUINO_LABATHOME_15_1
+  pinMode(PIN::BL_SLEEP, OUTPUT);
+  pinMode(PIN::BL_ISENSE, INPUT_ANALOG);//OPAMP2+
+  pinMode(PIN::OPAMP3_M, INPUT_ANALOG);//OPAMP3-
+  pinMode(PIN::OPAMP3_P, INPUT_ANALOG);//OPAMP3+
+  pinMode(PIN::OPAMP3_Q, INPUT_ANALOG);//OPAMP3+
+  pinMode(PIN::SUPPLY_24V_SENSE, INPUT_ANALOG);
 
+  hopamp2.Instance = OPAMP2;
+  hopamp2.Init.PowerMode = OPAMP_POWERMODE_NORMALSPEED;
+  hopamp2.Init.Mode = OPAMP_PGA_MODE;
+  hopamp2.Init.NonInvertingInput = OPAMP_NONINVERTINGINPUT_IO1;
+  hopamp2.Init.InternalOutput = ENABLE;
+  hopamp2.Init.TimerControlledMuxmode = OPAMP_TIMERCONTROLLEDMUXMODE_DISABLE;
+  hopamp2.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_NO;
+  hopamp2.Init.PgaGain = OPAMP_PGA_GAIN_4_OR_MINUS_3;
+  hopamp2.Init.UserTrimming = OPAMP_TRIMMING_FACTORY;
+  HAL_ERROR_CHECK(HAL_OPAMP_Init(&hopamp2));
+  HAL_ERROR_CHECK(HAL_OPAMP_Start(&hopamp2));
+
+#endif
   log_info("Init Rotary Encoder");
   encoder.Setup();
   
   log_info("Init Timer");
   // Problem: Die All-In-One-Funktion "setPWM" kann nur ganzzahlige Prozentangaben setzen, Dies ist zu Wenig für Servos
   // Lösung: Hier diese Funktion zum grundsätzlichen Initialisieren verwenden und oben die "setCaptureCompare"
+#ifdef ARDUINO_LABATHOME_15_0
   TIM_LED_WHITE = new HardwareTimer(TIM4);
   TIM_SERVO_0_1 = new HardwareTimer(TIM15);
   TIM_SERVO_2 = new HardwareTimer(TIM16);
@@ -439,7 +428,19 @@ void setup()
   TIM_SERVO_0_1->setPWM(SERVO1_CH, PA_3_ALT1, 50, 0);
   TIM_SERVO_2->setPWM(SERVO2_CH, PA_6_ALT1, 50, 0);
   TIM_FAN->setPWM(FAN_CH, PA_7_ALT3, 50, 0);
+#elif defined(ARDUINO_LABATHOME_15_1)
+  TIM_SERVO=new HardwareTimer(TIM1);
+  TIM_SERVO->setPWM(SERVO0_CH, PC_0, 50, 0);
+  TIM_SERVO->setPWM(SERVO1_CH, PC_1, 50, 0);
+  TIM_SERVO->setPWM(SERVO2_CH, PC_2, 50, 0);
+  TIM_SERVO->setPWM(SERVO3_CH, PC_3, 50, 0);
 
+  TIM_FAN_LED_WHITE=new HardwareTimer(TIM15);
+  TIM_FAN_LED_WHITE->setPWM(FAN_CH, PA_2_ALT1, 50, 0);
+  TIM_FAN_LED_WHITE->setPWM(LED_WHITE_CH, PA_3_ALT1, 50, 0);
+
+
+#endif
   log_info("Init Info LED");
   led = new SINGLE_LED::M(PIN::LED_INFO, true, &WAITING_FOR_CONNECTION);
   led->Begin(millis(), &WAITING_FOR_CONNECTION, 10000);
@@ -448,7 +449,7 @@ void setup()
   PowerSink.start(USB_PD::handleUsbPdEvent);
 
   log_info("Init I2C");
-  memset(I2C_SLAVE::s2e_buffer, 0, S2E::SIZE);
+  memset(&s2e_buffer, 0, sizeof(s2e_buffer));
   setActorsToSafeSetting();
   
   Wire.setSDA(PIN::SDA);

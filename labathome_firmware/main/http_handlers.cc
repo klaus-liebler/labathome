@@ -15,6 +15,9 @@
 #include "devicemanager.hh"
 #include "common-esp32.hh"
 
+extern DeviceManager *devicemanager;
+extern httpd_handle_t http_server;
+
 #ifndef CONFIG_SMOPLA_HTTP_SCRATCHPAD_SIZE
 #define CONFIG_SMOPLA_HTTP_SCRATCHPAD_SIZE 2048
 #endif
@@ -527,4 +530,105 @@ esp_err_t handle_post_fbddefaultbin(httpd_req_t *req){
 
 esp_err_t handle_post_fbddefaultjson(httpd_req_t *req){
     return helper_post_fbd(req, labathome::config::paths::DEFAULT_FBD_JSON_FILENAME, true);
+}
+
+constexpr httpd_uri_t getroot = {
+    .uri = "/",
+    .method = HTTP_GET,
+    .handler = handle_get_root,
+    .user_ctx = &devicemanager,
+};
+
+constexpr httpd_uri_t putfbd = {
+    .uri = "/fbd",
+    .method = HTTP_PUT,
+    .handler = handle_put_fbd,
+    .user_ctx = &devicemanager,
+};
+
+constexpr httpd_uri_t getfbd = {
+    .uri = "/fbd",
+    .method = HTTP_GET,
+    .handler = handle_get_fbd,
+    .user_ctx = &devicemanager,
+};
+
+constexpr httpd_uri_t getfbdstorejson = {
+    .uri = "/fbdstorejson/*",
+    .method = HTTP_GET,
+    .handler = handle_get_fbdstorejson,
+    .user_ctx = &devicemanager,
+};
+
+constexpr httpd_uri_t postfbdstorejson = {
+    .uri = "/fbdstorejson/*",
+    .method = HTTP_POST,
+    .handler = handle_post_fbdstorejson,
+    .user_ctx = &devicemanager,
+};
+
+constexpr httpd_uri_t deletefbdstorejson = {
+    .uri = "/fbdstorejson/*",
+    .method = HTTP_DELETE,
+    .handler = handle_delete_fbdstorejson,
+    .user_ctx = &devicemanager,
+};
+
+constexpr httpd_uri_t postfbddefaultbin = {
+    .uri = "/fbddefaultbin",
+    .method = HTTP_POST,
+    .handler = handle_post_fbddefaultbin,
+    .user_ctx = &devicemanager,
+};
+
+constexpr httpd_uri_t postfbddefaultjson = {
+    .uri = "/fbddefaultjson",
+    .method = HTTP_POST,
+    .handler = handle_post_fbddefaultjson,
+    .user_ctx = &devicemanager,
+};
+
+constexpr httpd_uri_t putheaterexperiment = {
+    .uri = "/heaterexperiment",
+    .method = HTTP_PUT,
+    .handler = handle_put_heaterexperiment,
+    .user_ctx = &devicemanager,
+};
+
+constexpr httpd_uri_t putairspeedexperiment = {
+    .uri = "/airspeedexperiment",
+    .method = HTTP_PUT,
+    .handler = handle_put_airspeedexperiment,
+    .user_ctx = &devicemanager,
+};
+/*
+constexpr httpd_uri_t putfftexperiment = {
+    .uri = "/fftexperiment",
+    .method = HTTP_PUT,
+    .handler = handle_put_fftexperiment,
+    .user_ctx = &devicemanager,
+};
+*/
+
+constexpr httpd_uri_t putptnexperiment = {
+    .uri = "/ptnexperiment",
+    .method = HTTP_PUT,
+    .handler = handle_put_ptnexperiment,
+    .user_ctx = &devicemanager,
+};
+
+
+void RegisterHandlers(){
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &getroot));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putfbd));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &getfbd));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putheaterexperiment));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putairspeedexperiment));
+    //ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putfftexperiment));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &getfbdstorejson));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &deletefbdstorejson));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &postfbdstorejson));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &postfbddefaultbin));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &postfbddefaultjson));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putptnexperiment));
 }

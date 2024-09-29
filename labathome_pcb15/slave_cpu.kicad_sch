@@ -5012,10 +5012,6 @@
 		(uuid "fb525b43-6634-4d96-bc68-49ad6605d1e8")
 	)
 	(no_connect
-		(at 68.58 87.63)
-		(uuid "84da824b-762d-466a-b97c-38e4def71d41")
-	)
-	(no_connect
 		(at 219.71 55.88)
 		(uuid "901b77a1-4944-4922-b9c1-6fccb7599a56")
 	)
@@ -6155,16 +6151,6 @@
 		)
 		(uuid "4acd6a79-b2e9-4234-aa28-c9c11ef633e9")
 	)
-	(text "Overcurrent ca. 1,5A"
-		(exclude_from_sim no)
-		(at 238.506 74.676 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "4c23eb59-7a62-4479-8e9c-ad0ed417814f")
-	)
 	(text "OPAMP3.+"
 		(exclude_from_sim no)
 		(at 55.626 113.284 0)
@@ -6516,22 +6502,22 @@
 	)
 	(global_label "BL_RESET"
 		(shape output)
-		(at 33.02 54.61 180)
+		(at 68.58 87.63 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right)
+			(justify left)
 		)
 		(uuid "1417a20e-158a-47cb-b40d-d2d5894e9ed0")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 21.024 54.61 0)
+			(at 80.576 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
 				(hide yes)
 			)
 		)
@@ -6576,6 +6562,28 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "LCD_RES"
+		(shape output)
+		(at 33.02 54.61 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "1ceb8d7f-5a0c-470b-83f3-eb16a38ce774")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 21.8706 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
 				(hide yes)
 			)
 		)

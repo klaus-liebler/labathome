@@ -49,103 +49,14 @@ httpd_handle_t http_server{nullptr};
 #define CONFIG_SMOPLA_HTTP_SCRATCHPAD_SIZE 2048
 #endif
 #define NVS_PARTITION_NAME NVS_DEFAULT_PART_NAME
-extern const unsigned char rootCAcert_start[] asm("_binary_rootCA_pem_crt_start");
-extern const unsigned char rootCAcert_end[] asm("_binary_rootCA_pem_crt_end");
-extern const unsigned char cert_start[] asm("_binary_esp32_pem_crt_start");
-extern const unsigned char cert_end[] asm("_binary_esp32_pem_crt_end");
-extern const unsigned char privkey_start[] asm("_binary_esp32_pem_key_start");
-extern const unsigned char privkey_end[] asm("_binary_esp32_pem_key_end");
+
+FLASH_FILE(esp32_pem_crt);
+FLASH_FILE(esp32_pem_key);
+
 
 uint8_t http_scatchpad[CONFIG_SMOPLA_HTTP_SCRATCHPAD_SIZE] ALL4;
 
-extern "C" void app_main();
-
-constexpr httpd_uri_t getroot = {
-    .uri = "/",
-    .method = HTTP_GET,
-    .handler = handle_get_root,
-    .user_ctx = &devicemanager,
-};
-
-constexpr httpd_uri_t putfbd = {
-    .uri = "/fbd",
-    .method = HTTP_PUT,
-    .handler = handle_put_fbd,
-    .user_ctx = &devicemanager,
-};
-
-constexpr httpd_uri_t getfbd = {
-    .uri = "/fbd",
-    .method = HTTP_GET,
-    .handler = handle_get_fbd,
-    .user_ctx = &devicemanager,
-};
-
-constexpr httpd_uri_t getfbdstorejson = {
-    .uri = "/fbdstorejson/*",
-    .method = HTTP_GET,
-    .handler = handle_get_fbdstorejson,
-    .user_ctx = &devicemanager,
-};
-
-constexpr httpd_uri_t postfbdstorejson = {
-    .uri = "/fbdstorejson/*",
-    .method = HTTP_POST,
-    .handler = handle_post_fbdstorejson,
-    .user_ctx = &devicemanager,
-};
-
-constexpr httpd_uri_t deletefbdstorejson = {
-    .uri = "/fbdstorejson/*",
-    .method = HTTP_DELETE,
-    .handler = handle_delete_fbdstorejson,
-    .user_ctx = &devicemanager,
-};
-
-constexpr httpd_uri_t postfbddefaultbin = {
-    .uri = "/fbddefaultbin",
-    .method = HTTP_POST,
-    .handler = handle_post_fbddefaultbin,
-    .user_ctx = &devicemanager,
-};
-
-constexpr httpd_uri_t postfbddefaultjson = {
-    .uri = "/fbddefaultjson",
-    .method = HTTP_POST,
-    .handler = handle_post_fbddefaultjson,
-    .user_ctx = &devicemanager,
-};
-
-constexpr httpd_uri_t putheaterexperiment = {
-    .uri = "/heaterexperiment",
-    .method = HTTP_PUT,
-    .handler = handle_put_heaterexperiment,
-    .user_ctx = &devicemanager,
-};
-
-constexpr httpd_uri_t putairspeedexperiment = {
-    .uri = "/airspeedexperiment",
-    .method = HTTP_PUT,
-    .handler = handle_put_airspeedexperiment,
-    .user_ctx = &devicemanager,
-};
-/*
-constexpr httpd_uri_t putfftexperiment = {
-    .uri = "/fftexperiment",
-    .method = HTTP_PUT,
-    .handler = handle_put_fftexperiment,
-    .user_ctx = &devicemanager,
-};
-*/
-
-constexpr httpd_uri_t putptnexperiment = {
-    .uri = "/ptnexperiment",
-    .method = HTTP_PUT,
-    .handler = handle_put_ptnexperiment,
-    .user_ctx = &devicemanager,
-};
-
-void app_main(void)
+extern "C" void app_main()
 {
     // Configure Logging
     //esp_log_level_set(TAG, ESP_LOG_INFO);
@@ -165,10 +76,10 @@ void app_main(void)
     WIFISTA::InitAndRun(WIFI_SSID, WIFI_PASS, "labathome_%02x%02x%02x");
     const char *hostname = WIFISTA::GetHostname();
     httpd_ssl_config_t httpd_conf = HTTPD_SSL_CONFIG_DEFAULT();
-    httpd_conf.servercert = cert_start;
-    httpd_conf.servercert_len = cert_end - cert_start;
-    httpd_conf.prvtkey_pem = privkey_start;
-    httpd_conf.prvtkey_len = privkey_end - privkey_start;
+    httpd_conf.servercert = esp32_pem_crt_start;
+    httpd_conf.servercert_len = esp32_pem_crt_end-esp32_pem_crt_start;
+    httpd_conf.prvtkey_pem = esp32_pem_key_start;
+    httpd_conf.prvtkey_len = esp32_pem_key_end-esp32_pem_key_start;
     httpd_conf.httpd.uri_match_fn = httpd_uri_match_wildcard;
     httpd_conf.httpd.max_uri_handlers = 15;
     httpd_conf.httpd.global_user_ctx = http_scatchpad;
@@ -182,19 +93,8 @@ void app_main(void)
     ESP_LOGI(TAG, "RED %d YEL %d GRN %d", hal->GetButtonRedIsPressed(), hal->GetButtonEncoderIsPressed(), hal->GetButtonGreenIsPressed());
 
     // Allow Browser Access
-    // TODO: Das alles in den Device-Manager packen (siehe Muster im WebManager)
-    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &getroot));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putfbd));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &getfbd));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putheaterexperiment));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putairspeedexperiment));
-    //ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putfftexperiment));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &getfbdstorejson));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &deletefbdstorejson));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &postfbdstorejson));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &postfbddefaultbin));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &postfbddefaultjson));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putptnexperiment));
+    RegisterHandlers();
+ 
 
     // Start eternal supervisor loop
     TickType_t xLastWakeTime = xTaskGetTickCount();

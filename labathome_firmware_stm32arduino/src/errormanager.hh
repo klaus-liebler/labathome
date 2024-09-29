@@ -1,7 +1,15 @@
 #pragma once
+#define STM_ERROR_CHECK(x) do {                                         \
+        HAL_StatusTypeDef err_rc_ = (x);                                        \
+        if (unlikely(err_rc_ != HAL_OK)) {                              \
+            log_fatal("HAL Error");                 \
+        }                                                               \
+    } while(0)
+
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+
 template <size_t ERR_CNT, typename T >
 class ErrorManager{
   private:
