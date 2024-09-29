@@ -1,5 +1,6 @@
 @import "./dialog.css";
 @import "./flowchart.css";
+@import "./chatbot.css";
 
 :root {
   --main-white-color: #f2f2f2;

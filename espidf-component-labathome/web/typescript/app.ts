@@ -7,6 +7,7 @@ import { AppManagement } from "./AppManagement";
 import { PtnExperimentController } from "./PtnExperimentController";
 import { AirspeedExperimentController } from "./AirspeedExperimentController";
 import {FFTExperimentController} from "./FFTExperimentController";
+import { Chatbot } from "./chatbot";
 
 class DashboardController extends ScreenController {
     public onFirstStart(): void { }
@@ -40,7 +41,7 @@ class AppController implements AppManagement {
     private activeControllerIndex: number;
     private screenControllers: ScreenController[];
     private dialogController:DialogController;
-
+    private chatbot:Chatbot;
     public DialogController() { return this.dialogController; };
 
 
@@ -50,6 +51,7 @@ class AppController implements AppManagement {
         this.screenControllers = [];
         this.activeControllerIndex = 0;
         this.dialogController=new DialogController(this);
+        this.chatbot=new Chatbot();
     }
 
     private SetApplicationState(state: string) {
@@ -82,6 +84,7 @@ class AppController implements AppManagement {
 
     public startup() {
         this.dialogController.init();
+        this.chatbot.Setup();
         this.screenControllers.push(new DashboardController(this, <HTMLDivElement>document.getElementById("screen_dashboard")));
         this.screenControllers.push(new DevelopCFCController(this, <HTMLDivElement>document.getElementById("screen_develop")));
         this.screenControllers.push(new ReportsController(this, <HTMLDivElement>document.getElementById("screen_reports")));
