@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import proc from "node:child_process";
-import { getMac } from "./esp32/esp32"
+import { getMac, testopen } from "./esp32/esp32"
 import { parsePartitions } from "./esp32/partition_parser"
 
 import * as cert from "./certificates"
@@ -163,6 +163,10 @@ exports.show_nvs = (cb: gulp.TaskFunctionCallback) => {
     console.log(stdout);
     cb(err);
   });
+}
+
+exports.testserial = (cb: gulp.TaskFunctionCallback) => {
+  return testopen("COM29");
 }
 
 

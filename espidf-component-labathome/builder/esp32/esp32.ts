@@ -218,6 +218,25 @@ class BootloaderReturn {
     constructor(public readonly valid: boolean, public readonly value: number, public readonly payload: Buffer | null) { }
 }
 
+export async function testopen(comPort: string) {
+    try {
+        const port = new SerialPort({
+            path: comPort,
+            baudRate: 115200,
+          }, function (err) {
+            if (err) {
+              return console.log('Error: ', err.message)
+            }
+          });
+          port.on('error', function(err) {
+            console.log('Error: ', err.message)
+          })
+    } catch (error) {
+        console.error(error);
+    }
+   
+}
+
 export async function getMac(comPort: string):Promise<Uint8Array> {
     const portInfo = await autoDetect().list();
     for (var i of portInfo) {
