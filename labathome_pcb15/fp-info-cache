@@ -1,4 +1,4 @@
-24387459311211639
+24402193822547381
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -56693,6 +56693,13 @@ One digit LED 7 segment SA39-11 SC39-11 SA39-12 SC39-12
 10
 10
 Espressif
+ESP32-C3-DevKitC-02
+
+
+0
+30
+30
+Espressif
 ESP32-C3-DevKitM-1
 
 
@@ -56770,12 +56777,26 @@ esp32-c6
 37
 29
 Espressif
+ESP32-C6-WROOM-1U
+ESP32-C6-WROOM-1U: https://www.espressif.com/sites/default/files/documentation/esp32-c6-wroom-1_wroom-1u_datasheet_en.pdf
+esp32-c6
+0
+37
+29
+Espressif
 ESP32-DevKitC
 ESP32-DevKitC: https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html
 ESP32
 0
 38
 38
+Espressif
+ESP32-DevKitM-1
+ESP32-DevKitC: https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html
+ESP32
+0
+34
+34
 Espressif
 ESP32-H2-MINI-1
 ESP32-H2-MINI-1: https://www.espressif.com/sites/default/files/documentation/esp32-h2-mini-1_mini-1u_datasheet_en.pdf
@@ -56797,6 +56818,13 @@ ESP32-MINI-1U
 0
 63
 55
+Espressif
+ESP32-P4
+
+
+0
+113
+105
 Espressif
 ESP32-PICO-MINI-02
 ESP32-PICO-MINI-02: https://www.espressif.com/sites/default/files/documentation/esp32-pico-mini-02_datasheet_en.pdf
@@ -56965,6 +56993,13 @@ esp32 module thermal vias
 0
 59
 39
+Espressif
+ESP8685-WROOM-06
+ESP32-WROOM-06: https://www.espressif.com/sites/default/files/documentation/esp8685-wroom-06_datasheet_en.pdf
+esp32 module
+0
+31
+22
 Espressif
 QFN-32-1EP_4x4mm_P0.4mm_EP2.9x2.9mm
 QFN, 32 Pin (http://ww1.microchip.com/downloads/en/DeviceDoc/atmel-8153-8-and-16-bit-avr-microcontroller-xmega-e-atxmega8e5-atxmega16e5-atxmega32e5_datasheet.pdf#page=70), generated with kicad-footprint-generator ipc_noLead_generator.py
@@ -97748,6 +97783,13 @@ rotary encoder
 7
 6
 liebler_MECH
+RotaryEncoder_EC11_SMD_handsolder
+
+
+0
+7
+6
+liebler_MECH
 SLLB510100
 
 
@@ -98357,6 +98399,13 @@ FP-114H03A
 8
 8
 liebler_OPTO
+IPS LCD 0.99 40x160
+
+
+0
+10
+10
+liebler_OPTO
 IPS_240_240_1.3
 
 
@@ -98657,6 +98706,13 @@ lga land grid array
 0
 11
 11
+liebler_SEMICONDUCTORS
+BriggeRectifierSmall_SMD
+SMD diode bridge ABS (Diotec), see https://diotec.com/tl_files/diotec/files/pdf/datasheets/abs2.pdf
+ABS MBLS
+0
+4
+4
 liebler_SEMICONDUCTORS
 D_SMA
 Diode SMA (DO-214AC)
