@@ -3413,6 +3413,16 @@
 	)
 	(wire
 		(pts
+			(xy 57.15 78.74) (xy 74.93 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7767a332-d02c-427b-af57-f61a370afee7")
+	)
+	(wire
+		(pts
 			(xy 147.32 68.58) (xy 147.32 67.31)
 		)
 		(stroke
@@ -7095,6 +7105,73 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/2f2efef3-f887-4727-9b58-1fbd8d1c6d1d"
 					(reference "#PWR0153")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint_Small")
+		(at 57.15 78.74 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "bca53cb8-c7c4-4cb1-b160-3843f925b231")
+		(property "Reference" "TP1"
+			(at 58.42 77.4699 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "G2"
+			(at 58.42 80.0099 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_THTPad_D1.0mm_Drill0.5mm"
+			(at 52.07 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 52.07 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 57.15 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "4884685a-2183-4c47-a68a-99aca18d6c00")
+		)
+		(instances
+			(project "labathome_pcb15"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/2f2efef3-f887-4727-9b58-1fbd8d1c6d1d"
+					(reference "TP1")
 					(unit 1)
 				)
 			)
