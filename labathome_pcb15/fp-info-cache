@@ -1,4 +1,4 @@
-24405650084960395
+24412563311946394
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -97930,6 +97930,13 @@ TT-Motor
 2
 2
 liebler_MECH
+Tactile Switch 3x2x0.65mm
+
+
+0
+2
+2
+liebler_MECH
 XDCR_CMT-7525-80-SMT-TR
 
 
@@ -98510,6 +98517,13 @@ WS2812b_handsolder
 0
 4
 4
+liebler_OPTO
+XL-1010RGBC-WS2812B
+
+
+0
+4
+4
 liebler_PASSIVES
 ASPIAIG-Q8080
 
@@ -98666,6 +98680,20 @@ SMD0201
 2
 liebler_PASSIVES
 SMD0402
+
+
+0
+2
+2
+liebler_PASSIVES
+SMD0603
+
+
+0
+2
+2
+liebler_PASSIVES
+SMD0805
 
 
 0

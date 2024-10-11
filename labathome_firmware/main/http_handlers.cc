@@ -363,6 +363,13 @@ esp_err_t handle_put_heaterexperiment(httpd_req_t *req)
     return ESP_OK;
 }
 
+esp_err_t handle_get_sensors(httpd_req_t *req){
+    DeviceManager *devicemanager = *static_cast<DeviceManager **>(req->user_ctx);
+    char *buf= static_cast<char*>(httpd_get_global_user_ctx(req->handle));
+    devicemanager->GetHAL()->GetSensorsAsJSON(buf, CONFIG_SMOPLA_HTTP_SCRATCHPAD_SIZE);
+    return ESP_OK;
+}
+
 esp_err_t handle_put_airspeedexperiment(httpd_req_t *req){
     DeviceManager *devicemanager = *static_cast<DeviceManager **>(req->user_ctx);
     int ret=0;
@@ -617,6 +624,13 @@ constexpr httpd_uri_t putptnexperiment = {
     .user_ctx = &devicemanager,
 };
 
+constexpr httpd_uri_t getsensors = {
+    .uri = "/sensors",
+    .method = HTTP_GET,
+    .handler = handle_get_sensors,
+    .user_ctx = &devicemanager,
+};
+
 
 void RegisterHandlers(){
     ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &getroot));
@@ -631,4 +645,5 @@ void RegisterHandlers(){
     ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &postfbddefaultbin));
     ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &postfbddefaultjson));
     ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putptnexperiment));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &getsensors));
 }

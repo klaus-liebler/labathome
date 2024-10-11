@@ -400,6 +400,11 @@ public:
         return ErrorCode::OK;
     }
 
+    ErrorCode GetSensorsAsJSON(char* buffer, size_t maxLen) override{
+        this->oneWireBus->FormatJSON(buffer, maxLen);
+        return ErrorCode::OK;
+    }
+
     ErrorCode GetEncoderValue(int *value)
     {
         *value = this->stm2esp_buf.Rotenc;
