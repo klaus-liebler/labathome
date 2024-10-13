@@ -118,6 +118,7 @@ exports.cert = (cb: gulp.TaskFunctionCallback) => {
   
 }
 
+//creates certificates with a given public key
 exports.cert_gk = (cb: gulp.TaskFunctionCallback) => {
   const hostname = fs.readFileSync(P.HOSTNAME_FILE).toString();//esp32host_2df5c8
   var esp32Cert=cert.CreateAndSignCertWithGivenPublicKey(P.ESP32_CERT_PEM_PUBKEY, hostname, hostname, P.ROOT_CA_PEM_CRT, P.ROOT_CA_PEM_PRVTKEY);

@@ -5970,15 +5970,15 @@
 	(symbol
 		(lib_id "Connector_Generic:Conn_02x09_Odd_Even")
 		(at 227.33 120.65 0)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "35eb1e95-1bdb-4b26-afc5-d141a3457751")
 		(property "Reference" "J26"
-			(at 228.6 104.14 0)
+			(at 228.6 137.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5986,14 +5986,14 @@
 			)
 		)
 		(property "Value" "Servos"
-			(at 228.6 106.68 0)
+			(at 228.6 134.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_2x09_P2.54mm_Horizontal"
+		(property "Footprint" "liebler_CONN:PinHeader_2x09_P2.54mm_Horizontal_SMD"
 			(at 227.33 120.65 0)
 			(effects
 				(font

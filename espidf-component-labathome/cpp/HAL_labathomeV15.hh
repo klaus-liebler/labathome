@@ -30,6 +30,7 @@
 #include <vl53l0x.hh>
 #include <lsm6ds3.hh>
 #include <aht_sensor.hh>
+#include <ip5306.hh>
 #include <ds18b20.hh>
 
 #include <nau88c22.hh>
@@ -172,6 +173,7 @@ private:
     CCS811::M *ccs811dev{nullptr};
     BME280::M *bme280dev{nullptr};
     VL53L0X::M *vl53l0xdev{nullptr};
+    IP5306::M *ip5306dev{nullptr};
     OneWire::OneWireBus<PIN_ONEWIRE> *oneWireBus{nullptr};
     i2c_master_dev_handle_t stm32_handle{nullptr};
 
@@ -236,6 +238,17 @@ private:
         ccs811dev = new CCS811::M(i2c_master_handle, CCS811::ADDRESS::ADDR0, CCS811::MODE::_1SEC, (gpio_num_t)GPIO_NUM_NC);
         aht21dev = new AHT::M(i2c_master_handle, AHT::ADDRESS::DEFAULT_ADDRESS);
         vl53l0xdev = new VL53L0X::M(i2c_master_handle);
+        ip5306dev = new IP5306::M(i2c_master_handle);
+        
+        //TODO FIXME
+        int64_t waitTillFirstTrigger =GetMillis64();
+        ip5306dev->MakeDeviceReady_Blocking(waitTillFirstTrigger);
+        while(true){
+            ip5306dev->LogSettings();
+            vTaskDelay(pdMS_TO_TICKS(3000));
+        }
+
+
         oneWireBus = new OneWire::OneWireBus<PIN_ONEWIRE>();
         oneWireBus->Init();
         Stm32Init(); // see below loop
@@ -247,12 +260,12 @@ private:
             if(!xTaskDelayUntil( &lastWakeTime, FREQUENCY) && lastWakeTime>pdMS_TO_TICKS(10000)){
                 ESP_LOGW(TAG, "HAL Loop took too long");
             }
-            int64_t now = GetMillis64();
-            oneWireBus->Loop(now);
-            bh1750dev->Loop(GetMillis64());
-            ccs811dev->Loop(GetMillis64());
-            aht21dev->Loop(GetMillis64());
-            vl53l0xdev->Loop(GetMillis64());
+            oneWireBus->Loop(GetMillis64_1024());
+            bh1750dev->Loop(GetMillis64_1024());
+            ccs811dev->Loop(GetMillis64_1024());
+            aht21dev->Loop(GetMillis64_1024());
+            vl53l0xdev->Loop(GetMillis64_1024());
+            ip5306dev->Loop(GetMillis64_1024());
             Stm32Loop(); // see above Init;
         }
     }
@@ -392,6 +405,11 @@ public:
         return esp_timer_get_time() / 1000ULL;
     }
 
+    int64_t GetMillis64_1024()
+    {
+        return esp_timer_get_time() / 1024ULL;
+    }
+
     ErrorCode GetAnalogInputs(float **voltages)
     {
         this->analogInputsVolt[0] = this->stm2esp_buf.Adc0;
@@ -400,8 +418,8 @@ public:
         return ErrorCode::OK;
     }
 
-    ErrorCode GetSensorsAsJSON(char* buffer, size_t maxLen) override{
-        this->oneWireBus->FormatJSON(buffer, maxLen);
+    ErrorCode GetSensorsAsJSON(char* buffer, size_t& maxLenInput_usedLen_Output) override{
+        this->oneWireBus->FormatJSON(buffer, maxLenInput_usedLen_Output);
         return ErrorCode::OK;
     }
 

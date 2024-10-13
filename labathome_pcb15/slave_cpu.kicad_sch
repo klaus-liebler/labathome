@@ -8472,7 +8472,7 @@
 	)
 	(global_label "FAN_DRIVE"
 		(shape output)
-		(at 68.58 41.91 0)
+		(at 68.58 44.45 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -8482,7 +8482,7 @@
 		)
 		(uuid "d08f9402-d840-432c-8cab-9a84bc526915")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 81.4229 41.91 0)
+			(at 81.4229 44.45 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8582,7 +8582,7 @@
 	)
 	(global_label "LED_WHITE_P"
 		(shape output)
-		(at 68.58 44.45 0)
+		(at 68.58 41.91 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -8592,7 +8592,7 @@
 		)
 		(uuid "e38df4a5-4589-4368-a4e8-bf0b7b098426")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 83.7208 44.45 0)
+			(at 83.7208 41.91 0)
 			(effects
 				(font
 					(size 1.27 1.27)

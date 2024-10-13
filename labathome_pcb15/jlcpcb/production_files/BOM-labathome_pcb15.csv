@@ -13,6 +13,7 @@ POWER,"J13,J5",USB_C_Receptacle_HRO_TYPE-C-31-M-12_IMPROVED,C165948
 TPS54202DDC,U27,SOT-23-6_Handsoldering,C191884
 BC817,"Q1,Q4",SOT-23,C20526
 IRLML6344,"Q2,Q5",SOT-23,C20917
+WHITE,"D10,D11,D12,D8,D9",LED_PLCC_2835_Handsoldering,C210325
 1R,"R28,R3,R47,R7",R_0603_1608Metric,C22936
 4u7,"C12,C13,C14,C15,C21,C22,C36,C41,C43,C61",C_0402_1005Metric,C23733
 k22,"R1,R40,R66,R70,R9",R_0402_1005Metric,C25091
@@ -24,10 +25,11 @@ M1,"R25,R53,R54,R59",R_0201_0603Metric,C270364
 AHT20,U12,AHT21,C2757850
 SRV05-4,U8,SOT-23-6,C2836319
 ESP32-S3-WROOM-1,U4,ESP32-S3-WROOM-1,C2913204
+PROG_STM,J36,PinSocket_2x06_P2.54mm_Vertical_SMD,C3294464
 10p,"C10,C8,C9",C_0402_1005Metric,C32949
 AUX OUT,"J14,J16,J3",PJ-327A,C381135
 Micro_SD_Card_Det1,J17,microSD push,C393941
-PROG STM,"J26,J6",PinHeader_2x03_P1.27mm_Vertical_SMD_handsolder,C3975186
+PROG ESP,J6,PinHeader_2x03_P1.27mm_Vertical_SMD_handsolder,C3975186
 STM32G431R8Tx,U5,LQFP-64_10x10mm_P0.5mm,C431633
 G6K-2,K1,Relay_DPDT_Omron_G6K-2F-Y,C47190
 10k,"R11,R17,R2,R21,R22,R26,R27,R31,R36,R37,R39,R4,R41,R45,R50,R51,R55,R56,R57,R58,R60,R61,R62,R63,R64,R67,R68",R_0201_0603Metric,C473048
@@ -49,7 +51,6 @@ LM358,U16,SOIC-8_3.9x4.9mm_P1.27mm,C9418
 LSM6DS3,U9,LGA-14_3x2.5mm_P0.5mm_LayoutBorder3x4y,C967633
 TCS34725,J12,PinSocket_1x08_P2.54mm_Vertical,
 PROG 5V POWER,SW9,Switch_SS12D00,
-Srv1,J32,PinHeader_1x03_P2.54mm_Vertical_smallerCourtyard,
 BMEx80,J10,PinSocket_1x06_P2.54mm_Vertical,
 Barrel_Jack_Switch,J9,BarrelJack_Horizontal,
 ADDA,J27,"PhoenixContact_MC_1,5_4-G-3.5_1x04_P3.50mm_Horizontal_smallerCourtyard",
@@ -60,8 +61,6 @@ K1,J18,"PhoenixContact_MC_1,5_4-G-3.5_1x04_P3.50mm_Horizontal_smallerCourtyard",
 CAN RS 485,J15,"PhoenixContact_MC_1,5_4-G-3.5_1x04_P3.50mm_Horizontal_smallerCourtyard",
 I2C,J2,"PhoenixContact_MC_1,5_4-G-3.5_1x04_P3.50mm_Horizontal_smallerCourtyard",
 W5500_mini,M1,W5500-mini,
-WHITE,D8,LED_PLCC_2835_Handsoldering,
-WHITE,D9,LED_PLCC_2835_Handsoldering,
 BH1750,J19,PinSocket_1x06_P2.54mm_Vertical,
 BATT POWER,SW4,Switch_SS12D00,
 CCS811,J20,PinSocket_1x08_P2.54mm_Vertical,
@@ -70,30 +69,24 @@ SIM7080G,X3,SIM7080G_AND_MODULE,
 Volts,J22,"PhoenixContact_MC_1,5_4-G-3.5_1x04_P3.50mm_Horizontal_smallerCourtyard",
 NRF24L01,U15,nRF24L01_Breakout,
 IPS_240_240,U21,IPS_240_240_1.3,
-Srv2,J33,PinHeader_1x03_P2.54mm_Vertical_smallerCourtyard,
 RFM95W-868S2,U6,HOPERF_RFM9XW_THT,
-WHITE,D10,LED_PLCC_2835_Handsoldering,
 Mic,MK1,Microphone_6mm,
-YELLOW,SW6,RotaryEncoder_Alps_EC11E-Switch_Vertical_H20mm,
+YELLOW,SW6,RotaryEncoder_EC11_SMD_handsolder,
 K1,J24,"PhoenixContact_MC_1,5_4-G-3.5_1x04_P3.50mm_Horizontal_smallerCourtyard",
-WHITE,D12,LED_PLCC_2835_Handsoldering,
-WHITE,D11,LED_PLCC_2835_Handsoldering,
 VL53L5x,J23,PinSocket_1x06_P2.54mm_Vertical,
 FAN_6024,X1,FAN_6024,
 100u,C39,CP_Radial_D6.3mm_P2.50mm,
-Srv0,J31,PinHeader_1x03_P2.54mm_Vertical_smallerCourtyard,
 3V GN RGB 5V,J8,PinHeader_1x04_P2.54mm_Vertical,
 Brushless,J28,"PhoenixContact_MC_1,5_4-G-3.5_1x04_P3.50mm_Horizontal_smallerCourtyard",
 GPIO,J21,"PhoenixContact_MC_1,5_4-G-3.5_1x04_P3.50mm_Horizontal_smallerCourtyard",
 AM612,U22,AM612,
-WHITE,D7,LED_PLCC_2835_Handsoldering,
 22R,R33,Resistor_100W,
 ON CAN TERM,SW3,SW_SPDT_PCM12_handsolder,
 ON RS TERM,SW2,SW_SPDT_PCM12_handsolder,
 Speaker,LS1,PinHeader_1x02_P2.00mm_Vertical,
 NUP2105,D3,SOT-23_Handsoldering,
 QWIIC,J11,JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal,
-TIP41,Q3,TO-220-3_Horizontal_TabUp,
+MJD31C,Q3,TO-252-2,
 FAN5V,J7,JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical,
 18650,BT1,BatteryHolder_MPD_BH-18650-PC2,
 10k,R49,R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,
@@ -104,9 +97,12 @@ DS18B20,U17,TO-92_HandSolder,
 K12,R20,R_1206_3216Metric_Pad1.30x1.75mm_HandSolder,
 0R,R23,D_0805_2012Metric_Pad1.15x1.40mm_HandSolder,
 K12,R46,R_1206_3216Metric_Pad1.30x1.75mm_HandSolder,
+Servos,J26,PinHeader_2x09_P2.54mm_Horizontal_SMD,
 Jumper_2_Bridged,JP1,SolderJumper-2_P1.3mm_Bridged2Bar_Pad1.0x1.5mm,
 STM32 EXT,J34,PinHeader_2x03_P2.54mm_Vertical,
-Srv3,J30,PinHeader_1x03_P2.54mm_Vertical_smallerCourtyard,
 r1,R38,R_Axial_DIN0309_L9.0mm_D3.2mm_P12.70mm_Horizontal,
-RX,TP1,TestPoint_THTPad_D1.5mm_Drill0.7mm,
+G2,TP1,TestPoint_THTPad_D1.0mm_Drill0.5mm,
 G3,TP6,TestPoint_THTPad_D1.0mm_Drill0.5mm,
+10k,R65,R_0201_0603Metric,
+LCD_RES,JP3,SolderJumper-2_P1.3mm_Bridged2Bar_RoundedPad1.0x1.5mm,
+1k,R71,R_0402_1005Metric,

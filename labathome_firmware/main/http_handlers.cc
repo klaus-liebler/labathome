@@ -366,7 +366,10 @@ esp_err_t handle_put_heaterexperiment(httpd_req_t *req)
 esp_err_t handle_get_sensors(httpd_req_t *req){
     DeviceManager *devicemanager = *static_cast<DeviceManager **>(req->user_ctx);
     char *buf= static_cast<char*>(httpd_get_global_user_ctx(req->handle));
-    devicemanager->GetHAL()->GetSensorsAsJSON(buf, CONFIG_SMOPLA_HTTP_SCRATCHPAD_SIZE);
+    size_t l = CONFIG_SMOPLA_HTTP_SCRATCHPAD_SIZE;
+    devicemanager->GetHAL()->GetSensorsAsJSON(buf, l);
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, buf, l);
     return ESP_OK;
 }
 

@@ -59,6 +59,6 @@ class HAL
         virtual ErrorCode GetAirRelHumidityBME280(float *percent)=0;
         virtual ErrorCode GetDistanceMillimeters(uint16_t *value)=0;
 
-        virtual ErrorCode GetSensorsAsJSON(char* buffer, size_t maxLen)=0;
+        virtual ErrorCode GetSensorsAsJSON(char* buffer, size_t& maxLenInput_usedLen_Output)=0;
 
 };

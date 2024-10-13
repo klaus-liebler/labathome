@@ -1,53 +1,47 @@
-%TF.GenerationSoftware,KiCad,Pcbnew,8.0.3*%
-%TF.CreationDate,2024-09-04T21:42:18+02:00*%
+%TF.GenerationSoftware,KiCad,Pcbnew,8.0.5*%
+%TF.CreationDate,2024-10-11T23:52:17+02:00*%
 %TF.ProjectId,labathome_pcb15,6c616261-7468-46f6-9d65-5f7063623135,rev?*%
 %TF.SameCoordinates,Original*%
 %TF.FileFunction,Paste,Top*%
 %TF.FilePolarity,Positive*%
 %FSLAX46Y46*%
 G04 Gerber Fmt 4.6, Leading zero omitted, Abs format (unit mm)*
-G04 Created by KiCad (PCBNEW 8.0.3) date 2024-09-04 21:42:18*
+G04 Created by KiCad (PCBNEW 8.0.5) date 2024-10-11 23:52:17*
 %MOMM*%
 %LPD*%
 G01*
 G04 APERTURE LIST*
-%ADD10R,2.200000X3.000000*%
-%ADD11R,2.200000X2.000000*%
+G04 Aperture macros list*
+%AMRoundRect*
+0 Rectangle with rounded corners*
+0 $1 Rounding radius*
+0 $2 $3 $4 $5 $6 $7 $8 $9 X,Y pos of 4 corners*
+0 Add a 4 corners polygon primitive as box body*
+4,1,4,$2,$3,$4,$5,$6,$7,$8,$9,$2,$3,0*
+0 Add four circle primitives for the rounded corners*
+1,1,$1+$1,$2,$3*
+1,1,$1+$1,$4,$5*
+1,1,$1+$1,$6,$7*
+1,1,$1+$1,$8,$9*
+0 Add four rect primitives between the rounded corners*
+20,1,$1+$1,$2,$3,$4,$5,0*
+20,1,$1+$1,$4,$5,$6,$7,0*
+20,1,$1+$1,$6,$7,$8,$9,0*
+20,1,$1+$1,$8,$9,$2,$3,0*%
+G04 Aperture macros list end*
+%ADD10RoundRect,0.325000X0.325000X0.975000X-0.325000X0.975000X-0.325000X-0.975000X0.325000X-0.975000X0*%
+%ADD11RoundRect,0.750000X1.050000X1.750000X-1.050000X1.750000X-1.050000X-1.750000X1.050000X-1.750000X0*%
 G04 APERTURE END LIST*
 D10*
-%TO.C,D8*%
-X152500000Y-66900000D03*
+%TO.C,SW6*%
+X175600000Y-105961000D03*
+X170600000Y-105961000D03*
+X173100000Y-105961000D03*
 D11*
-X152500000Y-63850000D03*
-%TD*%
+X180900000Y-114261000D03*
+X165300000Y-114261000D03*
 D10*
-%TO.C,D9*%
-X152500000Y-74300000D03*
-D11*
-X152500000Y-71250000D03*
-%TD*%
-D10*
-%TO.C,D10*%
-X147500000Y-71700000D03*
-D11*
-X147500000Y-74750000D03*
-%TD*%
-D10*
-%TO.C,D12*%
-X147500000Y-56200000D03*
-D11*
-X147500000Y-59250000D03*
-%TD*%
-D10*
-%TO.C,D11*%
-X147500000Y-64300000D03*
-D11*
-X147500000Y-67350000D03*
-%TD*%
-D10*
-%TO.C,D7*%
-X152500000Y-59300000D03*
-D11*
-X152500000Y-56250000D03*
+X175600000Y-122561000D03*
+X170600000Y-122561000D03*
 %TD*%
 M02*

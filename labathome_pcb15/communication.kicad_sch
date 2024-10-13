@@ -6701,7 +6701,6 @@
 	(symbol
 		(lib_id "Power_Protection:NUP2105L")
 		(at 68.58 78.74 0)
-		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6709,7 +6708,7 @@
 		(dnp no)
 		(uuid "bd0a6b8e-fbaf-4c8f-9e52-5cc69db6d8fd")
 		(property "Reference" "D2"
-			(at 67.31 82.55 0)
+			(at 69.85 82.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6718,7 +6717,7 @@
 			)
 		)
 		(property "Value" "PSM712"
-			(at 77.47 82.55 0)
+			(at 59.69 82.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6727,7 +6726,7 @@
 			)
 		)
 		(property "Footprint" "Package_TO_SOT_SMD:SOT-23_Handsoldering"
-			(at 62.865 80.01 0)
+			(at 74.295 80.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6737,7 +6736,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.onsemi.com/pub_link/Collateral/NUP2105L-D.PDF"
-			(at 65.405 75.565 0)
+			(at 71.755 75.565 0)
 			(effects
 				(font
 					(size 1.27 1.27)
