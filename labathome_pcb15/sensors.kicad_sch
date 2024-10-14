@@ -2941,6 +2941,10 @@
 		(uuid "88db39a3-872f-4c42-908f-5ef329a0bf5e")
 	)
 	(no_connect
+		(at 180.34 29.21)
+		(uuid "8928caae-79e3-4047-ad7a-0814512e5209")
+	)
+	(no_connect
 		(at 154.94 31.75)
 		(uuid "9ed0a85d-721a-442d-8ea5-fcafd7461e9c")
 	)
@@ -2955,6 +2959,10 @@
 	(no_connect
 		(at 236.22 31.75)
 		(uuid "ebf27dc1-d104-41a7-b921-3528bb60aa1e")
+	)
+	(no_connect
+		(at 180.34 26.67)
+		(uuid "fe4182b3-d5e1-41cb-9af0-ba7f28b04346")
 	)
 	(wire
 		(pts
@@ -3405,6 +3413,26 @@
 			(justify left bottom)
 		)
 		(uuid "cca14c56-dc2e-47bd-871b-912bc7c29c13")
+	)
+	(text "CS"
+		(exclude_from_sim no)
+		(at 188.976 29.464 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "dabfad58-dc05-4e41-b3cc-88ed8da9f54d")
+	)
+	(text "SDO"
+		(exclude_from_sim no)
+		(at 188.976 26.924 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "f31b6d61-b788-4f05-9beb-767a66aba098")
 	)
 	(global_label "SCL"
 		(shape bidirectional)
@@ -6052,71 +6080,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 180.34 26.67 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "6bc4e7ba-42f4-4078-8863-637d6ee1b132")
-		(property "Reference" "#PWR0138"
-			(at 173.99 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 175.26 26.67 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 180.34 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 180.34 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 180.34 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "f7cf34f2-9a7b-49c4-b4f6-bc34614dea3a")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/faeff10d-104f-4ca8-a480-26bd51140cf0"
-					(reference "#PWR0138")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Connector_Generic_MountingPin:Conn_01x04_MountingPin")
 		(at 228.6 48.26 0)
 		(unit 1)
@@ -6781,72 +6744,6 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/faeff10d-104f-4ca8-a480-26bd51140cf0"
 					(reference "#PWR0170")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+3V3")
-		(at 180.34 29.21 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "a36cfaa3-ff9e-46d2-b78a-88e0b1bd0c5c")
-		(property "Reference" "#PWR0139"
-			(at 184.15 29.21 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+3V3"
-			(at 177.0888 28.829 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 180.34 29.21 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 180.34 29.21 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+3V3\""
-			(at 180.34 29.21 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "990bae48-5b58-462d-8709-7beea9abfc66")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/faeff10d-104f-4ca8-a480-26bd51140cf0"
-					(reference "#PWR0139")
 					(unit 1)
 				)
 			)
