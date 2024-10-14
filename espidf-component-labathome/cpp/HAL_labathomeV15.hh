@@ -25,6 +25,7 @@
 #include <errorcodes.hh>
 #include <rgbled.hh>
 #include <bme280.hh>
+#include <bme68x.hh>
 #include <bh1750.hh>
 #include <ccs811.hh>
 #include <vl53l0x.hh>
@@ -172,6 +173,7 @@ private:
     BH1750::M *bh1750dev{nullptr};
     CCS811::M *ccs811dev{nullptr};
     BME280::M *bme280dev{nullptr};
+    BME68x::M *bme68xdev{nullptr};
     VL53L0X::M *vl53l0xdev{nullptr};
     IP5306::M *ip5306dev{nullptr};
     OneWire::OneWireBus<PIN_ONEWIRE> *oneWireBus{nullptr};
@@ -234,19 +236,12 @@ private:
     {
         aht21dev = new AHT::M(i2c_master_handle, AHT::ADDRESS::DEFAULT_ADDRESS);
         bme280dev = new BME280::M(i2c_master_handle, BME280::ADDRESS::PRIM);
+        bme68xdev = new BME68x::M(i2c_master_handle, BME68x::ADDRESS::HIGH);
         bh1750dev = new BH1750::M(i2c_master_handle, BH1750::ADDRESS::LOW, BH1750::OPERATIONMODE::CONTINU_H_RESOLUTION);
         ccs811dev = new CCS811::M(i2c_master_handle, CCS811::ADDRESS::ADDR0, CCS811::MODE::_1SEC, (gpio_num_t)GPIO_NUM_NC);
         aht21dev = new AHT::M(i2c_master_handle, AHT::ADDRESS::DEFAULT_ADDRESS);
         vl53l0xdev = new VL53L0X::M(i2c_master_handle);
         ip5306dev = new IP5306::M(i2c_master_handle);
-        
-        //TODO FIXME
-        int64_t waitTillFirstTrigger =GetMillis64();
-        ip5306dev->MakeDeviceReady_Blocking(waitTillFirstTrigger);
-        while(true){
-            ip5306dev->LogSettings();
-            vTaskDelay(pdMS_TO_TICKS(3000));
-        }
 
 
         oneWireBus = new OneWire::OneWireBus<PIN_ONEWIRE>();
@@ -261,10 +256,11 @@ private:
                 ESP_LOGW(TAG, "HAL Loop took too long");
             }
             oneWireBus->Loop(GetMillis64_1024());
-            bh1750dev->Loop(GetMillis64_1024());
-            ccs811dev->Loop(GetMillis64_1024());
+            //bh1750dev->Loop(GetMillis64_1024());
+            bme68xdev->Loop(GetMillis64_1024());
+            //ccs811dev->Loop(GetMillis64_1024());
             aht21dev->Loop(GetMillis64_1024());
-            vl53l0xdev->Loop(GetMillis64_1024());
+            //vl53l0xdev->Loop(GetMillis64_1024());
             ip5306dev->Loop(GetMillis64_1024());
             Stm32Loop(); // see above Init;
         }
@@ -329,7 +325,6 @@ public:
 
     void DoMonitoring() override
     {
-        static uint16_t enc_old{0};
         static uint32_t qr_info_counter{0};
         static esp_ip4_addr_t savedIpAddress{0};
         static int64_t nextPlannedScreenChange{0};
@@ -419,7 +414,19 @@ public:
     }
 
     ErrorCode GetSensorsAsJSON(char* buffer, size_t& maxLenInput_usedLen_Output) override{
-        this->oneWireBus->FormatJSON(buffer, maxLenInput_usedLen_Output);
+
+        auto maxLen = maxLenInput_usedLen_Output;
+        size_t used=0;
+        used += snprintf(buffer+used, maxLen-used, "{\"ds18b20\":");
+        used += this->oneWireBus->FormatJSON(buffer+used, maxLen-used);
+        
+        used+=snprintf(buffer+used, maxLen-used, ", \"bme680\":");
+        used+=this->bme68xdev->FormatJSON(buffer+used, maxLen-used);
+        
+        used+=snprintf(buffer+used, maxLen-used, ", \"ip5306\":");
+        used+=this->ip5306dev->FormatJSON(buffer+used, maxLen-used);
+        used+=snprintf(buffer+used, maxLen-used, "}");
+        maxLenInput_usedLen_Output=used;
         return ErrorCode::OK;
     }
 
@@ -560,7 +567,6 @@ public:
         ESP_LOGI(TAG, "I2C bus successfully initialized and probed");
 
         lsm6ds3::M gyro(i2c_master_handle);
-        int64_t waitTillFirstTrigger{0};
         const float* gyroXYZ{nullptr};
         
         while(false){
