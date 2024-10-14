@@ -307,6 +307,15 @@ namespace IP5306
             return ErrorCode::OK;
         }
 
+        size_t FormatJSON(char* buffer, size_t maxLen){
+            size_t used=0;
+            used += snprintf(buffer, maxLen-used, "{\"percentage\":%d,\"status\":\"%s\"}",
+                batLevel2Percentage(),
+                R1.bits.BATTERY_STATUS?"Already Full":"Still charging"
+            );
+            return used;
+        }
+
         void LogSettings()
         {
             SynchronizeAllRegisters();
@@ -343,6 +352,8 @@ namespace IP5306
         ErrorCode Readout(int64_t &waitTillNextTrigger) override
         {
             this->ReadRegs8(R::BAT_LEVEL, &this->batLevel, 1);
+            this->ReadRegs8(R::READ1, &this->R1.reg_byte, 1);
+            
             waitTillNextTrigger = 2000;
             return ErrorCode::OK;
         }
