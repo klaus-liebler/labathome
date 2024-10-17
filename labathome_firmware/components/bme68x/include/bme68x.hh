@@ -3,6 +3,8 @@
 #include <common-esp32.hh>
 #include <bme68x.h>
 #include <bme68x_defs.h>
+#include <bsec_interface.h>
+#include <bsec_serialized_configurations_selectivity.h>
 #define TAG "BME680"
 #include <esp_log.h>
 
@@ -83,6 +85,116 @@ namespace BME68x
             heatr_conf.heatr_temp = 300;
             heatr_conf.heatr_dur = 100;
             BME680x_ON_ERROR(bme68x_set_heatr_conf(BME68X_FORCED_MODE, &heatr_conf, &bme));
+
+            bsec_init();
+            uint8_t serialized_settings[BSEC_MAX_PROPERTY_BLOB_SIZE];
+            uint32_t n_serialized_settings_max = BSEC_MAX_PROPERTY_BLOB_SIZE;
+            uint8_t work_buffer[BSEC_MAX_PROPERTY_BLOB_SIZE];
+            uint32_t n_work_buffer = BSEC_MAX_PROPERTY_BLOB_SIZE;
+
+            // Here we will load a provided config string into serialized_settings 
+    
+            // Apply the configuration
+            bsec_set_configuration(serialized_settings, n_serialized_settings_max, work_buffer, n_work_buffer);
+            //bsec_set_state();
+            bsec_sensor_configuration_t requested_virtual_sensors[3];
+            uint8_t n_requested_virtual_sensors = 3;
+        
+            requested_virtual_sensors[0].sensor_id = BSEC_OUTPUT_IAQ;
+            requested_virtual_sensors[0].sample_rate = BSEC_SAMPLE_RATE_ULP; 
+            requested_virtual_sensors[1].sensor_id = BSEC_OUTPUT_RAW_TEMPERATURE;
+            requested_virtual_sensors[1].sample_rate = BSEC_SAMPLE_RATE_ULP; 
+            requested_virtual_sensors[2].sensor_id = BSEC_OUTPUT_RAW_PRESSURE;
+            requested_virtual_sensors[2].sample_rate = BSEC_SAMPLE_RATE_DISABLED; 
+            
+            // Allocate a struct for the returned physical sensor settings
+            bsec_sensor_configuration_t required_sensor_settings[BSEC_MAX_PHYSICAL_SENSOR];
+            uint8_t  n_required_sensor_settings = BSEC_MAX_PHYSICAL_SENSOR;
+        
+            // Call bsec_update_subscription() to enable/disable the requested virtual sensors
+            bsec_update_subscription(requested_virtual_sensors, n_requested_virtual_sensors, required_sensor_settings, &n_required_sensor_settings);
+            int64_t next_ns{0};
+            while(true){
+                const int64_t now_ns = esp_timer_get_time()*1000;
+                if(now_ns<next_ns){
+                    vTaskDelay(10);
+                    continue;
+                }
+                bsec_bme_settings_t sensor_settings;
+                bsec_sensor_control(now_ns, &sensor_settings);
+                //forced-mode measurement!
+  
+
+                 //A measurement should only be executed if bsec_bme_settings_t::trigger_measurement is 1.
+                if(!sensor_settings.trigger_measurement){
+                    continue;
+                }
+                //If so, the oversampling settings for temperature, humidity, and pressure should be set to the provided settings provided in 
+                // temperature_oversampling, humidity_oversampling pressure_oversampling, respectively.
+                conf.os_hum = sensor_settings.humidity_oversampling;
+                conf.os_pres = sensor_settings.pressure_oversampling;
+                conf.os_temp = sensor_settings.temperature_oversampling;
+                BME680x_ON_ERROR(bme68x_set_conf(&conf, &bme));
+                //In case of bsec_bme_settings_t::run_gas = 1, the gas sensor must be enabled with the provided 
+                //bsec_bme_settings_t::heater_temperature and bsec_bme_settings_t::heating_duration settings.
+
+                heatr_conf.enable = sensor_settings.run_gas;
+                heatr_conf.heatr_temp = sensor_settings.heater_temperature;
+                heatr_conf.heatr_dur = sensor_settings.heater_duration;
+                BME680x_ON_ERROR(bme68x_set_heatr_conf(BME68X_FORCED_MODE, &heatr_conf, &bme));
+                
+                BME680x_ON_ERROR(bme68x_set_op_mode(BME68X_FORCED_MODE, &bme));
+                auto waitTillReadout = 10+(bme68x_get_meas_dur(BME68X_FORCED_MODE, &conf, &bme)/1000) + heatr_conf.heatr_dur;
+                vTaskDelay(pdMS_TO_TICKS(waitTillReadout));
+                BME680x_ON_ERROR(bme68x_get_data(BME68X_FORCED_MODE, &data, &n_fields, &bme));
+                // Allocate input and output memory
+                bsec_input_t input[3];
+                uint8_t n_input = 3;
+                bsec_output_t output[2];
+                uint8_t  n_output=2;
+
+                bsec_library_return_t status;
+
+                // Populate the input structs, assuming the we have timestamp (ts), 
+                // gas sensor resistance (R), temperature (T), and humidity (rH) available
+                // as input variables
+                input[0].sensor_id = BSEC_INPUT_GASRESISTOR;
+                input[0].signal = data.gas_resistance;
+                input[0].time_stamp= now_ns;   
+                input[1].sensor_id = BSEC_INPUT_TEMPERATURE;   
+                input[1].signal = data.temperature;   
+                input[1].time_stamp= now_ns;   
+                input[2].sensor_id = BSEC_INPUT_HUMIDITY;
+                input[2].signal = data.humidity;
+                input[2].time_stamp= now_ns;   
+
+                    
+                // Invoke main processing BSEC function
+                status = bsec_do_steps( input, n_input, output, &n_output );
+
+                // Iterate through the BSEC output data, if the call succeeded
+                if(status == BSEC_OK)
+                {
+                    for(int i = 0; i < n_output; i++)
+                    {   
+                        switch(output[i].sensor_id)
+                        {
+                            case BSEC_OUTPUT_IAQ:
+                                // Retrieve the IAQ results from output[i].signal
+                                // and do something with the data
+                                break;
+                           default:
+                            break;
+                            
+                        }
+                    }
+                }
+    
+
+            }
+
+
+
             return ErrorCode::OK;
         }
 
