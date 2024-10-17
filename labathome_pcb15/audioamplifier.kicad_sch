@@ -4708,7 +4708,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.00mm:PinHeader_1x02_P2.00mm_Vertical"
+		(property "Footprint" "Inductor_SMD:L_Abracon_ASPI-0425"
 			(at 107.95 85.09 0)
 			(effects
 				(font
