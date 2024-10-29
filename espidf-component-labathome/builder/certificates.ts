@@ -112,7 +112,7 @@ export function CreateAndSignCertWithGivenPublicKey(publicKeyPemPath: fs.PathOrF
 	let publicKey = forge.pki.publicKeyFromPem(fs.readFileSync(publicKeyPemPath).toString());
 	const cert = forge.pki.createCertificate();
 	cert.publicKey = publicKey;
-	cert.serialNumber = "221C437144A1E22843406AC8AF89931FC347258D";//randomSerialNumber(20);
+	cert.serialNumber = randomSerialNumber(20);
 	cert.validity.notBefore = DateNDaysInFuture(-1);//8 Years
 	cert.validity.notAfter = DateNDaysInFuture(3000);//8 Years
 	cert.setSubject(createSubject(commonName));

@@ -237,13 +237,40 @@ export async function testopen(comPort: string) {
    
 }
 
-export async function getMac(comPort: string):Promise<Uint8Array> {
-    const portInfo = await autoDetect().list();
-    for (var i of portInfo) {
-        console.log(`${i.path}; ${i.manufacturer}; ${i.serialNumber}; ${i.pnpId}; ${i.locationId}; ${i.productId}; ${i.vendorId};`);
-    }
+export async function getMacFromSpecificComPort(comPort: string):Promise<Uint8Array> {
     var loader = new EspLoader(comPort);
     var res = await loader.Init();
+    if(!res.valid){
+        return Promise.reject("No ESP32 bootloader found");
+    }
+
+    let esp32type: ESP32Type | null = null;
+    switch (res.value) {
+        case 0x00f01d83:
+            esp32type = new ESP32orig();
+            break;
+        case 0x09:
+            esp32type = new ESP32S3();
+        default:
+            console.error("No implementation for this ESP32 type available")
+            return Promise.reject("No implementation for this ESP32 type available");
+    }
+    
+    console.info(`Found a connected ${esp32type.constructor.name}`)
+
+    var mac =  await esp32type.macAddr(loader);
+    
+    loader.Close();
+    return mac;
+}
+
+export async function getMac():Promise<Uint8Array> {
+    const portInfo = await autoDetect().list();
+    for (var i of portInfo) {
+        console.log(`Checking Port ${i.path}; ${i.manufacturer}; ${i.serialNumber}; ${i.pnpId}; ${i.locationId}; ${i.productId}; ${i.vendorId};`);
+        getMacFromSpecificComPort(i.path)
+    }
+    
 
     let esp32type: ESP32Type | null = null;
     switch (res.value) {
