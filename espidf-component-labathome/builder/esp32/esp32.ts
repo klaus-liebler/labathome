@@ -5,8 +5,34 @@ import * as util from 'node:util';
 import * as fs from 'node:fs';
 import { ESP32_HOSTNAME_TEMPLATE } from "../gulpfile_config";
 
-interface ESP32Type {
-    macAddr(loader:EspLoader): Promise<Uint8Array>;
+abstract class ESP32Type {
+    constructor(protected loader:EspLoader){}
+    protected _chipName="undefinded"
+    protected _mac=new Uint8Array(6);
+    public abstract updateChipInfo():void;
+    public get chipName(){return this._chipName;}
+    public get macAsUint8Array(){
+        return this._mac;
+    }
+
+    public get macAsBigint(){
+        
+        if (this._mac.length !== 6) {
+            throw new Error('Das Array muss 6 Elemente haben.');
+        }
+        
+        // Umwandlung in eine Zahl
+        const result =
+            (BigInt(this._mac[0]) << 40n) |
+            (BigInt(this._mac[1]) << 32n) |
+            (BigInt(this._mac[2]) << 24n) |
+            (BigInt(this._mac[3]) << 16n) |
+            (BigInt(this._mac[4]) << 8n) |
+            BigInt(this._mac[5]);
+        
+        return result;
+        
+    }
 }
 
 class EspLoader {
@@ -15,7 +41,7 @@ class EspLoader {
     static readonly releaseResetButKeepBootloader: SetOptions = { dtr: true, rts: false };
     static readonly freeRunningEPS32: SetOptions = { dtr: false, rts: false };
     static readonly CHIP_DETECT_MAGIC_REG_ADDR = 0x40001000;
-    
+
     static readonly REQUEST = 0x00;
     static readonly RESPONSE = 0x01;
     static readonly ESP_SYNC = 0x08;
@@ -45,7 +71,7 @@ class EspLoader {
         data.copy(b, 8);
         while (this.slipDecoder.read() != null) { ; }
         this.slipEncoder.write(b, undefined, ((error: Error | null | undefined) => {
-            console.debug(`${n()} Message out ${util.format(b)} and error ${error}`);
+            //console.debug(`${n()} Message out ${util.format(b)} and error ${error}`);
         }));
         let timeout = 10;
         while (timeout > 0) {
@@ -66,7 +92,7 @@ class EspLoader {
                     receivedPayload = Buffer.allocUnsafe(receivedSize);
                     b1.copy(receivedPayload, 0, 8, 8 + receivedSize);
                 }
-                console.debug(`${n()} Message in Received size=${receivedSize} value=${receivedValue}`);
+                //console.debug(`${n()} Message in Received size=${receivedSize} value=${receivedValue}`);
                 return new BootloaderReturn(true, receivedValue, receivedPayload);
             }
             await sleep(50);
@@ -85,15 +111,16 @@ class EspLoader {
         }
         return retries == 0 ? false : true;
     };
-    public readRegister(reg: number){
+    public readRegister(reg: number) {
         return this.sendCommandPacketWithSingleNumberValue(EspLoader.ESP_READ_REG, reg);
     }
 
-    public async readRegisters(baseAddress:number, len:number):Promise<Uint32Array>{
+    public async readRegisters(baseAddress: number, len: number): Promise<Uint32Array> {
         var registers = new Uint32Array(len);
         for (let i = 0; i < len; i++) {
-            var res = await this.readRegister(baseAddress+i*4);
-            registers[i] = res.valid ? res.value : 0;
+            var res = await this.readRegister(baseAddress + i * 4);
+            if(!res.valid) return Promise.reject("readRegister failed")
+            registers[i] = res.value;
         }
         console.log(`ReadRegisters(baseAddress=${baseAddress}) => ${util.format(registers)}`)
         return registers;
@@ -101,7 +128,7 @@ class EspLoader {
 
     private slipEncoder = new SlipEncoder({ bluetoothQuirk: true });//After analysis of the data of the original tool, I discovered, that each packet starts with a 0xC0 char (which is the package end char). the "bluetoothQuirk" option does exactly this...
     private slipDecoder = new SlipDecoder();
-    private port:SerialPort;
+    private port: SerialPort;
 
     public promisifiedOpen = (port: SerialPort) => {
         return new Promise<boolean>((resolve, reject) => {
@@ -114,7 +141,7 @@ class EspLoader {
         });
     }
 
-    constructor(comPort: string){
+    constructor(comPort: string) {
         this.port = new SerialPort({
             path: comPort,
             baudRate: 115200,
@@ -122,19 +149,20 @@ class EspLoader {
         });
     }
 
-    public async Init():Promise<BootloaderReturn>{
-        
+
+    public async GetESP32Object(): Promise<ESP32Type | null> {
+
         this.slipEncoder.pipe(this.port);
         this.port.pipe(this.slipDecoder);
-    
+
         this.port.on('error', (err) => {
             console.log('Error: ', err.message)
         });
-    
+
         if (!await this.promisifiedOpen(this.port)) {
             console.error("Port is not open");
             this.port.close();
-            return new BootloaderReturn(false, 0, null);
+            return null;
         }
         console.log(`${n()}  Port has been opened successfully.`);
         this.port.set(EspLoader.resetAndBootToBootloader);
@@ -142,69 +170,134 @@ class EspLoader {
         this.port.set(EspLoader.releaseResetButKeepBootloader);
         await sleep(100);
         this.port.set(EspLoader.freeRunningEPS32);
-    
+
         if (!await this.syncronize(5)) {
             console.error("Sync was not successful");
             this.port.close();
-            return new BootloaderReturn(false, 0, null);
+            return null;
         }
         console.info(`${n()} Sync was successful`);
         var res = await this.readRegister(EspLoader.CHIP_DETECT_MAGIC_REG_ADDR)
 
         if (!res.valid) {
             console.log("The Magic Register Address could not be read");
-            return new BootloaderReturn(false, 0, null);
+            return null;
         }
         console.log("The Magic Register Address is " + res.value);
-        return res;
+        let esp32type: ESP32Type | null = null;
+        switch (res.value) {
+            case 0x00f01d83: {
+                return new ESP32Classic(this);
+            }
+            case 0x6f51306f:
+            case 0x7c41a06f: {
+                console.error("ESP32C2ROM() not supported");
+                return null;
+            }
+            case 0x6921506f:
+            case 0x1b31506f:
+            case 0x4881606f:
+            case 0x4361606f: {
+
+                console.error("ESP32C3ROM() not supported");
+                return null;
+            }
+            case 0x2ce0806f: {
+                console.error("ESP32C6ROM not supported");
+                return null;
+            }
+            case 0x33f0206f:
+            case 0x2421606f: {
+                console.error("ESP32C61ROM not supported");
+                return null;
+            }
+            case 0x1101406f:
+            case 0x63e1406f: {
+                console.error("ESP32C5ROM not supported");
+                return null;
+            }
+            case 0xd7b73e80: {
+                console.error("ESP32H2ROM not supported");
+                return null;
+            }
+            case 0x09: {
+                console.error("Detected ESP32S3ROM");
+                return new ESP32S3(this);
+            }
+            case 0x000007c6: {
+                console.error("ESP32S2ROM not supported");
+                return null;
+            }
+            case 0xfff0c101: {
+                console.error("ESP8266ROM not supported");
+                return null;
+            }
+            case 0x0:
+            case 0x0addbad0:
+            case 0x7039ad9: {
+                console.error("ESP32P4ROM not supported");
+                return null;
+            }
+            default:
+                console.error("Unknown magic code --> not supported");
+                return null;
+        }
     }
 
-    public async Close(){
+    public async Close() {
         this.port.close();
     }
 
 }
 
-class ESP32orig implements ESP32Type {
+class ESP32Classic extends ESP32Type {
+    constructor(loader:EspLoader){
+        super(loader);
+        this._chipName="ESP32"
+    }
     static readonly EFUSE_BASE = 0x3ff5a000;
-    static readonly MACFUSEADDR = ESP32orig.EFUSE_BASE + 0x1;
-    async macAddr(loader:EspLoader): Promise<Uint8Array> {
-        var efuses = await loader.readRegisters(ESP32orig.MACFUSEADDR, 2);
+    static readonly MACFUSEADDR = ESP32Classic.EFUSE_BASE + 0x1;
+    
+    async updateChipInfo () {
+        var efuses = await this.loader.readRegisters(ESP32Classic.MACFUSEADDR, 2);
         let mac0 = efuses[0];
         let mac1 = efuses[1];
         mac0 = mac0 >>> 0;
         mac1 = mac1 >>> 0;
-        const mac = new Uint8Array(6);
-        mac[0] = (mac1 >> 8) & 0xff;
-        mac[1] = mac1 & 0xff;
-        mac[2] = (mac0 >> 24) & 0xff;
-        mac[3] = (mac0 >> 16) & 0xff;
-        mac[4] = (mac0 >> 8) & 0xff;
-        mac[5] = mac0 & 0xff;
-        return mac;
+        this._mac = new Uint8Array(6);
+        this._mac[0] = (mac1 >> 8) & 0xff;
+        this._mac[1] = mac1 & 0xff;
+        this._mac[2] = (mac0 >> 24) & 0xff;
+        this._mac[3] = (mac0 >> 16) & 0xff;
+        this._mac[4] = (mac0 >> 8) & 0xff;
+        this._mac[5] = mac0 & 0xff;
     }
-    
+
 }
 
-class ESP32S3 implements ESP32Type {
+class ESP32S3 extends ESP32Type {
+    constructor(loader:EspLoader){
+        super(loader);
+        this._chipName="ESP32S3"
+    }
+  
     static readonly EFUSE_BASE = 0x60007000;
     static readonly MACFUSEADDR = ESP32S3.EFUSE_BASE + 0x044;
-    
-    async macAddr(loader:EspLoader): Promise<Uint8Array> {
-        var efuses = await loader.readRegisters(ESP32S3.MACFUSEADDR, 2);
-        let macAddr = new Uint8Array(6);
+
+    async updateChipInfo () {
+        var efuses = await this.loader.readRegisters(ESP32S3.MACFUSEADDR, 2);
+        this._mac = new Uint8Array(6);
         let mac0 = efuses[0];
         let mac1 = efuses[1];
         //let mac2 = efuses[2];
         //let mac3 = efuses[3];
         //valid only for ESP32S3
-        macAddr[0] = (mac1 >> 8) & 0xff;
-        macAddr[1] = mac1 & 0xff;
-        macAddr[2] = (mac0 >> 24) & 0xff;
-        macAddr[3] = (mac0 >> 16) & 0xff;
-        macAddr[4] = (mac0 >> 8) & 0xff;
-        macAddr[5] = mac0 & 0xff;
-        return macAddr;
+        this._mac[0] = (mac1 >> 8) & 0xff;
+        this._mac[1] = mac1 & 0xff;
+        this._mac[2] = (mac0 >> 24) & 0xff;
+        this._mac[3] = (mac0 >> 16) & 0xff;
+        this._mac[4] = (mac0 >> 8) & 0xff;
+        this._mac[5] = mac0 & 0xff;
     }
 }
 
@@ -218,76 +311,41 @@ class BootloaderReturn {
     constructor(public readonly valid: boolean, public readonly value: number, public readonly payload: Buffer | null) { }
 }
 
-export async function testopen(comPort: string) {
-    try {
-        const port = new SerialPort({
-            path: comPort,
-            baudRate: 115200,
-          }, function (err) {
-            if (err) {
-              return console.log('Error: ', err.message)
-            }
-          });
-          port.on('error', function(err) {
-            console.log('Error: ', err.message)
-          })
-    } catch (error) {
-        console.error(error);
-    }
-   
-}
 
-export async function getMacFromSpecificComPort(comPort: string):Promise<Uint8Array> {
+export async function GetESP32ObjectFromSpecificPort(comPort: string): Promise<ESP32Type|null> {
     var loader = new EspLoader(comPort);
-    var res = await loader.Init();
-    if(!res.valid){
-        return Promise.reject("No ESP32 bootloader found");
+    var res = await loader.GetESP32Object();
+    if (!res) {
+        return null;
     }
-
-    let esp32type: ESP32Type | null = null;
-    switch (res.value) {
-        case 0x00f01d83:
-            esp32type = new ESP32orig();
-            break;
-        case 0x09:
-            esp32type = new ESP32S3();
-        default:
-            console.error("No implementation for this ESP32 type available")
-            return Promise.reject("No implementation for this ESP32 type available");
-    }
-    
-    console.info(`Found a connected ${esp32type.constructor.name}`)
-
-    var mac =  await esp32type.macAddr(loader);
-    
+    await res.updateChipInfo();
     loader.Close();
-    return mac;
+    return res;
 }
 
-export async function getMac():Promise<Uint8Array> {
-    const portInfo = await autoDetect().list();
-    for (var i of portInfo) {
-        console.log(`Checking Port ${i.path}; ${i.manufacturer}; ${i.serialNumber}; ${i.pnpId}; ${i.locationId}; ${i.productId}; ${i.vendorId};`);
-        getMacFromSpecificComPort(i.path)
-    }
-    
+interface KLPortResult{
+    friendlyName:string;
+    locationId:string;
+    manufacturer:string;
+    path:string;
+    pnpId:string;
+    productId:string;
+    serialNumber:string;
+    vendorId:string;
+}
 
-    let esp32type: ESP32Type | null = null;
-    switch (res.value) {
-        case 0x00f01d83:
-            esp32type = new ESP32orig();
-            break;
-        case 0x09:
-            esp32type = new ESP32S3();
-        default:
-            console.error("No implementation for this ESP32 type available")
-            return Promise.reject();
+export async function GetESP32Object(): Promise<ESP32Type|null> {
+    const portInfo = await autoDetect().list() as Array<KLPortResult>;
+    let ret:ESP32Type|null;
+    for (var pi of portInfo) {
+        if(pi.productId!="1001" || pi.vendorId!="303A"){
+            continue;
+        }
+        console.log(`Checking Port ${pi.friendlyName}`);
+        ret=await GetESP32ObjectFromSpecificPort(pi.path)
+        if(ret){
+            return ret;
+        }
     }
-    
-    console.info(`Found a connected ${esp32type.constructor.name}`)
-
-    var mac =  await esp32type.macAddr(loader);
-    
-    loader.Close();
-    return mac;
+    return null;
 }
