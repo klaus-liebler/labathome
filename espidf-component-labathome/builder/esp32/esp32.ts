@@ -2,8 +2,7 @@ import { SerialPort, SlipDecoder, SlipEncoder } from "serialport";
 import { SetOptions } from '@serialport/bindings-interface'
 import { autoDetect } from '@serialport/bindings-cpp'
 import * as util from 'node:util';
-import * as fs from 'node:fs';
-import { ESP32_HOSTNAME_TEMPLATE } from "../gulpfile_config";
+import { X02 } from "../gulpfile_utils";
 
 abstract class ESP32Type {
     constructor(protected loader:EspLoader){}
@@ -15,23 +14,20 @@ abstract class ESP32Type {
         return this._mac;
     }
 
-    public get macAsBigint(){
-        
-        if (this._mac.length !== 6) {
-            throw new Error('Das Array muss 6 Elemente haben.');
+    public get macAsNumber(){
+        var ret=0;
+        for (let index = 0; index < 6; index++) {
+            ret+=this._mac[5-index]*Math.pow(256, index)
         }
-        
-        // Umwandlung in eine Zahl
-        const result =
-            (BigInt(this._mac[0]) << 40n) |
-            (BigInt(this._mac[1]) << 32n) |
-            (BigInt(this._mac[2]) << 24n) |
-            (BigInt(this._mac[3]) << 16n) |
-            (BigInt(this._mac[4]) << 8n) |
-            BigInt(this._mac[5]);
-        
-        return result;
-        
+        return ret; 
+    }
+
+    public get macAsHexString(){
+        return "0x"+X02(this._mac[0])+X02(this._mac[1])+X02(this._mac[2])+X02(this._mac[3])+X02(this._mac[4])+X02(this._mac[5]);
+    }
+
+    public get comPort(){
+        return this.loader.comPort;
     }
 }
 
@@ -47,6 +43,10 @@ class EspLoader {
     static readonly ESP_SYNC = 0x08;
     static readonly ESP_WRITE_REG = 0x09;
     static readonly ESP_READ_REG = 0x0a;
+
+    public get comPort(){
+        return this.port;
+    }
 
     private calculateChecksum(data: Buffer) {
         var checksum = 0xef;
@@ -78,11 +78,11 @@ class EspLoader {
             var b1: Buffer = this.slipDecoder.read();
             if (b1) {
                 if (b1.readUInt8(0) != EspLoader.RESPONSE) {
-                    console.error("b[0]!=RESPONSE");
+                    //console.error("b[0]!=RESPONSE");
                     return new BootloaderReturn(false, 0, null);
                 }
                 if (b1.readUInt8(1) != commandCode) {
-                    console.error("b[1]!=lastCommandCode");
+                    //console.error("b[1]!=lastCommandCode");
                     return new BootloaderReturn(false, 0, null);
                 }
                 var receivedSize = b1.readUInt16LE(2);
@@ -187,6 +187,7 @@ class EspLoader {
         let esp32type: ESP32Type | null = null;
         switch (res.value) {
             case 0x00f01d83: {
+                console.info("Detected ESP32");
                 return new ESP32Classic(this);
             }
             case 0x6f51306f:
@@ -221,7 +222,7 @@ class EspLoader {
                 return null;
             }
             case 0x09: {
-                console.error("Detected ESP32S3ROM");
+                console.info("Detected ESP32S3ROM");
                 return new ESP32S3(this);
             }
             case 0x000007c6: {
@@ -286,7 +287,6 @@ class ESP32S3 extends ESP32Type {
 
     async updateChipInfo () {
         var efuses = await this.loader.readRegisters(ESP32S3.MACFUSEADDR, 2);
-        this._mac = new Uint8Array(6);
         let mac0 = efuses[0];
         let mac1 = efuses[1];
         //let mac2 = efuses[2];

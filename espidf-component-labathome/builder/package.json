@@ -1,9 +1,12 @@
 {
-  "name": "webui_builder",
+  "name": "builder",
   "version": "1.0.0",
   "description": "",
   "main": "gulpfile.ts",
-  "scripts": {},
+  "type": "module",
+  "scripts": {
+    "gulp": "node --import tsx node_modules/gulp/bin/gulp"
+  },
   "author": "",
   "license": "ISC",
   "devDependencies": {
@@ -14,7 +17,9 @@
     "gulp-cli": "^3.0.0",
     "node-forge": "^1.3.1",
     "serialport": "^12.0.0",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.2",
+    "vite": "^5.4.10"
   },
   "dependencies": {
     "@google-cloud/text-to-speech": "^5.4.0"

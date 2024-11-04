@@ -157,6 +157,7 @@ class AppController implements AppManagement {
 
 let app: AppController;
 document.addEventListener("DOMContentLoaded", (e) => {
+    console.log(ENABLE_FOURIER_EXPERIMENT)
     app = new AppController();
     app.startup();
 });

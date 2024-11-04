@@ -3,6 +3,8 @@ import { OutputChunk, OutputAsset, OutputOptions, NormalizedOutputOptions, Outpu
 import * as zlib from "node:zlib"
 import * as fs from "node:fs"
 import { minify } from "esbuild-minify-templates"
+import { cwd } from "node:process"
+import path from "node:path"
 
 export type Config = {
 	// Modifies the Vite build config to make this plugin work well. See `_useRecommendedBuildConfig`
@@ -96,7 +98,8 @@ export function viteSingleFile({
 					replacedHtml = replaceCss(replacedHtml, cssAsset.fileName, cssAsset.source as string);
 				});
 				htmlAsset.source = replacedHtml;
-				zlib.brotliCompress(replacedHtml, (error: Error | null, result: Buffer)=>{ fs.writeFile("./dist/index.compressed.br", result, ()=>{console.log(`Compressed file written. FileSize = ${result.byteLength} byte = ${(result.byteLength/1024.0).toFixed(2)} kiB`)})});
+				var compressedPath=path.join(options.dir!, "index.compressed.br")
+				zlib.brotliCompress(replacedHtml, (error: Error | null, result: Buffer)=>{ fs.writeFile(compressedPath, result, ()=>{console.log(`Compressed file written to ${compressedPath}. FileSize = ${result.byteLength} byte = ${(result.byteLength/1024.0).toFixed(2)} kiB`)})});
 			});
 			if (deleteInlinedFiles) {
 				for (const name of bundlesToDelete) {

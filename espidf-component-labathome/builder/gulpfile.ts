@@ -5,53 +5,32 @@ import proc from "node:child_process";
 import * as esp from "./esp32/esp32"
 import { parsePartitions } from "./esp32/partition_parser"
 import * as cert from "./certificates"
-
-
-import {writeFileCreateDirLazy } from "./gulpfile_utils";
-import { CLIENT_CERT_USER_NAME, COM_PORT, ESP32_HOSTNAME_TEMPLATE, PUBLIC_SERVER_FQDN } from "./gulpfile_config";
+import { IBoardInfo, writeFileCreateDirLazy, X02, writeBoardSpecificFileCreateDirLazy, IApplicationInfo, existsBoardSpecificPath, strInterpolator } from "./gulpfile_utils";
+import { CLIENT_CERT_USER_NAME, DEFAULT_BOARD_TYPE_ID, PUBLIC_SERVER_FQDN } from "./gulpfile_config";
 import * as P from "./paths";
-
 const { DatabaseSync } = require('node:sqlite');
+import * as vite from 'vite'
+import path from "node:path";
+import { createSpeech } from "./text_to_speech";
+import * as util from "node:util"
 
-
-export function clean(cb: gulp.TaskFunctionCallback) {
-  [P.GENERATED, P.WEB_SRC_GENERATED, P.DEST_FLATBUFFERS_TYPESCRIPT_SERVER].forEach((path) => {
-    fs.rmSync(path, { recursive: true, force: true });
-  });
-  cb();
+declare interface IStatementSync {
+  all(namedParameters?: any, ...anonymousParameters: Array<null | number | bigint | string | Buffer | Uint8Array>): Array<any>;
+  expandedSQL: string;
+  get(namedParameters?: any, ...anonymousParameters: Array<null | number | bigint | string | Buffer | Uint8Array>): any | undefined;
+  run(namedParameters: any, ...anonymousParameters: Array<null | number | bigint | string | Buffer | Uint8Array>): { changes: number | bigint, lastInsertRowId: number | bigint };
+  setAllowBareNamedParameters(enabled: boolean): void;
+  setReadBigInts(enabled: boolean): void;
+  sourceSQL: string;
+}
+declare class IDatabaseSync {
+  constructor(file: string);
+  close(): void;
+  open(): void;
+  prepare(sql: string): IStatementSync;
 }
 
-function flatbuffers_generate_c(cb: gulp.TaskFunctionCallback) {
-  proc.exec(`flatc -c --gen-all -o ${P.GENERATED_FLATBUFFERS_CPP} ${P.FLATBUFFERS_SCHEMA_PATH}`, (err, stdout, stderr) => {
-    stdout
-    stderr
-    cb(err);
-  });
-}
-
-function flatbuffers_generate_ts(cb: gulp.TaskFunctionCallback) {
-  proc.exec(`flatc -T --gen-all --ts-no-import-ext -o ${P.GENERATED_FLATBUFFERS_TS} ${P.FLATBUFFERS_SCHEMA_PATH}`, (err, stdout, stderr) => {
-    stdout
-    stderr
-    cb(err);
-  });
-}
-
-function flatbuffers_distribute_ts(cb: gulp.TaskFunctionCallback) {
-  fs.cpSync(P.GENERATED_FLATBUFFERS_TS, P.DEST_FLATBUFFERS_TYPESCRIPT_WEBUI, { recursive: true });
-  fs.cpSync(P.GENERATED_FLATBUFFERS_TS, P.DEST_FLATBUFFERS_TYPESCRIPT_SERVER, { recursive: true });
-  cb();
-}
-
-
-export default gulp.series(
-    clean,
-    
-  );
-
-
-
-export function rootCA(cb: gulp.TaskFunctionCallback){
+export function rootCA(cb: gulp.TaskFunctionCallback) {
   let CA = cert.CreateRootCA();
   if (fs.existsSync(P.ROOT_CA_PEM_CRT) || fs.existsSync(P.ROOT_CA_PEM_CRT)) {
     return cb(new Error("rootCA Certificate and Key have already been created. Delete them manually to be able to recreate them"));
@@ -60,23 +39,7 @@ export function rootCA(cb: gulp.TaskFunctionCallback){
   writeFileCreateDirLazy(P.ROOT_CA_PEM_PRVTKEY, CA.privateKey, cb);
 }
 
-
-export function certs(cb: gulp.TaskFunctionCallback){
-  const hostname = fs.readFileSync(P.HOSTNAME_FILE).toString();//esp32host_2df5c8
-  let esp32Cert = cert.CreateAndSignCert(hostname, hostname, P.ROOT_CA_PEM_CRT, P.ROOT_CA_PEM_PRVTKEY);
-  writeFileCreateDirLazy(P.ESP32_CERT_PEM_PRVTKEY, esp32Cert.privateKey);
-  writeFileCreateDirLazy(P.ESP32_CERT_PEM_CRT, esp32Cert.certificate, cb);
-  
-}
-
-//creates certificates with a given public key
-export function cert_gk(cb: gulp.TaskFunctionCallback){
-  const hostname = fs.readFileSync(P.HOSTNAME_FILE).toString();//esp32host_2df5c8
-  var esp32Cert=cert.CreateAndSignCertWithGivenPublicKey(P.ESP32_CERT_PEM_PUBKEY, hostname, hostname, P.ROOT_CA_PEM_CRT, P.ROOT_CA_PEM_PRVTKEY);
-  writeFileCreateDirLazy(P.ESP32_CERT_PEM_CRT, esp32Cert, cb);
-}
-
-export function certificates_servers(cb: gulp.TaskFunctionCallback){
+export function certificates_servers(cb: gulp.TaskFunctionCallback) {
   const this_pc_name = os.hostname();
   let testserverCert = cert.CreateAndSignCert("Testserver", this_pc_name, P.ROOT_CA_PEM_CRT, P.ROOT_CA_PEM_PRVTKEY);
   writeFileCreateDirLazy(P.TESTSERVER_CERT_PEM_CRT, testserverCert.certificate);
@@ -91,70 +54,193 @@ export function certificates_servers(cb: gulp.TaskFunctionCallback){
   writeFileCreateDirLazy(P.CLIENT_CERT_PEM_PRVTKEY, clientCert.privateKey, cb);
 }
 
+export default gulp.series(
+  addOrUpdateConnectedBoard,
+  createBoardsBaseDirLazily,
+  createBoardCertificatesLazily,
+  createBoardSoundsLazily,
+  createViteProject,
+  createCppConfigurationHeader,
+  copyMostRecentlyConnectedBoardFilesToCurrent,
+  compileFirmware,
+  flashFirmware,
+)
 
-const DEFAULT_BOARD_NAME="LabAtHome"
-const DEFAULT_BOARD_SEMANTIC_VERSION=150300
-declare interface IStatementSync{
-  all(namedParameters:any, ...anonymousParameters:Array<null|number|bigint|string|Buffer|Uint8Array>):Array<any>;
-  expandedSQL:string;
-  get(namedParameters:any, ...anonymousParameters:Array<null|number|bigint|string|Buffer|Uint8Array>):any|undefined;
-  run(namedParameters:any, ...anonymousParameters:Array<null|number|bigint|string|Buffer|Uint8Array>):{changes:number|bigint, lastInsertRowId:number|bigint};
-  setAllowBareNamedParameters(enabled:boolean):void;
-  setReadBigInts(enabled:boolean):void;
-  sourceSQL:string;
-}
-declare interface IDatabaseSync{
-  close():void;
-  open():void;
-  prepare(sql:string):IStatementSync;
-}
-export async function updateConnectedBoard(cb: gulp.TaskFunctionCallback) {
-  try {
-    var esp32 = await esp.GetESP32Object();
-    if(!esp32){
-      console.error("No connected board found");
+
+export async function addOrUpdateConnectedBoard(cb: gulp.TaskFunctionCallback) {
+  var esp32 = await esp.GetESP32Object();
+  if (!esp32) {
+    console.error("No connected board found");
+    return cb();
+  }
+  console.log(`The MAC adress is ${esp32.macAsUint8Array.toString()} resp. ${esp32.macAsNumber} resp. ${esp32.macAsHexString}`);
+  const db = new DatabaseSync("./builder.db") as IDatabaseSync;
+  const select_board = db.prepare('SELECT * boards mac = (?)');
+  var board = select_board.get(esp32.macAsNumber);
+  var now = Math.floor(Date.now() / 1000);
+  if (!board) {
+    const getMcuType = db.prepare('SELECT * from mcu_types where name = (?)');
+    var mcuType = getMcuType.get(esp32.chipName)
+    if (!mcuType) {
+      console.error(`Database does not know ${esp32.chipName}`);
       return cb();
     }
-    console.log(`The MAC adress is ${esp32.macAsUint8Array.toString()} resp. ${esp32.macAsBigint}`);
-    const db = new DatabaseSync("./builder.db") as IDatabaseSync;
-    const select_board = db.prepare('SELECT * from boards where mac = (?)');
-    var board=select_board.get(esp32.macAsBigint);
-    var now=Math.floor(Date.now()/1000);
-    if(!board){
-      const getMcuType = db.prepare('SELECT * from mcu_types where name = (?)');
-      var mcuType= getMcuType.get(esp32.chipName)
-      if(!mcuType){
-        console.error(`Database does not know ${esp32.chipName}`);
-        return cb();
-      }
-      const insert_board = db.prepare('INSERT INTO boards (mac, mcu, board_name, board_semantic_version, first_connected_dt, last_connected_dt) VALUES(?,?,?,?,?,?)');
-      insert_board.run(esp32.macAsBigint, mcuType.id, DEFAULT_BOARD_NAME, DEFAULT_BOARD_SEMANTIC_VERSION, now, now);
-    }else{
-      const update_board = db.prepare('UPDATE boards set last_connected_dt = ? where mac = ? ');
-      update_board.run(now, esp32.macAsBigint);
-    }
-    //var hostname = ESP32_HOSTNAME_TEMPLATE(mac);
-    //console.log(`The Hostname will be ${hostname}`);
-    //writeFileCreateDirLazy(P.HOSTNAME_FILE, hostname, cb);
-  } catch (error) {
-    console.error(`There was an error ${error}`);
+    const insert_board = db.prepare('INSERT INTO boards VALUES(?,?,?,?,?,?,?,?)');
+    insert_board.run(esp32.macAsNumber, mcuType.id, DEFAULT_BOARD_TYPE_ID, now, now, null, null);
+  } else {
+    const update_board = db.prepare('UPDATE boards set last_connected_dt = ?, last_connected_com_port= ? where mac = ? ');
+    update_board.run(now, esp32.comPort.path, esp32.macAsNumber);
   }
-  
+  //var hostname = ESP32_HOSTNAME_TEMPLATE(mac);
+  //console.log(`The Hostname will be ${hostname}`);
+  //writeFileCreateDirLazy(P.HOSTNAME_FILE, hostname, cb);
+
+  return cb();
 }
 
+function getMostRecentlyConnectedBoardInfo(): IBoardInfo {
+  const db = new DatabaseSync("./builder.db") as IDatabaseSync;
+  const select_board = db.prepare('select b.mac, m.name as mcu_name, bt.name as board_name, bt.version as board_version, b.first_connected_dt, b.last_connected_dt, b.last_connected_com_port, b.settings as board_settings, bt.settings as board_type_settings from boards as b inner join board_types as bt on bt.id=b.board_type_id inner join mcu_types as m ON m.id=bt.mcu_id ORDER BY last_connected_dt DESC LIMIT 1');
+  var ret = select_board.get() as IBoardInfo;
+  ret.board_settings=JSON.parse(ret.board_settings);
+  ret.board_type_settings=JSON.parse(ret.board_type_settings);
+  ret.mac_12char=X02(ret.mac,12);
+  ret.mac_6char=ret.mac_12char.slice(6);
+  db.close();
+  return ret;
+}
 
-export async function parsepart(cb: gulp.TaskFunctionCallback) {
-  const partitionfile = fs.readFileSync("./partition-table.bin");
+function getPreferredApplicationInfo(): IApplicationInfo {
+  const bi = getMostRecentlyConnectedBoardInfo();
+  const db = new DatabaseSync("./builder.db") as IDatabaseSync;
+  const select_app = db.prepare('select a.name, a.version, a.hostname_template, a.settings as app_settings, a.espIdfProjectDirectory from application_types as a inner join app_board_compatibility as c ON a.id=c.application_id WHERE c.board_name=? and c.version_min<=? and c.version_max>=? ORDER BY c.priority DESC LIMIT 1 ');
+  var ret = select_app.get(bi.board_name, bi.board_version, bi.board_version);
+  ret.board = bi;
+  ret.app_settings=JSON.parse(ret.app_settings);
+  db.close();
+  return ret;
+}
 
-  var res = parsePartitions(partitionfile);
-  res.forEach(v => {
-    console.log(v.toString());
-  })
+export function createBoardsBaseDirLazily(cb: gulp.TaskFunctionCallback) {
+  var board = getMostRecentlyConnectedBoardInfo();
+  fs.mkdirSync(path.join(P.BOARDS_BASE_DIR, X02(board.mac, 12)), { recursive: true });
+  return cb();
+}
+
+export function createBoardCertificatesLazily(cb: gulp.TaskFunctionCallback) {
+  var ai = getPreferredApplicationInfo();
+  
+  if (existsBoardSpecificPath(ai.board, P.CERTIFICATES_SUBDIR, P.ESP32_CERT_PEM_PRVTKEY_FILENAME)
+    && existsBoardSpecificPath(ai.board, P.CERTIFICATES_SUBDIR, P.ESP32_CERT_PEM_CRT_FILENAME)) {
+    return;
+  }
+  const hostname = strInterpolator(ai.hostname_template, ai);
+  let esp32Cert = cert.CreateAndSignCert(hostname, hostname, P.ROOT_CA_PEM_CRT, P.ROOT_CA_PEM_PRVTKEY);
+  writeBoardSpecificFileCreateDirLazy(ai.board, P.CERTIFICATES_SUBDIR, P.ESP32_CERT_PEM_PRVTKEY_FILENAME, esp32Cert.privateKey);
+  writeBoardSpecificFileCreateDirLazy(ai.board, P.CERTIFICATES_SUBDIR, P.ESP32_CERT_PEM_CRT_FILENAME, esp32Cert.certificate, cb);
+}
+
+export function createBoardSoundsLazily(cb:gulp.TaskFunctionCallback){
+  var ai = getPreferredApplicationInfo();
+  createSpeech(ai);
   cb();
 }
 
-export function show_nvs(cb: gulp.TaskFunctionCallback){
-  proc.exec(`py "${P.NVS_TOOL}" --port "${COM_PORT}"`, (err, stdout, stderr) => {
+function createObjectWithDefines(ai:IApplicationInfo){
+  var defines:any={};
+  for (const [k, v] of Object.entries(ai.board.board_settings?.web??{})){
+    defines[k]=v;
+  }
+  for (const [k, v] of Object.entries(ai.board.board_type_settings?.web??{})){
+    defines[k]=v;
+  }
+  for (const [k, v] of Object.entries(ai.app_settings?.web??{})){
+    defines[k]=v;
+  }
+  defines.__BOARD_NAME__= JSON.stringify(ai.board.board_name);
+  defines.__BOARD_VERSION__= JSON.stringify(ai.board.board_version);
+  defines.__BOARD_MAC__= JSON.stringify(ai.board.mac);
+  defines.__APP_NAME__= JSON.stringify(ai.name);
+  defines.__APP_VERSION__= JSON.stringify(ai.version);
+  defines.__CREATION_DT__= JSON.stringify(Math.floor(Date.now() / 1000));
+  return defines;
+}
+
+export async function createViteProject(cb:gulp.TaskFunctionCallback) {
+  var ai = getPreferredApplicationInfo();
+  await vite.build({
+
+    root: "../web",
+    define: createObjectWithDefines(ai),
+    esbuild:{
+      //drop:["console", 'debugger'],
+      legalComments:'none',
+      
+    },
+    build:{
+      minify:true,
+      cssCodeSplit:false,
+      outDir:path.join(P.BOARDS_BASE_DIR, ai.board.mac_12char, "web"),
+      emptyOutDir:true
+    }
+  });
+  cb();
+}
+
+export async function createCppConfigurationHeader(cb:gulp.TaskFunctionCallback){
+  var ai = getPreferredApplicationInfo();
+  var s="#pragma once\n";
+  for(const [k,v] of Object.entries(createObjectWithDefines(ai))){
+    s+=`#define ${k} ${v}\n`
+  }
+  writeBoardSpecificFileCreateDirLazy(ai.board, "cpp", "__build_config.hh", s, cb);
+}
+
+export async function copyMostRecentlyConnectedBoardFilesToCurrent(cb:gulp.TaskFunctionCallback) {
+  var ai = getPreferredApplicationInfo();
+  fs.cp(path.join(P.BOARDS_BASE_DIR, ai.board.mac_12char), path.join(P.BOARDS_BASE_DIR, "current"), {recursive: true}, cb);
+}
+
+export async function compileFirmware(cb:gulp.TaskFunctionCallback) {
+  //prerequisites: Set IDF_PATH
+  var ai = getPreferredApplicationInfo();
+  const execPromise = util.promisify(proc.exec);
+  const { stdout, stderr }= await execPromise(`${path.join(globalThis.process.env.IDF_PATH!, "export.bat")} && idf.py build`, {
+    cwd:ai.espIdfProjectDirectory,
+    env:process.env
+  });
+  if (stderr) {
+    console.error(`Fehlerausgabe: ${stderr}`);
+  }
+  console.log(`Ausgabe: ${stdout}`);
+  console.log('Build-Prozess abgeschlossen!');
+  cb();
+}
+
+export async function flashFirmware(cb:gulp.TaskFunctionCallback){
+  const ai = getPreferredApplicationInfo();
+  const execPromise = util.promisify(proc.exec);
+  const { stdout, stderr }= await execPromise(`${path.join(globalThis.process.env.IDF_PATH!, "export.bat")} && idf.py -p ${ai.board.last_connected_com_port} flash`, {
+    cwd:ai.espIdfProjectDirectory,
+    env:process.env
+  });
+  if (stderr) {
+    console.error(`Fehlerausgabe: ${stderr}`);
+  }
+  console.log(`Ausgabe: ${stdout}`);
+  console.log('Build-Prozess abgeschlossen!');
+  cb();
+}
+
+export async function parsepart(cb: gulp.TaskFunctionCallback) {
+  var res = parsePartitions(fs.readFileSync("./partition-table.bin"));
+  res.forEach(v => { console.log(v.toString()) })
+
+  cb();
+}
+
+export function show_nvs(cb: gulp.TaskFunctionCallback) {
+  proc.exec(`py "${P.NVS_TOOL}" --port COM23`, (err, stdout, stderr) => {
     console.log(stdout);
     cb(err);
   });

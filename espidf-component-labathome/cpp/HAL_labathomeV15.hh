@@ -1,9 +1,7 @@
 #pragma once
 #define LCD_DISPLAY 1
 #define AUDIO 1
-#define LABATHOME_V15
-#define LABATHOME_V15_1
-//#define LABATHOME_V15_0
+
 #include "HAL.hh"
 
 #include <inttypes.h>
@@ -25,7 +23,6 @@
 #include <errorcodes.hh>
 #include <rgbled.hh>
 #include <bme280.hh>
-#include <bme68x.hh>
 #include <bh1750.hh>
 #include <ccs811.hh>
 #include <vl53l0x.hh>
@@ -59,7 +56,7 @@ FLASH_FILE(siren_mp3)
 const uint8_t *SOUNDS[] = {nullptr, alarm_co2_mp3_start, alarm_temperature_mp3_start, nok_mp3_start, ok_mp3_start, ready_mp3_start, fanfare_mp3_start, negative_mp3_start, positive_mp3_start, siren_mp3_start};
 const size_t SONGS_LEN[] = {0, alarm_co2_mp3_size, alarm_temperature_mp3_size, nok_mp3_size, ok_mp3_size, ready_mp3_size, fanfare_mp3_size, negative_mp3_size, positive_mp3_size, siren_mp3_size};
 #endif
-#ifdef LABATHOME_V15_0
+#if(__BOARD_VERSION__ >=150000 &&  __BOARD_VERSION__ <150100)
 constexpr gpio_num_t PIN_BTN_GREEN = (gpio_num_t)0;
 
 constexpr gpio_num_t PIN_CANTX = (gpio_num_t)1;
@@ -104,8 +101,7 @@ constexpr gpio_num_t PIN_LED_WS2812 = (gpio_num_t)13;
 constexpr gpio_num_t PIN_ONEWIRE = (gpio_num_t)39;
 
 constexpr size_t ANALOG_INPUTS_LEN{2};
-#endif
-#ifdef LABATHOME_V15_1
+#elif(__BOARD_VERSION__ >=150100 &&  __BOARD_VERSION__ <150200)
 constexpr gpio_num_t PIN_BTN_GREEN = (gpio_num_t)0;
 
 constexpr gpio_num_t PIN_CANRX = (gpio_num_t)1;
@@ -155,6 +151,56 @@ constexpr gpio_num_t PIN_ONEWIRE = (gpio_num_t)39;
 
 constexpr size_t ANALOG_INPUTS_LEN{2};
 
+#elif(__BOARD_VERSION__ >=150200 &&  __BOARD_VERSION__ <150300)
+constexpr gpio_num_t PIN_BTN_GREEN = (gpio_num_t)0;
+
+constexpr gpio_num_t PIN_CANRX = (gpio_num_t)1;
+constexpr gpio_num_t PIN_CANTX = (gpio_num_t)2;
+constexpr gpio_num_t PIN_EXT_CS = (gpio_num_t)3;
+constexpr gpio_num_t PIN_I2C_IRQ = (gpio_num_t)4;
+constexpr gpio_num_t PIN_I2C_SDA = (gpio_num_t)5;
+constexpr gpio_num_t PIN_I2C_SCL = (gpio_num_t)6;
+
+constexpr gpio_num_t PIN_uSD_CMD = (gpio_num_t)7;
+constexpr gpio_num_t PIN_LCD_CLK = (gpio_num_t)8;
+
+constexpr gpio_num_t PIN_EXT_MISO = (gpio_num_t)9;
+constexpr gpio_num_t PIN_EXT_CLK = (gpio_num_t)10;
+constexpr gpio_num_t PIN_EXT_IO1 = (gpio_num_t)11;
+constexpr gpio_num_t PIN_EXT_IO2 = (gpio_num_t)12;
+
+constexpr gpio_num_t PIN_LED_WS2812 = (gpio_num_t)13;
+
+constexpr gpio_num_t PIN_I2S_MCLK = (gpio_num_t)14;
+
+constexpr gpio_num_t PIN_uSD_CLK = (gpio_num_t)15;
+constexpr gpio_num_t PIN_uSD_D0 = (gpio_num_t)16;
+
+constexpr gpio_num_t PIN_LCD_BL = (gpio_num_t)17;
+constexpr gpio_num_t PIN_LCD_DC = (gpio_num_t)18;
+
+constexpr gpio_num_t PIN_TXD0 = (gpio_num_t)43;
+constexpr gpio_num_t PIN_RXD0 = (gpio_num_t)44;
+
+constexpr gpio_num_t PIN_RS485_DI = (gpio_num_t)40;
+constexpr gpio_num_t PIN_RS485_DE = (gpio_num_t)41;
+constexpr gpio_num_t PIN_RS485_RO = (gpio_num_t)42;
+
+
+constexpr gpio_num_t PIN_I2S_FS = (gpio_num_t)21;
+constexpr gpio_num_t PIN_I2S_DAC = (gpio_num_t)45;
+constexpr gpio_num_t PIN_EXT_MOSI = (gpio_num_t)46;
+constexpr gpio_num_t PIN_I2S_ADC = (gpio_num_t)47;
+constexpr gpio_num_t PIN_I2S_BCLK = (gpio_num_t)48;
+
+constexpr gpio_num_t PIN_LCD_DAT = (gpio_num_t)38;
+constexpr gpio_num_t PIN_LCD_RESET = (gpio_num_t)35;
+
+
+constexpr gpio_num_t PIN_ONEWIRE = (gpio_num_t)39;
+
+constexpr size_t ANALOG_INPUTS_LEN{2};
+
 #endif
 constexpr size_t LED_NUMBER{4};
 
@@ -173,7 +219,6 @@ private:
     BH1750::M *bh1750dev{nullptr};
     CCS811::M *ccs811dev{nullptr};
     BME280::M *bme280dev{nullptr};
-    BME68x::M *bme68xdev{nullptr};
     VL53L0X::M *vl53l0xdev{nullptr};
     IP5306::M *ip5306dev{nullptr};
     OneWire::OneWireBus<PIN_ONEWIRE> *oneWireBus{nullptr};
@@ -236,7 +281,6 @@ private:
     {
         aht21dev = new AHT::M(i2c_master_handle, AHT::ADDRESS::DEFAULT_ADDRESS);
         bme280dev = new BME280::M(i2c_master_handle, BME280::ADDRESS::PRIM);
-        bme68xdev = new BME68x::M(i2c_master_handle, BME68x::ADDRESS::HIGH);
         bh1750dev = new BH1750::M(i2c_master_handle, BH1750::ADDRESS::LOW, BH1750::OPERATIONMODE::CONTINU_H_RESOLUTION);
         ccs811dev = new CCS811::M(i2c_master_handle, CCS811::ADDRESS::ADDR0, CCS811::MODE::_1SEC, (gpio_num_t)GPIO_NUM_NC);
         aht21dev = new AHT::M(i2c_master_handle, AHT::ADDRESS::DEFAULT_ADDRESS);
@@ -257,7 +301,6 @@ private:
             }
             oneWireBus->Loop(GetMillis64_1024());
             //bh1750dev->Loop(GetMillis64_1024());
-            bme68xdev->Loop(GetMillis64_1024());
             //ccs811dev->Loop(GetMillis64_1024());
             aht21dev->Loop(GetMillis64_1024());
             //vl53l0xdev->Loop(GetMillis64_1024());
@@ -419,9 +462,6 @@ public:
         size_t used=0;
         used += snprintf(buffer+used, maxLen-used, "{\"ds18b20\":");
         used += this->oneWireBus->FormatJSON(buffer+used, maxLen-used);
-        
-        used+=snprintf(buffer+used, maxLen-used, ", \"bme680\":");
-        used+=this->bme68xdev->FormatJSON(buffer+used, maxLen-used);
         
         used+=snprintf(buffer+used, maxLen-used, ", \"ip5306\":");
         used+=this->ip5306dev->FormatJSON(buffer+used, maxLen-used);

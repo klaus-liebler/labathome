@@ -15,6 +15,8 @@
 #include <nvs_flash.h>
 #include <esp_netif.h>
 
+#include <__build_config.hh>
+
 constexpr TickType_t xFrequency {pdMS_TO_TICKS(50)};
 
 #ifndef CONFIG_ESP_HTTPS_SERVER_ENABLE
@@ -29,12 +31,16 @@ constexpr TickType_t xFrequency {pdMS_TO_TICKS(50)};
 static const char *TAG = "main";
 #include "HAL.hh"
 
-#if (CONFIG_IDF_TARGET_ESP32)
+
+
+#if(__BOARD_VERSION__>=100000 && __BOARD_VERSION__<110000)
 #include "HAL_labathomeV10.hh"
 static HAL * hal = new HAL_Impl(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR);
-#elif(CONFIG_IDF_TARGET_ESP32S3)
+#elif(__BOARD_VERSION__>=150000 && __BOARD_VERSION__<160000)
 #include "HAL_labathomeV15.hh"
 static HAL * hal = new HAL_Impl();
+#else
+#error Unknown __BOARD_VERSION__ ##__BOARD_VERSION
 #endif
 
 #include "functionblocks.hh"

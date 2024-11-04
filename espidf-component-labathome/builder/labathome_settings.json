@@ -1,0 +1,23 @@
+{
+    "speech":[
+        {"name":"ready", "ssml":"<speak>Willkommen! <lang xml:lang='en-US'>Lab@Home</lang><say-as interpret-as='characters'>${board.mac_6char}</say-as> ist bereit</speak>"},
+        {"name":"resistor_hot", "ssml":"<speak>Achtung! Der Heizwiderstand wird zu heiß!</speak>"},
+        {"name":"boring", "ssml":"<speak>Mir wird langweilig</speak>"},
+        {"name":"ok", "ssml":"<speak>Alles ok</speak>"},
+        {"name":"nok", "ssml":"<speak>Nicht ok</speak>"},
+        {"name":"alarm_co2", "ssml":"<speak>CO2 Alarm</speak>"},
+        {"name":"alarm_temperature", "ssml":"<speak>Temperaturalarm</speak>"}
+    ],
+    "web":{
+        "ENABLE_HEATER_EXPERIMENT":true,
+        "ENABLE_BRIGHTNESS_EXPERIMENT":true,
+        "ENABLE_FOURIER_EXPERIMENT":false,
+        "ENABLE_LABBY":true
+    },
+    "firmware":{
+        "WIFI_SSID":"smopla",
+        "WIFI_PASS":"kaktus&2023!",
+        "ENABLE_LCD_DISPLAY":true,
+        "ENABLE_AUDIO":true
+    }
+}

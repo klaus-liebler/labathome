@@ -8,12 +8,11 @@
             "type": "node",
             "request": "launch",
             "name": "Gulp Task",
-            
-            "program": "${workspaceRoot}/node_modules/gulp/bin/gulp.js",
-            "args": ["updateConnectedBoard"],
+            "args": ["--import", "tsx", "node_modules/gulp/bin/gulp", "compileFirmware"],
             "env": {
                 "NODE_OPTIONS":"--experimental-sqlite"
             }
         }
     ]
 }
+//BD846c
