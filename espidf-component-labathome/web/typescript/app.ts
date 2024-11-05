@@ -51,7 +51,8 @@ class AppController implements AppManagement {
         this.screenControllers = [];
         this.activeControllerIndex = 0;
         this.dialogController=new DialogController(this);
-        this.chatbot=new Chatbot();
+        if(ENABLE_LABBY)
+            this.chatbot=new Chatbot();
     }
 
     private SetApplicationState(state: string) {
@@ -83,15 +84,20 @@ class AppController implements AppManagement {
     }
 
     public startup() {
+        document.getElementById("footer")!.innerHTML=`
+            Klaus Liebler, &copy;2024 ${__APP_NAME__}
+        ` 
         this.dialogController.init();
-        this.chatbot.Setup();
+        if(ENABLE_LABBY)
+            this.chatbot.Setup();
         this.screenControllers.push(new DashboardController(this, <HTMLDivElement>document.getElementById("screen_dashboard")));
         this.screenControllers.push(new DevelopCFCController(this, <HTMLDivElement>document.getElementById("screen_develop")));
         this.screenControllers.push(new ReportsController(this, <HTMLDivElement>document.getElementById("screen_reports")));
         this.screenControllers.push(new HeaterExperimentController(this, <HTMLDivElement>document.getElementById("screen_heaterexperiment")));
         this.screenControllers.push(new AirspeedExperimentController(this, <HTMLDivElement>document.getElementById("screen_airspeedexperiment")));
         this.screenControllers.push(new PtnExperimentController(this, <HTMLDivElement>document.getElementById("screen_ptnexperiment")));
-        this.screenControllers.push(new FFTExperimentController(this, <HTMLDivElement>document.getElementById("screen_fftexperiment")));
+        if(ENABLE_FOURIER_EXPERIMENT)
+            this.screenControllers.push(new FFTExperimentController(this, <HTMLDivElement>document.getElementById("screen_fftexperiment")));
         this.screenControllers.forEach((sc) => sc.onCreate());
 
         this.setActiveScreen(1);
@@ -157,7 +163,6 @@ class AppController implements AppManagement {
 
 let app: AppController;
 document.addEventListener("DOMContentLoaded", (e) => {
-    console.log(ENABLE_FOURIER_EXPERIMENT)
     app = new AppController();
     app.startup();
 });

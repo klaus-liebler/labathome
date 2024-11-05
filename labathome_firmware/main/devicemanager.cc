@@ -282,47 +282,48 @@ ErrorCode DeviceManager::ParseNewExecutableAndEnqueue(const uint8_t  *buffer, si
         case 19: S(FB_GT, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
         case 20: S(FB_LT, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());
         case 21: S(FB_ConstFLOAT, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadF32());
-        case 22: S(FB_Limit, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(),ctx->ReadU32(),ctx->ReadU32());
-        case 23: S(FB_LimitMonitor, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(),ctx->ReadU32(),ctx->ReadU32(), ctx->ReadU32());
+        case 22: S(FB_ConstINTEGER, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadS32());
+        case 23: S(FB_Limit, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(),ctx->ReadU32(),ctx->ReadU32());
+        case 24: S(FB_LimitMonitor, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(),ctx->ReadU32(),ctx->ReadU32(), ctx->ReadU32());
 //#pragma endregion Arithmetic
 //#pragma region Converter
-        case 24:S(FB_Bool2ColorConverter, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32()); 
-        case 25:S(FB_Bool2IntConverter, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadS32(), ctx->ReadS32()); 
-        case 26:S(FB_Bool2FloatConverter, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadF32(), ctx->ReadF32()); 
-        case 27:S(FB_Int2BoolConverter, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadS32()); 
-        case 28:S(FB_Int2FloatConverter, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32()); 
-        case 29:S(FB_Float2IntConverter, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());     
+        case 25:S(FB_Bool2ColorConverter, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32()); 
+        case 26:S(FB_Bool2IntConverter, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadS32(), ctx->ReadS32()); 
+        case 27:S(FB_Bool2FloatConverter, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadF32(), ctx->ReadF32()); 
+        case 28:S(FB_Int2BoolConverter, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32(), ctx->ReadS32()); 
+        case 29:S(FB_Int2FloatConverter, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32()); 
+        case 30:S(FB_Float2IntConverter, ctx->ReadU32(), ctx->ReadU32(), ctx->ReadU32());     
 //#pragma endregion Converter
 //#pragma region Input       
-        case 30:S(FB_GreenButton, ctx->ReadU32(), ctx->ReadU32());
-        case 31:S(FB_EncoderButton, ctx->ReadU32(), ctx->ReadU32());
-        case 32:S(FB_EncoderDetents, ctx->ReadU32(), ctx->ReadU32());
-        case 33:S(FB_RedButton, ctx->ReadU32(), ctx->ReadU32());
-        case 34:S(FB_AnalogInput0, ctx->ReadU32(), ctx->ReadU32());
-        case 35:S(FB_AnalogInput1, ctx->ReadU32(), ctx->ReadU32());
-        case 36:S(FB_AnalogInput2, ctx->ReadU32(), ctx->ReadU32());
-        case 37:S(FB_AnalogInput3, ctx->ReadU32(), ctx->ReadU32());
+        case 31:S(FB_GreenButton, ctx->ReadU32(), ctx->ReadU32());
+        case 32:S(FB_EncoderButton, ctx->ReadU32(), ctx->ReadU32());
+        case 33:S(FB_EncoderDetents, ctx->ReadU32(), ctx->ReadU32());
+        case 34:S(FB_RedButton, ctx->ReadU32(), ctx->ReadU32());
+        case 35:S(FB_AnalogInput0, ctx->ReadU32(), ctx->ReadU32());
+        case 36:S(FB_AnalogInput1, ctx->ReadU32(), ctx->ReadU32());
+        case 37:S(FB_AnalogInput2, ctx->ReadU32(), ctx->ReadU32());
+        case 38:S(FB_AnalogInput3, ctx->ReadU32(), ctx->ReadU32());
 //#pragma endregion Input
 //#pragma region Sensor
-        case 38: S(FB_MovementSensor, ctx->ReadU32(), ctx->ReadU32());
-        case 39: S(FB_AirTemperatureSensor, ctx->ReadU32(), ctx->ReadU32());
-        case 40: S(FB_AirHumiditySensor, ctx->ReadU32(), ctx->ReadU32());
-        case 41: S(FB_AirPressureSensor, ctx->ReadU32(), ctx->ReadU32());
-        case 42: S(FB_AirCO2Sensor, ctx->ReadU32(), ctx->ReadU32());
-        case 43: S(FB_AirQualitySensor, ctx->ReadU32(), ctx->ReadU32());
-        case 44: S(FB_AmbientBrigthnessSensor, ctx->ReadU32(), ctx->ReadU32());
-        case 45: S(FB_HeaterTemperatureSensor, ctx->ReadU32(), ctx->ReadU32());
+        case 39: S(FB_MovementSensor, ctx->ReadU32(), ctx->ReadU32());
+        case 40: S(FB_AirTemperatureSensor, ctx->ReadU32(), ctx->ReadU32());
+        case 41: S(FB_AirHumiditySensor, ctx->ReadU32(), ctx->ReadU32());
+        case 42: S(FB_AirPressureSensor, ctx->ReadU32(), ctx->ReadU32());
+        case 43: S(FB_AirCO2Sensor, ctx->ReadU32(), ctx->ReadU32());
+        case 44: S(FB_AirQualitySensor, ctx->ReadU32(), ctx->ReadU32());
+        case 45: S(FB_AmbientBrigthnessSensor, ctx->ReadU32(), ctx->ReadU32());
+        case 46: S(FB_HeaterTemperatureSensor, ctx->ReadU32(), ctx->ReadU32());
 //#pragma endregion Sensor
 //#pragma region Output
-        case 48: S(FB_Relay,ctx->ReadU32(), ctx->ReadU32());
-        case 49: S(FB_RedLED, ctx->ReadU32(), ctx->ReadU32());
-        case 50: S(FB_YellowLED, ctx->ReadU32(), ctx->ReadU32());
-        case 51: S(FB_GreenLED, ctx->ReadU32(), ctx->ReadU32());
-        case 52: S(FB_LED3, ctx->ReadU32(), ctx->ReadU32());
-        case 53: S(FB_FAN, ctx->ReadU32(), ctx->ReadU32());
-        //case 54: S(FB_FAN2, ctx->ReadU32(), ctx->ReadU32());
-        case 55: S(FB_PowerLED, ctx->ReadU32(), ctx->ReadU32());
-        case 56: S(FB_AnalogOutput0, ctx->ReadU32(), ctx->ReadU32());
+        case 49: S(FB_Relay,ctx->ReadU32(), ctx->ReadU32());
+        case 50: S(FB_RedLED, ctx->ReadU32(), ctx->ReadU32());
+        case 51: S(FB_YellowLED, ctx->ReadU32(), ctx->ReadU32());
+        case 52: S(FB_GreenLED, ctx->ReadU32(), ctx->ReadU32());
+        case 53: S(FB_LED3, ctx->ReadU32(), ctx->ReadU32());
+        case 54: S(FB_FAN, ctx->ReadU32(), ctx->ReadU32());
+        //case 55: S(FB_FAN2, ctx->ReadU32(), ctx->ReadU32());
+        case 56: S(FB_PowerLED, ctx->ReadU32(), ctx->ReadU32());
+        case 57: S(FB_AnalogOutput0, ctx->ReadU32(), ctx->ReadU32());
 
 //region Specials
         case 58: S(FB_Sound, ctx->ReadU32(), ctx->ReadU32(),ctx->ReadU32());

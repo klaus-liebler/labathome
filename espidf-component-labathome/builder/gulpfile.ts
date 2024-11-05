@@ -13,6 +13,7 @@ import * as vite from 'vite'
 import path from "node:path";
 import { createSpeech } from "./text_to_speech";
 import * as util from "node:util"
+import { builtinModules } from "node:module";
 
 declare interface IStatementSync {
   all(namedParameters?: any, ...anonymousParameters: Array<null | number | bigint | string | Buffer | Uint8Array>): Array<any>;
@@ -56,15 +57,21 @@ export function certificates_servers(cb: gulp.TaskFunctionCallback) {
 
 export default gulp.series(
   addOrUpdateConnectedBoard,
-  createBoardsBaseDirLazily,
-  createBoardCertificatesLazily,
-  createBoardSoundsLazily,
-  createViteProject,
-  createCppConfigurationHeader,
-  copyMostRecentlyConnectedBoardFilesToCurrent,
-  compileFirmware,
+  builtForCurrent,
   flashFirmware,
 )
+
+export async function builtForCurrent(_cb: gulp.TaskFunctionCallback) {
+  return gulp.series(
+    createBoardsBaseDirLazily,
+    buildWebProject,
+    createBoardCertificatesLazily,
+    createBoardSoundsLazily,
+    createCppConfigurationHeader,
+    copyMostRecentlyConnectedBoardFilesToCurrent,
+    buildFirmware
+  )
+}
 
 
 export async function addOrUpdateConnectedBoard(cb: gulp.TaskFunctionCallback) {
@@ -102,10 +109,10 @@ function getMostRecentlyConnectedBoardInfo(): IBoardInfo {
   const db = new DatabaseSync("./builder.db") as IDatabaseSync;
   const select_board = db.prepare('select b.mac, m.name as mcu_name, bt.name as board_name, bt.version as board_version, b.first_connected_dt, b.last_connected_dt, b.last_connected_com_port, b.settings as board_settings, bt.settings as board_type_settings from boards as b inner join board_types as bt on bt.id=b.board_type_id inner join mcu_types as m ON m.id=bt.mcu_id ORDER BY last_connected_dt DESC LIMIT 1');
   var ret = select_board.get() as IBoardInfo;
-  ret.board_settings=JSON.parse(ret.board_settings);
-  ret.board_type_settings=JSON.parse(ret.board_type_settings);
-  ret.mac_12char=X02(ret.mac,12);
-  ret.mac_6char=ret.mac_12char.slice(6);
+  ret.board_settings = JSON.parse(ret.board_settings);
+  ret.board_type_settings = JSON.parse(ret.board_type_settings);
+  ret.mac_12char = X02(ret.mac, 12);
+  ret.mac_6char = ret.mac_12char.slice(6);
   db.close();
   return ret;
 }
@@ -116,7 +123,7 @@ function getPreferredApplicationInfo(): IApplicationInfo {
   const select_app = db.prepare('select a.name, a.version, a.hostname_template, a.settings as app_settings, a.espIdfProjectDirectory from application_types as a inner join app_board_compatibility as c ON a.id=c.application_id WHERE c.board_name=? and c.version_min<=? and c.version_max>=? ORDER BY c.priority DESC LIMIT 1 ');
   var ret = select_app.get(bi.board_name, bi.board_version, bi.board_version);
   ret.board = bi;
-  ret.app_settings=JSON.parse(ret.app_settings);
+  ret.app_settings = JSON.parse(ret.app_settings);
   db.close();
   return ret;
 }
@@ -129,7 +136,7 @@ export function createBoardsBaseDirLazily(cb: gulp.TaskFunctionCallback) {
 
 export function createBoardCertificatesLazily(cb: gulp.TaskFunctionCallback) {
   var ai = getPreferredApplicationInfo();
-  
+
   if (existsBoardSpecificPath(ai.board, P.CERTIFICATES_SUBDIR, P.ESP32_CERT_PEM_PRVTKEY_FILENAME)
     && existsBoardSpecificPath(ai.board, P.CERTIFICATES_SUBDIR, P.ESP32_CERT_PEM_CRT_FILENAME)) {
     return;
@@ -140,74 +147,75 @@ export function createBoardCertificatesLazily(cb: gulp.TaskFunctionCallback) {
   writeBoardSpecificFileCreateDirLazy(ai.board, P.CERTIFICATES_SUBDIR, P.ESP32_CERT_PEM_CRT_FILENAME, esp32Cert.certificate, cb);
 }
 
-export function createBoardSoundsLazily(cb:gulp.TaskFunctionCallback){
+export function createBoardSoundsLazily(cb: gulp.TaskFunctionCallback) {
   var ai = getPreferredApplicationInfo();
   createSpeech(ai);
   cb();
 }
 
-function createObjectWithDefines(ai:IApplicationInfo){
-  var defines:any={};
-  for (const [k, v] of Object.entries(ai.board.board_settings?.web??{})){
-    defines[k]=v;
+function createObjectWithDefines(ai: IApplicationInfo) {
+  var defines: any = {};
+  for (const [k, v] of Object.entries(ai.board.board_settings?.web ?? {})) {
+    defines[k] = v;
+    import.meta..BLA="Foot"
   }
-  for (const [k, v] of Object.entries(ai.board.board_type_settings?.web??{})){
-    defines[k]=v;
+  for (const [k, v] of Object.entries(ai.board.board_type_settings?.web ?? {})) {
+    defines[k] = v;
   }
-  for (const [k, v] of Object.entries(ai.app_settings?.web??{})){
-    defines[k]=v;
+  for (const [k, v] of Object.entries(ai.app_settings?.web ?? {})) {
+    defines[k] = v;
   }
-  defines.__BOARD_NAME__= JSON.stringify(ai.board.board_name);
-  defines.__BOARD_VERSION__= JSON.stringify(ai.board.board_version);
-  defines.__BOARD_MAC__= JSON.stringify(ai.board.mac);
-  defines.__APP_NAME__= JSON.stringify(ai.name);
-  defines.__APP_VERSION__= JSON.stringify(ai.version);
-  defines.__CREATION_DT__= JSON.stringify(Math.floor(Date.now() / 1000));
+  defines.__BOARD_NAME__ = JSON.stringify(ai.board.board_name);
+  defines.__BOARD_VERSION__ = JSON.stringify(ai.board.board_version);
+  defines.__BOARD_MAC__ = JSON.stringify(ai.board.mac);
+  defines.__APP_NAME__ = JSON.stringify(ai.name);
+  defines.__APP_VERSION__ = JSON.stringify(ai.version);
+  defines.__CREATION_DT__ = JSON.stringify(Math.floor(Date.now() / 1000));
   return defines;
 }
 
-export async function createViteProject(cb:gulp.TaskFunctionCallback) {
+export async function buildWebProject(cb: gulp.TaskFunctionCallback) {
   var ai = getPreferredApplicationInfo();
   await vite.build({
 
     root: "../web",
     define: createObjectWithDefines(ai),
-    esbuild:{
+    esbuild: {
       //drop:["console", 'debugger'],
-      legalComments:'none',
-      
+      legalComments: 'none',
+
     },
-    build:{
-      minify:true,
-      cssCodeSplit:false,
-      outDir:path.join(P.BOARDS_BASE_DIR, ai.board.mac_12char, "web"),
-      emptyOutDir:true
+    build: {
+      minify: true,
+      cssCodeSplit: false,
+      outDir: path.join(P.BOARDS_BASE_DIR, ai.board.mac_12char, "web"),
+      emptyOutDir: true
     }
   });
   cb();
 }
 
-export async function createCppConfigurationHeader(cb:gulp.TaskFunctionCallback){
+export async function createCppConfigurationHeader(cb: gulp.TaskFunctionCallback) {
   var ai = getPreferredApplicationInfo();
-  var s="#pragma once\n";
-  for(const [k,v] of Object.entries(createObjectWithDefines(ai))){
-    s+=`#define ${k} ${v}\n`
+  var s = "#pragma once\n";
+  for (const [k, v] of Object.entries(createObjectWithDefines(ai))) {
+    s += `#define ${k} ${v}\n`
   }
   writeBoardSpecificFileCreateDirLazy(ai.board, "cpp", "__build_config.hh", s, cb);
 }
 
-export async function copyMostRecentlyConnectedBoardFilesToCurrent(cb:gulp.TaskFunctionCallback) {
+export async function copyMostRecentlyConnectedBoardFilesToCurrent(cb: gulp.TaskFunctionCallback) {
   var ai = getPreferredApplicationInfo();
-  fs.cp(path.join(P.BOARDS_BASE_DIR, ai.board.mac_12char), path.join(P.BOARDS_BASE_DIR, "current"), {recursive: true}, cb);
+  fs.cp(path.join(P.BOARDS_BASE_DIR, ai.board.mac_12char), path.join(P.BOARDS_BASE_DIR, "current"), { recursive: true }, cb);
 }
 
-export async function compileFirmware(cb:gulp.TaskFunctionCallback) {
+export async function buildFirmware(cb: gulp.TaskFunctionCallback) {
   //prerequisites: Set IDF_PATH
   var ai = getPreferredApplicationInfo();
   const execPromise = util.promisify(proc.exec);
-  const { stdout, stderr }= await execPromise(`${path.join(globalThis.process.env.IDF_PATH!, "export.bat")} && idf.py build`, {
-    cwd:ai.espIdfProjectDirectory,
-    env:process.env
+  const { stdout, stderr } = await execPromise(`${path.join(globalThis.process.env.IDF_PATH!, "export.bat")} && idf.py build`, {
+    cwd: ai.espIdfProjectDirectory,
+    env: process.env
   });
   if (stderr) {
     console.error(`Fehlerausgabe: ${stderr}`);
@@ -217,12 +225,12 @@ export async function compileFirmware(cb:gulp.TaskFunctionCallback) {
   cb();
 }
 
-export async function flashFirmware(cb:gulp.TaskFunctionCallback){
+export async function flashFirmware(cb: gulp.TaskFunctionCallback) {
   const ai = getPreferredApplicationInfo();
   const execPromise = util.promisify(proc.exec);
-  const { stdout, stderr }= await execPromise(`${path.join(globalThis.process.env.IDF_PATH!, "export.bat")} && idf.py -p ${ai.board.last_connected_com_port} flash`, {
-    cwd:ai.espIdfProjectDirectory,
-    env:process.env
+  const { stdout, stderr } = await execPromise(`${path.join(globalThis.process.env.IDF_PATH!, "export.bat")} && idf.py -p ${ai.board.last_connected_com_port} flash`, {
+    cwd: ai.espIdfProjectDirectory,
+    env: process.env
   });
   if (stderr) {
     console.error(`Fehlerausgabe: ${stderr}`);

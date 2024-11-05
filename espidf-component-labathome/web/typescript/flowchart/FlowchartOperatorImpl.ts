@@ -91,45 +91,47 @@ export class OperatorRegistry{
         r.Register(19, Arithmetic,"GreaterThan", PositionType.Default, SingletonType.Default, (p, ca, ti, co)=>new Arithmetic_GreaterThanOperator(p, ca, ti, co));
         r.Register(20, Arithmetic,"LessThan", PositionType.Default, SingletonType.Default, (p, ca, ti, co)=>new Arithmetic_LessThanOperator(p, ca, ti, co));
         r.Register(21, Arithmetic, "ConstFLOAT", PositionType.Input, SingletonType.Default, (p, ca, ti, co)=>new Arithmetic_ConstFLOATOperator(p, ca, ti, co));
-        r.Register(22, Arithmetic, "LIMIT", PositionType.Input, SingletonType.Default, (p, ca, ti, co)=>new Arithmetic_LIMITOperator(p, ca, ti, co));
-        r.Register(23, Arithmetic, "LIMITMONITOR", PositionType.Input, SingletonType.Default, (p, ca, ti, co)=>new Arithmetic_LIMITMONITOROperator(p, ca, ti, co));
+        r.Register(22, Arithmetic, "ConstINTEGER", PositionType.Input, SingletonType.Default, (p, ca, ti, co)=>new Arithmetic_ConstINTEGEROperator(p, ca, ti, co));
+        
+        r.Register(23, Arithmetic, "LIMIT", PositionType.Input, SingletonType.Default, (p, ca, ti, co)=>new Arithmetic_LIMITOperator(p, ca, ti, co));
+        r.Register(24, Arithmetic, "LIMITMONITOR", PositionType.Input, SingletonType.Default, (p, ca, ti, co)=>new Arithmetic_LIMITMONITOROperator(p, ca, ti, co));
 
-        r.Register(24, Converter, "Bool2Color", PositionType.Default, SingletonType.Default, (p, ca, ti, co)=>new Bool2ColorConvert(p, ca, ti, co));
-        r.Register(25, Converter, "Bool2Int", PositionType.Default, SingletonType.Default, (p, ca, ti, co)=>new Bool2IntConvert(p, ca, ti, co));
-        r.Register(26, Converter, "Bool2Float", PositionType.Default, SingletonType.Default, (p, ca, ti, co)=>new Bool2FloatConvert(p, ca, ti, co));
-        r.Register(27, Converter, "Int2Bool", PositionType.Default, SingletonType.Default, (p, ca, ti, co)=>new Int2BoolConvert(p, ca, ti, co));
-        r.Register(28, Converter, "Int2Float", PositionType.Default, SingletonType.Default, (p, ca, ti, co)=>new Int2FloatConvert(p, ca, ti, co));
-        r.Register(29, Converter, "Float2Int", PositionType.Default, SingletonType.Default, (p, ca, ti, co)=>new Float2IntConvert(p, ca, ti, co));
+        r.Register(25, Converter, "Bool2Color", PositionType.Default, SingletonType.Default, (p, ca, ti, co)=>new Bool2ColorConvert(p, ca, ti, co));
+        r.Register(26, Converter, "Bool2Int", PositionType.Default, SingletonType.Default, (p, ca, ti, co)=>new Bool2IntConvert(p, ca, ti, co));
+        r.Register(27, Converter, "Bool2Float", PositionType.Default, SingletonType.Default, (p, ca, ti, co)=>new Bool2FloatConvert(p, ca, ti, co));
+        r.Register(28, Converter, "Int2Bool", PositionType.Default, SingletonType.Default, (p, ca, ti, co)=>new Int2BoolConvert(p, ca, ti, co));
+        r.Register(29, Converter, "Int2Float", PositionType.Default, SingletonType.Default, (p, ca, ti, co)=>new Int2FloatConvert(p, ca, ti, co));
+        r.Register(30, Converter, "Float2Int", PositionType.Default, SingletonType.Default, (p, ca, ti, co)=>new Float2IntConvert(p, ca, ti, co));
         
-        r.Register(30, Input, "GreenButton", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Input_GreenButtonOperator(p, ca, ti, co));
-        r.Register(31, Input, "EncoderButton", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Input_EncoderButtonOperator(p, ca, ti, co));
-        r.Register(32, Input, "EncoderDetents", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Input_EncoderDetentsOperator(p, ca, ti, co));
-        r.Register(33, Input, "RedButton", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Input_RedButtonOperator(p, ca, ti, co));
-        r.Register(34, Input, "AnalogInput0", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Input_AnalogInput0Operator(p, ca, ti, co));
-        r.Register(35, Input, "AnalogInput1", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Input_AnalogInput1Operator(p, ca, ti, co));
-        r.Register(36, Input, "AnalogInput2", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Input_AnalogInput2Operator(p, ca, ti, co));
-        r.Register(37, Input, "AnalogInput3", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Input_AnalogInput3Operator(p, ca, ti, co));
+        r.Register(31, Input, "GreenButton", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Input_GreenButtonOperator(p, ca, ti, co));
+        r.Register(32, Input, "EncoderButton", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Input_EncoderButtonOperator(p, ca, ti, co));
+        r.Register(33, Input, "EncoderDetents", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Input_EncoderDetentsOperator(p, ca, ti, co));
+        r.Register(34, Input, "RedButton", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Input_RedButtonOperator(p, ca, ti, co));
+        r.Register(35, Input, "AnalogInput0", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Input_AnalogInput0Operator(p, ca, ti, co));
+        r.Register(36, Input, "AnalogInput1", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Input_AnalogInput1Operator(p, ca, ti, co));
+        r.Register(37, Input, "AnalogInput2", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Input_AnalogInput2Operator(p, ca, ti, co));
+        r.Register(38, Input, "AnalogInput3", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Input_AnalogInput3Operator(p, ca, ti, co));
         
-        r.Register(38, Sensor, "Movement", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Sensor_MovementOperator(p, ca, ti, co));
-        r.Register(39, Sensor, "AirTemperature", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Sensor_AirTemperatureOperator(p, ca, ti, co));
-        r.Register(40, Sensor, "AirHumidity", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Sensor_AirHumidityOperator(p, ca, ti, co));
-        r.Register(41, Sensor, "AirPressure", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Sensor_AirPressureOperator(p, ca, ti, co));
-        r.Register(42, Sensor, "AirCO2", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Sensor_AirCO2Operator(p, ca, ti, co));
-        r.Register(43, Sensor, "AirQuality", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Sensor_AirQualityOperator(p, ca, ti, co));
-        r.Register(44, Sensor, "AmbientBrightness", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Sensor_AmbientBrightnessOperator(p, ca, ti, co));
-        r.Register(45, Sensor, "HeaterTemperature", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Sensor_HeaterTemperatureOperator(p, ca, ti, co));
-        //r.Register(46, Sensor, "AmbientNoise", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Sensor_AmbientNoise(p, ca, ti, co));
-        //r.Register(47, Sensor, "ExternalPressure", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Sensor_ExternalPressure(p, ca, ti, co));
+        r.Register(39, Sensor, "Movement", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Sensor_MovementOperator(p, ca, ti, co));
+        r.Register(40, Sensor, "AirTemperature", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Sensor_AirTemperatureOperator(p, ca, ti, co));
+        r.Register(41, Sensor, "AirHumidity", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Sensor_AirHumidityOperator(p, ca, ti, co));
+        r.Register(42, Sensor, "AirPressure", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Sensor_AirPressureOperator(p, ca, ti, co));
+        r.Register(43, Sensor, "AirCO2", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Sensor_AirCO2Operator(p, ca, ti, co));
+        r.Register(44, Sensor, "AirQuality", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Sensor_AirQualityOperator(p, ca, ti, co));
+        r.Register(45, Sensor, "AmbientBrightness", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Sensor_AmbientBrightnessOperator(p, ca, ti, co));
+        r.Register(46, Sensor, "HeaterTemperature", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Sensor_HeaterTemperatureOperator(p, ca, ti, co));
+        //r.Register(47, Sensor, "AmbientNoise", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Sensor_AmbientNoise(p, ca, ti, co));
+        //r.Register(48, Sensor, "ExternalPressure", PositionType.Input, SingletonType.Singleton, (p, ca, ti, co)=>new Sensor_ExternalPressure(p, ca, ti, co));
         
-        r.Register(48, Output, "Relay", PositionType.Output, SingletonType.Singleton, (p, ca, ti, co)=>new Output_RelayOperator(p, ca, ti, co));
-        r.Register(49, Output, "RedLed", PositionType.Output, SingletonType.Singleton, (p, ca, ti, co)=>new Output_RedLedOperator(p, ca, ti, co));
-        r.Register(50, Output, "YellowLed", PositionType.Output, SingletonType.Singleton, (p, ca, ti, co)=>new Output_YellowLedOperator(p, ca, ti, co));
-        r.Register(51, Output, "GreenLed", PositionType.Output, SingletonType.Singleton, (p, ca, ti, co)=>new Output_GreenLedOperator(p, ca, ti, co));
-        r.Register(52, Output, "LED3", PositionType.Output, SingletonType.Singleton, (p, ca, ti, co)=>new Output_Led3Operator(p, ca, ti, co));
-        r.Register(53, Output, "Fan", PositionType.Output, SingletonType.Singleton, (p, ca, ti, co)=>new Output_FanOperator(p, ca, ti, co));
-        //r.Register(54, Output, "Fan2", PositionType.Output, SingletonType.Singleton, (p, ca, ti, co)=>new Output_Fan2Operator(p, ca, ti, co));
-        r.Register(55, Output, "PowerLed", PositionType.Output, SingletonType.Singleton, (p, ca, ti, co)=>new Output_PowerLedOperator(p, ca, ti, co));
-        r.Register(56, Output, "AnalogOutput0", PositionType.Output, SingletonType.Singleton, (p, ca, ti, co)=>new Output_AnalogOutput0Operator(p, ca, ti, co));
+        r.Register(49, Output, "Relay", PositionType.Output, SingletonType.Singleton, (p, ca, ti, co)=>new Output_RelayOperator(p, ca, ti, co));
+        r.Register(50, Output, "RedLed", PositionType.Output, SingletonType.Singleton, (p, ca, ti, co)=>new Output_RedLedOperator(p, ca, ti, co));
+        r.Register(51, Output, "YellowLed", PositionType.Output, SingletonType.Singleton, (p, ca, ti, co)=>new Output_YellowLedOperator(p, ca, ti, co));
+        r.Register(52, Output, "GreenLed", PositionType.Output, SingletonType.Singleton, (p, ca, ti, co)=>new Output_GreenLedOperator(p, ca, ti, co));
+        r.Register(53, Output, "LED3", PositionType.Output, SingletonType.Singleton, (p, ca, ti, co)=>new Output_Led3Operator(p, ca, ti, co));
+        r.Register(54, Output, "Fan", PositionType.Output, SingletonType.Singleton, (p, ca, ti, co)=>new Output_FanOperator(p, ca, ti, co));
+        //r.Register(55, Output, "Fan2", PositionType.Output, SingletonType.Singleton, (p, ca, ti, co)=>new Output_Fan2Operator(p, ca, ti, co));
+        r.Register(56, Output, "PowerLed", PositionType.Output, SingletonType.Singleton, (p, ca, ti, co)=>new Output_PowerLedOperator(p, ca, ti, co));
+        r.Register(57, Output, "AnalogOutput0", PositionType.Output, SingletonType.Singleton, (p, ca, ti, co)=>new Output_AnalogOutput0Operator(p, ca, ti, co));
 
         r.Register(58, Sound, "Sound", PositionType.Output, SingletonType.Singleton, (p, ca, ti, co)=>new Sound_Sound(p, ca, ti, co));
         
@@ -847,7 +849,37 @@ export class Arithmetic_ConstFLOATOperator extends FlowchartOperator {
     public OnSimulationStart(ctx:SimulationContext){
         ctx.SetFloat(this.O, this.cfg_getValue(CONSTANT, 0));
     }
+}
 
+export class Arithmetic_ConstINTEGEROperator extends FlowchartOperator {
+    private O:FlowchartOutputConnector;
+    constructor(parent: Flowchart, caption: string, ti:TypeInfo, configurationData:KeyValueTuple[]|null) {
+        super(parent, caption, ti, configurationData);
+        this.O = new FlowchartOutputConnector(this, "Out", 0, ConnectorType.INTEGER);
+        this.AppendConnectors([], [this.O]);
+        this.cfg_setDefault(CONSTANT, 0);
+    }
+
+    private constantHTMLInput:HTMLInputElement|null=null;
+    public PopulateProperyGrid(tbody:HTMLTableSectionElement):boolean
+    {
+        this.constantHTMLInput=$.InputIntegerNumber(tbody, -2000000000, +2000000000, CONSTANT, this.configurationData);
+        return true;
+    }
+
+    public SavePropertyGrid(tbody:HTMLTableSectionElement){
+        if(this.constantHTMLInput==null) return;
+        this.cfg_setValue(CONSTANT, this.constantHTMLInput.valueAsNumber);
+    }
+
+    protected SerializeFurtherProperties(ctx:SerializeContextAndAdressMap):void{
+        ctx.ctx.writeF32(this.cfg_getValue(CONSTANT, 0));
+        return;
+    }
+
+    public OnSimulationStart(ctx:SimulationContext){
+        ctx.SetFloat(this.O, this.cfg_getValue(CONSTANT, 0));
+    }
 }
 
 
