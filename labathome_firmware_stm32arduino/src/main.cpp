@@ -244,7 +244,7 @@ void SetServoAngle(uint8_t servo_0_1_2_3_4_5, uint8_t angle_0_180)
   }
 #elif defined(ARDUINO_LABATHOME_15_1)
   if(servo_0_1_2_3_4_5>3) return;
-  TIM_SERVO->setCaptureCompare(servo_0_1_2_3+1, us, MICROSEC_COMPARE_FORMAT);
+  TIM_SERVO->setCaptureCompare(servo_0_1_2_3_4_5+1, us, MICROSEC_COMPARE_FORMAT);
 #elif defined(ARDUINO_LABATHOME_15_2)
   if(servo_0_1_2_3_4_5<4){
     TIM_SERVO->setCaptureCompare(servo_0_1_2_3_4_5+1, us, MICROSEC_COMPARE_FORMAT);
@@ -284,8 +284,10 @@ void SetPhysicalOutputs()
   
   digitalWrite(PIN::RELAY, e2s_buffer.Relay);
   digitalWrite(PIN::BL_RESET, e2s_buffer.Blreset);
+  #if defined(ARDUINO_LABATHOME_15_1) || defined(ARDUINO_LABATHOME_15_2)
   digitalWrite(PIN::BL_SLEEP, e2s_buffer.Blsleep);
   digitalWrite(PIN::LCD_RESET, e2s_buffer.LcdReset);
+  #endif
   // TODO USBC
   // HAL_DAC_SetValue(&hdac1, DAC1_CHANNEL_1, DAC_ALIGN_12B_R, ParseU16(esp2stm_buf, DAC1_POS));
   // HAL_DAC_SetValue(&hdac1, DAC1_CHANNEL_2, DAC_ALIGN_12B_R, ParseU16(esp2stm_buf, DAC2_POS));
@@ -319,14 +321,16 @@ void app_loop20ms(uint32_t now)
   s2e_buffer.ButtonYellow=(!digitalRead(PIN::BTN_YELLOW));
   s2e_buffer.Movement=digitalRead(PIN::MOVEMENT);
   s2e_buffer.Blfault=(!digitalRead(PIN::BL_FAULT));
-  s2e_buffer.PIN_PB12=digitalRead(PIN::PIN_PB12);
   s2e_buffer.Rotenc=encoder.GetTicks();
   s2e_buffer.Brightness=analogRead(PIN::BRIGHTNESS);
   s2e_buffer.UsbpdVoltage_mv=PowerSink.activeVoltage;
   s2e_buffer.Adc0=analogRead(PIN::ADC_0);
   s2e_buffer.Adc1=analogRead(PIN::ADC_1);
+  #if defined(ARDUINO_LABATHOME_15_2)
+  s2e_buffer.PIN_PB12=digitalRead(PIN::PIN_PB12);
   s2e_buffer.Adc2_24V=analogRead(PIN::ADC_2_24V);
   //s2e_buffer.Adc3_Bl_i_sense=analogRead(PIN::BL_ISENSE); wrong, we do not read the input directly, but the OPAMPs output
+  #endif
 
   if (now >= timeToPutActorsInFailsafe)
   {

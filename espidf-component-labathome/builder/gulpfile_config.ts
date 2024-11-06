@@ -1,6 +1,6 @@
 import { X02 } from "./gulpfile_utils";
 
-export const DEFAULT_BOARD_TYPE_ID=1
+export const DEFAULT_BOARD_TYPE_ID=3
 
 export const USERSETTINGS_PARTITION_NAME="nvs"
 export const USERSETTINGS_PARTITION_SIZE_KILOBYTES=16;

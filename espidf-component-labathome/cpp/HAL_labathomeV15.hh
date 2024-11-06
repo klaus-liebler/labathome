@@ -1,6 +1,7 @@
 #pragma once
 #define LCD_DISPLAY 1
 #define AUDIO 1
+#include <__build_config.hh>
 
 #include "HAL.hh"
 
@@ -86,6 +87,7 @@ constexpr gpio_num_t PIN_LCD_DC = (gpio_num_t)8;
 constexpr gpio_num_t PIN_LCD_CLK = (gpio_num_t)17;
 constexpr gpio_num_t PIN_LCD_DAT = (gpio_num_t)18;
 constexpr gpio_num_t PIN_LCD_BL = (gpio_num_t)38;
+constexpr gpio_num_t PIN_LCD_RESET = PIN_EXT_IO1;
 
 constexpr gpio_num_t PIN_TXD0 = (gpio_num_t)43;
 constexpr gpio_num_t PIN_RXD0 = (gpio_num_t)44;
@@ -322,10 +324,12 @@ private:
     void ShowTextOnLcd()
     {
 #if(LCD_DISPLAY>0)
-#if defined(LABATHOME_V15_0)
+#if __BOARD_VERSION__== 150000
         lineRenderer->printfl(0, Color::WHITE, Color::BLACK, "LabAtHomeV15.0");
-#elif defined(LABATHOME_V15_1)
+#elif __BOARD_VERSION__== 150100
         lineRenderer->printfl(0, Color::WHITE, Color::BLACK, "LabAtHomeV15.1");
+#elif __BOARD_VERSION__== 150200
+        lineRenderer->printfl(0, Color::WHITE, Color::BLACK, "LabAtHomeV15.2");
 #endif
         display.Draw(lineRenderer);
         lineRenderer->printfl(1, Color::WHITE, Color::BLACK, "SSID: %s", WIFISTA::GetSsid());
@@ -603,23 +607,17 @@ public:
 
         ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, I2C_SETUP::STM32_I2C_ADDRESS, 1000));
         ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, (uint8_t)AHT::ADDRESS::DEFAULT_ADDRESS, 1000));
-        ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, lsm6ds3::ADDRESS, 1000)); //LSM6DS3
+        ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, lsm6ds3::ADDRESS, 1000));
+#if __BOARD_VERSION__==150100 || __BOARD_VERSION__==150200
+        ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, IP5306::ADDRESS, 1000));
+#endif
         ESP_LOGI(TAG, "I2C bus successfully initialized and probed");
-
-        lsm6ds3::M gyro(i2c_master_handle);
-        const float* gyroXYZ{nullptr};
-        
-        while(false){
-            gyro.Loop(millis());
-            gyroXYZ=gyro.GetGyroXYZ();
-            ESP_LOGI(TAG, "X=%6.1f, Y=%6.1f, Z=%6.1f", gyroXYZ[0], gyroXYZ[1], gyroXYZ[2]);
-            vTaskDelay(pdMS_TO_TICKS(300));
-        }
 
 #if(AUDIO>0)
         nau88c22::M *codec = new nau88c22::M(i2c_master_handle, PIN_I2S_MCLK, PIN_I2S_BCLK, PIN_I2S_FS, PIN_I2S_DAC);
         mp3player = new AudioPlayer::Player(codec);
-        mp3player->Init();
+        ERRORCODE_CHECK(mp3player->Init());
+        ESP_LOGI(TAG, "Audio Codec Successfully initialized");
 #endif
         // LED Strip
         strip = new RGBLED::M<LED_NUMBER, RGBLED::DeviceType::WS2812>();
@@ -640,6 +638,7 @@ public:
 #if(AUDIO>0)
         xTaskCreatePinnedToCore([](void *p){((HAL_Impl*)p)->AudioLoop();}, "audioTask", 8192 * 4, this, 8, nullptr, 1);;
 #endif
+        ESP_LOGI(TAG, "HAL successfully initialized");
         return ErrorCode::OK;
     }
 
@@ -716,13 +715,13 @@ public:
     {
         if (fanIndex >= 1)
             return ErrorCode::NONE_AVAILABLE;
-        this->esp2stm_buf.Fan[fanIndex] = power_0_100;
+        this->esp2stm_buf.Fan = power_0_100;
         return ErrorCode::OK;
     }
 
     ErrorCode GetFanDuty(uint8_t fanIndex, float *power_0_100) override
     {
-        *power_0_100 = this->esp2stm_buf.Fan[fanIndex];
+        *power_0_100 = this->esp2stm_buf.Fan;
         return ErrorCode::OK;
     }
 

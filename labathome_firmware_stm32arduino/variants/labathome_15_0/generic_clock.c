@@ -1,4 +1,4 @@
-
+#ifdef ARDUINO_LABATHOME_15_0
 #include "pins_arduino.h"
 
 /**
@@ -52,4 +52,4 @@ WEAK void SystemClock_Config(void)
   }
 #endif
 }
-
+#endif

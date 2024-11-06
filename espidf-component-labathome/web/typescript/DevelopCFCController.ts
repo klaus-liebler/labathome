@@ -27,7 +27,7 @@ export class DevelopCFCController extends ScreenController {
                 {
                     index: 0,
                     caption: "RedButton",
-                    globalTypeIndex: 33,
+                    globalTypeIndex: 34,
                     posX: 10,
                     posY: 10,
                     configurationData: null,
@@ -35,7 +35,7 @@ export class DevelopCFCController extends ScreenController {
                 {
                     index: 1,
                     caption: "GreenButton",
-                    globalTypeIndex: 30,
+                    globalTypeIndex: 31,
                     posX: 10,
                     posY: 150,
                     configurationData: null,
@@ -51,7 +51,7 @@ export class DevelopCFCController extends ScreenController {
                 {
                     index: 3,
                     caption: "RedLed",
-                    globalTypeIndex: 49,
+                    globalTypeIndex: 50,
                     posX: 500,
                     posY: 10,
                     configurationData: null,

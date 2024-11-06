@@ -98,8 +98,6 @@ export function viteSingleFile({
 					replacedHtml = replaceCss(replacedHtml, cssAsset.fileName, cssAsset.source as string);
 				});
 				htmlAsset.source = replacedHtml;
-				var compressedPath=path.join(options.dir!, "index.compressed.br")
-				zlib.brotliCompress(replacedHtml, (error: Error | null, result: Buffer)=>{ fs.writeFile(compressedPath, result, ()=>{console.log(`Compressed file written to ${compressedPath}. FileSize = ${result.byteLength} byte = ${(result.byteLength/1024.0).toFixed(2)} kiB`)})});
 			});
 			if (deleteInlinedFiles) {
 				for (const name of bundlesToDelete) {

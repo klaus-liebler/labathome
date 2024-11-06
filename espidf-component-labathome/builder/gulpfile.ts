@@ -14,6 +14,7 @@ import path from "node:path";
 import { createSpeech } from "./text_to_speech";
 import * as util from "node:util"
 import { builtinModules } from "node:module";
+import * as zlib from "node:zlib"
 
 declare interface IStatementSync {
   all(namedParameters?: any, ...anonymousParameters: Array<null | number | bigint | string | Buffer | Uint8Array>): Array<any>;
@@ -55,45 +56,45 @@ export function certificates_servers(cb: gulp.TaskFunctionCallback) {
   writeFileCreateDirLazy(P.CLIENT_CERT_PEM_PRVTKEY, clientCert.privateKey, cb);
 }
 
-export default gulp.series(
-  addOrUpdateConnectedBoard,
-  builtForCurrent,
-  flashFirmware,
-)
 
-export async function builtForCurrent(_cb: gulp.TaskFunctionCallback) {
-  return gulp.series(
+export const builtForCurrent=gulp.series(
     createBoardsBaseDirLazily,
     buildWebProject,
+    brotliCompress,
     createBoardCertificatesLazily,
     createBoardSoundsLazily,
     createCppConfigurationHeader,
     copyMostRecentlyConnectedBoardFilesToCurrent,
     buildFirmware
   )
-}
+
+  
+  export default gulp.series(
+    addOrUpdateConnectedBoard,
+    builtForCurrent,
+    flashFirmware,
+  )
+  
 
 
 export async function addOrUpdateConnectedBoard(cb: gulp.TaskFunctionCallback) {
   var esp32 = await esp.GetESP32Object();
   if (!esp32) {
-    console.error("No connected board found");
-    return cb();
+    throw new Error("No connected board found");
   }
   console.log(`The MAC adress is ${esp32.macAsUint8Array.toString()} resp. ${esp32.macAsNumber} resp. ${esp32.macAsHexString}`);
   const db = new DatabaseSync("./builder.db") as IDatabaseSync;
-  const select_board = db.prepare('SELECT * boards mac = (?)');
+  const select_board = db.prepare('SELECT * from boards where mac = (?)');
   var board = select_board.get(esp32.macAsNumber);
   var now = Math.floor(Date.now() / 1000);
   if (!board) {
     const getMcuType = db.prepare('SELECT * from mcu_types where name = (?)');
     var mcuType = getMcuType.get(esp32.chipName)
     if (!mcuType) {
-      console.error(`Database does not know ${esp32.chipName}`);
-      return cb();
+      throw new Error(`Database does not know ${esp32.chipName}`);
     }
     const insert_board = db.prepare('INSERT INTO boards VALUES(?,?,?,?,?,?,?,?)');
-    insert_board.run(esp32.macAsNumber, mcuType.id, DEFAULT_BOARD_TYPE_ID, now, now, null, null);
+    insert_board.run(esp32.macAsNumber, mcuType.id, DEFAULT_BOARD_TYPE_ID, now, now, esp32.comPort.path, null, null);
   } else {
     const update_board = db.prepare('UPDATE boards set last_connected_dt = ?, last_connected_com_port= ? where mac = ? ');
     update_board.run(now, esp32.comPort.path, esp32.macAsNumber);
@@ -122,6 +123,9 @@ function getPreferredApplicationInfo(): IApplicationInfo {
   const db = new DatabaseSync("./builder.db") as IDatabaseSync;
   const select_app = db.prepare('select a.name, a.version, a.hostname_template, a.settings as app_settings, a.espIdfProjectDirectory from application_types as a inner join app_board_compatibility as c ON a.id=c.application_id WHERE c.board_name=? and c.version_min<=? and c.version_max>=? ORDER BY c.priority DESC LIMIT 1 ');
   var ret = select_app.get(bi.board_name, bi.board_version, bi.board_version);
+  if(!ret){
+    throw new Error("No suitable app found for this board!");
+  }
   ret.board = bi;
   ret.app_settings = JSON.parse(ret.app_settings);
   db.close();
@@ -139,7 +143,7 @@ export function createBoardCertificatesLazily(cb: gulp.TaskFunctionCallback) {
 
   if (existsBoardSpecificPath(ai.board, P.CERTIFICATES_SUBDIR, P.ESP32_CERT_PEM_PRVTKEY_FILENAME)
     && existsBoardSpecificPath(ai.board, P.CERTIFICATES_SUBDIR, P.ESP32_CERT_PEM_CRT_FILENAME)) {
-    return;
+    return cb();
   }
   const hostname = strInterpolator(ai.hostname_template, ai);
   let esp32Cert = cert.CreateAndSignCert(hostname, hostname, P.ROOT_CA_PEM_CRT, P.ROOT_CA_PEM_PRVTKEY);
@@ -156,14 +160,22 @@ export function createBoardSoundsLazily(cb: gulp.TaskFunctionCallback) {
 function createObjectWithDefines(ai: IApplicationInfo) {
   var defines: any = {};
   for (const [k, v] of Object.entries(ai.board.board_settings?.web ?? {})) {
-    defines[k] = v;
-    import.meta..BLA="Foot"
+    defines[k] = JSON.stringify(v);
   }
   for (const [k, v] of Object.entries(ai.board.board_type_settings?.web ?? {})) {
-    defines[k] = v;
+    defines[k] = JSON.stringify(v);
   }
   for (const [k, v] of Object.entries(ai.app_settings?.web ?? {})) {
-    defines[k] = v;
+    defines[k] = JSON.stringify(v);
+  }
+  for (const [k, v] of Object.entries(ai.board.board_settings?.firmware ?? {})) {
+    defines[k] = JSON.stringify(v);
+  }
+  for (const [k, v] of Object.entries(ai.board.board_type_settings?.firmware ?? {})) {
+    defines[k] = JSON.stringify(v);
+  }
+  for (const [k, v] of Object.entries(ai.app_settings?.firmware ?? {})) {
+    defines[k] = JSON.stringify(v);
   }
   defines.__BOARD_NAME__ = JSON.stringify(ai.board.board_name);
   defines.__BOARD_VERSION__ = JSON.stringify(ai.board.board_version);
@@ -186,13 +198,31 @@ export async function buildWebProject(cb: gulp.TaskFunctionCallback) {
 
     },
     build: {
-      minify: true,
+      //minify: true,
       cssCodeSplit: false,
       outDir: path.join(P.BOARDS_BASE_DIR, ai.board.mac_12char, "web"),
       emptyOutDir: true
     }
   });
   cb();
+}
+
+export function brotliCompress(cb: gulp.TaskFunctionCallback) {
+  const ai = getPreferredApplicationInfo();
+  const origPath=path.join(P.BOARDS_BASE_DIR, ai.board.mac_12char, "web", "index.html")
+  const compressedPath=path.join(P.BOARDS_BASE_DIR, ai.board.mac_12char, "web", "index.compressed.br")
+	zlib.brotliCompress(
+    fs.readFileSync(origPath), 
+    (error: Error | null, result: Buffer)=>{ 
+      if(error){
+        throw error;
+      }
+      fs.writeFile(compressedPath, result, ()=>{
+        console.log(`Compressed file written to ${compressedPath}. FileSize = ${result.byteLength} byte = ${(result.byteLength/1024.0).toFixed(2)} kiB`);
+        cb();
+      })
+    }
+  );
 }
 
 export async function createCppConfigurationHeader(cb: gulp.TaskFunctionCallback) {

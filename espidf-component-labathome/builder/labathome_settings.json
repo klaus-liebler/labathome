@@ -11,7 +11,7 @@
     "web":{
         "ENABLE_HEATER_EXPERIMENT":true,
         "ENABLE_BRIGHTNESS_EXPERIMENT":true,
-        "ENABLE_FOURIER_EXPERIMENT":false,
+        "ENABLE_FOURIER_EXPERIMENT":true,
         "ENABLE_LABBY":true
     },
     "firmware":{
