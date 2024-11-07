@@ -33,6 +33,7 @@ export async function createSpeech(ai: IApplicationInfo){
       continue;
     }
     var expanded_ssml= strInterpolator(e.ssml, ai);
+    console.log(`Fetching from Google TTS: ${expanded_ssml}`);
     const request:google.cloud.texttospeech.v1.ISynthesizeSpeechRequest = {
       input: { ssml: expanded_ssml },
       // Select the language and SSML voice gender (optional)

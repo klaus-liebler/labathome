@@ -233,7 +233,12 @@ private:
 #endif
 #if(LCD_DISPLAY>0)
 //TODO: Das Backlight muss noch "irgendwie" aktiviert werden. Wenn ich hier den Pin konfiguriere, dann bleibt es aus!
-    spilcd16::M<SPI2_HOST, PIN_LCD_DAT, PIN_LCD_CLK, GPIO_NUM_NC, PIN_LCD_DC, PIN_LCD_RESET, PIN_LCD_BL, LCD240x240_0, (size_t)8 * 240, 4095, 4095> display;
+#if(__BOARD_VERSION__ >=150000 &&  __BOARD_VERSION__ <150200)
+    #define ORIENTATION LCD240x240_0
+#else
+    #define ORIENTATION LCD240x240_180
+#endif
+    spilcd16::M<SPI2_HOST, PIN_LCD_DAT, PIN_LCD_CLK, GPIO_NUM_NC, PIN_LCD_DC, PIN_LCD_RESET, PIN_LCD_BL, ORIENTATION, (size_t)8 * 240, 4095, 4095> display;
     spilcd16::FullTextlineRenderer<32, 240, 5, 5, 24> *lineRenderer{nullptr};
     lcd_common::QrCodeRenderer<240, 240, 3> *qrRenderer{nullptr};
 #endif

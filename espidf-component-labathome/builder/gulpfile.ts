@@ -5,7 +5,7 @@ import proc from "node:child_process";
 import * as esp from "./esp32/esp32"
 import { parsePartitions } from "./esp32/partition_parser"
 import * as cert from "./certificates"
-import { IBoardInfo, writeFileCreateDirLazy, X02, writeBoardSpecificFileCreateDirLazy, IApplicationInfo, existsBoardSpecificPath, strInterpolator } from "./gulpfile_utils";
+import { IBoardInfo, writeFileCreateDirLazy, X02, writeBoardSpecificFileCreateDirLazy, IApplicationInfo, existsBoardSpecificPath, strInterpolator, boardSpecificPath } from "./gulpfile_utils";
 import { CLIENT_CERT_USER_NAME, DEFAULT_BOARD_TYPE_ID, PUBLIC_SERVER_FQDN } from "./gulpfile_config";
 import * as P from "./paths";
 const { DatabaseSync } = require('node:sqlite');
@@ -58,7 +58,6 @@ export function certificates_servers(cb: gulp.TaskFunctionCallback) {
 
 
 export const builtForCurrent=gulp.series(
-    createBoardsBaseDirLazily,
     buildWebProject,
     brotliCompress,
     createBoardCertificatesLazily,
@@ -82,7 +81,7 @@ export async function addOrUpdateConnectedBoard(cb: gulp.TaskFunctionCallback) {
   if (!esp32) {
     throw new Error("No connected board found");
   }
-  console.log(`The MAC adress is ${esp32.macAsUint8Array.toString()} resp. ${esp32.macAsNumber} resp. ${esp32.macAsHexString}`);
+  
   const db = new DatabaseSync("./builder.db") as IDatabaseSync;
   const select_board = db.prepare('SELECT * from boards where mac = (?)');
   var board = select_board.get(esp32.macAsNumber);
@@ -99,6 +98,8 @@ export async function addOrUpdateConnectedBoard(cb: gulp.TaskFunctionCallback) {
     const update_board = db.prepare('UPDATE boards set last_connected_dt = ?, last_connected_com_port= ? where mac = ? ');
     update_board.run(now, esp32.comPort.path, esp32.macAsNumber);
   }
+  const bi = getMostRecentlyConnectedBoardInfo();
+  console.log(`Detected an ${bi.mcu_name} on board ${bi.board_name} ${bi.board_version} with mac 0x${bi.mac_6char} or ${bi.mac}`)
   //var hostname = ESP32_HOSTNAME_TEMPLATE(mac);
   //console.log(`The Hostname will be ${hostname}`);
   //writeFileCreateDirLazy(P.HOSTNAME_FILE, hostname, cb);
@@ -132,12 +133,6 @@ function getPreferredApplicationInfo(): IApplicationInfo {
   return ret;
 }
 
-export function createBoardsBaseDirLazily(cb: gulp.TaskFunctionCallback) {
-  var board = getMostRecentlyConnectedBoardInfo();
-  fs.mkdirSync(path.join(P.BOARDS_BASE_DIR, X02(board.mac, 12)), { recursive: true });
-  return cb();
-}
-
 export function createBoardCertificatesLazily(cb: gulp.TaskFunctionCallback) {
   var ai = getPreferredApplicationInfo();
 
@@ -151,9 +146,9 @@ export function createBoardCertificatesLazily(cb: gulp.TaskFunctionCallback) {
   writeBoardSpecificFileCreateDirLazy(ai.board, P.CERTIFICATES_SUBDIR, P.ESP32_CERT_PEM_CRT_FILENAME, esp32Cert.certificate, cb);
 }
 
-export function createBoardSoundsLazily(cb: gulp.TaskFunctionCallback) {
+export async function createBoardSoundsLazily(cb: gulp.TaskFunctionCallback) {
   var ai = getPreferredApplicationInfo();
-  createSpeech(ai);
+  await createSpeech(ai);
   cb();
 }
 
@@ -200,7 +195,7 @@ export async function buildWebProject(cb: gulp.TaskFunctionCallback) {
     build: {
       //minify: true,
       cssCodeSplit: false,
-      outDir: path.join(P.BOARDS_BASE_DIR, ai.board.mac_12char, "web"),
+      outDir: boardSpecificPath(ai.board, "web"),
       emptyOutDir: true
     }
   });
@@ -209,8 +204,8 @@ export async function buildWebProject(cb: gulp.TaskFunctionCallback) {
 
 export function brotliCompress(cb: gulp.TaskFunctionCallback) {
   const ai = getPreferredApplicationInfo();
-  const origPath=path.join(P.BOARDS_BASE_DIR, ai.board.mac_12char, "web", "index.html")
-  const compressedPath=path.join(P.BOARDS_BASE_DIR, ai.board.mac_12char, "web", "index.compressed.br")
+  const origPath=boardSpecificPath(ai.board, "web", "index.html")
+  const compressedPath=boardSpecificPath(ai.board, "web", "index.compressed.br")
 	zlib.brotliCompress(
     fs.readFileSync(origPath), 
     (error: Error | null, result: Buffer)=>{ 
@@ -236,7 +231,7 @@ export async function createCppConfigurationHeader(cb: gulp.TaskFunctionCallback
 
 export async function copyMostRecentlyConnectedBoardFilesToCurrent(cb: gulp.TaskFunctionCallback) {
   var ai = getPreferredApplicationInfo();
-  fs.cp(path.join(P.BOARDS_BASE_DIR, ai.board.mac_12char), path.join(P.BOARDS_BASE_DIR, "current"), { recursive: true }, cb);
+  fs.cp(boardSpecificPath(ai.board), path.join(P.BOARDS_BASE_DIR, "current"), { recursive: true }, cb);
 }
 
 export async function buildFirmware(cb: gulp.TaskFunctionCallback) {
@@ -250,7 +245,7 @@ export async function buildFirmware(cb: gulp.TaskFunctionCallback) {
   if (stderr) {
     console.error(`Fehlerausgabe: ${stderr}`);
   }
-  console.log(`Ausgabe: ${stdout}`);
+  //console.log(`Ausgabe: ${stdout}`);
   console.log('Build-Prozess abgeschlossen!');
   cb();
 }
@@ -265,8 +260,8 @@ export async function flashFirmware(cb: gulp.TaskFunctionCallback) {
   if (stderr) {
     console.error(`Fehlerausgabe: ${stderr}`);
   }
-  console.log(`Ausgabe: ${stdout}`);
-  console.log('Build-Prozess abgeschlossen!');
+  //console.log(`Ausgabe: ${stdout}`);
+  console.log('Flash-Prozess abgeschlossen!');
   cb();
 }
 

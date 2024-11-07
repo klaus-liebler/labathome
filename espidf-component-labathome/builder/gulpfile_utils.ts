@@ -47,21 +47,27 @@ export function writeFileCreateDirLazy(file: fs.PathOrFileDescriptor, data: stri
   }
 }
 
-export function getBoardSpecificPath(bi:IBoardInfo, subdir:string, filename:string){
-  return path.join(P.BOARDS_BASE_DIR, X02(bi.mac, 12), subdir, filename);
-}
 
 export function existsBoardSpecificPath(bi:IBoardInfo, subdir:string, filename:string){
-  return fs.existsSync(getBoardSpecificPath(bi, subdir, filename));
+  return fs.existsSync(boardSpecificPath(bi, subdir, filename));
+}
+
+export function boardSpecificPath(bi:IBoardInfo, subdir?:string, filename?:string){
+  if(!subdir)
+    return path.join(P.BOARDS_BASE_DIR, bi.mac+"_"+bi.mac_12char);
+  else if(!filename)
+    return path.join(P.BOARDS_BASE_DIR, bi.mac+"_"+bi.mac_12char, subdir);
+  else
+    return path.join(P.BOARDS_BASE_DIR, bi.mac+"_"+bi.mac_12char, subdir, filename);
 }
 
 export function writeBoardSpecificFileCreateDirLazy(bi:IBoardInfo, subdir:string, filename:string, data: string | NodeJS.ArrayBufferView, callback?: fs.NoParamCallback) {
-  var directory= path.join(P.BOARDS_BASE_DIR, X02(bi.mac, 12), subdir);
+  var directory= boardSpecificPath(bi, subdir);
   fs.mkdirSync(directory, { recursive: true });
   if (callback) {
-    fs.writeFile(path.join(directory,filename), data, callback);
+    fs.writeFile(boardSpecificPath(bi, subdir, filename), data, callback);
   } else {
-    fs.writeFileSync(path.join(directory,filename), data);
+    fs.writeFileSync(boardSpecificPath(bi, subdir, filename), data);
   }
 }
 

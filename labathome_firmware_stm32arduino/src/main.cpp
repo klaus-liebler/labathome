@@ -438,7 +438,7 @@ void setup()
 #endif
 #if(defined(ARDUINO_LABATHOME_15_2))
   pinMode(PIN::ADC_2_24V, INPUT_ANALOG);
-  pinMode(PIN::LCD_RESET, OUTPUT);
+  pinMode(PIN::LCD_RESET, INPUT);
   pinMode(PIN::BL_RESET, OUTPUT);
   pinMode(PIN::PIN_PB12, INPUT);
 #endif
