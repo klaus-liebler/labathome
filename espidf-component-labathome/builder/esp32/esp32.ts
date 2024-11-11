@@ -122,7 +122,7 @@ class EspLoader {
             if(!res.valid) return Promise.reject("readRegister failed")
             registers[i] = res.value;
         }
-        console.log(`ReadRegisters(baseAddress=${baseAddress}) => ${util.format(registers)}`)
+        //console.log(`ReadRegisters(baseAddress=${baseAddress}) => ${util.format(registers)}`)
         return registers;
     }
 
@@ -160,11 +160,10 @@ class EspLoader {
         });
 
         if (!await this.promisifiedOpen(this.port)) {
-            console.error("Port is not open");
+            console.error(`Port ${this.port.path} connot be opened`);
             this.port.close();
             return null;
         }
-        console.log(`${n()}  Port has been opened successfully.`);
         this.port.set(EspLoader.resetAndBootToBootloader);
         await sleep(100);
         this.port.set(EspLoader.releaseResetButKeepBootloader);
@@ -176,18 +175,18 @@ class EspLoader {
             this.port.close();
             return null;
         }
-        console.info(`${n()} Sync was successful`);
+        //console.info(`${n()} Sync was successful`);
         var res = await this.readRegister(EspLoader.CHIP_DETECT_MAGIC_REG_ADDR)
 
         if (!res.valid) {
             console.log("The Magic Register Address could not be read");
             return null;
         }
-        console.log("The Magic Register Address is " + res.value);
+        //console.log("The Magic Register Address is " + res.value);
         let esp32type: ESP32Type | null = null;
         switch (res.value) {
             case 0x00f01d83: {
-                console.info("Detected ESP32");
+                //console.info("Detected ESP32");
                 return new ESP32Classic(this);
             }
             case 0x6f51306f:
@@ -222,7 +221,7 @@ class EspLoader {
                 return null;
             }
             case 0x09: {
-                console.info("Detected ESP32S3ROM");
+                //console.info("Detected ESP32S3ROM");
                 return new ESP32S3(this);
             }
             case 0x000007c6: {

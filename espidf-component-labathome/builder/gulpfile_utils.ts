@@ -14,10 +14,14 @@ export interface IBoardInfo{
   mcu_name:string,
   board_settings:any,
   board_type_settings:any,
+  application_name:string,
+  application_version:number,
+  hostname_template:string,
+  application_settings:any,
+  espIdfProjectDirectory:string,
 }
 
 export interface IApplicationInfo{
-  board:IBoardInfo,
   name:string,
   version:number,
   hostname_template:string,

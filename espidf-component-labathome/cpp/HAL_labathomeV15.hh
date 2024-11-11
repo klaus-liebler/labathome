@@ -39,10 +39,10 @@
 #if(LCD_DISPLAY>0)
 #include "spilcd16.hh"
 #include "FullTextLineRenderer.hh"
-#include "qr_code_renderer.hh"
 #include "breakout_renderer.hh"
 #include "lcd_font.hh"
 #include "fonts/sans12pt1bpp.hh"
+#include "qr_code_renderer.hh"
 #endif
 #if(AUDIO>0)
 FLASH_FILE(alarm_co2_mp3)
@@ -210,6 +210,7 @@ constexpr i2c_port_t I2C_PORT{I2C_NUM_0};
 constexpr i2s_port_t I2S_PORT{I2S_NUM_0}; // must be I2S_NUM_0, as only this hat access to internal DAC
 
 constexpr const char *MOUNT_POINT = "/sdcard";
+#define TAG "HAL"
 
 class HAL_Impl : public HAL
 {
@@ -222,7 +223,9 @@ private:
     CCS811::M *ccs811dev{nullptr};
     BME280::M *bme280dev{nullptr};
     VL53L0X::M *vl53l0xdev{nullptr};
+#if(__BOARD_VERSION__ >=150201)
     IP5306::M *ip5306dev{nullptr};
+#endif
     OneWire::OneWireBus<PIN_ONEWIRE> *oneWireBus{nullptr};
     i2c_master_dev_handle_t stm32_handle{nullptr};
 
@@ -240,7 +243,8 @@ private:
 #endif
     spilcd16::M<SPI2_HOST, PIN_LCD_DAT, PIN_LCD_CLK, GPIO_NUM_NC, PIN_LCD_DC, PIN_LCD_RESET, PIN_LCD_BL, ORIENTATION, (size_t)8 * 240, 4095, 4095> display;
     spilcd16::FullTextlineRenderer<32, 240, 5, 5, 24> *lineRenderer{nullptr};
-    lcd_common::QrCodeRenderer<240, 240, 3> *qrRenderer{nullptr};
+    lcd_common::QrCodeRenderer<240, 240, 40, 0, 3> *qrRendererIpAddr{nullptr};
+    lcd_common::QrCodeRenderer<240, 240, 40, 0, 3> *qrRendererWifiCredentials{nullptr};
 #endif
     // SensorValues
     S2E_t stm2esp_buf{};
@@ -292,8 +296,9 @@ private:
         ccs811dev = new CCS811::M(i2c_master_handle, CCS811::ADDRESS::ADDR0, CCS811::MODE::_1SEC, (gpio_num_t)GPIO_NUM_NC);
         aht21dev = new AHT::M(i2c_master_handle, AHT::ADDRESS::DEFAULT_ADDRESS);
         vl53l0xdev = new VL53L0X::M(i2c_master_handle);
+#if(__BOARD_VERSION__ >=150201)
         ip5306dev = new IP5306::M(i2c_master_handle);
-
+#endif
 
         oneWireBus = new OneWire::OneWireBus<PIN_ONEWIRE>();
         oneWireBus->Init();
@@ -311,7 +316,9 @@ private:
             //ccs811dev->Loop(GetMillis64_1024());
             aht21dev->Loop(GetMillis64_1024());
             //vl53l0xdev->Loop(GetMillis64_1024());
+#if(__BOARD_VERSION__ >=150201)
             ip5306dev->Loop(GetMillis64_1024());
+#endif
             Stm32Loop(); // see above Init;
         }
     }
@@ -329,13 +336,8 @@ private:
     void ShowTextOnLcd()
     {
 #if(LCD_DISPLAY>0)
-#if __BOARD_VERSION__== 150000
-        lineRenderer->printfl(0, Color::WHITE, Color::BLACK, "LabAtHomeV15.0");
-#elif __BOARD_VERSION__== 150100
-        lineRenderer->printfl(0, Color::WHITE, Color::BLACK, "LabAtHomeV15.1");
-#elif __BOARD_VERSION__== 150200
-        lineRenderer->printfl(0, Color::WHITE, Color::BLACK, "LabAtHomeV15.2");
-#endif
+
+        lineRenderer->printfl(0, Color::WHITE, Color::BLACK, "Lab@HomeV%d",__BOARD_VERSION__);
         display.Draw(lineRenderer);
         lineRenderer->printfl(1, Color::WHITE, Color::BLACK, "SSID: %s", WIFISTA::GetSsid());
         display.Draw(lineRenderer);
@@ -360,13 +362,27 @@ private:
 #endif
     }
 
-    void ShowQrCodeOnLcd()
+    void ShowQrIPAddrOnLcd()
     {
 #if(LCD_DISPLAY>0)
-        if (!qrRenderer->HasValidData())
+        if (!qrRendererIpAddr->HasValidData())
             return;
-        qrRenderer->AllowRedraw();
-        display.Draw(qrRenderer);
+        qrRendererIpAddr->AllowRedraw();
+        display.Draw(qrRendererIpAddr);
+        lineRenderer->printfl(0, Color::WHITE, Color::BLACK, "Open Browser");
+        display.Draw(lineRenderer);
+#endif
+    }
+
+    void ShowQrWifiCredentialsOnLcd()
+    {
+#if(LCD_DISPLAY>0)
+        if (!qrRendererWifiCredentials->HasValidData())
+            return;
+        qrRendererWifiCredentials->AllowRedraw();
+        display.Draw(qrRendererWifiCredentials);
+        lineRenderer->printfl(0, Color::WHITE, Color::BLACK, "Connect to Wifi");
+        display.Draw(lineRenderer);
 #endif
     }
 
@@ -389,18 +405,28 @@ public:
         if (newIpAddress.addr != savedIpAddress.addr){
             char buffer[32];
             snprintf(buffer, 31, "https://" IPSTR, IP2STR(&newIpAddress)); // IPSTR, because Smartphones do not always have a MDNS service running
-            qrRenderer->DisplayText(buffer);
+            qrRendererIpAddr->DisplayText(buffer);
             savedIpAddress = newIpAddress;
-            nextPlannedScreenChange += 3000;
+            ESP_LOGI(TAG, "ShowQrIPAddrOnLcd due to new IP address");
+            ShowQrIPAddrOnLcd();
+            nextPlannedScreenChange += 5000;
             qr_info_counter = 1;
         }
-        else if (now > nextPlannedScreenChange && qr_info_counter % 2 == 0){
+        else if (now > nextPlannedScreenChange && qr_info_counter % 3 == 0){
+            ESP_LOGI(TAG, "ShowTextOnLcd");
             ShowTextOnLcd();
             qr_info_counter++;
             nextPlannedScreenChange += 5000;
         }
-        else if (now > nextPlannedScreenChange && qr_info_counter % 2 == 1){
-            ShowQrCodeOnLcd();
+        else if (now > nextPlannedScreenChange && qr_info_counter % 3 == 1){
+            ESP_LOGI(TAG, "ShowQrIPAddrOnLcd");
+            ShowQrIPAddrOnLcd();
+            qr_info_counter++;
+            nextPlannedScreenChange += 5000;
+        }
+        else if (now > nextPlannedScreenChange && qr_info_counter % 3 == 2){
+            ESP_LOGI(TAG, "ShowQrWifiCredentialsOnLcd");
+            ShowQrWifiCredentialsOnLcd();
             qr_info_counter++;
             nextPlannedScreenChange += 5000;
         }
@@ -471,9 +497,10 @@ public:
         size_t used=0;
         used += snprintf(buffer+used, maxLen-used, "{\"ds18b20\":");
         used += this->oneWireBus->FormatJSON(buffer+used, maxLen-used);
-        
+#if(__BOARD_VERSION__ >=150201)        
         used+=snprintf(buffer+used, maxLen-used, ", \"ip5306\":");
         used+=this->ip5306dev->FormatJSON(buffer+used, maxLen-used);
+#endif
         used+=snprintf(buffer+used, maxLen-used, "}");
         maxLenInput_usedLen_Output=used;
         return ErrorCode::OK;
@@ -613,7 +640,7 @@ public:
         ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, I2C_SETUP::STM32_I2C_ADDRESS, 1000));
         ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, (uint8_t)AHT::ADDRESS::DEFAULT_ADDRESS, 1000));
         ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, lsm6ds3::ADDRESS, 1000));
-#if __BOARD_VERSION__==150100 || __BOARD_VERSION__==150200
+#if __BOARD_VERSION__>=150201
         ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, IP5306::ADDRESS, 1000));
 #endif
         ESP_LOGI(TAG, "I2C bus successfully initialized and probed");
@@ -635,7 +662,12 @@ public:
         display.Init_ST7789(Color::GREEN);
 
         lineRenderer = new spilcd16::FullTextlineRenderer<32, 240, 5, 5, 24>(&sans12pt1bpp::font);
-        qrRenderer = new lcd_common::QrCodeRenderer<240, 240, 3>();
+        qrRendererIpAddr = new lcd_common::QrCodeRenderer<240, 240, 40, 0, 3>();
+        qrRendererWifiCredentials = new lcd_common::QrCodeRenderer<240, 240, 40, 0, 3>();
+        char* wifiCredentials;
+        asprintf(&wifiCredentials, "WIFI:T:WPA;S:%s;P:%s;;", WIFI_SSID, WIFI_PASS);
+        qrRendererWifiCredentials->DisplayText(wifiCredentials);
+        free(wifiCredentials);
 #endif
         // GreetUserOnStartup(); GreetUser is done in DeviceManager or in the main loop
         // Tasks
@@ -858,3 +890,4 @@ public:
         return ErrorCode::OK;
     }
 };
+#undef TAG
