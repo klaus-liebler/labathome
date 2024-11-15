@@ -14575,6 +14575,44 @@
 		)
 	)
 	(sheet
+		(at 242.57 97.79)
+		(size 17.78 5.08)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "17ae4001-8623-479a-8825-80beba02b053")
+		(property "Sheetname" "stepper2209"
+			(at 242.57 97.0784 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "stepper2209.kicad_sch"
+			(at 242.57 103.4546 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "labathome_pcb15"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac"
+					(page "8")
+				)
+			)
+		)
+	)
+	(sheet
 		(at 241.3 46.99)
 		(size 16.51 3.81)
 		(fields_autoplaced yes)
