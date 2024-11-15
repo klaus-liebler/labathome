@@ -5365,7 +5365,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "67b06538-99ae-4d8c-8c87-17dc1dfe52bb")
-		(property "Reference" "C67"
+		(property "Reference" "C120"
 			(at 130.048 25.654 0)
 			(effects
 				(font
@@ -5419,7 +5419,7 @@
 		(instances
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
-					(reference "C67")
+					(reference "C120")
 					(unit 1)
 				)
 			)
@@ -6057,7 +6057,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 66.802 83.82 90)
 			(effects
 				(font
@@ -7027,7 +7027,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 74.422 83.82 90)
 			(effects
 				(font
@@ -8692,7 +8692,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "fb33f24f-7e90-46a2-be90-86232a30d4c4")
-		(property "Reference" "#PWR0139"
+		(property "Reference" "#PWR0192"
 			(at 50.8 93.98 0)
 			(effects
 				(font
@@ -8742,7 +8742,7 @@
 		(instances
 			(project ""
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
-					(reference "#PWR0139")
+					(reference "#PWR0192")
 					(unit 1)
 				)
 			)
