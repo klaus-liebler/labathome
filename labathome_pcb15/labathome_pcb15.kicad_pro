@@ -37,9 +37,9 @@
         "other_text_thickness": 0.15,
         "other_text_upright": false,
         "pads": {
-          "drill": 0.7,
-          "height": 1.4,
-          "width": 1.4
+          "drill": 0.95,
+          "height": 1.95,
+          "width": 1.7
         },
         "silk_line_width": 0.15,
         "silk_text_italic": false,
@@ -610,7 +610,7 @@
   "sheets": [
     [
       "e4d6926a-1a8b-424d-97c4-66b6ad87e4ac",
-      "Root"
+      "Stammblatt"
     ],
     [
       "faeff10d-104f-4ca8-a480-26bd51140cf0",
@@ -635,6 +635,10 @@
     [
       "30ce59dc-c3cd-4018-ad35-6ea0c32a1935",
       "comm"
+    ],
+    [
+      "17ae4001-8623-479a-8825-80beba02b053",
+      "stepper2209"
     ]
   ],
   "text_variables": {}
