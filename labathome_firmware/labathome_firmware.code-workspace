@@ -5,6 +5,10 @@
 		},
 		{
 			"path": "../espidf-component-labathome"
+		},
+		{
+			"name": "stm32-usbpd",
+			"path": "../../playground/stm32-usbpd"
 		}
 	],
 	"settings": {

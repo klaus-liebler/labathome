@@ -286,7 +286,7 @@ void SetPhysicalOutputs()
   digitalWrite(PIN::BL_RESET, e2s_buffer.Blreset);
   #if defined(ARDUINO_LABATHOME_15_1) || defined(ARDUINO_LABATHOME_15_2)
   digitalWrite(PIN::BL_SLEEP, e2s_buffer.Blsleep);
-  digitalWrite(PIN::LCD_RESET, e2s_buffer.LcdReset);
+  //digitalWrite(PIN::LCD_RESET, e2s_buffer.LcdReset);
   #endif
   // TODO USBC
   // HAL_DAC_SetValue(&hdac1, DAC1_CHANNEL_1, DAC_ALIGN_12B_R, ParseU16(esp2stm_buf, DAC1_POS));

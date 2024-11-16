@@ -1,6 +1,8 @@
 import { X02 } from "./gulpfile_utils";
+const LABATHOME_150100 = 2
+const LABATHOME_150200 = 3
 
-export const DEFAULT_BOARD_TYPE_ID=3
+export const DEFAULT_BOARD_TYPE_ID=LABATHOME_150200
 
 export const USERSETTINGS_PARTITION_NAME="nvs"
 export const USERSETTINGS_PARTITION_SIZE_KILOBYTES=16;
