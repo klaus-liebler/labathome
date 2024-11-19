@@ -537,9 +537,9 @@
 					)
 				)
 				(pin output line
-					(at 15.24 12.7 180)
+					(at 15.24 13.97 180)
 					(length 2.54)
-					(name "OB2"
+					(name "Coil_B_Out_2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -771,9 +771,9 @@
 					)
 				)
 				(pin output line
-					(at 15.24 15.24 180)
+					(at 15.24 21.59 180)
 					(length 2.54)
-					(name "OA2"
+					(name "Coil_A_Out_2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -825,9 +825,9 @@
 					)
 				)
 				(pin output line
-					(at 15.24 17.78 180)
+					(at 15.24 19.05 180)
 					(length 2.54)
-					(name "OA1"
+					(name "Coil_A_Out_1"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -861,9 +861,9 @@
 					)
 				)
 				(pin output line
-					(at 15.24 20.32 180)
+					(at 15.24 16.51 180)
 					(length 2.54)
-					(name "OB1"
+					(name "Coil_B_Out_1"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1410,6 +1410,12 @@
 		(uuid "1193e147-fa0f-4fa5-94f7-e69536654f55")
 	)
 	(junction
+		(at 71.12 109.22)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "1e361c49-039c-4c07-b5e5-016c9db4b67a")
+	)
+	(junction
 		(at 148.59 34.29)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1576,6 +1582,18 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "f62d3833-3d8b-4e70-b30b-f4339d2c5624")
+	)
+	(no_connect
+		(at 35.56 80.01)
+		(uuid "01873090-af82-4f67-8708-7315d81a7cce")
+	)
+	(no_connect
+		(at 210.82 81.28)
+		(uuid "1bce0061-c2f9-44ce-b902-6233174a3b6c")
+	)
+	(no_connect
+		(at 123.19 81.28)
+		(uuid "38ab16b7-7d49-42d5-b825-b1d63614287b")
 	)
 	(no_connect
 		(at 35.56 77.47)
@@ -1935,16 +1953,6 @@
 	)
 	(wire
 		(pts
-			(xy 114.3 45.72) (xy 115.57 45.72)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "82a984fe-4f02-4ed3-8da0-936531e6a8e0")
-	)
-	(wire
-		(pts
 			(xy 223.52 33.02) (xy 223.52 24.13)
 		)
 		(stroke
@@ -1975,26 +1983,6 @@
 	)
 	(wire
 		(pts
-			(xy 26.67 44.45) (xy 27.94 44.45)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "953dd15a-3980-47dd-9d98-374851574288")
-	)
-	(wire
-		(pts
-			(xy 201.93 45.72) (xy 203.2 45.72)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "97066eaf-9833-41df-b553-728f295f6144")
-	)
-	(wire
-		(pts
 			(xy 50.8 31.75) (xy 50.8 25.4)
 		)
 		(stroke
@@ -2015,6 +2003,26 @@
 	)
 	(wire
 		(pts
+			(xy 68.58 116.84) (xy 71.12 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a272bc64-ce90-4709-8777-6fa3a0d9735c")
+	)
+	(wire
+		(pts
+			(xy 68.58 109.22) (xy 71.12 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a2cdb7fd-d842-49dd-b470-5c625a55573f")
+	)
+	(wire
+		(pts
 			(xy 142.24 34.29) (xy 148.59 34.29)
 		)
 		(stroke
@@ -2032,6 +2040,16 @@
 			(type default)
 		)
 		(uuid "a836da91-28c2-42ea-807b-233d973ae292")
+	)
+	(wire
+		(pts
+			(xy 71.12 109.22) (xy 73.66 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "abf45535-7ecc-40bb-be8e-0f31d08aba96")
 	)
 	(wire
 		(pts
@@ -2279,7 +2297,51 @@
 		)
 		(uuid "c1eb4965-3a02-4e20-9fe1-b019e9e8d61b")
 	)
-	(global_label "STEPPER_DIR1"
+	(global_label "EXT_MISO"
+		(shape output)
+		(at 68.58 109.22 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "01be1762-7a39-45c6-a9a3-b957bd04cb45")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 56.7049 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "EXT_IO1"
+		(shape bidirectional)
+		(at 53.34 132.08 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "22352838-0744-4a04-8825-61accefcd87a")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 41.805 132.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "STEPPER_DIR3"
 		(shape input)
 		(at 210.82 66.04 180)
 		(fields_autoplaced yes)
@@ -2301,7 +2363,7 @@
 			)
 		)
 	)
-	(global_label "STEPPER_STEP1"
+	(global_label "STEPPER_STEP2"
 		(shape input)
 		(at 123.19 63.5 180)
 		(fields_autoplaced yes)
@@ -2319,6 +2381,138 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "STEPPER_UART"
+		(shape bidirectional)
+		(at 210.82 45.72 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "3cb1fbb0-8b82-4947-9309-3152d56d6597")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 192.8141 45.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "STEPPER_DIR1"
+		(shape input)
+		(at 53.34 127 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "4774ec33-2304-4f02-af55-8abec24a04cf")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 69.9322 127 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "EXT_CS"
+		(shape input)
+		(at 53.34 129.54 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "5ac0f2d2-6fe3-48f7-867f-a21d667c5dce")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 43.5816 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "EXT_MOSI"
+		(shape input)
+		(at 68.58 116.84 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "67022cec-3ce6-469a-af20-73ce72b9ce1e")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 56.7049 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "EXT_IO2"
+		(shape bidirectional)
+		(at 53.34 134.62 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "67ca4ea9-b393-40b9-b7dd-40549f946a0b")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 41.805 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "STEPPER_DIR2"
+		(shape input)
+		(at 53.34 132.08 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "6ccc9ac2-77c4-47e4-801b-0d9e28de9734")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 69.9322 132.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 				(hide yes)
 			)
 		)
@@ -2345,51 +2539,29 @@
 			)
 		)
 	)
-	(global_label "STEPPER_CURRENT"
+	(global_label "STEPPER_STEP1"
 		(shape input)
-		(at 123.19 81.28 180)
+		(at 53.34 129.54 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right)
+			(justify left)
 		)
-		(uuid "8223e446-9125-4bc2-8521-66a0eb01bb2f")
+		(uuid "85080981-38ec-4c6b-abfd-3c939e7dabec")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 102.3645 81.28 0)
+			(at 71.3835 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
 				(hide yes)
 			)
 		)
 	)
-	(global_label "STEPPER_CURRENT"
-		(shape input)
-		(at 35.56 80.01 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "8d6f07c6-61ff-4bc3-aead-f7ccfabaabef")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 14.7345 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "STEPPER_DIR1"
+	(global_label "STEPPER_DIR2"
 		(shape input)
 		(at 123.19 66.04 180)
 		(fields_autoplaced yes)
@@ -2411,9 +2583,9 @@
 			)
 		)
 	)
-	(global_label "STEPPER_CURRENT"
-		(shape input)
-		(at 210.82 81.28 180)
+	(global_label "STEPPER_UART"
+		(shape bidirectional)
+		(at 123.19 45.72 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2421,9 +2593,9 @@
 			)
 			(justify right)
 		)
-		(uuid "b6af29d0-e22a-4c43-bb6e-9e4b4f5e2cb4")
+		(uuid "b877e479-3695-473a-bb3a-f5dcbed504ff")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 189.9945 81.28 0)
+			(at 105.1841 45.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2433,7 +2605,7 @@
 			)
 		)
 	)
-	(global_label "STEPPER_STEP1"
+	(global_label "STEPPER_STEP3"
 		(shape input)
 		(at 210.82 63.5 180)
 		(fields_autoplaced yes)
@@ -2468,6 +2640,94 @@
 		(uuid "c32da8cc-370b-4df3-8aa0-bd585341fcd4")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 18.9678 64.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "STEPPER_UART"
+		(shape bidirectional)
+		(at 73.66 109.22 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "c8570fbc-a52f-4dd4-9545-892838679045")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 91.6659 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "EXT_CLK"
+		(shape input)
+		(at 53.34 127 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "ceb0681e-9f31-4856-a1e5-d998b0a96acc")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 42.493 127 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "STEPPER_STEP2"
+		(shape input)
+		(at 53.34 134.62 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "d9c98bac-bd70-4058-b0b0-9a4ee7b50693")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 71.3835 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "STEPPER_UART"
+		(shape bidirectional)
+		(at 35.56 44.45 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "e395839f-a35f-4a6d-a5af-1f1f3896b0e0")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 17.5541 44.45 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3517,7 +3777,8 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x04")
-		(at 246.38 43.18 0)
+		(at 246.38 44.45 0)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3525,7 +3786,7 @@
 		(dnp no)
 		(uuid "2567c01a-0630-440c-8489-0771bd06fe5e")
 		(property "Reference" "J31"
-			(at 248.412 43.3832 0)
+			(at 248.412 44.2468 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3534,7 +3795,7 @@
 			)
 		)
 		(property "Value" "K1"
-			(at 248.412 45.6946 0)
+			(at 248.412 41.9354 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3543,7 +3804,7 @@
 			)
 		)
 		(property "Footprint" "liebler_CONN:JST_XH_S4B-XH-A-1_1x04_P2.50mm_Horizontal_SmallerCourtyard"
-			(at 246.38 43.18 0)
+			(at 246.38 44.45 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3552,7 +3813,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 246.38 43.18 0)
+			(at 246.38 44.45 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3561,7 +3822,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 246.38 43.18 0)
+			(at 246.38 44.45 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3996,6 +4257,76 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R")
+		(at 251.46 85.09 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "313f4d2a-a4b6-420b-b580-bc9f69f4552d")
+		(property "Reference" "R88"
+			(at 254 83.8199 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "r1"
+			(at 254 86.3599 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2010_5025Metric"
+			(at 249.682 85.09 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 251.46 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 251.46 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "e175801b-d733-4f5e-8e23-7abb6817454b")
+		)
+		(pin "1"
+			(uuid "3ea82d08-989d-4f10-bca4-67289e93de95")
+		)
+		(instances
+			(project "labathome_pcb15"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
+					(reference "R88")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 226.06 88.9 0)
 		(unit 1)
@@ -4265,7 +4596,8 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x04")
-		(at 71.12 41.91 0)
+		(at 71.12 43.18 0)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4273,7 +4605,7 @@
 		(dnp no)
 		(uuid "3d64359d-5d2d-4736-bbe0-9c24cc26885a")
 		(property "Reference" "J24"
-			(at 73.152 42.1132 0)
+			(at 73.152 42.9768 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4282,7 +4614,7 @@
 			)
 		)
 		(property "Value" "K1"
-			(at 73.152 44.4246 0)
+			(at 73.152 40.6654 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4291,7 +4623,7 @@
 			)
 		)
 		(property "Footprint" "liebler_CONN:JST_XH_S4B-XH-A-1_1x04_P2.50mm_Horizontal_SmallerCourtyard"
-			(at 71.12 41.91 0)
+			(at 71.12 43.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4300,7 +4632,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 71.12 41.91 0)
+			(at 71.12 43.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4309,7 +4641,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 71.12 41.91 0)
+			(at 71.12 43.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4399,74 +4731,6 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
 					(reference "#PWR0169")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 207.01 45.72 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "42012f94-cc61-4763-8beb-fda00b9923c3")
-		(property "Reference" "R81"
-			(at 200.152 47.244 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "10k"
-			(at 207.01 45.72 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
-			(at 207.01 43.942 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 207.01 45.72 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 207.01 45.72 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "a167ff93-3bd9-414e-a421-fb39d27684e0")
-		)
-		(pin "2"
-			(uuid "a372c57a-feea-447c-991a-2f34f9e0e6df")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
-					(reference "R81")
 					(unit 1)
 				)
 			)
@@ -4668,76 +4932,6 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
 					(reference "#PWR0265")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 156.21 85.09 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "487beb0e-aac6-49b5-ac70-5d81d1f5455c")
-		(property "Reference" "R79"
-			(at 158.75 83.8199 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "R1"
-			(at 158.75 86.3599 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
-			(at 154.432 85.09 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 156.21 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 156.21 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "9ea217b6-f352-4ecf-853c-63a76756ddf9")
-		)
-		(pin "1"
-			(uuid "2e6522bf-43e5-47bf-b0be-d12de3c1c494")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
-					(reference "R79")
 					(unit 1)
 				)
 			)
@@ -4947,73 +5141,9 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 114.3 45.72 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "58bf298e-34da-4086-a662-f92f4c4415d7")
-		(property "Reference" "#PWR0244"
-			(at 107.95 45.72 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 114.808 44.704 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 114.3 45.72 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 114.3 45.72 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 114.3 45.72 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "e6e9eca2-6263-495f-8dcf-7e0fecac90e1")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
-					(reference "#PWR0244")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Connector_Generic:Conn_01x04")
-		(at 158.75 43.18 0)
+		(at 158.75 44.45 0)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5021,7 +5151,7 @@
 		(dnp no)
 		(uuid "5c4293b4-377c-4b5f-9bd7-2cee81fdfab9")
 		(property "Reference" "J30"
-			(at 160.782 43.3832 0)
+			(at 160.782 44.2468 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5030,7 +5160,7 @@
 			)
 		)
 		(property "Value" "K1"
-			(at 160.782 45.6946 0)
+			(at 160.782 41.9354 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5039,7 +5169,7 @@
 			)
 		)
 		(property "Footprint" "liebler_CONN:JST_XH_S4B-XH-A-1_1x04_P2.50mm_Horizontal_SmallerCourtyard"
-			(at 158.75 43.18 0)
+			(at 158.75 44.45 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5048,7 +5178,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 158.75 43.18 0)
+			(at 158.75 44.45 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5057,7 +5187,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 158.75 43.18 0)
+			(at 158.75 44.45 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5150,6 +5280,76 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
 					(reference "C68")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 76.2 83.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "6373cf2b-647a-4459-a532-e3a366b9d7ad")
+		(property "Reference" "R79"
+			(at 78.74 82.5499 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "r1"
+			(at 78.74 85.0899 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2010_5025Metric"
+			(at 74.422 83.82 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 76.2 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 76.2 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "3636f2e6-db2d-4e58-9859-6e43b1a27989")
+		)
+		(pin "1"
+			(uuid "86a805a1-60ef-4627-a760-f517bb3d4ab3")
+		)
+		(instances
+			(project "labathome_pcb15"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
+					(reference "R79")
 					(unit 1)
 				)
 			)
@@ -5281,76 +5481,6 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
 					(reference "#PWR0266")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 251.46 85.09 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "672dd188-abcd-40ae-81b2-4b5b8e7f1755")
-		(property "Reference" "R88"
-			(at 254 83.8199 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "R1"
-			(at 254 86.3599 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
-			(at 249.682 85.09 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 251.46 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 251.46 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "8004ba15-a29a-4754-ac1d-d459b14435e8")
-		)
-		(pin "1"
-			(uuid "fa0a5280-0824-4c2d-b152-857e0208682e")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
-					(reference "R88")
 					(unit 1)
 				)
 			)
@@ -6048,7 +6178,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "R1"
+		(property "Value" "r1"
 			(at 71.12 85.0899 0)
 			(effects
 				(font
@@ -6057,7 +6187,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+		(property "Footprint" "Resistor_SMD:R_2010_5025Metric"
 			(at 66.802 83.82 90)
 			(effects
 				(font
@@ -6930,146 +7060,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 243.84 85.09 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "b4202092-cb43-4768-921e-8d9e7dc7d4d8")
-		(property "Reference" "R87"
-			(at 246.38 83.8199 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "R1"
-			(at 246.38 86.3599 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
-			(at 242.062 85.09 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 243.84 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 243.84 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "a018dc35-a1fb-45a6-b9cc-cca0f4f11ce2")
-		)
-		(pin "1"
-			(uuid "b45f04b0-10df-4982-baec-01ed0db6d772")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
-					(reference "R87")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 76.2 83.82 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "b579e5c4-8334-4e5f-9b23-77e64d7fd057")
-		(property "Reference" "R84"
-			(at 78.74 82.5499 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "R1"
-			(at 78.74 85.0899 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
-			(at 74.422 83.82 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 76.2 83.82 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 76.2 83.82 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "74d99199-69cc-4104-94c1-6ad7cb819423")
-		)
-		(pin "1"
-			(uuid "3d00098b-37fc-4557-8b4c-a9ffbd27347a")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
-					(reference "R84")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:+24V")
 		(at 93.98 25.4 0)
 		(unit 1)
@@ -7203,34 +7193,31 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 163.83 85.09 0)
+		(at 71.12 113.03 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "baa204e1-e779-4c69-8886-89c79a325bb1")
-		(property "Reference" "R80"
-			(at 166.37 83.8199 0)
+		(uuid "bbfaf1ab-5288-4932-9125-936d3a53101c")
+		(property "Reference" "R22"
+			(at 73.66 113.03 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
 			)
 		)
-		(property "Value" "R1"
-			(at 166.37 86.3599 0)
+		(property "Value" "1k"
+			(at 71.12 113.03 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
-			(at 162.052 85.09 90)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 72.898 113.03 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7239,7 +7226,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 163.83 85.09 0)
+			(at 71.12 113.03 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7247,25 +7234,25 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Resistor"
-			(at 163.83 85.09 0)
+		(property "Description" ""
+			(at 71.12 113.03 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
 			)
-		)
-		(pin "2"
-			(uuid "def42ae3-8d32-4067-a94a-6f0e3ade481a")
 		)
 		(pin "1"
-			(uuid "93505272-f980-47c3-8b15-03eba8b41477")
+			(uuid "f9e67deb-5a74-4977-92f1-27bd9dcaf249")
+		)
+		(pin "2"
+			(uuid "32722cba-36f1-4d0c-b3d0-99d51502a7ec")
 		)
 		(instances
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
-					(reference "R80")
+					(reference "R22")
 					(unit 1)
 				)
 			)
@@ -7342,15 +7329,16 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 119.38 45.72 270)
+		(at 156.21 85.09 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "c29be14c-608e-4f76-89a6-32e48a4d4642")
-		(property "Reference" "R76"
-			(at 112.522 47.244 90)
+		(fields_autoplaced yes)
+		(uuid "bf65cdd3-777d-486a-9624-162044441f96")
+		(property "Reference" "R80"
+			(at 158.75 83.8199 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7358,16 +7346,17 @@
 				(justify left)
 			)
 		)
-		(property "Value" "10k"
-			(at 119.38 45.72 90)
+		(property "Value" "r1"
+			(at 158.75 86.3599 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
-			(at 119.38 43.942 90)
+		(property "Footprint" "Resistor_SMD:R_2010_5025Metric"
+			(at 154.432 85.09 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7376,7 +7365,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 119.38 45.72 0)
+			(at 156.21 85.09 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7384,25 +7373,25 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 119.38 45.72 0)
+		(property "Description" "Resistor"
+			(at 156.21 85.09 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
 			)
-		)
-		(pin "1"
-			(uuid "29e4c965-aa7a-4a1b-a577-626c9d250d95")
 		)
 		(pin "2"
-			(uuid "9ee340bb-afd9-477e-847c-29b3dea5f2d8")
+			(uuid "4b2234dc-fbf6-4dd5-a047-d9ecb4a2bdfb")
+		)
+		(pin "1"
+			(uuid "78cd6d31-0423-43ff-b41e-99cf90d26fae")
 		)
 		(instances
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
-					(reference "R76")
+					(reference "R80")
 					(unit 1)
 				)
 			)
@@ -7538,71 +7527,6 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
 					(reference "#PWR0271")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 201.93 45.72 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "c8e5f697-0532-4f8b-b2b7-f501dd7d72f9")
-		(property "Reference" "#PWR0259"
-			(at 195.58 45.72 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 202.438 44.704 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 201.93 45.72 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 201.93 45.72 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 201.93 45.72 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "a9c1698b-2fb5-4254-b4bb-67782f2a67cb")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
-					(reference "#PWR0259")
 					(unit 1)
 				)
 			)
@@ -7947,74 +7871,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 31.75 44.45 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "d6960a04-986e-486a-a4b6-f5324399042e")
-		(property "Reference" "R85"
-			(at 24.892 45.974 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "10k"
-			(at 31.75 44.45 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
-			(at 31.75 42.672 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 31.75 44.45 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 31.75 44.45 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "f5c784bb-fd75-4706-815f-a8f77f22498a")
-		)
-		(pin "2"
-			(uuid "dbb0b5d1-5763-40a8-af41-bf5146edd00e")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
-					(reference "R85")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:GND")
 		(at 154.94 63.5 0)
 		(unit 1)
@@ -8074,6 +7930,76 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
 					(reference "#PWR0254")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 163.83 85.09 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "d9cad243-9208-4abe-b9e0-6e895ba00b6d")
+		(property "Reference" "R84"
+			(at 166.37 83.8199 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "r1"
+			(at 166.37 86.3599 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2010_5025Metric"
+			(at 162.052 85.09 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 163.83 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 163.83 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "cfc78f49-cd56-400a-b5ec-260e2f97ade8")
+		)
+		(pin "1"
+			(uuid "de157818-8e87-4ec6-b411-3229eae1e209")
+		)
+		(instances
+			(project "labathome_pcb15"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
+					(reference "R84")
 					(unit 1)
 				)
 			)
@@ -8274,6 +8200,76 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
 					(reference "#PWR0255")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 243.84 85.09 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "de404887-2ccb-47b4-88c1-6590cf3c1458")
+		(property "Reference" "R87"
+			(at 246.38 83.8199 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "r1"
+			(at 246.38 86.3599 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2010_5025Metric"
+			(at 242.062 85.09 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 243.84 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 243.84 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "ceea5d38-03b3-483c-9faf-3742e3a3fe70")
+		)
+		(pin "1"
+			(uuid "9ae3eb71-0327-4cb4-b64c-c97dc92bc134")
+		)
+		(instances
+			(project "labathome_pcb15"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
+					(reference "R87")
 					(unit 1)
 				)
 			)
@@ -8743,71 +8739,6 @@
 			(project ""
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
 					(reference "#PWR0192")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 26.67 44.45 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "ffc0b4ae-5622-4754-afbe-34f091c28173")
-		(property "Reference" "#PWR0238"
-			(at 20.32 44.45 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 27.178 43.434 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 26.67 44.45 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 26.67 44.45 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 26.67 44.45 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "cf572c47-83e1-4684-82de-99dafd64cb65")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
-					(reference "#PWR0238")
 					(unit 1)
 				)
 			)

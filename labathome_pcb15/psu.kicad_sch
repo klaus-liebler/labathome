@@ -3498,12 +3498,6 @@
 		(uuid "f1a5d80b-176e-4ea5-afb2-3f9aa3ffb20f")
 	)
 	(junction
-		(at 200.66 128.27)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "f62eeff9-6528-46de-b11a-407b2483d36c")
-	)
-	(junction
 		(at 90.17 128.27)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -3582,16 +3576,6 @@
 			(type default)
 		)
 		(uuid "03d943fb-4b47-4f57-b2f6-56d0d354c93b")
-	)
-	(wire
-		(pts
-			(xy 200.66 128.27) (xy 208.28 128.27)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "06fa2d36-3259-416c-a908-a3fbef9e7518")
 	)
 	(wire
 		(pts
@@ -6510,71 +6494,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:+5V")
-		(at 223.52 90.17 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "741b46a7-a21d-4691-a10f-23c989ddd995")
-		(property "Reference" "#PWR035"
-			(at 223.52 93.98 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+5V"
-			(at 223.901 85.7758 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 223.52 90.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 223.52 90.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 223.52 90.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "cc84c340-d4ee-40c4-a987-6ea439f0d3a2")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/77dfbe0c-d674-478a-bf0e-cfa040fb2e8f"
-					(reference "#PWR035")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:C")
 		(at 90.17 109.22 0)
 		(unit 1)
@@ -6917,118 +6836,6 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/77dfbe0c-d674-478a-bf0e-cfa040fb2e8f"
 					(reference "#FLG02")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:USB_C_Receptacle_USB2.0_16P")
-		(at 208.28 105.41 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "8fe09916-13dc-4baa-a9b7-fa1e6b92df40")
-		(property "Reference" "J29"
-			(at 200.66 83.82 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "PowerBank"
-			(at 210.82 86.36 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "liebler_CONN:USB_C_Receptacle_HRO_TYPE-C-31-M-12_IMPROVED"
-			(at 212.09 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://www.usb.org/sites/default/files/documents/usb_type-c.zip"
-			(at 212.09 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "USB 2.0-only 16P Type-C Receptacle connector"
-			(at 208.28 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "A1"
-			(uuid "4acc66c4-1595-4128-b1de-20e5327e1008")
-		)
-		(pin "A12"
-			(uuid "9e7d2310-2599-4fb6-b425-c594de16ef30")
-		)
-		(pin "A4"
-			(uuid "3a27969d-1e3c-4c4a-86cc-2d7513080e5a")
-		)
-		(pin "A5"
-			(uuid "382dcb90-1ec7-4f0c-92d8-8a38dba153fb")
-		)
-		(pin "A6"
-			(uuid "3c5b3c5e-3a7e-4e78-93f1-81b1dcd0437f")
-		)
-		(pin "A7"
-			(uuid "a5fa6f44-8c9a-4f73-9eff-08ff64c26550")
-		)
-		(pin "A8"
-			(uuid "9bb98d95-30ff-46c8-a3fc-75004f75751a")
-		)
-		(pin "A9"
-			(uuid "a1e05d18-5de6-4228-944b-ca98e430c1b5")
-		)
-		(pin "B1"
-			(uuid "c24aed12-9e5b-4446-bade-9032b534025c")
-		)
-		(pin "B12"
-			(uuid "f7114b6b-4743-4613-8b80-d1021f4e7756")
-		)
-		(pin "B4"
-			(uuid "7fff2f0e-2c19-41a0-b193-9d3fd7c1af17")
-		)
-		(pin "B5"
-			(uuid "fc13f092-1574-4943-a0af-8e43b86e73de")
-		)
-		(pin "B6"
-			(uuid "5f63280f-fd95-44bd-854d-3d5b2bb2f5c2")
-		)
-		(pin "B7"
-			(uuid "a2ceb860-4f3d-4640-9456-d698a90ad8ed")
-		)
-		(pin "B8"
-			(uuid "08c5f76a-a952-4123-bc5b-3975fb61d084")
-		)
-		(pin "B9"
-			(uuid "2eedcfb4-0204-443e-92cb-560b985bddfc")
-		)
-		(pin "S1"
-			(uuid "d6d1a3fb-1edb-458a-9034-8bf151fd9110")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/77dfbe0c-d674-478a-bf0e-cfa040fb2e8f"
-					(reference "J29")
 					(unit 1)
 				)
 			)
@@ -8229,73 +8036,6 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/77dfbe0c-d674-478a-bf0e-cfa040fb2e8f"
 					(reference "C80")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 200.66 128.27 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "d782d08f-1c26-4ea3-a778-6e253015852f")
-		(property "Reference" "#PWR050"
-			(at 200.66 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 203.2 129.5399 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 200.66 128.27 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 200.66 128.27 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 200.66 128.27 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "0474d226-d0c2-477c-9404-94892105d96a")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/77dfbe0c-d674-478a-bf0e-cfa040fb2e8f"
-					(reference "#PWR050")
 					(unit 1)
 				)
 			)

@@ -3030,12 +3030,6 @@
 		(uuid "0d339cbf-9aba-4db9-aa9b-ddca47315d55")
 	)
 	(junction
-		(at 95.25 44.45)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "12eba233-8010-4a82-908c-a37896a624eb")
-	)
-	(junction
 		(at 52.07 66.04)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4682,72 +4676,6 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/30ce59dc-c3cd-4018-ad35-6ea0c32a1935"
 					(reference "D3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+3V3")
-		(at 95.25 36.83 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "25b3d7b5-32b4-41cb-836e-866b89fa06b4")
-		(property "Reference" "#PWR047"
-			(at 95.25 40.64 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+3V3"
-			(at 96.52 34.29 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 95.25 36.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 95.25 36.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+3V3\""
-			(at 95.25 36.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "1b83e9a8-c40b-4427-a77e-d0e6bbe79b82")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/30ce59dc-c3cd-4018-ad35-6ea0c32a1935"
-					(reference "#PWR047")
 					(unit 1)
 				)
 			)
@@ -7304,76 +7232,6 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/30ce59dc-c3cd-4018-ad35-6ea0c32a1935"
 					(reference "#PWR011")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 95.25 40.64 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "e79e5d77-6cf1-4b49-b85b-d0b8e6dc0ec4")
-		(property "Reference" "R22"
-			(at 97.79 39.3699 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "10k"
-			(at 97.79 41.9099 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
-			(at 93.472 40.64 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 95.25 40.64 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 95.25 40.64 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "1dde09c9-b32e-459d-9b3c-5ca70d6b0fd0")
-		)
-		(pin "2"
-			(uuid "61e15fc3-2a50-4bca-8a23-73ac082aae9c")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/30ce59dc-c3cd-4018-ad35-6ea0c32a1935"
-					(reference "R22")
 					(unit 1)
 				)
 			)
