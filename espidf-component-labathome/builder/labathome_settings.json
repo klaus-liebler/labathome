@@ -15,8 +15,8 @@
         "ENABLE_LABBY":true
     },
     "firmware":{
-        "WIFI_SSID":"smopla",
-        "WIFI_PASS":"kaktus&2023!",
+        "WIFI_SSID":"mrt_labor",
+        "WIFI_PASS":"%5dtu&28",
         "ENABLE_LCD_DISPLAY":true,
         "ENABLE_AUDIO":true
     }

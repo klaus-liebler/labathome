@@ -14,6 +14,7 @@ import path from "node:path";
 import { createSpeech } from "./text_to_speech";
 import * as util from "node:util"
 import * as zlib from "node:zlib"
+import { getLastCommit } from "./git_infos";
 
 declare interface IStatementSync {
   all(namedParameters?: any, ...anonymousParameters: Array<null | number | bigint | string | Buffer | Uint8Array>): Array<any>;
@@ -69,11 +70,15 @@ export const builtForCurrent=gulp.series(
 
   
   export default gulp.series(
-    addOrUpdateConnectedBoard,
-    builtForCurrent,
-    flashFirmware,
+    getGitInfo
+    //addOrUpdateConnectedBoard,
+    //builtForCurrent,
+    //flashFirmware,
   )
-  
+
+export async function getGitInfo(cb: gulp.TaskFunctionCallback) {
+  console.log(await getLastCommit());
+}
 
 
 export async function addOrUpdateConnectedBoard(cb: gulp.TaskFunctionCallback) {
