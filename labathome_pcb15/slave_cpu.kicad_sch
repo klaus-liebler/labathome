@@ -5082,6 +5082,12 @@
 		(uuid "03addef8-0b89-4829-8497-1461bf72b85f")
 	)
 	(junction
+		(at 30.48 97.79)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "07dbcef8-68b7-42e1-a028-b5cfcc536b3d")
+	)
+	(junction
 		(at 250.19 66.04)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5885,6 +5891,16 @@
 	)
 	(wire
 		(pts
+			(xy 29.21 97.79) (xy 30.48 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "767359d6-44fb-4944-bda0-3f2213f8210f")
+	)
+	(wire
+		(pts
 			(xy 59.69 22.86) (xy 64.77 22.86)
 		)
 		(stroke
@@ -6195,6 +6211,16 @@
 	)
 	(wire
 		(pts
+			(xy 30.48 97.79) (xy 30.48 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "acdf2c33-8adc-42a9-8e32-3f61cd250cd9")
+	)
+	(wire
+		(pts
 			(xy 55.88 20.32) (xy 55.88 15.24)
 		)
 		(stroke
@@ -6492,6 +6518,16 @@
 			(type default)
 		)
 		(uuid "f8695f2a-2ce6-493d-af1e-2775046c48b6")
+	)
+	(wire
+		(pts
+			(xy 30.48 97.79) (xy 33.02 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f8d42fd8-0ae2-4f17-9ba1-a2a8aa226092")
 	)
 	(wire
 		(pts
@@ -7537,6 +7573,28 @@
 		(uuid "66d660d5-e76e-4343-b794-a4bfe7c3c603")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 183.2815 154.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "STEPPER_EN"
+		(shape output)
+		(at 29.21 97.79 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "6a0fbadf-9335-4c1c-b62d-7fc07db3e467")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 14.4926 97.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8598,28 +8656,6 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "Relais"
-		(shape bidirectional)
-		(at 33.02 97.79 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "e755334e-7dd5-417d-b7d5-7337ca6fa181")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 23.1178 97.79 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
 				(hide yes)
 			)
 		)
@@ -10828,6 +10864,75 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R")
+		(at 30.48 104.14 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "52a8fef5-32ec-48b9-a763-8d7ea95800ca")
+		(property "Reference" "R29"
+			(at 33.02 102.8699 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10k"
+			(at 30.48 105.664 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
+			(at 28.702 104.14 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 30.48 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 30.48 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "3af24684-3f61-4bf8-abcb-c6f9152d5b48")
+		)
+		(pin "2"
+			(uuid "c5b94d4b-9660-4b52-a993-10667c40b73a")
+		)
+		(instances
+			(project "labathome_pcb15"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/88291a06-4a87-426a-8cf8-e855480a1e3f"
+					(reference "R29")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 34.29 189.23 0)
 		(unit 1)
@@ -11683,6 +11788,72 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/88291a06-4a87-426a-8cf8-e855480a1e3f"
 					(reference "C9")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 30.48 107.95 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "7cff5839-bba5-4242-8b73-c17ba6c25468")
+		(property "Reference" "#PWR035"
+			(at 30.48 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 30.48 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 30.48 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 30.48 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 30.48 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "74c82c32-8bdb-464c-84ee-a7af4cd1289c")
+		)
+		(instances
+			(project "labathome_pcb15"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/88291a06-4a87-426a-8cf8-e855480a1e3f"
+					(reference "#PWR035")
 					(unit 1)
 				)
 			)

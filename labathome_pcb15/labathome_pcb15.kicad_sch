@@ -8553,7 +8553,7 @@
 				)
 			)
 		)
-		(property "Value" "STEP3"
+		(property "Value" "STEP3_EN"
 			(at 161.29 57.912 0)
 			(effects
 				(font
@@ -14704,7 +14704,7 @@
 				)
 			)
 		)
-		(property "Value" "STEP3"
+		(property "Value" "STEP3_EN"
 			(at 171.45 62.992 0)
 			(effects
 				(font
