@@ -78,7 +78,6 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(SpiffsManager::Init());
 
     //Configure Network
-    #include "secrets.hh"
     WIFISTA::InitAndRun(WIFI_SSID, WIFI_PASS, "labathome_%02x%02x%02x");
     const char *hostname = WIFISTA::GetHostname();
     httpd_ssl_config_t httpd_conf = HTTPD_SSL_CONFIG_DEFAULT();

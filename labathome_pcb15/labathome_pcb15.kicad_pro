@@ -61,16 +61,12 @@
       "drc_exclusions": [
         "courtyards_overlap|169850001|133000001|6e2575f6-1840-4b85-b609-60b7f3bf9873|713e5a58-8143-4fef-bbb8-9a636c22b322",
         "courtyards_overlap|171546796|142199999|da1c955d-3374-4083-8982-d8579a30b089|713e5a58-8143-4fef-bbb8-9a636c22b322",
-        "starved_thermal|184987500|57200000|a790c348-f7b9-4572-ab85-6780cf38d2ae|2c300db0-d863-4547-b8f2-03322e21718c|B.Cu",
-        "starved_thermal|184987500|57700000|a790c348-f7b9-4572-ab85-6780cf38d2ae|c8a4f427-d686-4dcc-a653-effb35b4c186|B.Cu",
-        "starved_thermal|184987500|80800000|a790c348-f7b9-4572-ab85-6780cf38d2ae|dbaac5bb-b6c8-4c9d-a130-fe635d5b661d|B.Cu",
-        "starved_thermal|186050000|55300000|a790c348-f7b9-4572-ab85-6780cf38d2ae|266b1406-2abe-458b-aa1d-d54627ae2b03|B.Cu",
-        "starved_thermal|186050000|58100000|a790c348-f7b9-4572-ab85-6780cf38d2ae|f41a4f66-ea81-4f1a-8200-faea47f3837a|B.Cu",
+        "starved_thermal|186050000|55000000|a790c348-f7b9-4572-ab85-6780cf38d2ae|266b1406-2abe-458b-aa1d-d54627ae2b03|B.Cu",
+        "starved_thermal|186050000|57800000|a790c348-f7b9-4572-ab85-6780cf38d2ae|f41a4f66-ea81-4f1a-8200-faea47f3837a|B.Cu",
         "starved_thermal|186050000|67900000|a790c348-f7b9-4572-ab85-6780cf38d2ae|357b0776-02ea-4103-bf2e-06476e2619e7|B.Cu",
         "starved_thermal|186050000|80400000|a790c348-f7b9-4572-ab85-6780cf38d2ae|79f91dc8-2f0e-45b6-96ad-249cac0e08b0|B.Cu",
-        "starved_thermal|187450000|67900000|a790c348-f7b9-4572-ab85-6780cf38d2ae|a0c0c491-815a-4a71-bef9-92c5d9725471|F.Cu",
-        "starved_thermal|188850000|55300000|a790c348-f7b9-4572-ab85-6780cf38d2ae|5ce1d135-36d9-4d64-b667-0fe05126d5d5|B.Cu",
-        "starved_thermal|188850000|58100000|a790c348-f7b9-4572-ab85-6780cf38d2ae|78466107-78f9-4023-bdb0-a07ec4cae711|B.Cu",
+        "starved_thermal|188850000|55000000|a790c348-f7b9-4572-ab85-6780cf38d2ae|5ce1d135-36d9-4d64-b667-0fe05126d5d5|B.Cu",
+        "starved_thermal|188850000|57800000|a790c348-f7b9-4572-ab85-6780cf38d2ae|78466107-78f9-4023-bdb0-a07ec4cae711|B.Cu",
         "starved_thermal|188850000|67900000|a790c348-f7b9-4572-ab85-6780cf38d2ae|64252717-f8d8-4408-8fe9-d68d80297c1d|B.Cu",
         "starved_thermal|188850000|70700000|a790c348-f7b9-4572-ab85-6780cf38d2ae|c560a0e9-5347-46dd-b546-1fb732e815da|B.Cu",
         "starved_thermal|188850000|80400000|a790c348-f7b9-4572-ab85-6780cf38d2ae|f696dee9-3d05-4b74-86f7-b913e3a6f0c5|B.Cu",
@@ -201,6 +197,7 @@
         0.2,
         0.25,
         0.3,
+        0.35,
         0.4,
         0.5,
         0.6,
@@ -627,7 +624,7 @@
   "sheets": [
     [
       "e4d6926a-1a8b-424d-97c4-66b6ad87e4ac",
-      "Root"
+      "Stammblatt"
     ],
     [
       "faeff10d-104f-4ca8-a480-26bd51140cf0",
