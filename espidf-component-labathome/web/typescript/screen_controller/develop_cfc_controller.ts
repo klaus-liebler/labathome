@@ -1,27 +1,40 @@
-import { AppManagement } from "./AppManagement";
-import { Flowchart, FlowchartOptions } from "./flowchart/Flowchart";
-import { FlowchartData } from "./flowchart/FlowchartData";
-import { ScreenController } from "./ScreenController";
+import { html, TemplateResult } from "lit-html";
+import { Flowchart, FlowchartOptions } from "../flowchart/Flowchart";
+import { FlowchartData } from "../flowchart/FlowchartData";
+import { IAppManagement } from "../utils/interfaces";
+import { ScreenController } from "./screen_controller";
+import { createRef, Ref } from "lit-html/directives/ref.js";
+import { ByteBuffer } from "flatbuffers";
 
 
 
 
 export class DevelopCFCController extends ScreenController {
+    
+    OnMessage(_namespace: number, _bb: ByteBuffer): void {
+        
+    }
+    private mainDiv:Ref<HTMLInputElement> = createRef();
     private fc: Flowchart;
     private timer: number | undefined;
-    onFirstStart(): void {
+
+    public Template = () => html`<div class="screen"></div>`
+    
+
+    OnFirstStart(): void {
         this.timer = window.setInterval(() => { this.fc.triggerDebug(); }, 1000);
         this.fc.onFirstStart();
     }
-    public onRestart(): void {
+    OnRestart(): void {
         this.timer = window.setInterval(() => { this.fc.triggerDebug(); }, 1000);
     }
-    public onStop(): void {
+    OnPause(): void {
         window.clearInterval(this.timer);
     }
-    public onCreate() { }
-    constructor(appManagement:AppManagement, div: HTMLDivElement) {
-        super(appManagement, div);
+    public OnCreate() { }
+    
+    constructor(appManagement:IAppManagement) {
+        super(appManagement);
         let data: FlowchartData = {
             operators: [
                 {
@@ -83,7 +96,7 @@ export class DevelopCFCController extends ScreenController {
         };
         let options = new FlowchartOptions();
         options.data = data;
-        this.fc = new Flowchart(this.appManagement, this.div, options);
+        this.fc = new Flowchart(this.appManagement, this.mainDiv.value!, options);
     }
 
 

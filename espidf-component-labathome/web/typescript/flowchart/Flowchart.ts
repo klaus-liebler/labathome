@@ -3,15 +3,15 @@ import { FlowchartCompiler, HashAndBufAndMaps } from "./FlowchartCompiler";
 import { FlowchartLink } from "./FlowchartLink";
 import { FlowchartOperator, TypeInfo } from "./FlowchartOperator";
 import * as operatorimpl from "./FlowchartOperatorImpl";
-import { Utils, $, KeyValueTuple } from "../utils";
-import { AppManagement } from "../AppManagement";
+import { ColorNumColor2ColorDomString, EventCoordinatesInSVG, Html, KeyValueTuple, Severity, Svg } from "../utils/common";
+import { IAppManagement } from "../utils/interfaces";
 import { SerializeContext } from "./SerializeContext";
 import { SimulationManager } from "./SimulationManager";
 import { FlowchartData, OperatorData, LinkData } from "./FlowchartData";
+import { FilelistDialog, FilenameDialog, OkDialog } from "../dialog_controller/dialog_controller";
 
 const URL_PREFIX="";
 
-//const URL_PREFIX="http://labathome-ed5564";
 
 export class FlowchartOptions {
     canUserEditLinks: boolean = true;
@@ -166,7 +166,7 @@ export class Flowchart {
                 }
                 linksToChange.forEach((e)=>{
                     e.SetCaption(""+value);
-                    e.SetColor($.ColorNumColor2ColorDomString(value));
+                    e.SetColor(ColorNumColor2ColorDomString(value));
                 });
             }
         }
@@ -175,7 +175,7 @@ export class Flowchart {
 
     public _notifyGlobalMousemoveWithLink(e: MouseEvent) {
         if (this.lastOutputConnectorClicked != null && !this.temporaryLinkSnapped) {
-            let end = Utils.EventCoordinatesInSVG(e, this.flowchartContainerSvgSvg, this.positionRatio);
+            let end = EventCoordinatesInSVG(e, this.flowchartContainerSvgSvg, this.positionRatio);
             this.temporaryLink.setAttribute('x2', "" + end.x);
             this.temporaryLink.setAttribute('y2', "" + end.y);
         }
@@ -188,7 +188,7 @@ export class Flowchart {
     public _notifyOutputConnectorMousedown(c: FlowchartOutputConnector, e: MouseEvent) {
         this.temporaryLinkSnapped = false;
         let start = c.GetLinkpoint();
-        let end = Utils.EventCoordinatesInSVG(e, this.flowchartContainerSvgSvg, this.positionRatio);
+        let end = EventCoordinatesInSVG(e, this.flowchartContainerSvgSvg, this.positionRatio);
         this.temporaryLink.setAttribute('x1', "" + start.x);
         this.temporaryLink.setAttribute('y1', "" + start.y);
         this.temporaryLink.setAttribute('x2', "" + end.x);
@@ -336,32 +336,33 @@ export class Flowchart {
         xhr.open("PUT", URL_PREFIX+"/fbd", true);
         xhr.onloadend = (e) => {
             if(xhr.status!=200){
-                this.appManagement.DialogController().showOKDialog(16, `HTTP Error ${xhr.status}`, null);
+                this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `HTTP Error ${xhr.status}`));
                 return;
             }
-            this.appManagement.DialogController().showOKDialog(16, `Successfully saved`, null);
+            this.appManagement.ShowDialog(new OkDialog(Severity.SUCCESS, `Successfully saved`));
         }
         xhr.onerror = (e) => { 
-            this.appManagement.DialogController().showOKDialog(16, `Generic Error`, null);
+            this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `Generic Error`));
         }
         xhr.send(buf);
     }
 
     private saveJSONToLabathomeFile(){
         
-        this.appManagement.DialogController().showEnterFilenameDialog(10, "Enter filename (without Extension", (filename:string)=>{
+        this.appManagement.ShowDialog(new FilenameDialog("Enter filename (without Extension", (ok:boolean, filename:string)=>{
+            if(!ok) return;
             let xhr_json = new XMLHttpRequest;
             xhr_json.open("POST", URL_PREFIX+"/fbdstorejson/"+filename, true);
             xhr_json.onloadend = (e) => {
                 if(xhr_json.status!=200){
-                    this.appManagement.DialogController().showOKDialog(16, `HTTP Error ${xhr_json.status}`, null);
+                    this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `HTTP Error ${xhr_json.status}`));
                     return;
                 }
-                this.appManagement.DialogController().showOKDialog(16, `Successfully saved`, null);
+                this.appManagement.ShowDialog(new OkDialog(Severity.SUCCESS, `Successfully saved`));
             }
-            xhr_json.onerror = (e) => { this.appManagement.DialogController().showOKDialog(16, `Generic Error`, null);}
+            xhr_json.onerror = (e) => { this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `Generic Error`));}
             xhr_json.send(this.fbd2json());
-        });
+        }));
 
     }
 
@@ -371,22 +372,22 @@ export class Flowchart {
         xhr_bin.open("POST", URL_PREFIX+"/fbddefaultbin", true);
         xhr_bin.onloadend = (e) => {
             if(xhr_bin.status!=200){
-                this.appManagement.DialogController().showOKDialog(16, `HTTP Error ${xhr_bin.status}`, null);
+                this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `HTTP Error ${xhr_bin.status}`));
                 return;
             }
             let xhr_json  = new XMLHttpRequest();
             xhr_json.open("POST", URL_PREFIX+"/fbddefaultjson", true);
             xhr_json.onloadend =(e)=>{
                 if(xhr_json.status!=200){
-                    this.appManagement.DialogController().showOKDialog(16, `HTTP Error ${xhr_json.status}`, null);
+                    this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `HTTP Error ${xhr_json.status}`));
                     return;
                 }
-                this.appManagement.DialogController().showOKDialog(16, `Successfully set a new default FBD`, null);
+                this.appManagement.ShowDialog(new OkDialog(Severity.SUCCESS, `Successfully set a new default FBD`));
             }
-            xhr_json.onerror = (e) => { this.appManagement.DialogController().showOKDialog(16, `Generic Error`, null);}
+            xhr_json.onerror = (e) => { this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `Generic Error`));}
             xhr_json.send(this.fbd2json())
         }
-        xhr_bin.onerror = (e) => { this.appManagement.DialogController().showOKDialog(16, `Generic Error`, null);}
+        xhr_bin.onerror = (e) => { this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `Generic Error`));}
         xhr_bin.send(buf);
     }
 
@@ -398,8 +399,9 @@ export class Flowchart {
         xhr.onload = (e) => {
             let s = xhr.responseText;
             let data = <string[]>JSON.parse(s);
-            this.appManagement.DialogController().showFilelist(1000, data, 
-                (filename:string)=>{
+            this.appManagement.ShowDialog(new FilelistDialog(data, 
+                (ok:boolean, filename:string)=>{
+                    if(!ok) return;
                     let xhr = new XMLHttpRequest;
                     xhr.open("GET", URL_PREFIX+"/fbdstorejson/"+filename, true); //GET with the filename selected in the dialog
                     xhr.onload = (e) => {
@@ -409,15 +411,16 @@ export class Flowchart {
                     }
                     xhr.send();
                 },
-                (filename:string)=>{
+                (ok:boolean, filename:string)=>{
+                    if(!ok) return;
                     let xhr = new XMLHttpRequest;
                     xhr.open("DELETE", URL_PREFIX+"/fbdstorejson/"+filename, true); //GET with the filename selected in the dialog
                     xhr.onloadend = (e) => {
-                        this.appManagement.DialogController().showOKDialog(1, `File ${filename} deleted successfully`, null);
+                        this.appManagement.ShowDialog(new OkDialog(1, `File ${filename} deleted successfully`));
                     }
                     xhr.send();
                 }
-            );
+            ));
         }
         xhr.send();
     }
@@ -438,58 +441,58 @@ export class Flowchart {
     
 
     private buildMenu(subcontainer: HTMLDivElement) {
-        let fileInput = <HTMLInputElement>$.Html(subcontainer, "input", ["type", "file", "id", "fileInput", "accept", ".json"]);
+        let fileInput = <HTMLInputElement>Html(subcontainer, "input", ["type", "file", "id", "fileInput", "accept", ".json"]);
         fileInput.style.display = "none";
         fileInput.onchange = (e) => {
             this.openFromLocalFile(fileInput.files);
         }
 
-        let toolbar = $.Html(subcontainer, "div", [], ["develop-toolbar"]);
-        let menuFile = $.Html(toolbar, "div", [], ["dropdown"]);
-        let menuFileDropBtn = <HTMLButtonElement>$.Html(menuFile, "button", [], ["dropbtn"], "File ▼");
-        let menuFileDropContent = $.Html(menuFile, "div", [], ["dropdown-content"]);
+        let toolbar = Html(subcontainer, "div", [], ["develop-toolbar"]);
+        let menuFile = Html(toolbar, "div", [], ["dropdown"]);
+        let menuFileDropBtn = <HTMLButtonElement>Html(menuFile, "button", [], ["dropbtn"], "File ▼");
+        let menuFileDropContent = Html(menuFile, "div", [], ["dropdown-content"]);
         menuFileDropBtn.onclick = (e) => { menuFileDropContent.classList.toggle("show"); };
-        $.Html(menuFileDropContent, "a", ["href", "#"], [], "📂 Open (Local)").onclick = (e) => {
+        Html(menuFileDropContent, "a", ["href", "#"], [], "📂 Open (Local)").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
             fileInput.click();
             e.preventDefault();
         }
-        $.Html(menuFileDropContent, "a", ["href", "#"], [], "📂 Open (labathome)").onclick = (e) => {
+        Html(menuFileDropContent, "a", ["href", "#"], [], "📂 Open (labathome)").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
             this.openJSONFromLabathome()
             e.preventDefault();
         }
-        $.Html(menuFileDropContent, "a", ["href", "#"], [], "📂 Open Default (labathome)").onclick = (e) => {
+        Html(menuFileDropContent, "a", ["href", "#"], [], "📂 Open Default (labathome)").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
             this.openDefaultJSONFromLabathome()
             e.preventDefault();
         }
-        $.Html(menuFileDropContent, "a", ["href", "#"], [], "💾 Save (Local)").onclick = (e) => {
+        Html(menuFileDropContent, "a", ["href", "#"], [], "💾 Save (Local)").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
             this.saveJSONToLocalFile();
             e.preventDefault();
         }
         
-        $.Html(menuFileDropContent, "a", ["href", "#"], [], "💾 Save (labathome)").onclick = (e) => {
+        Html(menuFileDropContent, "a", ["href", "#"], [], "💾 Save (labathome)").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
             this.saveJSONToLabathomeFile();
             e.preventDefault();
         }
-        $.Html(menuFileDropContent, "a", ["href", "#"], [], "💾 Save Bin (Local)").onclick = (e) => {
+        Html(menuFileDropContent, "a", ["href", "#"], [], "💾 Save Bin (Local)").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
             this.saveBinToLocalFile();
             e.preventDefault();
         }
         //let runbutton = $.Html(toolbar, "a", ["href", "#"], ["develop-toolbar"], "Run");
 
-        let menuDebug = $.Html(toolbar, "div", [], ["dropdown"]);
-        let menuDebugDropBtn = <HTMLButtonElement>$.Html(menuDebug, "button", [], ["dropbtn"], "Debug ▼");
+        let menuDebug = Html(toolbar, "div", [], ["dropdown"]);
+        let menuDebugDropBtn = <HTMLButtonElement>Html(menuDebug, "button", [], ["dropbtn"], "Debug ▼");
 
-        let menuDebugDropContent = $.Html(menuDebug, "div", [], ["dropdown-content"]);
+        let menuDebugDropContent = Html(menuDebug, "div", [], ["dropdown-content"]);
         menuDebugDropBtn.onclick = (e) => {
             menuDebugDropContent.classList.toggle("show");
         };
-        $.Html(menuDebugDropContent, "a", ["href", "#"], [], "☭ Run Now").onclick = (e) => {
+        Html(menuDebugDropContent, "a", ["href", "#"], [], "☭ Run Now").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
             let compilerInstance = new FlowchartCompiler(this.operators);
             let guidAndBufAndMap: HashAndBufAndMaps=compilerInstance.Compile();  
@@ -497,28 +500,28 @@ export class Flowchart {
             this.put2fbd(guidAndBufAndMap.buf);
             e.preventDefault();
         }
-        $.Html(menuDebugDropContent, "a", ["href", "#"], [], "👣 Set as Startup-App").onclick = (e) => {
+        Html(menuDebugDropContent, "a", ["href", "#"], [], "👣 Set as Startup-App").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
             let compilerInstance = new FlowchartCompiler(this.operators);
             let guidAndBufAndMap: HashAndBufAndMaps=compilerInstance.Compile();  
             this.saveJSONandBINToLabathomeDefaultFile(guidAndBufAndMap.buf);
             e.preventDefault();
         }
-        let menuSimulation = $.Html(toolbar, "div", [], ["dropdown"]);
-        let menuSimulationDropBtn = <HTMLButtonElement>$.Html(menuSimulation, "button", [], ["dropbtn"], "Simulation ▼");
+        let menuSimulation = Html(toolbar, "div", [], ["dropdown"]);
+        let menuSimulationDropBtn = <HTMLButtonElement>Html(menuSimulation, "button", [], ["dropbtn"], "Simulation ▼");
 
-        let menuSimulationDropContent = $.Html(menuSimulation, "div", [], ["dropdown-content"]);
+        let menuSimulationDropContent = Html(menuSimulation, "div", [], ["dropdown-content"]);
         menuSimulationDropBtn.onclick = (e) => {
             menuSimulationDropContent.classList.toggle("show");
         };
-        $.Html(menuSimulationDropContent, "a", ["href", "#"], [], "➤ Start Simulation").onclick = (e) => {
+        Html(menuSimulationDropContent, "a", ["href", "#"], [], "➤ Start Simulation").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
             let compilerInstance = new FlowchartCompiler(this.operators);
             this.simulationManager=new SimulationManager(compilerInstance.CompileForSimulation());
             this.simulationManager.Start(false);
             e.preventDefault();
         }
-        $.Html(menuSimulationDropContent, "a", ["href", "#"], [], "× Stop Simulation").onclick = (e) => {
+        Html(menuSimulationDropContent, "a", ["href", "#"], [], "× Stop Simulation").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
             this.simulationManager?.Stop();
             e.preventDefault();
@@ -527,10 +530,10 @@ export class Flowchart {
         //let menuDebugLink3 = $.Html(menuDebugDropContent, "a", ["href", "#"], [], "◯ Erase");
     }
 
-    constructor(private appManagement:AppManagement, private container: HTMLDivElement, private options: FlowchartOptions) {
+    constructor(private appManagement:IAppManagement, private container: HTMLDivElement, private options: FlowchartOptions) {
         if (!this.container) throw new Error("container is null");
         this.operatorRegistry=operatorimpl.OperatorRegistry.Build();
-        let subcontainer = <HTMLDivElement>$.Html(this.container, "div", [], ["develop-ui"]);
+        let subcontainer = <HTMLDivElement>Html(this.container, "div", [], ["develop-ui"]);
         subcontainer.onclick = (e) => {
             if ((<HTMLElement>e.target).classList.contains("dropbtn")) return;
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
@@ -539,28 +542,28 @@ export class Flowchart {
         this.buildMenu(subcontainer);
 
 
-        let workspace = <HTMLDivElement>$.Html(subcontainer, "div", ["tabindex", "0"], ["develop-workspace"]);//tabindex, damit keypress-Events abgefangen werden können
-        this.propertyGridHtmlDiv = <HTMLDivElement>$.Html(subcontainer, "div", [], ["develop-properties"]);
+        let workspace = <HTMLDivElement>Html(subcontainer, "div", ["tabindex", "0"], ["develop-workspace"]);//tabindex, damit keypress-Events abgefangen werden können
+        this.propertyGridHtmlDiv = <HTMLDivElement>Html(subcontainer, "div", [], ["develop-properties"]);
 
 
 
-        this.flowchartContainerSvgSvg = <SVGSVGElement>$.Svg(workspace, "svg", ["width", "100%", "height", "100%"], ["flowchart-container"]);
+        this.flowchartContainerSvgSvg = <SVGSVGElement>Svg(workspace, "svg", ["width", "100%", "height", "100%"], ["flowchart-container"]);
 
 
-        this.linksLayer = <SVGGElement>$.Svg(this.flowchartContainerSvgSvg, "g", [], ["flowchart-links-layer"]);
-        this.operatorsLayer = <SVGGElement>$.Svg(this.flowchartContainerSvgSvg, "g", [], ["flowchart-operators-layer", "unselectable"]);
-        this.tempLayer = <SVGSVGElement>$.Svg(this.flowchartContainerSvgSvg, "g", [], ["flowchart-temporary-link-layer"]);
+        this.linksLayer = <SVGGElement>Svg(this.flowchartContainerSvgSvg, "g", [], ["flowchart-links-layer"]);
+        this.operatorsLayer = <SVGGElement>Svg(this.flowchartContainerSvgSvg, "g", [], ["flowchart-operators-layer", "unselectable"]);
+        this.tempLayer = <SVGSVGElement>Svg(this.flowchartContainerSvgSvg, "g", [], ["flowchart-temporary-link-layer"]);
         this.tempLayer.style.visibility = "hidden";//visible
-        let defs = $.Svg(this.tempLayer, "defs", []);
-        let markerArrow = $.Svg(defs, "marker", ["id", "marker-arrow", "markerWidth", "4", "markerHeight", "4", "refX", "1", "refY", "2", "orient", "0"]);
-        this.markerArrow = <SVGPathElement>$.Svg(markerArrow, "path", ["d", "M0,0 L0,4 L2,2 z", "fill", "red", "stroke", "black", "stroke-width", "0.5"]);
-        let markerCircle = $.Svg(defs, "marker", ["id", "marker-circle", "markerWidth", "4", "markerHeight", "4", "refX", "2", "refY", "2", "orient", "0"]);
-        this.markerCircle = <SVGCircleElement>$.Svg(markerCircle, "circle", ["cx", "2", "cy", "2", "r", "2", "fill", "red", "stroke-width", "1px", "stroke", "black"]);
-        this.temporaryLink = <SVGLineElement>$.Svg(this.tempLayer, "line", ["x1", "0", "y1", "0", "x2", "0", "y2", "0", "stroke-dasharray", "6,6", "stroke-width", "4", "stroke", "black", "fill", "none", "marker-end", "url(#marker-arrow)"]);
+        let defs = Svg(this.tempLayer, "defs", []);
+        let markerArrow = Svg(defs, "marker", ["id", "marker-arrow", "markerWidth", "4", "markerHeight", "4", "refX", "1", "refY", "2", "orient", "0"]);
+        this.markerArrow = <SVGPathElement>Svg(markerArrow, "path", ["d", "M0,0 L0,4 L2,2 z", "fill", "red", "stroke", "black", "stroke-width", "0.5"]);
+        let markerCircle = Svg(defs, "marker", ["id", "marker-circle", "markerWidth", "4", "markerHeight", "4", "refX", "2", "refY", "2", "orient", "0"]);
+        this.markerCircle = <SVGCircleElement>Svg(markerCircle, "circle", ["cx", "2", "cy", "2", "r", "2", "fill", "red", "stroke-width", "1px", "stroke", "black"]);
+        this.temporaryLink = <SVGLineElement>Svg(this.tempLayer, "line", ["x1", "0", "y1", "0", "x2", "0", "y2", "0", "stroke-dasharray", "6,6", "stroke-width", "4", "stroke", "black", "fill", "none", "marker-end", "url(#marker-arrow)"]);
 
-        let operatorLibActivator = <SVGRectElement>$.Svg(this.flowchartContainerSvgSvg, "rect", ["width", "40", "height", "100%", "fill", "white", "fill-opacity", "0"]);
+        let operatorLibActivator = <SVGRectElement>Svg(this.flowchartContainerSvgSvg, "rect", ["width", "40", "height", "100%", "fill", "white", "fill-opacity", "0"]);
 
-        this.operatorLibDiv = <HTMLDivElement>$.Html(workspace, "div", [], ["flowchart-operatorlibdiv", "unselectable"]);
+        this.operatorLibDiv = <HTMLDivElement>Html(workspace, "div", [], ["flowchart-operatorlibdiv", "unselectable"]);
         this.operatorLibDiv.style.display = "none";
 
 
@@ -600,7 +603,7 @@ export class Flowchart {
         this.operatorRegistry.populateOperatorLib(this.operatorLibDiv,(e:MouseEvent, ti:TypeInfo)=>{
             let caption = ti.OperatorName;
             let o = this.createOperatorInternal(ti.GlobalTypeIndex, caption, null);
-            let coords = Utils.EventCoordinatesInSVG(e, this.Element);
+            let coords = EventCoordinatesInSVG(e, this.Element);
             o.MoveTo(coords.x - 10, coords.y - 10);
             o.RegisterDragging(e);
             this.operators.set(o.GlobalOperatorIndex, o);
@@ -734,22 +737,22 @@ export class Flowchart {
         operator.ShowAsSelected(true);
         this.selectedOperator = operator;
         this.propertyGridHtmlDiv.innerText = ""; //clear
-        $.Html(this.propertyGridHtmlDiv, "p", [], ["develop-propertygrid-head"], `Properties for ${this.selectedOperator.Caption}`);
-        let table = <HTMLTableElement>$.Html(this.propertyGridHtmlDiv, "table", [], ["develop-propertygrid-table"]);
-        let thead = <HTMLTableSectionElement>$.Html(table, "thead", [],[]);
-        let tr_head = $.Html(thead, "tr", [], ["develop-propertygrid-tr"]);
-        $.Html(tr_head, "th", [], ["develop-propertygrid-th"], "Key");
-        $.Html(tr_head, "th", [], ["develop-propertygrid-th"], "Value");
-        let tbody= <HTMLTableSectionElement>$.Html(table, "tbody", [],[]);
+        Html(this.propertyGridHtmlDiv, "p", [], ["develop-propertygrid-head"], `Properties for ${this.selectedOperator.Caption}`);
+        let table = <HTMLTableElement>Html(this.propertyGridHtmlDiv, "table", [], ["develop-propertygrid-table"]);
+        let thead = <HTMLTableSectionElement>Html(table, "thead", [],[]);
+        let tr_head = Html(thead, "tr", [], ["develop-propertygrid-tr"]);
+        Html(tr_head, "th", [], ["develop-propertygrid-th"], "Key");
+        Html(tr_head, "th", [], ["develop-propertygrid-th"], "Value");
+        let tbody= <HTMLTableSectionElement>Html(table, "tbody", [],[]);
         if (this.selectedOperator!.PopulateProperyGrid(tbody)) {
-            $.Html(this.propertyGridHtmlDiv, "button", [], ["develop-propertygrid-button"], `Save`).onclick=(e)=>{
+            Html(this.propertyGridHtmlDiv, "button", [], ["develop-propertygrid-button"], `Save`).onclick=(e)=>{
                 this.currentDebugInfo=null;
                 operator.SavePropertyGrid(tbody);
             };
         }
         else {
             this.propertyGridHtmlDiv.innerText = ""; //clear
-            $.Html(this.propertyGridHtmlDiv, "p", [], ["develop-propertygrid-head"], `No Properties for ${this.selectedOperator.Caption}`);
+            Html(this.propertyGridHtmlDiv, "p", [], ["develop-propertygrid-head"], `No Properties for ${this.selectedOperator.Caption}`);
         }
     }
 

@@ -1,4 +1,4 @@
-import { KeyValueTuple } from "../utils";
+import { KeyValueTuple } from "../utils/common";
 
 export interface FlowchartData {
     operators: OperatorData[];

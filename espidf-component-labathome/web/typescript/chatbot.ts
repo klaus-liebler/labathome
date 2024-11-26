@@ -1,3 +1,4 @@
+import { html } from "lit-html";
 import { GOOGLE_API_KEY } from "./secrets";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
@@ -23,6 +24,31 @@ export class Chatbot {
     private inputInitHeight=0;
     private genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
     private model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction:SYSTEM_INSTRUCTION });
+
+    public Template = ()=>html`
+      <button id="chatbot-toggler">
+    <span>🤖</span>
+    <span>⟱</span>
+  </button>
+  <div id="chatbot">
+    <header>
+      <h2>Labby's Hilfezentrum</h2>
+      <span>\00d7</span>
+    </header>
+    <ul>
+      <li class="chat incoming">
+        <span >🤖</span>
+        <p>Hallo!<br>Ich bin Labby, Dein AI-ssistent für Lab@Home. Tippe einfach los, um mich etwas zu fragen!</p>
+      </li>
+    </ul>
+    <footer>
+      <textarea placeholder="Schreibe hier..." spellcheck="false" required></textarea>
+      <button>Send</button>
+    </footer>
+  </div>
+    
+    `
+
     public Setup(){
         this.inputInitHeight = this.chatInput.scrollHeight;
         this.chatInput.addEventListener("input", () => {

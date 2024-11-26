@@ -2,7 +2,7 @@ import {FlowchartOperator, TypeInfo, PositionType, SingletonType} from "./Flowch
 import {Flowchart} from "./Flowchart";
 import {FlowchartInputConnector, FlowchartOutputConnector, ConnectorType} from "./FlowchartConnector";
 import { SerializeContextAndAdressMap } from "./FlowchartCompiler";
-import {$, KeyValueTuple, StringNumberTuple} from "../utils";
+import {ColorDomString2ColorNum, Html, InputColor, InputFloatNumber, InputIntegerNumber, InputSelect, KeyValueTuple, StringNumberTuple} from "../utils/common";
 import * as Song from "./Songs";
 import { SimulationContext } from "./SimulationContext";
 
@@ -55,13 +55,13 @@ export class OperatorRegistry{
 
     public populateOperatorLib(parent: HTMLDivElement, onmousedownHandler: (e:MouseEvent, ti:TypeInfo)=>any) { 
         let y = 10;
-        let top = $.Html(parent, "ul", [], []);
+        let top = Html(parent, "ul", [], []);
         for (const kv of this.groupName2operatorName2Info.entries()) {
             let groupName = kv[0];
-            $.Html(top, "li", [], [], groupName);
-            let ul = $.Html(top, "ul", [], ["nested"]);
+            Html(top, "li", [], [], groupName);
+            let ul = Html(top, "ul", [], ["nested"]);
             for (const info of kv[1].values()) {
-                let li = $.Html(ul, "li", [], [], info.OperatorName);
+                let li = Html(ul, "li", [], [], info.OperatorName);
                 li.onmousedown = (e) => onmousedownHandler(e, info);
             }
         }
@@ -805,7 +805,7 @@ export class Sound_Sound extends FlowchartOperator {
     private songIndexHTMLSelect:HTMLSelectElement|null=null;
     public PopulateProperyGrid(tbody:HTMLTableSectionElement):boolean
     {
-        this.songIndexHTMLSelect=$.InputSelect(tbody, Song.default(), SONG_INDEX, this.configurationData);
+        this.songIndexHTMLSelect=InputSelect(tbody, Song.default(), SONG_INDEX, this.configurationData);
         return true;
     }
 
@@ -832,7 +832,7 @@ export class Arithmetic_ConstFLOATOperator extends FlowchartOperator {
     private constantHTMLInput:HTMLInputElement|null=null;
     public PopulateProperyGrid(tbody:HTMLTableSectionElement):boolean
     {
-        this.constantHTMLInput=$.InputFloatNumber(tbody, CONSTANT, this.configurationData);
+        this.constantHTMLInput=InputFloatNumber(tbody, CONSTANT, this.configurationData);
         return true;
     }
 
@@ -863,7 +863,7 @@ export class Arithmetic_ConstINTEGEROperator extends FlowchartOperator {
     private constantHTMLInput:HTMLInputElement|null=null;
     public PopulateProperyGrid(tbody:HTMLTableSectionElement):boolean
     {
-        this.constantHTMLInput=$.InputIntegerNumber(tbody, -2000000000, +2000000000, CONSTANT, this.configurationData);
+        this.constantHTMLInput=InputIntegerNumber(tbody, -2000000000, +2000000000, CONSTANT, this.configurationData);
         return true;
     }
 
@@ -901,8 +901,8 @@ export class Bool2ColorConvert extends FlowchartOperator {
     
     public PopulateProperyGrid(tbody:HTMLTableSectionElement):boolean
     {
-        this.colorTRUEHTMLInput=$.InputColor(tbody, COLOR_TRUE, this.configurationData);
-        this.colorFALSEHTMLInput=$.InputColor(tbody, COLOR_FALSE, this.configurationData);
+        this.colorTRUEHTMLInput=InputColor(tbody, COLOR_TRUE, this.configurationData);
+        this.colorFALSEHTMLInput=InputColor(tbody, COLOR_FALSE, this.configurationData);
         return true;
     }
 
@@ -914,10 +914,10 @@ export class Bool2ColorConvert extends FlowchartOperator {
 
     protected SerializeFurtherProperties(ctx:SerializeContextAndAdressMap):void{
         let colorString = this.cfg_getValue(COLOR_TRUE, "#ff0000");
-        let colorNum=$.ColorDomString2ColorNum(colorString);
+        let colorNum=ColorDomString2ColorNum(colorString);
         ctx.ctx.writeU32(colorNum);
         colorString = this.cfg_getValue(COLOR_FALSE, "#000000");
-        colorNum=$.ColorDomString2ColorNum(colorString);
+        colorNum=ColorDomString2ColorNum(colorString);
         ctx.ctx.writeU32(colorNum);
         return;
     }
@@ -947,8 +947,8 @@ export class Bool2IntConvert extends FlowchartOperator {
 
     public PopulateProperyGrid(tbody:HTMLTableSectionElement):boolean
     {
-        this.numberTRUEHTMLInput=$.InputIntegerNumber(tbody, Number.MIN_VALUE, Number.MAX_VALUE, NUMBER_TRUE, this.configurationData);
-        this.numberFALSEHTMLInput=$.InputIntegerNumber(tbody, Number.MIN_VALUE, Number.MAX_VALUE, NUMBER_FALSE, this.configurationData);
+        this.numberTRUEHTMLInput=InputIntegerNumber(tbody, Number.MIN_VALUE, Number.MAX_VALUE, NUMBER_TRUE, this.configurationData);
+        this.numberFALSEHTMLInput=InputIntegerNumber(tbody, Number.MIN_VALUE, Number.MAX_VALUE, NUMBER_FALSE, this.configurationData);
         return true;
     }
 
@@ -985,8 +985,8 @@ export class Bool2FloatConvert extends FlowchartOperator {
 
     public PopulateProperyGrid(tbody:HTMLTableSectionElement):boolean
     {
-        this.numberTRUEHTMLInput=$.InputFloatNumber(tbody, NUMBER_TRUE, this.configurationData);
-        this.numberFALSEHTMLInput=$.InputFloatNumber(tbody, NUMBER_FALSE, this.configurationData);
+        this.numberTRUEHTMLInput=InputFloatNumber(tbody, NUMBER_TRUE, this.configurationData);
+        this.numberFALSEHTMLInput=InputFloatNumber(tbody, NUMBER_FALSE, this.configurationData);
         return true;
     }
 
@@ -1259,10 +1259,10 @@ export class Custom_XYZBlock extends FlowchartOperator {
     private color1HTMLInput:HTMLInputElement|null=null;
     public PopulateProperyGrid(tbody:HTMLTableSectionElement):boolean
     {
-        this.value1HTMLInput=$.InputIntegerNumber(tbody, -32768, 32767, "Value1", this.configurationData);
-        this.value1HTMLInput=$.InputIntegerNumber(tbody, -32768, 32767, "Value2", this.configurationData);
-        this.value1HTMLInput=$.InputIntegerNumber(tbody, -32768, 32767, "Value3", this.configurationData);
-        this.color1HTMLInput=$.InputColor(tbody, "Color1", this.configurationData);
+        this.value1HTMLInput=InputIntegerNumber(tbody, -32768, 32767, "Value1", this.configurationData);
+        this.value1HTMLInput=InputIntegerNumber(tbody, -32768, 32767, "Value2", this.configurationData);
+        this.value1HTMLInput=InputIntegerNumber(tbody, -32768, 32767, "Value3", this.configurationData);
+        this.color1HTMLInput=InputColor(tbody, "Color1", this.configurationData);
         return true;
     }
 
@@ -1278,7 +1278,7 @@ export class Custom_XYZBlock extends FlowchartOperator {
         ctx.ctx.writeS32(this.cfg_getValue("Value2", 0));
         ctx.ctx.writeS32(this.cfg_getValue("Value3", 0));
         let colorString = this.cfg_getValue("Color1", "#000000");
-        let colorNum=$.ColorDomString2ColorNum(colorString);
+        let colorNum=ColorDomString2ColorNum(colorString);
         ctx.ctx.writeU32(colorNum);
         return;
     }
@@ -1305,12 +1305,12 @@ export class Control_PID extends FlowchartOperator {
     private directionHTMLSelect:HTMLSelectElement|null=null;
     public PopulateProperyGrid(tbody:HTMLTableSectionElement):boolean
     {
-        this.kpHTMLInput=$.InputFloatNumber(tbody, KP, this.configurationData);
-        this.tnHTMLInput=$.InputIntegerNumber(tbody, 0, 100000, Tn, this.configurationData);
-        this.tvHTMLInput=$.InputIntegerNumber(tbody, 0, 100000, Tv, this.configurationData);
-        this.minOutputHTMLInput=$.InputFloatNumber(tbody, MIN_OUTPUT, this.configurationData);
-        this.maxOutputHTMLInput=$.InputFloatNumber(tbody, MAX_OUTPUT, this.configurationData);
-        this.directionHTMLSelect=$.InputSelect(tbody, [new StringNumberTuple("Direct", 0), new StringNumberTuple("Inverse", 1)], DIRECTION, this.configurationData);
+        this.kpHTMLInput=InputFloatNumber(tbody, KP, this.configurationData);
+        this.tnHTMLInput=InputIntegerNumber(tbody, 0, 100000, Tn, this.configurationData);
+        this.tvHTMLInput=InputIntegerNumber(tbody, 0, 100000, Tv, this.configurationData);
+        this.minOutputHTMLInput=InputFloatNumber(tbody, MIN_OUTPUT, this.configurationData);
+        this.maxOutputHTMLInput=InputFloatNumber(tbody, MAX_OUTPUT, this.configurationData);
+        this.directionHTMLSelect=InputSelect(tbody, [new StringNumberTuple("Direct", 0), new StringNumberTuple("Inverse", 1)], DIRECTION, this.configurationData);
         return true;
     }
 

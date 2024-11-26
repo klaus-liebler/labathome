@@ -1,4 +1,4 @@
-import { $ } from "./utils";
+import { $ } from "./utils/common";
 import { Chart} from 'chart.js';
 import { ScreenController } from "./ScreenController";
 import { AppManagement } from "./AppManagement";

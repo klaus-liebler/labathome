@@ -1,7 +1,7 @@
 import {FlowchartInputConnector, FlowchartOutputConnector } from "./FlowchartConnector";
 import {Flowchart} from "./Flowchart";
 import { SerializeContextAndAdressMap } from "./FlowchartCompiler";
-import {$, KeyValueTuple} from "../utils"
+import {KeyValueTuple, Svg} from "../utils/common"
 import { SimulationContext } from "./SimulationContext";
 
 export enum PositionType{
@@ -110,17 +110,17 @@ export abstract class FlowchartOperator {
 
     constructor(private parent: Flowchart, private caption: string, private typeInfo: TypeInfo, protected configurationData:KeyValueTuple[]|null) {
         this.index = FlowchartOperator.MAX_INDEX++;
-        this.elementSvgG = <SVGGElement>$.Svg(parent.OperatorsLayer, "g", [], ["operator"]);
+        this.elementSvgG = <SVGGElement>Svg(parent.OperatorsLayer, "g", [], ["operator"]);
         this.elementSvgG.setAttribute('data-operator-index', "" + this.index);
-        let dragGroup = <SVGGElement>$.Svg(this.elementSvgG, "g", [], []);
-        this.box = <SVGRectElement>$.Svg(dragGroup, "rect", ["width","140", "height", "100", "rx", "10", "ry", "10"], ["operator-box"]);
-        let title = <SVGTextElement>$.Svg(dragGroup,"text", ["x", "5", "y", "21"],["operator-title"]);
+        let dragGroup = <SVGGElement>Svg(this.elementSvgG, "g", [], []);
+        this.box = <SVGRectElement>Svg(dragGroup, "rect", ["width","140", "height", "100", "rx", "10", "ry", "10"], ["operator-box"]);
+        let title = <SVGTextElement>Svg(dragGroup,"text", ["x", "5", "y", "21"],["operator-title"]);
         title.textContent = caption;
-        this.debugInfoSvgText = <SVGTextElement>$.Svg(dragGroup, "text", ["x", "0", "y", "100"],["operator-debuginfo"]);
+        this.debugInfoSvgText = <SVGTextElement>Svg(dragGroup, "text", ["x", "0", "y", "100"],["operator-debuginfo"]);
         this.debugInfoSvgText.textContent="No debug info";
 
-        this.inputSvgG= <SVGGElement>$.Svg(this.elementSvgG,"g", ["transform", "translate(0 50)"], ["operator-inputs"]);
-        this.outputSvgG= <SVGGElement>$.Svg(this.elementSvgG,"g", ["transform", "translate(140 50)"], ["operator-outputs"]);
+        this.inputSvgG= <SVGGElement>Svg(this.elementSvgG,"g", ["transform", "translate(0 50)"], ["operator-inputs"]);
+        this.outputSvgG= <SVGGElement>Svg(this.elementSvgG,"g", ["transform", "translate(140 50)"], ["operator-outputs"]);
 
 
         this.elementSvgG.onclick = (e) => {

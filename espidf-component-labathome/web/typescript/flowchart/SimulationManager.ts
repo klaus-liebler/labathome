@@ -1,6 +1,5 @@
-import { HashAndBufAndMaps, SortedOperatorsAndMaps } from "./FlowchartCompiler";
+import { SortedOperatorsAndMaps } from "./FlowchartCompiler";
 import { FlowchartInputConnector, FlowchartOutputConnector } from "./FlowchartConnector";
-import { FlowchartOperator } from "./FlowchartOperator";
 import { SimulationContext } from "./SimulationContext";
 
 export class SimulationManager implements SimulationContext{
