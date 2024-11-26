@@ -1,8 +1,7 @@
 import { SerialPort, SlipDecoder, SlipEncoder } from "serialport";
 import { SetOptions } from '@serialport/bindings-interface'
 import { autoDetect } from '@serialport/bindings-cpp'
-import * as util from 'node:util';
-import { X02 } from "../gulpfile_utils";
+import { X02 } from "./gulpfile_utils";
 
 abstract class ESP32Type {
     constructor(protected loader:EspLoader){}

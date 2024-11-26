@@ -31,10 +31,25 @@ export const CLIENT_CERT_PEM_CRT = path.join(CERTIFICATES, "client.pem.crt");
 export const CLIENT_CERT_PEM_PRVTKEY = path.join(CERTIFICATES, "client.pem.key");
 
 
-
-export const FLATBUFFERS_SCHEMA_PATH = path.join(ROOT, "flatbuffers", "app.fbs");
+//Special sources
+export const FLATBUFFERS_SCHEMA_PATH = path.join(ROOT, "flatbuffers");
 export const USERSETTINGS_PATH = path.join(ROOT, "usersettings", "go_here","go_here", "usersettings.ts");
 
+//intermediate and distribution
+export const GENERATED = path.join(ROOT, "generated");
+export const GENERATED_SENSACT_FBS = path.join(GENERATED, "sensact_fbs");
+export const GENERATED_SENSACT_TS = path.join(GENERATED, "sensact_ts");
+export const GENERATED_FLATBUFFERS_TS = path.join(GENERATED, "flatbuffers_ts");
+export const GENERATED_FLATBUFFERS_CPP = path.join(GENERATED, "flatbuffers_cpp");
+export const GENERATED_USERSETTINGS = path.join(GENERATED, "usersettings");
+
+export const WEB_SRC_GENERATED = path.join(WEB, "generated")
+export const TESTSERVER_GENERATED = path.join(TESTSERVER, "generated")
+export const DEST_FLATBUFFERS_TYPESCRIPT_WEBUI = path.join(WEB_SRC_GENERATED, "flatbuffers");
+export const DEST_SENSACT_TYPESCRIPT_WEBUI =     path.join(WEB_SRC_GENERATED, "sensact");
+export const DEST_USERSETTINGS_PATH =            path.join(WEB_SRC_GENERATED, "usersettings", "usersettings.ts");
+export const DEST_FLATBUFFERS_TYPESCRIPT_SERVER = path.join(TESTSERVER_GENERATED, "flatbuffers");
+export const DEST_SENSACT_TYPESCRIPT_SERVER =     path.join(TESTSERVER_GENERATED, "sensact");
 
 
 //Location of esp idf tools

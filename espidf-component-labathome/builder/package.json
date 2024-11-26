@@ -5,7 +5,8 @@
   "main": "gulpfile.ts",
   "type": "module",
   "scripts": {
-    "gulp": "node --import tsx node_modules/gulp/bin/gulp"
+    "gulp": "node --import tsx node_modules/gulp/bin/gulp",
+    "compileFB": "node --import tsx node_modules/gulp/bin/gulp compileAndDistributeFlatbuffers"
   },
   "author": "",
   "license": "ISC",

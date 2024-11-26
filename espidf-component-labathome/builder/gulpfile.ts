@@ -2,19 +2,20 @@ import * as gulp from "gulp";
 import fs from "node:fs";
 import os from "node:os";
 import proc from "node:child_process";
-import * as esp from "./esp32/esp32"
-import { parsePartitions } from "./esp32/partition_parser"
-import * as cert from "./certificates"
-import { IBoardInfo, writeFileCreateDirLazy, X02, writeBoardSpecificFileCreateDirLazy, IApplicationInfo, existsBoardSpecificPath, strInterpolator, boardSpecificPath } from "./gulpfile_utils";
+import * as esp from "./gulpfile_helpers/esp32"
+import { parsePartitions } from "./gulpfile_helpers/partition_parser"
+import * as cert from "./gulpfile_helpers/certificates"
+import { IBoardInfo, writeFileCreateDirLazy, X02, writeBoardSpecificFileCreateDirLazy, IApplicationInfo, existsBoardSpecificPath, strInterpolator, boardSpecificPath } from "./gulpfile_helpers/gulpfile_utils";
 import { CLIENT_CERT_USER_NAME, DEFAULT_BOARD_TYPE_ID, PUBLIC_SERVER_FQDN } from "./gulpfile_config";
 import * as P from "./paths";
 const { DatabaseSync } = require('node:sqlite');
 import * as vite from 'vite'
 import path from "node:path";
-import { createSpeech } from "./text_to_speech";
+import { createSpeech } from "./gulpfile_helpers/text_to_speech";
 import * as util from "node:util"
 import * as zlib from "node:zlib"
-import { getLastCommit } from "./git_infos";
+import { getLastCommit } from "./gulpfile_helpers/git_infos";
+import { flatbuffers_generate_c, flatbuffers_generate_ts } from "./gulpfile_helpers/flatbuffers";
 
 declare interface IStatementSync {
   all(namedParameters?: any, ...anonymousParameters: Array<null | number | bigint | string | Buffer | Uint8Array>): Array<any>;
@@ -56,28 +57,36 @@ export function certificates_servers(cb: gulp.TaskFunctionCallback) {
   writeFileCreateDirLazy(P.CLIENT_CERT_PEM_PRVTKEY, clientCert.privateKey, cb);
 }
 
-var bi:IBoardInfo;
+var bi: IBoardInfo;
 
-export const builtForCurrent=gulp.series(
-    buildWebProject,
-    brotliCompress,
-    createBoardCertificatesLazily,
-    createBoardSoundsLazily,
-    createCppConfigurationHeader,
-    copyMostRecentlyConnectedBoardFilesToCurrent,
-    buildFirmware
-  )
+export const builtForCurrent = gulp.series(
+  compileAndDistributeFlatbuffers,
+  buildWebProject,
+  brotliCompress,
+  createBoardCertificatesLazily,
+  createBoardSoundsLazily,
+  createCppConfigurationHeader,
+  copyMostRecentlyConnectedBoardFilesToCurrent,
+  buildFirmware
+)
 
-  
-  export default gulp.series(
-    getGitInfo
-    //addOrUpdateConnectedBoard,
-    //builtForCurrent,
-    //flashFirmware,
-  )
+
+export default gulp.series(
+  addOrUpdateConnectedBoard,
+  builtForCurrent,
+  flashFirmware,
+)
 
 export async function getGitInfo(cb: gulp.TaskFunctionCallback) {
   console.log(await getLastCommit());
+}
+
+export async function compileAndDistributeFlatbuffers(cb: gulp.TaskFunctionCallback) {
+  await flatbuffers_generate_c();
+  await flatbuffers_generate_ts();
+  fs.cpSync(P.GENERATED_FLATBUFFERS_TS, P.DEST_FLATBUFFERS_TYPESCRIPT_WEBUI, { recursive: true });
+  fs.cpSync(P.GENERATED_FLATBUFFERS_TS, P.DEST_FLATBUFFERS_TYPESCRIPT_SERVER, { recursive: true });
+  cb();
 }
 
 
@@ -112,7 +121,7 @@ export async function addOrUpdateConnectedBoard(cb: gulp.TaskFunctionCallback) {
 }
 
 
-function getMostRecentlyConnectedBoardInfo():void {
+function getMostRecentlyConnectedBoardInfo(): void {
   const db = new DatabaseSync("./builder.db") as IDatabaseSync;
   const select_board = db.prepare('select b.mac, m.name as mcu_name, bt.name as board_name, bt.version as board_version, b.first_connected_dt, b.last_connected_dt, b.last_connected_com_port, b.settings as board_settings, bt.settings as board_type_settings from boards as b inner join board_types as bt on bt.id=b.board_type_id inner join mcu_types as m ON m.id=bt.mcu_id ORDER BY last_connected_dt DESC LIMIT 1');
   bi = select_board.get() as IBoardInfo;
@@ -122,14 +131,14 @@ function getMostRecentlyConnectedBoardInfo():void {
   bi.mac_6char = bi.mac_12char.slice(6);
   const select_app = db.prepare('select a.name, a.version, a.hostname_template, a.settings as app_settings, a.espIdfProjectDirectory from application_types as a inner join app_board_compatibility as c ON a.id=c.application_id WHERE c.board_name=? and c.version_min<=? and c.version_max>=? ORDER BY c.priority DESC LIMIT 1 ');
   var ai = select_app.get(bi.board_name, bi.board_version, bi.board_version) as IApplicationInfo;
-  if(!ai){
+  if (!ai) {
     throw new Error("No suitable app found for this board!");
   }
-  bi.application_name=ai.name;
-  bi.application_version=ai.version;
-  bi.application_settings=JSON.parse(ai.app_settings);
-  bi.espIdfProjectDirectory=ai.espIdfProjectDirectory;
-  bi.hostname_template=ai.hostname_template
+  bi.application_name = ai.name;
+  bi.application_version = ai.version;
+  bi.application_settings = JSON.parse(ai.app_settings);
+  bi.espIdfProjectDirectory = ai.espIdfProjectDirectory;
+  bi.hostname_template = ai.hostname_template
   db.close();
 }
 
@@ -201,16 +210,16 @@ export async function buildWebProject(cb: gulp.TaskFunctionCallback) {
 }
 
 export function brotliCompress(cb: gulp.TaskFunctionCallback) {
-  const origPath=boardSpecificPath(bi, "web", "index.html")
-  const compressedPath=boardSpecificPath(bi, "web", "index.compressed.br")
-	zlib.brotliCompress(
-    fs.readFileSync(origPath), 
-    (error: Error | null, result: Buffer)=>{ 
-      if(error){
+  const origPath = boardSpecificPath(bi, "web", "index.html")
+  const compressedPath = boardSpecificPath(bi, "web", "index.compressed.br")
+  zlib.brotliCompress(
+    fs.readFileSync(origPath),
+    (error: Error | null, result: Buffer) => {
+      if (error) {
         throw error;
       }
-      fs.writeFile(compressedPath, result, ()=>{
-        console.log(`Compressed file written to ${compressedPath}. FileSize = ${result.byteLength} byte = ${(result.byteLength/1024.0).toFixed(2)} kiB`);
+      fs.writeFile(compressedPath, result, () => {
+        console.log(`Compressed file written to ${compressedPath}. FileSize = ${result.byteLength} byte = ${(result.byteLength / 1024.0).toFixed(2)} kiB`);
         cb();
       })
     }

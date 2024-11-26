@@ -1,6 +1,6 @@
 import * as fs from "node:fs"
 import path from "node:path";
-import * as P from "./paths";
+import * as P from "../paths";
 
 export interface IBoardInfo{
   mac:number,

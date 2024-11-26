@@ -1,7 +1,7 @@
 import * as forge from 'node-forge';
 import * as fs from 'fs';
 import * as crypto from "node:crypto";
-import { DEFAULT_COUNTRY, DEFAULT_LOCALITY, DEFAULT_ORGANIZATION, DEFAULT_STATE, ROOT_CA_COMMON_NAME } from './gulpfile_config';
+import { DEFAULT_COUNTRY, DEFAULT_LOCALITY, DEFAULT_ORGANIZATION, DEFAULT_STATE, ROOT_CA_COMMON_NAME } from '../gulpfile_config';
 
 
 function createRootCaExtensions() {

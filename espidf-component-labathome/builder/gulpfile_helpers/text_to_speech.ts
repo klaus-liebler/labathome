@@ -1,8 +1,8 @@
 import * as gulp from "gulp";
 import tts from "@google-cloud/text-to-speech"
 import { google } from "@google-cloud/text-to-speech/build/protos/protos";
-import { existsBoardSpecificPath, IApplicationInfo, IBoardInfo, strInterpolator, writeBoardSpecificFileCreateDirLazy } from "./gulpfile_utils";
-import * as P from "./paths";
+import { existsBoardSpecificPath, IBoardInfo, strInterpolator, writeBoardSpecificFileCreateDirLazy } from "./gulpfile_utils";
+import * as P from "../paths";
 
 class FilenameAndSsml{constructor(public name:string, public ssml:string){}}
 
