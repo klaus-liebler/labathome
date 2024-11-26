@@ -3,6 +3,8 @@
 #include <Wire.h>
 #include "USBPowerDelivery.h"
 #include <SimpleFOC.h>
+// #include <TMCStepper.h>
+#include <TMC2209.h>
 #include "log.h"
 #include <common.hh>
 #include <single_led.hh>
@@ -13,12 +15,16 @@
 
 #include "hal.hh"
 
+constexpr uint8_t DRIVER_ADDRESS{0b00};
+constexpr float R_SENSE{0.11f};
 
 float brushless_motor_velocity{0.0};
 constexpr int POLE_PAIRS{7};
-BLDCMotor motor = BLDCMotor(POLE_PAIRS);
-BLDCDriver3PWM driver = BLDCDriver3PWM(PIN::BL_DRV1, PIN::BL_DRV2, PIN::BL_DRV3, PIN::BL_ENABLE);
-
+BLDCMotor bldcmotor = BLDCMotor(POLE_PAIRS);
+BLDCDriver3PWM bldcdriver = BLDCDriver3PWM(PIN::BL_DRV1, PIN::BL_DRV2, PIN::BL_DRV3, PIN::BL_ENABLE);
+// TMC2209Stepper stepperdriver(PIN::UART3_RX, PIN::UART3_TX, R_SENSE, DRIVER_ADDRESS);
+HardwareSerial & stepper_serial_stream = Serial3;
+TMC2209 stepperdriver;
 
 constexpr time_t TIMEOUT_FOR_FAILSAFE{3000};
 bool alreadySetToFailsafe{false};
@@ -26,7 +32,6 @@ bool gotDataInfoAlreadyPrinted{false};
 
 // Time related
 uint32_t timeToPutActorsInFailsafe{TIMEOUT_FOR_FAILSAFE};
-
 
 ErrorManager<8, uint32_t> errMan;
 
@@ -42,6 +47,9 @@ HardwareTimer *TIM_HALL{nullptr}; // TIM3 for Hall Sensors, ch 2,3,4
 constexpr uint32_t HALL_PH1_CH_CH = 4;
 constexpr uint32_t HALL_PH2_CH_CH = 3;
 constexpr uint32_t HALL_PH3_CH_CH = 2;
+
+HardwareSerial Serial3(PIN::UART3_RX, PIN::UART3_TX);
+
 
 #ifdef ARDUINO_LABATHOME_15_0
 HardwareTimer *TIM_LED_WHITE{nullptr}; // TIM4 for Power LED, ch 4
@@ -69,7 +77,7 @@ constexpr uint32_t LED_WHITE_CH = 2;
 
 OPAMP_HandleTypeDef hopamp2;
 OPAMP_HandleTypeDef hopamp3;
-#elif defined(ARDUINO_LABATHOME_15_2)
+#elif defined(ARDUINO_LABATHOME_15_2) || defined(ARDUINO_LABATHOME_15_3)
 HardwareTimer *TIM_SERVO{nullptr}; // TIM1
 constexpr uint32_t SERVO0_CH = 1;
 constexpr uint32_t SERVO1_CH = 2;
@@ -93,60 +101,56 @@ SINGLE_LED::BlinkPattern PROBLEM(100, 100);
 void SetPhysicalOutputs();
 uint8_t CollectBitInputs();
 
-
-
 uint32_t receivedEvents{0};
 uint32_t requestEvents{0};
 E2S_t e2s_buffer;
 S2E_t s2e_buffer;
 
-
-
-//I2C callbacks
+// I2C callbacks
 
 extern "C" void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
-    HAL_I2C_EnableListen_IT(hi2c);
+  HAL_I2C_EnableListen_IT(hi2c);
 }
 
 extern "C" void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
-    SetPhysicalOutputs();
-    timeToPutActorsInFailsafe=millis()+3000;
-    ClearBitIdx(s2e_buffer.Status, 2);
-    //HAL_I2C_EnableListen_IT(hi2c);
+  SetPhysicalOutputs();
+  timeToPutActorsInFailsafe = millis() + 3000;
+  ClearBitIdx(s2e_buffer.Status, 2);
+  // HAL_I2C_EnableListen_IT(hi2c);
 }
 
 extern "C" void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, uint16_t AddrMatchCode)
 {
-      
-    UNUSED(AddrMatchCode);
-    if (TransferDirection == I2C_DIRECTION_RECEIVE) // TransferDirection is master perspective
-    {
-        requestEvents++;  
-        HAL_ERROR_CHECK(HAL_I2C_Slave_Seq_Transmit_IT(hi2c, (uint8_t*)&s2e_buffer, sizeof(s2e_buffer), I2C_LAST_FRAME));
-        //HAL_ERROR_CHECK(HAL_I2C_Slave_Seq_Transmit_IT(hi2c, test_buf, 12, I2C_LAST_FRAME));
-    }
-    else
-    {
-        receivedEvents++;
-        HAL_ERROR_CHECK(HAL_I2C_Slave_Seq_Receive_IT(hi2c, (uint8_t*)&e2s_buffer, sizeof(e2s_buffer), I2C_LAST_FRAME));
-    }
-    timeToPutActorsInFailsafe=millis()+TIMEOUT_FOR_FAILSAFE;
+
+  UNUSED(AddrMatchCode);
+  if (TransferDirection == I2C_DIRECTION_RECEIVE) // TransferDirection is master perspective
+  {
+    requestEvents++;
+    HAL_ERROR_CHECK(HAL_I2C_Slave_Seq_Transmit_IT(hi2c, (uint8_t *)&s2e_buffer, sizeof(s2e_buffer), I2C_LAST_FRAME));
+    // HAL_ERROR_CHECK(HAL_I2C_Slave_Seq_Transmit_IT(hi2c, test_buf, 12, I2C_LAST_FRAME));
+  }
+  else
+  {
+    receivedEvents++;
+    HAL_ERROR_CHECK(HAL_I2C_Slave_Seq_Receive_IT(hi2c, (uint8_t *)&e2s_buffer, sizeof(e2s_buffer), I2C_LAST_FRAME));
+  }
+  timeToPutActorsInFailsafe = millis() + TIMEOUT_FOR_FAILSAFE;
 }
 
 extern "C" void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c)
 {
-    HAL_I2C_EnableListen_IT(hi2c);
+  HAL_I2C_EnableListen_IT(hi2c);
 }
 
 extern "C" void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
 {
 
-    uint32_t error_code = HAL_I2C_GetError(hi2c);
-    
-    SetPhysicalOutputs();
-    HAL_I2C_EnableListen_IT(hi2c);
+  uint32_t error_code = HAL_I2C_GetError(hi2c);
+
+  SetPhysicalOutputs();
+  HAL_I2C_EnableListen_IT(hi2c);
 }
 
 namespace USB_PD
@@ -175,7 +179,8 @@ namespace USB_PD
     log_warn("Neither 12V nor 15V is supported");
   }
 
-  void handleUsbPdEvent(PDSinkEventType eventType){
+  void handleUsbPdEvent(PDSinkEventType eventType)
+  {
 
     if (eventType == PDSinkEventType::sourceCapabilitiesChanged)
     {
@@ -226,7 +231,7 @@ void SetServoAngle(uint8_t servo_0_1_2_3_4_5, uint8_t angle_0_180)
   if (angle_0_180 > 180)
     angle_0_180 = 180;
   uint32_t us = degree2us(angle_0_180);
-  //log_info("Set Servo %d to %lu us", servo_0_1_2_3, us);
+  // log_info("Set Servo %d to %lu us", servo_0_1_2_3, us);
 #ifdef ARDUINO_LABATHOME_15_0
   switch (servo_0_1_2_3_4_5)
   {
@@ -243,11 +248,13 @@ void SetServoAngle(uint8_t servo_0_1_2_3_4_5, uint8_t angle_0_180)
     break;
   }
 #elif defined(ARDUINO_LABATHOME_15_1)
-  if(servo_0_1_2_3_4_5>3) return;
-  TIM_SERVO->setCaptureCompare(servo_0_1_2_3_4_5+1, us, MICROSEC_COMPARE_FORMAT);
+  if (servo_0_1_2_3_4_5 > 3)
+    return;
+  TIM_SERVO->setCaptureCompare(servo_0_1_2_3_4_5 + 1, us, MICROSEC_COMPARE_FORMAT);
 #elif defined(ARDUINO_LABATHOME_15_2)
-  if(servo_0_1_2_3_4_5<4){
-    TIM_SERVO->setCaptureCompare(servo_0_1_2_3_4_5+1, us, MICROSEC_COMPARE_FORMAT);
+  if (servo_0_1_2_3_4_5 < 4)
+  {
+    TIM_SERVO->setCaptureCompare(servo_0_1_2_3_4_5 + 1, us, MICROSEC_COMPARE_FORMAT);
   }
 #endif
 }
@@ -281,13 +288,14 @@ void SetLedPowerPower(uint8_t power_0_100)
 void SetPhysicalOutputs()
 {
   // write rx_buffer to my outputs
-  
+#if defined(ARDUINO_LABATHOME_15_0) || defined(ARDUINO_LABATHOME_15_1) || defined(ARDUINO_LABATHOME_15_2)
   digitalWrite(PIN::RELAY, e2s_buffer.Relay);
+#endif
   digitalWrite(PIN::BL_RESET, e2s_buffer.Blreset);
-  #if defined(ARDUINO_LABATHOME_15_1) || defined(ARDUINO_LABATHOME_15_2)
+#if defined(ARDUINO_LABATHOME_15_1) || defined(ARDUINO_LABATHOME_15_2)
   digitalWrite(PIN::BL_SLEEP, e2s_buffer.Blsleep);
-  //digitalWrite(PIN::LCD_RESET, e2s_buffer.LcdReset);
-  #endif
+  // digitalWrite(PIN::LCD_RESET, e2s_buffer.LcdReset);
+#endif
   // TODO USBC
   // HAL_DAC_SetValue(&hdac1, DAC1_CHANNEL_1, DAC_ALIGN_12B_R, ParseU16(esp2stm_buf, DAC1_POS));
   // HAL_DAC_SetValue(&hdac1, DAC1_CHANNEL_2, DAC_ALIGN_12B_R, ParseU16(esp2stm_buf, DAC2_POS));
@@ -299,38 +307,38 @@ void SetPhysicalOutputs()
   SetLedPowerPower(e2s_buffer.LedPower);
   // SetHeaterPower: loop1ms automatically fetches correct value from buffer
   // TODO Brushless Mode
-  if(e2s_buffer.ThreephaseMode==0){
-    brushless_motor_velocity=e2s_buffer.ThreephaseP1;
+  if (e2s_buffer.ThreephaseMode == 0)
+  {
+    brushless_motor_velocity = e2s_buffer.ThreephaseP1;
   }
   // TODO Brushless Speeds
 }
 
 void setActorsToSafeSetting()
 {
-  memset((void*)&e2s_buffer, 0, sizeof(e2s_buffer));
+  memset((void *)&e2s_buffer, 0, sizeof(e2s_buffer));
   SetPhysicalOutputs();
 }
-
 
 void app_loop20ms(uint32_t now)
 {
   led->Loop(now);
 
-  //I2C_SLAVE::e2s_buffer[E2S::HEATER_POS] = encoder.GetTicks(); // COMMENT OUT FOR TESTING ONLY
-  s2e_buffer.ButtonRed=digitalRead(PIN::BTN_RED);
-  s2e_buffer.ButtonYellow=(!digitalRead(PIN::BTN_YELLOW));
-  s2e_buffer.Movement=digitalRead(PIN::MOVEMENT);
-  s2e_buffer.Blfault=(!digitalRead(PIN::BL_FAULT));
-  s2e_buffer.Rotenc=encoder.GetTicks();
-  s2e_buffer.Brightness=analogRead(PIN::BRIGHTNESS);
-  s2e_buffer.UsbpdVoltage_mv=PowerSink.activeVoltage;
-  s2e_buffer.Adc0=analogRead(PIN::ADC_0);
-  s2e_buffer.Adc1=analogRead(PIN::ADC_1);
-  #if defined(ARDUINO_LABATHOME_15_2)
-  s2e_buffer.PIN_PB12=digitalRead(PIN::PIN_PB12);
-  s2e_buffer.Adc2_24V=analogRead(PIN::ADC_2_24V);
-  //s2e_buffer.Adc3_Bl_i_sense=analogRead(PIN::BL_ISENSE); wrong, we do not read the input directly, but the OPAMPs output
-  #endif
+  // I2C_SLAVE::e2s_buffer[E2S::HEATER_POS] = encoder.GetTicks(); // COMMENT OUT FOR TESTING ONLY
+  s2e_buffer.ButtonRed = digitalRead(PIN::BTN_RED);
+  s2e_buffer.ButtonYellow = (!digitalRead(PIN::BTN_YELLOW));
+  s2e_buffer.Movement = digitalRead(PIN::MOVEMENT);
+  s2e_buffer.Blfault = (!digitalRead(PIN::BL_FAULT));
+  s2e_buffer.Rotenc = encoder.GetTicks();
+  s2e_buffer.Brightness = analogRead(PIN::BRIGHTNESS);
+  s2e_buffer.UsbpdVoltage_mv = PowerSink.activeVoltage;
+  s2e_buffer.Adc0 = analogRead(PIN::ADC_0);
+  s2e_buffer.Adc1 = analogRead(PIN::ADC_1);
+#if defined(ARDUINO_LABATHOME_15_2)
+  s2e_buffer.PIN_PB12 = digitalRead(PIN::PIN_PB12);
+  s2e_buffer.Adc2_24V = analogRead(PIN::ADC_2_24V);
+// s2e_buffer.Adc3_Bl_i_sense=analogRead(PIN::BL_ISENSE); wrong, we do not read the input directly, but the OPAMPs output
+#endif
 
   if (now >= timeToPutActorsInFailsafe)
   {
@@ -343,8 +351,6 @@ void app_loop20ms(uint32_t now)
       SetBitIdx(s2e_buffer.Status, 2);
       led->AnimatePixel(millis(), &PROBLEM);
     }
-    
-    
   }
   else
   {
@@ -365,13 +371,13 @@ void app_loop1000ms(uint32_t now)
 {
   (void)now;
 
-  //char* buf = errMan.GetLast8AsCharBuf_DoNotForgetToFree();
-  byteBuf2hexCharBuf(logBuffer1, 96, (uint8_t*)&s2e_buffer, sizeof(s2e_buffer));
-  byteBuf2hexCharBuf(logBuffer2, 96, (uint8_t*)&e2s_buffer, sizeof(e2s_buffer));
+  // char* buf = errMan.GetLast8AsCharBuf_DoNotForgetToFree();
+  byteBuf2hexCharBuf(logBuffer1, 96, (uint8_t *)&s2e_buffer, sizeof(s2e_buffer));
+  byteBuf2hexCharBuf(logBuffer2, 96, (uint8_t *)&e2s_buffer, sizeof(e2s_buffer));
   log_info("enc=%d s2e=%s, e2s=%s", encoder.GetTicks(), logBuffer1, logBuffer2);
-  //printf("printf\n");
-  //Serial.printf("Serial.printf\n");
-  //Serial4.printf("Serial4.printf\n");
+  // printf("printf\n");
+  // Serial.printf("Serial.printf\n");
+  // Serial4.printf("Serial4.printf\n");
 }
 
 void app_loop_superfast(uint32_t now)
@@ -400,9 +406,11 @@ void app_loop_superfast(uint32_t now)
 void setup()
 {
   Serial.begin(115200);
+  
   // Serial.println("Application started Serial.println");
   log_info("Application started");
-  while(false){
+  while (false)
+  {
     log_info("STM32 inactive!!!, see main.cpp");
     delay(100);
   }
@@ -412,16 +420,16 @@ void setup()
   pinMode(PIN::MOVEMENT, INPUT);
   pinMode(PIN::BL_FAULT, INPUT);
   pinMode(PIN::HEATER, OUTPUT);
-  pinMode(PIN::RELAY, OUTPUT);
   pinMode(PIN::ADC_0, INPUT_ANALOG);
   pinMode(PIN::ADC_1, INPUT_ANALOG);
   pinMode(PIN::BRIGHTNESS, INPUT_ANALOG);
-#if(defined(ARDUINO_LABATHOME_15_1) || defined(ARDUINO_LABATHOME_15_2))
+#if (defined(ARDUINO_LABATHOME_15_1) || defined(ARDUINO_LABATHOME_15_2))
+  pinMode(PIN::RELAY, OUTPUT);
   pinMode(PIN::BL_SLEEP, OUTPUT);
-  pinMode(PIN::BL_ISENSE, INPUT_ANALOG);//OPAMP2+
-  pinMode(PIN::OPAMP3_M, INPUT_ANALOG);//OPAMP3-
-  pinMode(PIN::OPAMP3_P, INPUT_ANALOG);//OPAMP3+
-  pinMode(PIN::OPAMP3_Q, INPUT_ANALOG);//OPAMP3+
+  pinMode(PIN::BL_ISENSE, INPUT_ANALOG); // OPAMP2+
+  pinMode(PIN::OPAMP3_M, INPUT_ANALOG);  // OPAMP3-
+  pinMode(PIN::OPAMP3_P, INPUT_ANALOG);  // OPAMP3+
+  pinMode(PIN::OPAMP3_Q, INPUT_ANALOG);  // OPAMP3+
   pinMode(PIN::SUPPLY_24V_SENSE, INPUT_ANALOG);
 
   hopamp2.Instance = OPAMP2;
@@ -436,7 +444,7 @@ void setup()
   HAL_ERROR_CHECK(HAL_OPAMP_Init(&hopamp2));
   HAL_ERROR_CHECK(HAL_OPAMP_Start(&hopamp2));
 #endif
-#if(defined(ARDUINO_LABATHOME_15_2))
+#if (defined(ARDUINO_LABATHOME_15_2) || defined(ARDUINO_LABATHOME_15_3))
   pinMode(PIN::ADC_2_24V, INPUT_ANALOG);
   pinMode(PIN::LCD_RESET, INPUT);
   pinMode(PIN::BL_RESET, OUTPUT);
@@ -445,7 +453,7 @@ void setup()
 
   log_info("Init Rotary Encoder");
   encoder.Setup();
-  
+
   log_info("Init Timer");
   // Problem: Die All-In-One-Funktion "setPWM" kann nur ganzzahlige Prozentangaben setzen, Dies ist zu Wenig für Servos
   // Lösung: Hier diese Funktion zum grundsätzlichen Initialisieren verwenden und oben die "setCaptureCompare"
@@ -461,26 +469,48 @@ void setup()
   TIM_SERVO_2->setPWM(SERVO2_CH, PA_6_ALT1, 50, 0);
   TIM_FAN->setPWM(FAN_CH, PA_7_ALT3, 50, 0);
 #elif defined(ARDUINO_LABATHOME_15_1)
-  TIM_SERVO=new HardwareTimer(TIM1);
+  TIM_SERVO = new HardwareTimer(TIM1);
   TIM_SERVO->setPWM(SERVO0_CH, PC_0, 50, 0);
   TIM_SERVO->setPWM(SERVO1_CH, PC_1, 50, 0);
   TIM_SERVO->setPWM(SERVO2_CH, PC_2, 50, 0);
   TIM_SERVO->setPWM(SERVO3_CH, PC_3, 50, 0);
 
-  TIM_FAN_LED_WHITE=new HardwareTimer(TIM15);
+  TIM_FAN_LED_WHITE = new HardwareTimer(TIM15);
   TIM_FAN_LED_WHITE->setPWM(FAN_CH, PA_2_ALT1, 50, 0);
   TIM_FAN_LED_WHITE->setPWM(LED_WHITE_CH, PA_3_ALT1, 50, 0);
 
 #elif defined(ARDUINO_LABATHOME_15_2)
-  TIM_SERVO=new HardwareTimer(TIM1);
+  TIM_SERVO = new HardwareTimer(TIM1);
   TIM_SERVO->setPWM(SERVO0_CH, PC_0, 50, 0);
   TIM_SERVO->setPWM(SERVO1_CH, PC_1, 50, 0);
   TIM_SERVO->setPWM(SERVO2_CH, PC_2, 50, 0);
   TIM_SERVO->setPWM(SERVO3_CH, PC_3, 50, 0);
 
-  TIM_FAN_LED_WHITE=new HardwareTimer(TIM15);
-  TIM_FAN_LED_WHITE->setPWM(FAN_CH, PA_3_ALT1, 50, 0);//PA2 and PA3 changed from LabAtHome15.1 to 15.2
+  TIM_FAN_LED_WHITE = new HardwareTimer(TIM15);
+  TIM_FAN_LED_WHITE->setPWM(FAN_CH, PA_3_ALT1, 50, 0); // PA2 and PA3 changed from LabAtHome15.1 to 15.2
   TIM_FAN_LED_WHITE->setPWM(LED_WHITE_CH, PA_2_ALT1, 50, 0);
+
+#elif defined(ARDUINO_LABATHOME_15_3)
+  Serial3.begin(115200);
+  pinMode(PIN::STEPPER_EN, OUTPUT);
+  pinMode(PIN::FAN_SERVO4_STEPPER3_DIR, OUTPUT);
+  pinMode(PIN::LED_WHITE_P_SERVO5_STEPPER3_STEP, OUTPUT);
+  digitalWrite(PIN::STEPPER_EN, LOW); // Enable driver in hardware
+                                      /*
+                                        stepperdriver.begin();
+                                        stepperdriver.toff(5);                 // Enables driver in software
+                                        stepperdriver.rms_current(600);        // Set motor RMS current
+                                        stepperdriver.microsteps(16);          // Set microsteps to 1/16th
+                                        //StealthChop=Leise
+                                        stepperdriver.pwm_autoscale(true);     // Needed for stealthChop
+                                        */
+  stepperdriver.setup(Serial3, 115200, TMC2209::SERIAL_ADDRESS_0);
+  delay(2000);
+
+  stepperdriver.setRunCurrent(100);
+  stepperdriver.enableCoolStep();
+  stepperdriver.enable();
+  stepperdriver.moveAtVelocity(20000);
 
 #endif
   log_info("Init Info LED");
@@ -493,39 +523,40 @@ void setup()
   log_info("Init I2C");
   memset(&s2e_buffer, 0, sizeof(s2e_buffer));
   setActorsToSafeSetting();
-  
+
   Wire.setSDA(PIN::SDA);
   Wire.setSCL(PIN::SCL);
   Wire.begin(I2C_SETUP::STM32_I2C_ADDRESS);
-  
 
   SimpleFOCDebug::enable(&Serial);
 
   // driver config
   // power supply voltage [V]
-  driver.voltage_power_supply = 12;
+  bldcdriver.voltage_power_supply = 12;
   // limit the maximal dc voltage the driver can set
   // as a protection measure for the low-resistance motors
   // this value is fixed on startup
-  driver.voltage_limit = 6;
-  if(!driver.init()){
+  bldcdriver.voltage_limit = 6;
+  if (!bldcdriver.init())
+  {
     log_error("Driver init failed!");
     return;
   }
   // link the motor and the driver
-  motor.linkDriver(&driver);
+  bldcmotor.linkDriver(&bldcdriver);
 
   // limiting motor movements
   // limit the voltage to be set to the motor
   // start very low for high resistance motors
   // current = voltage / resistance, so try to be well under 1Amp
-  motor.voltage_limit = 3;   // [V]
- 
+  bldcmotor.voltage_limit = 3; // [V]
+
   // open loop control config
-  motor.controller = MotionControlType::velocity_openloop;
+  bldcmotor.controller = MotionControlType::velocity_openloop;
 
   // init motor hardware
-  if(!motor.init()){
+  if (!bldcmotor.init())
+  {
     log_error("Motor init failed!");
     return;
   }
@@ -533,8 +564,6 @@ void setup()
 
   log_info("Init completed - eternal loop starts");
 }
-
-
 
 void loop_servotest()
 {
@@ -559,7 +588,7 @@ void loop_servotest()
 void loop_default()
 {
   PowerSink.poll();
-  motor.move(brushless_motor_velocity);
+  bldcmotor.move(brushless_motor_velocity);
   static uint32_t last20ms = 0;
   static uint32_t last1000ms = 0;
   uint32_t now = millis();
@@ -578,7 +607,42 @@ void loop_default()
   }
 }
 
+bool shaft = false;
 
-void loop(){
-  loop_default();
+void loop_steppertest()
+{
+  
+  if (stepperdriver.isSetupAndCommunicating())
+  {
+    Serial.println("Stepper driver is setup and communicating!");
+    Serial.println("Try turning driver power off to see what happens.");
+  }
+  else if (stepperdriver.isCommunicatingButNotSetup())
+  {
+    Serial.println("Stepper driver is communicating but not setup!");
+    Serial.println("Running setup again...");
+    stepperdriver.setup(stepper_serial_stream);
+  }
+  else
+  {
+    Serial.println("Stepper driver is not communicating!");
+    Serial.println("Try turning driver power on to see what happens.");
+  }
+  Serial.println();
+  delay(3000);
+  /*
+  // Run 5000 steps and switch direction in software
+  for (uint16_t i = 5000; i>0; i--) {
+    digitalWrite(PIN::LED_WHITE_P_SERVO5_STEPPER3_STEP, HIGH);
+    delayMicroseconds(160);
+    digitalWrite(PIN::LED_WHITE_P_SERVO5_STEPPER3_STEP, LOW);
+    delayMicroseconds(160);
+  }
+  shaft = !shaft;
+  stepperdriver.shaft(shaft);
+  */
+}
+void loop()
+{
+  loop_steppertest();
 }

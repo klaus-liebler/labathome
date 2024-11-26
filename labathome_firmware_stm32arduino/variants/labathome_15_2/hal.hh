@@ -22,13 +22,14 @@
     constexpr uint32_t LED_INFO{PC12};
     constexpr uint32_t HEATER{PC13};
     constexpr uint32_t MOVEMENT{PC14};
-    constexpr uint32_t RELAY{PC15};
+    constexpr uint32_t RELAY_STEPPER_EN{PC15};
    
   
     constexpr uint32_t ROT_A{PA0};//TIM2.1
     constexpr uint32_t ROT_B{PA1};//TIM2.2
-    constexpr uint32_t LED_WHITE_P_SERVO5{PA2};//TIM15.2
-    constexpr uint32_t FAN_SERVO4{PA3};//TIM15.1
+    constexpr uint32_t LED_WHITE_P_SERVO5_STEPPER3_STEP{PA2};//TIM15.2
+    constexpr uint32_t FAN_SERVO4_STEPPER3_DIR{PA3};//TIM15.1
+
    
     constexpr uint32_t DAC_0{PA4};
     constexpr uint32_t DAC_1{PA5};

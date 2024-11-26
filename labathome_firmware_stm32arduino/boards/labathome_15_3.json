@@ -1,0 +1,41 @@
+{
+    "build": {
+      "core": "stm32",
+      "cpu": "cortex-m4",
+      "extra_flags": "-DSTM32G4 -DSTM32G4xx -DSTM32G431xx",
+      "f_cpu": "170000000L",
+      "mcu": "stm32g431rbtx",
+      "product_line": "STM32G431xx",
+      "variant": "labathome_15_3"
+    },
+    "connectivity": [
+      "can"
+    ],
+    "debug": {
+      "jlink_device": "STM32G431RB",
+      "openocd_target": "stm32g4x",
+      "svd_path": "STM32G431xx.svd"
+    },
+    "frameworks": [
+        "arduino",
+        "cmsis",
+        "stm32cube",
+        "libopencm3"
+    ],
+    "name": "Lab@Home 15.3 (STM32)",
+    "upload": {
+      "maximum_ram_size": 32768,
+      "maximum_size": 131072,
+      "protocol": "stlink",
+      "protocols": [
+        "stlink",
+        "jlink",
+        "cmsis-dap",
+        "blackmagic",
+        "mbed"
+      ]
+    },
+    "url": "https://github.com/klaus-liebler/labathome",
+    "vendor": "Klaus Liebler"
+  }
+  
