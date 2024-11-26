@@ -2297,9 +2297,9 @@
 		)
 		(uuid "c1eb4965-3a02-4e20-9fe1-b019e9e8d61b")
 	)
-	(global_label "EXT_MISO"
-		(shape output)
-		(at 68.58 109.22 180)
+	(global_label "Servo0"
+		(shape input)
+		(at 53.34 127 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2307,9 +2307,9 @@
 			)
 			(justify right)
 		)
-		(uuid "01be1762-7a39-45c6-a9a3-b957bd04cb45")
+		(uuid "186f54ba-a0f4-4168-b3f5-de06d067ccce")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 56.7049 109.22 0)
+			(at 43.9444 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2341,8 +2341,8 @@
 			)
 		)
 	)
-	(global_label "EXT_IO1"
-		(shape bidirectional)
+	(global_label "Servo2"
+		(shape input)
 		(at 53.34 132.08 180)
 		(fields_autoplaced yes)
 		(effects
@@ -2351,9 +2351,31 @@
 			)
 			(justify right)
 		)
-		(uuid "22352838-0744-4a04-8825-61accefcd87a")
+		(uuid "205b3729-b749-47ac-9a61-d5ee5071e20e")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 41.805 132.08 0)
+			(at 43.9444 132.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "Servo3"
+		(shape input)
+		(at 53.34 134.62 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "281361c5-9602-408a-9e89-8839de3e26d0")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 43.9444 134.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2429,8 +2451,30 @@
 			)
 		)
 	)
+	(global_label "STEPPER_STEP3"
+		(shape output)
+		(at 53.34 138.43 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "42525b9a-42b0-42ef-b049-a64b88dd71af")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 71.3835 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "STEPPER_DIR1"
-		(shape input)
+		(shape output)
 		(at 53.34 127 0)
 		(fields_autoplaced yes)
 		(effects
@@ -2451,75 +2495,9 @@
 			)
 		)
 	)
-	(global_label "EXT_CS"
-		(shape input)
-		(at 53.34 129.54 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "5ac0f2d2-6fe3-48f7-867f-a21d667c5dce")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 43.5816 129.54 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "EXT_MOSI"
-		(shape input)
-		(at 68.58 116.84 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "67022cec-3ce6-469a-af20-73ce72b9ce1e")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 56.7049 116.84 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "EXT_IO2"
-		(shape bidirectional)
-		(at 53.34 134.62 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "67ca4ea9-b393-40b9-b7dd-40549f946a0b")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 41.805 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "STEPPER_DIR2"
-		(shape input)
-		(at 53.34 132.08 0)
+		(shape output)
+		(at 53.34 134.62 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2529,7 +2507,29 @@
 		)
 		(uuid "6ccc9ac2-77c4-47e4-801b-0d9e28de9734")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 69.9322 132.08 0)
+			(at 69.9322 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "STEPPER_DIR3"
+		(shape output)
+		(at 53.34 140.97 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "6d891846-2d9d-416e-9373-d9af1dac1ca6")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 69.9322 140.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2562,7 +2562,7 @@
 		)
 	)
 	(global_label "STEPPER_STEP1"
-		(shape input)
+		(shape output)
 		(at 53.34 129.54 0)
 		(fields_autoplaced yes)
 		(effects
@@ -2596,6 +2596,72 @@
 		(uuid "942532c0-eb05-427c-b253-4894f151e141")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 196.1026 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "LED_WHITE_P"
+		(shape input)
+		(at 53.34 140.97 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "96912b61-daa9-4117-8dbb-75b808ea8ca3")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 38.1992 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "FAN_DRIVE"
+		(shape input)
+		(at 53.34 138.43 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "9e7efae4-72fa-484c-a8e5-ec3fd7503fa5")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 40.4971 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "UART3_TX"
+		(shape input)
+		(at 68.58 116.84 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "b1bfc8e0-b498-47b9-96c4-6e6d6b3ec804")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 56.5839 116.84 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2715,9 +2781,9 @@
 			)
 		)
 	)
-	(global_label "EXT_CLK"
-		(shape input)
-		(at 53.34 127 180)
+	(global_label "UART3_RX"
+		(shape output)
+		(at 68.58 109.22 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2725,9 +2791,31 @@
 			)
 			(justify right)
 		)
-		(uuid "ceb0681e-9f31-4856-a1e5-d998b0a96acc")
+		(uuid "d0568d18-b514-4544-8fa7-f9c5b57ea8b2")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 42.493 127 0)
+			(at 56.2815 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "Servo1"
+		(shape input)
+		(at 53.34 129.54 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "d3cc31de-b1c6-4e9f-8bc7-4e80e95f0ded")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 43.9444 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2738,8 +2826,8 @@
 		)
 	)
 	(global_label "STEPPER_STEP2"
-		(shape input)
-		(at 53.34 134.62 0)
+		(shape output)
+		(at 53.34 132.08 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2749,7 +2837,7 @@
 		)
 		(uuid "d9c98bac-bd70-4058-b0b0-9a4ee7b50693")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 71.3835 134.62 0)
+			(at 71.3835 132.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)

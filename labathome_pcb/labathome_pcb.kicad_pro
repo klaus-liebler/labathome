@@ -37,9 +37,9 @@
         "other_text_thickness": 0.15,
         "other_text_upright": false,
         "pads": {
-          "drill": 0.95,
-          "height": 1.95,
-          "width": 1.7
+          "drill": 1.0,
+          "height": 1.4,
+          "width": 2.0
         },
         "silk_line_width": 0.15,
         "silk_text_italic": false,
@@ -59,8 +59,6 @@
         }
       ],
       "drc_exclusions": [
-        "courtyards_overlap|169850001|133000001|6e2575f6-1840-4b85-b609-60b7f3bf9873|713e5a58-8143-4fef-bbb8-9a636c22b322",
-        "courtyards_overlap|171546796|142199999|da1c955d-3374-4083-8982-d8579a30b089|713e5a58-8143-4fef-bbb8-9a636c22b322",
         "starved_thermal|186050000|55000000|a790c348-f7b9-4572-ab85-6780cf38d2ae|266b1406-2abe-458b-aa1d-d54627ae2b03|B.Cu",
         "starved_thermal|186050000|57800000|a790c348-f7b9-4572-ab85-6780cf38d2ae|f41a4f66-ea81-4f1a-8200-faea47f3837a|B.Cu",
         "starved_thermal|188850000|55000000|a790c348-f7b9-4572-ab85-6780cf38d2ae|5ce1d135-36d9-4d64-b667-0fe05126d5d5|B.Cu",
@@ -476,7 +474,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "labathome_pcb15.kicad_pro",
+    "filename": "labathome_pcb.kicad_pro",
     "version": 1
   },
   "net_settings": {

@@ -2,7 +2,7 @@
   "board": {
     "active_layer": 31,
     "active_layer_preset": "",
-    "auto_track_width": false,
+    "auto_track_width": true,
     "hidden_netclasses": [],
     "hidden_nets": [],
     "high_contrast_mode": 0,
@@ -64,7 +64,7 @@
       39,
       40
     ],
-    "visible_layers": "c205010_fffffffd",
+    "visible_layers": "c225000_fffffffd",
     "zone_display_mode": 1
   },
   "git": {
@@ -74,7 +74,7 @@
     "ssh_key": ""
   },
   "meta": {
-    "filename": "labathome_pcb15.kicad_prl",
+    "filename": "labathome_pcb.kicad_prl",
     "version": 3
   },
   "project": {
