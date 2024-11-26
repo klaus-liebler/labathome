@@ -1,0 +1,47 @@
+namespace system;
+
+union Requests{
+    RequestRestart,
+    RequestSystemData, 
+}
+
+union Responses{
+    ResponseSystemData, 
+}
+
+struct Mac6 {
+    v:[uint8:6];
+}
+
+table RequestRestart{}
+table RequestSystemData{}
+
+table PartitionInfo{
+    label: string;
+    type:ubyte;
+    subtype: ubyte;
+    size:uint;
+    ota_state: byte;
+    running: bool;
+    app_name: string;
+    app_version: string;
+    app_date:string;
+    app_time: string;
+}
+
+table ResponseSystemData{
+    seconds_epoch:int64;
+    seconds_uptime:int64;
+    free_heap:uint32;
+    mac_address_wifi_sta:Mac6;
+    mac_address_wifi_softap:Mac6;
+    mac_address_bt:Mac6;
+    mac_address_eth:Mac6;
+    mac_address_ieee802154:Mac6;
+    chip_model:uint32;
+    chip_features:uint8;
+    chip_revision:uint16;
+    chip_cores:uint8;
+    chip_temperature:float;
+    partitions:[PartitionInfo];
+}
