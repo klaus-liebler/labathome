@@ -211,7 +211,7 @@ input:invalid:required {
 }
 
 
-svg{
+svg .iconsize{
   height: 24px;
   width: 24px;
 }

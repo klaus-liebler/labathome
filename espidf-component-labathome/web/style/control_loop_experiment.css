@@ -98,7 +98,7 @@ form {
     width: 90%;
 }
 
-button {
+button.large{
     height: 75px;
     width: 100px;
     vertical-align: top;

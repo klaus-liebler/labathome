@@ -1,9 +1,9 @@
-import { html, TemplateResult } from "lit-html";
-import { Flowchart, FlowchartOptions } from "../flowchart/Flowchart";
+import { html } from "lit-html";
+import { Flowchart, FlowchartCallback, FlowchartOptions } from "../flowchart/Flowchart";
 import { FlowchartData } from "../flowchart/FlowchartData";
 import { IAppManagement } from "../utils/interfaces";
 import { ScreenController } from "./screen_controller";
-import { createRef, Ref } from "lit-html/directives/ref.js";
+import { createRef, ref, Ref } from "lit-html/directives/ref.js";
 import { ByteBuffer } from "flatbuffers";
 
 
@@ -18,15 +18,15 @@ export class DevelopCFCController extends ScreenController {
     private fc: Flowchart;
     private timer: number | undefined;
 
-    public Template = () => html`<div class="screen"></div>`
+    public Template = () => html`<div ${ref(this.mainDiv)} class="develop-ui"></div>`
     
 
     OnFirstStart(): void {
         this.timer = window.setInterval(() => { this.fc.triggerDebug(); }, 1000);
-        this.fc.onFirstStart();
+        this.fc.RenderUi(this.mainDiv.value!);
     }
     OnRestart(): void {
-        this.timer = window.setInterval(() => { this.fc.triggerDebug(); }, 1000);
+        this.OnFirstStart()
     }
     OnPause(): void {
         window.clearInterval(this.timer);
@@ -95,9 +95,7 @@ export class DevelopCFCController extends ScreenController {
             ]
         };
         let options = new FlowchartOptions();
-        options.data = data;
-        this.fc = new Flowchart(this.appManagement, this.mainDiv.value!, options);
+        let callbacks = new FlowchartCallback();
+        this.fc = new Flowchart(this.appManagement, data, callbacks, options);
     }
-
-
 }

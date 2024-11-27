@@ -9,14 +9,15 @@ import { SerializeContext } from "./SerializeContext";
 import { SimulationManager } from "./SimulationManager";
 import { FlowchartData, OperatorData, LinkData } from "./FlowchartData";
 import { FilelistDialog, FilenameDialog, OkDialog } from "../dialog_controller/dialog_controller";
+import { html } from "lit-html";
 
-const URL_PREFIX="";
+const URL_PREFIX = "";
 
 
 export class FlowchartOptions {
     canUserEditLinks: boolean = true;
     canUserMoveOperators: boolean = true;
-    data?: FlowchartData = undefined;
+    
     distanceFromArrow: number = 3;
     defaultOperatorClass: string = 'flowchart-default-operator';
     defaultLinkColor: string = '#3366ff';
@@ -26,6 +27,9 @@ export class FlowchartOptions {
     multipleLinksOnOutput: boolean = true;
     multipleLinksOnInput: boolean = false;
     linkVerticalDecal: number = 0;
+}
+
+export class FlowchartCallback{
     onOperatorSelect?: (operatorId: string) => boolean;
     onOperatorUnselect?: () => boolean;
     onOperatorMouseOver?: (operatorId: string) => boolean;
@@ -43,20 +47,20 @@ export class FlowchartOptions {
 
 
 export class Flowchart {
-    
-    private operatorRegistry:operatorimpl.OperatorRegistry;
-    private simulationManager?:SimulationManager|null;
+
+    private operatorRegistry: operatorimpl.OperatorRegistry;
+    private simulationManager?: SimulationManager | null;
     private operators = new Map<number, FlowchartOperator>();
     private links = new Map<number, FlowchartLink>();
     public static readonly DATATYPE2COLOR = new Map([[ConnectorType.BOOLEAN, "RED"], [ConnectorType.COLOR, "GREEN"], [ConnectorType.FLOAT, "BLUE"], [ConnectorType.INTEGER, "YELLOW"], [ConnectorType.COLOR, "PURPLE"]]);
     //Muss beim Löschen+Erzeugen von Operatoren+Links und bei Speichern von Properties zurückgesetzt werden
-    private currentDebugInfo:HashAndBufAndMaps|null=null;
+    private currentDebugInfo: HashAndBufAndMaps | null = null;
     private lastOutputConnectorClicked: FlowchartOutputConnector | null = null;
     private selectedOperator: FlowchartOperator | null = null;
     private selectedLink: FlowchartLink | null = null;
     get SelectedLink() { return this.selectedLink };
     get Options() { return this.options; }
-    
+
     private positionRatio: number = 1;
     get PositionRatio() { return this.positionRatio; }
 
@@ -77,95 +81,91 @@ export class Flowchart {
     private markerCircle: SVGCircleElement;
 
     public triggerDebug() {
-        if(this.currentDebugInfo==null) return;
+        if (this.currentDebugInfo == null) return;
 
         let xhr = new XMLHttpRequest;
         xhr.onerror = (e) => { console.error("Fehler beim XMLHttpRequest!"); };
-        xhr.open("GET", URL_PREFIX+"/fbd", true);
+        xhr.open("GET", URL_PREFIX + "/fbd", true);
         xhr.responseType = "arraybuffer";
         xhr.onload = (e) => {
-            if(this.currentDebugInfo==null) return;
-            
+            if (this.currentDebugInfo == null) return;
+
             let arrayBuffer = xhr.response; // Note: not oReq.responseText
-            if (!arrayBuffer || arrayBuffer.byteLength <=16) {
+            if (!arrayBuffer || arrayBuffer.byteLength <= 16) {
                 console.error("! arrayBuffer || arrayBuffer.byteLength<16");
-                this.currentDebugInfo=null;
+                this.currentDebugInfo = null;
                 return;
             }
             let ctx = new SerializeContext(arrayBuffer);
             let hash = ctx.readU32();
-            if(hash!=this.currentDebugInfo.hash){
+            if (hash != this.currentDebugInfo.hash) {
                 console.error("hash!=this.currentDebugInfo.hash");
-                this.currentDebugInfo=null;
+                this.currentDebugInfo = null;
                 return;
             }
             let binaryCount = ctx.readU32();
-            for(let adressOffset=0;adressOffset<binaryCount;adressOffset++)
-            {
+            for (let adressOffset = 0; adressOffset < binaryCount; adressOffset++) {
                 let value = ctx.readU32();
-                if(adressOffset<2) continue;
-                let connectorType=ConnectorType.BOOLEAN
+                if (adressOffset < 2) continue;
+                let connectorType = ConnectorType.BOOLEAN
                 let map = this.currentDebugInfo.typeIndex2adressOffset2ListOfLinks.get(connectorType)!;
                 let linksToChange = map.get(adressOffset);
-                if(linksToChange===undefined){
+                if (linksToChange === undefined) {
                     console.error(`linksToColorize===undefined for connectorType ${connectorType} addressOffset ${adressOffset} and value ${value}`);
                     continue;
                 }
-                linksToChange.forEach((e)=>{
-                    e.SetColor(value==1?"red":"grey");
-                    e.SetCaption(""+value);
+                linksToChange.forEach((e) => {
+                    e.SetColor(value == 1 ? "red" : "grey");
+                    e.SetCaption("" + value);
                 });
             }
 
             let integerCount = ctx.readU32();
-            for(let adressOffset=0;adressOffset<integerCount;adressOffset++)
-            {
+            for (let adressOffset = 0; adressOffset < integerCount; adressOffset++) {
                 let value = ctx.readS32();
-                if(adressOffset<2) continue;
-                let connectorType=ConnectorType.INTEGER
+                if (adressOffset < 2) continue;
+                let connectorType = ConnectorType.INTEGER
                 let map = this.currentDebugInfo.typeIndex2adressOffset2ListOfLinks.get(connectorType)!;
                 let linksToChange = map.get(adressOffset);
-                if(linksToChange===undefined){
+                if (linksToChange === undefined) {
                     console.error(`linksToColorize===undefined for connectorType ${connectorType} addressOffset ${adressOffset} and value ${value}`);
                     continue;
                 }
-                linksToChange.forEach((e)=>{
-                    e.SetCaption(""+value);
+                linksToChange.forEach((e) => {
+                    e.SetCaption("" + value);
                 });
             }
 
             let floatsCount = ctx.readU32();
-            for(let adressOffset=0;adressOffset<floatsCount;adressOffset++)
-            {
+            for (let adressOffset = 0; adressOffset < floatsCount; adressOffset++) {
                 let value = ctx.readF32();
-                if(adressOffset<2) continue;
-                let connectorType=ConnectorType.FLOAT
+                if (adressOffset < 2) continue;
+                let connectorType = ConnectorType.FLOAT
                 let map = this.currentDebugInfo.typeIndex2adressOffset2ListOfLinks.get(connectorType)!;
                 let linksToChange = map.get(adressOffset);
-                if(linksToChange===undefined){
+                if (linksToChange === undefined) {
                     console.error(`linksToColorize===undefined for connectorType ${connectorType} addressOffset ${adressOffset} and value ${value}`);
                     continue;
                 }
-  
-                linksToChange.forEach((e)=>{
+
+                linksToChange.forEach((e) => {
                     e.SetCaption(value.toFixed(2));
                 });
             }
 
             let colorsCount = ctx.readU32();
-            for(let adressOffset=0;adressOffset<colorsCount;adressOffset++)
-            {
+            for (let adressOffset = 0; adressOffset < colorsCount; adressOffset++) {
                 let value = ctx.readU32();
-                if(adressOffset<2) continue;
-                let connectorType=ConnectorType.COLOR
+                if (adressOffset < 2) continue;
+                let connectorType = ConnectorType.COLOR
                 let map = this.currentDebugInfo.typeIndex2adressOffset2ListOfLinks.get(connectorType)!;
                 let linksToChange = map.get(adressOffset);
-                if(linksToChange===undefined){
+                if (linksToChange === undefined) {
                     console.error(`linksToColorize===undefined for connectorType ${connectorType} addressOffset ${adressOffset} and value ${value}`);
                     continue;
                 }
-                linksToChange.forEach((e)=>{
-                    e.SetCaption(""+value);
+                linksToChange.forEach((e) => {
+                    e.SetCaption("" + value);
                     e.SetColor(ColorNumColor2ColorDomString(value));
                 });
             }
@@ -240,7 +240,7 @@ export class Flowchart {
 
     public unselectLink() {
         if (this.selectedLink != null) {
-            if (this.options.onLinkUnselect && !this.options.onLinkUnselect(this.selectedLink)) {
+            if (this.flowchartCallbacks.onLinkUnselect && !this.flowchartCallbacks.onLinkUnselect(this.selectedLink)) {
                 return;
             }
             this.selectedLink.UnsetColor();
@@ -250,14 +250,14 @@ export class Flowchart {
 
     public selectLink(link: FlowchartLink) {
         this.unselectLink();
-        if (this.options.onLinkSelect && !this.options.onLinkSelect(link)) {
+        if (this.flowchartCallbacks.onLinkSelect && !this.flowchartCallbacks.onLinkSelect(link)) {
             return;
         }
         this.unselectOperator();
         this.selectedLink = link;
         link.SetColor(this.options.defaultSelectedLinkColor);
     }
- 
+
 
     private deleteSelectedThing(): void {
         if (this.selectedOperator) {
@@ -268,7 +268,7 @@ export class Flowchart {
         }
     }
 
-    private fbd2json():string{
+    private fbd2json(): string {
         let operators: OperatorData[] = [];
         let links: LinkData[] = [];
         for (const op of this.operators.values()) {
@@ -287,10 +287,8 @@ export class Flowchart {
         return JSON.stringify(data);
     }
 
-    
-
     private saveJSONToLocalFile() {
-        
+
         let text = this.fbd2json();
         let filename = "functionBlockDiagram.json";
         var element = document.createElement('a');
@@ -303,17 +301,16 @@ export class Flowchart {
     }
 
     private saveBinToLocalFile() {
-        
         let text = this.fbd2json();
         let compilerInstance = new FlowchartCompiler(this.operators);
-        let binFile =compilerInstance.Compile();  
-        let blob = new Blob([new Uint8Array(binFile.buf, 0, binFile.buf.byteLength)], {type: "octet/stream"});
+        let binFile = compilerInstance.Compile();
+        let blob = new Blob([new Uint8Array(binFile.buf, 0, binFile.buf.byteLength)], { type: "octet/stream" });
         let url = window.URL.createObjectURL(blob);
         let filename = "functionBlockDiagram.bin";
         var element = document.createElement('a');
         element.style.display = 'none';
-        element.href=url;
-        element.download=filename;
+        element.href = url;
+        element.download = filename;
         document.body.appendChild(element);
         element.click();
         document.body.removeChild(element);
@@ -330,80 +327,76 @@ export class Flowchart {
         reader.readAsText(files[0]);
     }
 
-    private put2fbd(buf:ArrayBuffer)
-    {
+    private put2fbd(buf: ArrayBuffer) {
         let xhr = new XMLHttpRequest;
-        xhr.open("PUT", URL_PREFIX+"/fbd", true);
+        xhr.open("PUT", URL_PREFIX + "/fbd", true);
         xhr.onloadend = (e) => {
-            if(xhr.status!=200){
+            if (xhr.status != 200) {
                 this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `HTTP Error ${xhr.status}`));
                 return;
             }
             this.appManagement.ShowDialog(new OkDialog(Severity.SUCCESS, `Successfully saved`));
         }
-        xhr.onerror = (e) => { 
+        xhr.onerror = (e) => {
             this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `Generic Error`));
         }
         xhr.send(buf);
     }
 
-    private saveJSONToLabathomeFile(){
-        
-        this.appManagement.ShowDialog(new FilenameDialog("Enter filename (without Extension", (ok:boolean, filename:string)=>{
-            if(!ok) return;
+    private saveJSONToLabathomeFile() {
+
+        this.appManagement.ShowDialog(new FilenameDialog("Enter filename (without Extension", (ok: boolean, filename: string) => {
+            if (!ok) return;
             let xhr_json = new XMLHttpRequest;
-            xhr_json.open("POST", URL_PREFIX+"/fbdstorejson/"+filename, true);
+            xhr_json.open("POST", URL_PREFIX + "/fbdstorejson/" + filename, true);
             xhr_json.onloadend = (e) => {
-                if(xhr_json.status!=200){
+                if (xhr_json.status != 200) {
                     this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `HTTP Error ${xhr_json.status}`));
                     return;
                 }
                 this.appManagement.ShowDialog(new OkDialog(Severity.SUCCESS, `Successfully saved`));
             }
-            xhr_json.onerror = (e) => { this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `Generic Error`));}
+            xhr_json.onerror = (e) => { this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `Generic Error`)); }
             xhr_json.send(this.fbd2json());
         }));
 
     }
 
-    private saveJSONandBINToLabathomeDefaultFile(buf:ArrayBuffer)
-    {
+    private saveJSONandBINToLabathomeDefaultFile(buf: ArrayBuffer) {
         let xhr_bin = new XMLHttpRequest();
-        xhr_bin.open("POST", URL_PREFIX+"/fbddefaultbin", true);
+        xhr_bin.open("POST", URL_PREFIX + "/fbddefaultbin", true);
         xhr_bin.onloadend = (e) => {
-            if(xhr_bin.status!=200){
+            if (xhr_bin.status != 200) {
                 this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `HTTP Error ${xhr_bin.status}`));
                 return;
             }
-            let xhr_json  = new XMLHttpRequest();
-            xhr_json.open("POST", URL_PREFIX+"/fbddefaultjson", true);
-            xhr_json.onloadend =(e)=>{
-                if(xhr_json.status!=200){
+            let xhr_json = new XMLHttpRequest();
+            xhr_json.open("POST", URL_PREFIX + "/fbddefaultjson", true);
+            xhr_json.onloadend = (e) => {
+                if (xhr_json.status != 200) {
                     this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `HTTP Error ${xhr_json.status}`));
                     return;
                 }
                 this.appManagement.ShowDialog(new OkDialog(Severity.SUCCESS, `Successfully set a new default FBD`));
             }
-            xhr_json.onerror = (e) => { this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `Generic Error`));}
+            xhr_json.onerror = (e) => { this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `Generic Error`)); }
             xhr_json.send(this.fbd2json())
         }
-        xhr_bin.onerror = (e) => { this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `Generic Error`));}
+        xhr_bin.onerror = (e) => { this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `Generic Error`)); }
         xhr_bin.send(buf);
     }
 
-    private openJSONFromLabathome()
-    {
-        let filename:string = "";
+    private openJSONFromLabathome() {
         let xhr = new XMLHttpRequest;
-        xhr.open("GET", URL_PREFIX+"/fbdstorejson/", true);//GET without filename, but with "/" at the end!!!
+        xhr.open("GET", URL_PREFIX + "/fbdstorejson/", true);//GET without filename, but with "/" at the end!!!
         xhr.onload = (e) => {
             let s = xhr.responseText;
             let data = <string[]>JSON.parse(s);
-            this.appManagement.ShowDialog(new FilelistDialog(data, 
-                (ok:boolean, filename:string)=>{
-                    if(!ok) return;
+            this.appManagement.ShowDialog(new FilelistDialog(data,
+                (ok: boolean, filename: string) => {
+                    if (!ok) return;
                     let xhr = new XMLHttpRequest;
-                    xhr.open("GET", URL_PREFIX+"/fbdstorejson/"+filename, true); //GET with the filename selected in the dialog
+                    xhr.open("GET", URL_PREFIX + "/fbdstorejson/" + filename, true); //GET with the filename selected in the dialog
                     xhr.onload = (e) => {
                         let s = xhr.responseText;
                         let data = <FlowchartData>JSON.parse(s);
@@ -411,10 +404,10 @@ export class Flowchart {
                     }
                     xhr.send();
                 },
-                (ok:boolean, filename:string)=>{
-                    if(!ok) return;
+                (ok: boolean, filename: string) => {
+                    if (!ok) return;
                     let xhr = new XMLHttpRequest;
-                    xhr.open("DELETE", URL_PREFIX+"/fbdstorejson/"+filename, true); //GET with the filename selected in the dialog
+                    xhr.open("DELETE", URL_PREFIX + "/fbdstorejson/" + filename, true); //GET with the filename selected in the dialog
                     xhr.onloadend = (e) => {
                         this.appManagement.ShowDialog(new OkDialog(1, `File ${filename} deleted successfully`));
                     }
@@ -425,11 +418,9 @@ export class Flowchart {
         xhr.send();
     }
 
-
-    private openDefaultJSONFromLabathome()
-    {
+    private openDefaultJSONFromLabathome() {
         let xhr = new XMLHttpRequest;
-        xhr.open("GET", URL_PREFIX+"/fbddefaultjson", true);
+        xhr.open("GET", URL_PREFIX + "/fbddefaultjson", true);
         xhr.onload = (e) => {
             let s = xhr.responseText;
             let data = <FlowchartData>JSON.parse(s);
@@ -437,8 +428,6 @@ export class Flowchart {
         }
         xhr.send();
     }
-
-    
 
     private buildMenu(subcontainer: HTMLDivElement) {
         let fileInput = <HTMLInputElement>Html(subcontainer, "input", ["type", "file", "id", "fileInput", "accept", ".json"]);
@@ -472,7 +461,7 @@ export class Flowchart {
             this.saveJSONToLocalFile();
             e.preventDefault();
         }
-        
+
         Html(menuFileDropContent, "a", ["href", "#"], [], "💾 Save (labathome)").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
             this.saveJSONToLabathomeFile();
@@ -495,15 +484,15 @@ export class Flowchart {
         Html(menuDebugDropContent, "a", ["href", "#"], [], "☭ Run Now").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
             let compilerInstance = new FlowchartCompiler(this.operators);
-            let guidAndBufAndMap: HashAndBufAndMaps=compilerInstance.Compile();  
-            this.currentDebugInfo=guidAndBufAndMap;
+            let guidAndBufAndMap: HashAndBufAndMaps = compilerInstance.Compile();
+            this.currentDebugInfo = guidAndBufAndMap;
             this.put2fbd(guidAndBufAndMap.buf);
             e.preventDefault();
         }
         Html(menuDebugDropContent, "a", ["href", "#"], [], "👣 Set as Startup-App").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
             let compilerInstance = new FlowchartCompiler(this.operators);
-            let guidAndBufAndMap: HashAndBufAndMaps=compilerInstance.Compile();  
+            let guidAndBufAndMap: HashAndBufAndMaps = compilerInstance.Compile();
             this.saveJSONandBINToLabathomeDefaultFile(guidAndBufAndMap.buf);
             e.preventDefault();
         }
@@ -517,7 +506,7 @@ export class Flowchart {
         Html(menuSimulationDropContent, "a", ["href", "#"], [], "➤ Start Simulation").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
             let compilerInstance = new FlowchartCompiler(this.operators);
-            this.simulationManager=new SimulationManager(compilerInstance.CompileForSimulation());
+            this.simulationManager = new SimulationManager(compilerInstance.CompileForSimulation());
             this.simulationManager.Start(false);
             e.preventDefault();
         }
@@ -530,10 +519,9 @@ export class Flowchart {
         //let menuDebugLink3 = $.Html(menuDebugDropContent, "a", ["href", "#"], [], "◯ Erase");
     }
 
-    constructor(private appManagement:IAppManagement, private container: HTMLDivElement, private options: FlowchartOptions) {
-        if (!this.container) throw new Error("container is null");
-        this.operatorRegistry=operatorimpl.OperatorRegistry.Build();
-        let subcontainer = <HTMLDivElement>Html(this.container, "div", [], ["develop-ui"]);
+    public RenderUi(subcontainer: HTMLDivElement){
+        if (!subcontainer) throw new Error("container is null");
+        //let subcontainer = <HTMLDivElement>Html(container, "div", [], ["develop-ui"]);
         subcontainer.onclick = (e) => {
             if ((<HTMLElement>e.target).classList.contains("dropbtn")) return;
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
@@ -541,14 +529,10 @@ export class Flowchart {
 
         this.buildMenu(subcontainer);
 
-
         let workspace = <HTMLDivElement>Html(subcontainer, "div", ["tabindex", "0"], ["develop-workspace"]);//tabindex, damit keypress-Events abgefangen werden können
         this.propertyGridHtmlDiv = <HTMLDivElement>Html(subcontainer, "div", [], ["develop-properties"]);
 
-
-
         this.flowchartContainerSvgSvg = <SVGSVGElement>Svg(workspace, "svg", ["width", "100%", "height", "100%"], ["flowchart-container"]);
-
 
         this.linksLayer = <SVGGElement>Svg(this.flowchartContainerSvgSvg, "g", [], ["flowchart-links-layer"]);
         this.operatorsLayer = <SVGGElement>Svg(this.flowchartContainerSvgSvg, "g", [], ["flowchart-operators-layer", "unselectable"]);
@@ -600,40 +584,43 @@ export class Flowchart {
             }
         }
 
-        this.operatorRegistry.populateOperatorLib(this.operatorLibDiv,(e:MouseEvent, ti:TypeInfo)=>{
+        this.operatorRegistry.populateOperatorLib(this.operatorLibDiv, (e: MouseEvent, ti: TypeInfo) => {
             let caption = ti.OperatorName;
             let o = this.createOperatorInternal(ti.GlobalTypeIndex, caption, null);
             let coords = EventCoordinatesInSVG(e, this.Element);
             o.MoveTo(coords.x - 10, coords.y - 10);
             o.RegisterDragging(e);
             this.operators.set(o.GlobalOperatorIndex, o);
-        } );
+        });
+
+        this.recreateFlowchartFromData();
     }
 
-
-    public onFirstStart() {
-        if (typeof this.options.data !== undefined && this.options.data != null) {
-            this.setData(this.options.data);
-        }
+    constructor(private appManagement: IAppManagement, private flowchartData:FlowchartData = null, private flowchartCallbacks:FlowchartCallback, private options: FlowchartOptions) { 
+        this.operatorRegistry = operatorimpl.OperatorRegistry.Build(); 
     }
 
 
     private createOperatorInternal(globalTypeIndex: number, caption: string, configurationData: KeyValueTuple[] | null): FlowchartOperator {
-        
-        if(!this.operatorRegistry.IsIndexKnown(globalTypeIndex))
-        {
+
+        if (!this.operatorRegistry.IsIndexKnown(globalTypeIndex)) {
             throw new Error(`Unknown globalTypeIndex ${globalTypeIndex}`);
         }
-        if (this.options.onOperatorCreate && !this.options.onOperatorCreate(caption, null, false)) {
+        if (this.flowchartCallbacks.onOperatorCreate && !this.flowchartCallbacks.onOperatorCreate(caption, null, false)) {
             throw new Error(`Creation of operator of globalTypeIndex ${globalTypeIndex} prevented by onOperatorCreate plugin`);
         }
         let op = this.operatorRegistry.CreateByIndex(globalTypeIndex, this, caption, configurationData)!;
-       
-        this.currentDebugInfo=null;
+
+        this.currentDebugInfo = null;
         return op;
     }
 
     public setData(data: FlowchartData) {
+        this.flowchartData=data;
+        this.recreateFlowchartFromData();
+
+    }
+    private recreateFlowchartFromData(){
 
         this.links.forEach((e) => e.RemoveFromDOM());
         this.links.clear();
@@ -641,13 +628,13 @@ export class Flowchart {
         this.operators.clear();
         let indexInData2operator = new Map<number, FlowchartOperator>();
 
-        for (const d of data.operators) {
+        for (const d of this.flowchartData.operators) {
             let o = this.createOperatorInternal(d.globalTypeIndex, d.caption, d.configurationData);
             o.MoveTo(d.posX, d.posY);
             this.operators.set(o.GlobalOperatorIndex, o);
             indexInData2operator.set(d.index, o);
         }
-        for (const d of data.links) {
+        for (const d of this.flowchartData.links) {
             let fromOp = indexInData2operator.get(d.fromOperatorIndex);
             let toOp = indexInData2operator.get(d.toOperatorIndex);
             if (fromOp === undefined || toOp === undefined) continue;
@@ -659,7 +646,7 @@ export class Flowchart {
     }
 
     public DeleteLink(globalLinkIndex: number) {
-        this.currentDebugInfo=null;
+        this.currentDebugInfo = null;
         let l = this.links.get(globalLinkIndex);
         if (l === undefined) {
             throw Error("Link to delete is undefined")
@@ -674,7 +661,7 @@ export class Flowchart {
     }
 
     public DeleteOperator(globalOperatorIndex: number) {
-        this.currentDebugInfo=null;
+        this.currentDebugInfo = null;
         let o = this.operators.get(globalOperatorIndex);
         if (o === undefined) {
             throw Error("Operator to delete is undefined")
@@ -697,10 +684,10 @@ export class Flowchart {
     }
 
     public createLink(data: LinkData | null, from: FlowchartOutputConnector, to: FlowchartInputConnector): FlowchartLink | null {
-        if (this.options.onLinkCreate && !this.options.onLinkCreate(from.Caption, data)) return null;
+        if (this.flowchartCallbacks.onLinkCreate && !this.flowchartCallbacks.onLinkCreate(from.Caption, data)) return null;
         if (!this.options.multipleLinksOnOutput && from.LinksLength > 0) return null;
         if (!this.options.multipleLinksOnInput && to.LinksLength > 0) return null;
-        this.currentDebugInfo=null;
+        this.currentDebugInfo = null;
         let l: FlowchartLink = new FlowchartLink(this, "", this.Options.defaultLinkColor, from, to);
         from.AddLink(l);
         to.AddLink(l);
@@ -723,7 +710,7 @@ export class Flowchart {
     }
 
     private unselectOperator() {
-        if (this.options.onOperatorUnselect && !this.options.onOperatorUnselect()) return;
+        if (this.flowchartCallbacks.onOperatorUnselect && !this.flowchartCallbacks.onOperatorUnselect()) return;
         this.propertyGridHtmlDiv.innerText = ""; //clear
         if (this.selectedOperator == null) return;
         this.selectedOperator.ShowAsSelected(false);
@@ -731,7 +718,7 @@ export class Flowchart {
     }
 
     public SelectOperator(operator: FlowchartOperator): void {
-        if (this.options.onOperatorSelect && !this.options.onOperatorSelect(operator.Caption)) return;
+        if (this.flowchartCallbacks.onOperatorSelect && !this.flowchartCallbacks.onOperatorSelect(operator.Caption)) return;
         this.unselectLink();
         if (this.selectedOperator != null) this.selectedOperator.ShowAsSelected(false);
         operator.ShowAsSelected(true);
@@ -739,14 +726,14 @@ export class Flowchart {
         this.propertyGridHtmlDiv.innerText = ""; //clear
         Html(this.propertyGridHtmlDiv, "p", [], ["develop-propertygrid-head"], `Properties for ${this.selectedOperator.Caption}`);
         let table = <HTMLTableElement>Html(this.propertyGridHtmlDiv, "table", [], ["develop-propertygrid-table"]);
-        let thead = <HTMLTableSectionElement>Html(table, "thead", [],[]);
+        let thead = <HTMLTableSectionElement>Html(table, "thead", [], []);
         let tr_head = Html(thead, "tr", [], ["develop-propertygrid-tr"]);
         Html(tr_head, "th", [], ["develop-propertygrid-th"], "Key");
         Html(tr_head, "th", [], ["develop-propertygrid-th"], "Value");
-        let tbody= <HTMLTableSectionElement>Html(table, "tbody", [],[]);
+        let tbody = <HTMLTableSectionElement>Html(table, "tbody", [], []);
         if (this.selectedOperator!.PopulateProperyGrid(tbody)) {
-            Html(this.propertyGridHtmlDiv, "button", [], ["develop-propertygrid-button"], `Save`).onclick=(e)=>{
-                this.currentDebugInfo=null;
+            Html(this.propertyGridHtmlDiv, "button", [], ["develop-propertygrid-button"], `Save`).onclick = (e) => {
+                this.currentDebugInfo = null;
                 operator.SavePropertyGrid(tbody);
             };
         }

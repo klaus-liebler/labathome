@@ -78,7 +78,7 @@ export class HeaterExperimentController extends ScreenController {
         }} class="large" type="button">⬛</button>
               <button ${ref(this.butDelete)}  @click=${() => {
             this.resetData();
-        }} type="button">🗑️</button>
+        }} class="large" type="button">🗑️</button>
             </div>
     </form>
     <form ${ref(this.frmOpenloop)}>
