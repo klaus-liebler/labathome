@@ -74,7 +74,7 @@
     height: 100vh;
     display: grid;
     grid-template-columns: 200px 1fr;
-    grid-template-rows: 60px 1fr 30px;
+    grid-template-rows: 60px 1fr 40px;
     grid-column-gap: 10px;
     grid-row-gap: 10px;
     padding: 0;
@@ -119,6 +119,8 @@
   }
 
   body>header {
+    font-size: 28px;
+    font-weight: bold;
     background: var(--main-white-color);
     grid-column: 1/span 2;
     grid-row-start: 1/span 1;
@@ -126,11 +128,10 @@
   }
 
   body>footer {
-    background: #695e5e;
+    background: var(--main-white-color);
     grid-column: 1/span 2;
     grid-row-start: 3/span 1;
-    overflow-y: scroll;
-    min-height: 150px;
+    overflow-y: hidden;
     padding: 10px;
   }
 

@@ -1,5 +1,9 @@
 namespace wifimanager;
 
+enum Namespace:uint32{
+    Value=1
+}
+
 union Requests{
     RequestNetworkInformation, 
     RequestWifiConnect, 

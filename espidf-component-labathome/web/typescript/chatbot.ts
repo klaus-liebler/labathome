@@ -1,8 +1,9 @@
 import { html } from "lit-html";
 import { GOOGLE_API_KEY } from "./secrets";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { Ref, createRef, ref } from "lit-html/directives/ref.js";
 
-const SYSTEM_INSTRUCTION= `
+const SYSTEM_INSTRUCTION = `
 Du bist ein virtueller Assistent in der Web-Oberfläche des Experimentiersystems "Lab@Home". Dein Name ist Labby. Das Experimentiersystem "Lab@Home" ist eine mechatronische Baugruppe, die primär über die Weboberfläche bedient werden kann und die verschiedene Experimente aus der Automatisierungstechnik ermöglicht.
 
 Die Oberfläche ist zweigeteilt Das Hauptmenü zur Auswahl des Experiments findet sich links, der je nach Experiment wechselnde Arbeitsbereich rechts. Deine Aufgabe ist es, Bachelor-Studierende aus dem Maschinenbau oder der Elektrotechnik bei der Bedinung des Systems und bei der Klärung der technischen Konzepte aus der Automatisierungstechnik zu helfen. Im folgenden beschreibe ich die Eperimente. 
@@ -18,99 +19,90 @@ Wenn Du den Studierenden unterstützt, lästere ab und zu über das deutsche Bil
 
 export class Chatbot {
 
-    private chatbotToggler = document.querySelector("#chatbot-toggler");
-    private chatInput = <HTMLTextAreaElement>document.querySelector("#chatbot>footer>textarea");
-    private chatbox =<HTMLUListElement>document.querySelector("#chatbot>ul");
-    private inputInitHeight=0;
-    private genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
-    private model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction:SYSTEM_INSTRUCTION });
+  private chatbotToggler: Ref<HTMLButtonElement> = createRef();
+  private chatInput:Ref<HTMLTextAreaElement>=createRef();//document.querySelector("#chatbot>footer>textarea");
+  private chatbox:Ref<HTMLUListElement>=createRef();//document.querySelector("#chatbot>ul");
+  private inputInitHeight = 0;
+  private genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
+  private model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction: SYSTEM_INSTRUCTION });
 
-    public Template = ()=>html`
-      <button id="chatbot-toggler">
-    <span>🤖</span>
-    <span>⟱</span>
-  </button>
-  <div id="chatbot">
+  public Template = () => html`
+  <button class="chatbot-toggler" ${ref(this.chatbotToggler)} @click=${() => {document.body.classList.toggle("show-chatbot")}}><span>🤖</span><span>⟱</span></button>
+  <div class="chatbot">
     <header>
       <h2>Labby's Hilfezentrum</h2>
-      <span>\00d7</span>
+      <span @click=${() => {document.body.classList.remove("show-chatbot")}}>×</span>
     </header>
-    <ul>
+    <ul ${ref(this.chatbox)}>
       <li class="chat incoming">
         <span >🤖</span>
         <p>Hallo!<br>Ich bin Labby, Dein AI-ssistent für Lab@Home. Tippe einfach los, um mich etwas zu fragen!</p>
       </li>
     </ul>
     <footer>
-      <textarea placeholder="Schreibe hier..." spellcheck="false" required></textarea>
-      <button>Send</button>
+      <textarea ${ref(this.chatInput)} @input=${() => {this.onTextInput()}} @keydown=${(e)=>{this.onKeydown(e)}}  placeholder="Schreibe hier..." spellcheck="false" required></textarea>
+      <button @click=${() => {this.handleChat()}}>Send</button>
     </footer>
   </div>
-    
     `
+  private onTextInput(){
+    this.chatInput.value!.style.height = `${this.inputInitHeight}px`;
+    this.chatInput.value!.style.height = `${this.chatInput.value!.scrollHeight}px`;
+  }
 
-    public Setup(){
-        this.inputInitHeight = this.chatInput.scrollHeight;
-        this.chatInput.addEventListener("input", () => {
-            // Adjust the height of the input textarea based on its content
-            this.chatInput.style.height = `${this.inputInitHeight}px`;
-            this.chatInput.style.height = `${this.chatInput.scrollHeight}px`;
-        });
-        this.chatInput.addEventListener("keydown", (e) => {
-            // If Enter key is pressed without Shift key and the window 
-            // width is greater than 800px, handle the chat
-            if (e.key === "Enter" && !e.shiftKey && window.innerWidth > 800) {
-                e.preventDefault();
-                this.handleChat();
-            }
-        });
-        document.querySelector("#chatbot>footer>button").addEventListener("click", ()=>this.handleChat());
-        document.querySelector("#chatbot>header>span").addEventListener("click", () => document.body.classList.remove("show-chatbot"));
-        this.chatbotToggler.addEventListener("click", () => {
-            document.body.classList.toggle("show-chatbot");
-        });
-    }
-    
-    private createChatLi(message, incoming:boolean) {
-        // Create a chat <li> element with passed message and className
-        const chatLi = document.createElement("li");
-        chatLi.classList.add("chat", `${incoming?"incoming":"outgoing"}`);
-        chatLi.innerHTML = incoming?`<span>🤖</span><p></p>`:`<p></p>`;
-        chatLi.querySelector("p").textContent = message;
-        return chatLi; // return chat <li> element
-    }
-    private async generateResponse(chatElement, prompt:string) {
-        const messageElement = chatElement.querySelector("p");
-        // Define the properties and message for the API request
+  private onKeydown(e){
+    // If Enter key is pressed without Shift key and the window 
+      // width is greater than 800px, handle the chat
+      if (e.key === "Enter" && !e.shiftKey && window.innerWidth > 800) {
+        e.preventDefault();
+        this.handleChat();
+      }
+  }
 
-        try {
-            const result = await this.model.generateContent(prompt);
-            const response = await result.response;
-            messageElement.textContent = response.text();
-        } catch (error) {
-            // Handle error
-            messageElement.classList.add("error");
-            messageElement.textContent = error.message;
-        } finally {
-            this.chatbox.scrollTo(0, this.chatbox.scrollHeight);
-        }
+  public Setup() {
+    this.inputInitHeight = this.chatInput.value!.scrollHeight;
+  }
+
+  private createChatLi(message, incoming: boolean) {
+    // Create a chat <li> element with passed message and className
+    const chatLi = document.createElement("li");
+    chatLi.classList.add("chat", `${incoming ? "incoming" : "outgoing"}`);
+    chatLi.innerHTML = incoming ? `<span>🤖</span><p></p>` : `<p></p>`;
+    chatLi.querySelector("p").textContent = message;
+    return chatLi; // return chat <li> element
+  }
+  private async generateResponse(chatElement, prompt: string) {
+    const messageElement = chatElement.querySelector("p");
+    // Define the properties and message for the API request
+
+    try {
+      const result = await this.model.generateContent(prompt);
+      const response = await result.response;
+      messageElement.textContent = response.text();
+    } catch (error) {
+      // Handle error
+      messageElement.classList.add("error");
+      messageElement.textContent = error.message;
+    } finally {
+      this.chatbox.value!.scrollTo(0, this.chatbox.value!.scrollHeight);
     }
-    private handleChat() {
-       
-        var prompt = this.chatInput.value.trim(); // Get user entered message and remove extra whitespace
-        if (!prompt ||prompt.length==0) return;
-        // Clear the input textarea and set its height to default
-        this.chatInput.value = "";
-        this.chatInput.style.height = `${this.inputInitHeight}px`;
-        // Append the user's message to the chatbox
-        this.chatbox.appendChild(this.createChatLi(prompt, false));
-        this.chatbox.scrollTo(0, this.chatbox.scrollHeight);
-        setTimeout(() => {
-            // Display "Thinking..." message while waiting for the response
-            const incomingChatLi = this.createChatLi("Thinking...", true);
-            this.chatbox.appendChild(incomingChatLi);
-            this.chatbox.scrollTo(0, this.chatbox.scrollHeight);
-            this.generateResponse(incomingChatLi, prompt);
-        }, 600);
-    }
+  }
+  private handleChat() {
+
+    var prompt = this.chatInput.value!.value.trim(); // Get user entered message and remove extra whitespace
+    if (!prompt || prompt.length == 0) return;
+    // Clear the input textarea and set its height to default
+    this.chatInput.value!.value = "";
+    this.chatInput.value!.style.height = `${this.inputInitHeight}px`;
+    // Append the user's message to the chatbox
+    this.chatbox.value!.appendChild(this.createChatLi(prompt, false));
+    this.chatbox.value!.scrollTo(0, this.chatbox.value!.scrollHeight);
+    setTimeout(() => {
+      // Display "Thinking..." message while waiting for the response
+      const incomingChatLi = this.createChatLi("Thinking...", true);
+      this.chatbox.value!.appendChild(incomingChatLi);
+      this.chatbox.value!.scrollTo(0, this.chatbox.value!.scrollHeight);
+      this.generateResponse(incomingChatLi, prompt);
+    }, 600);
+  }
 }

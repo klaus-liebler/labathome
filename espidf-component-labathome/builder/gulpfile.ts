@@ -59,7 +59,8 @@ export function certificates_servers(cb: gulp.TaskFunctionCallback) {
 
 var bi: IBoardInfo;
 
-export const builtForCurrent = gulp.series(
+export const buildForCurrent = gulp.series(
+  getMostRecentlyConnectedBoardInfo,
   compileAndDistributeFlatbuffers,
   buildWebProject,
   brotliCompress,
@@ -73,7 +74,7 @@ export const builtForCurrent = gulp.series(
 
 export default gulp.series(
   addOrUpdateConnectedBoard,
-  builtForCurrent,
+  buildForCurrent,
   flashFirmware,
 )
 
@@ -111,17 +112,12 @@ export async function addOrUpdateConnectedBoard(cb: gulp.TaskFunctionCallback) {
     const update_board = db.prepare('UPDATE boards set last_connected_dt = ?, last_connected_com_port= ? where mac = ? ');
     update_board.run(now, esp32.comPort.path, esp32.macAsNumber);
   }
-  getMostRecentlyConnectedBoardInfo();
-  console.log(`Detected at Port ${bi.last_connected_com_port} an ${bi.mcu_name} on board ${bi.board_name} ${bi.board_version} with mac 0x${bi.mac_6char} or ${bi.mac}`)
-  //var hostname = ESP32_HOSTNAME_TEMPLATE(mac);
-  //console.log(`The Hostname will be ${hostname}`);
-  //writeFileCreateDirLazy(P.HOSTNAME_FILE, hostname, cb);
-
+  
   return cb();
 }
 
 
-function getMostRecentlyConnectedBoardInfo(): void {
+function getMostRecentlyConnectedBoardInfo(cb: gulp.TaskFunctionCallback): void {
   const db = new DatabaseSync("./builder.db") as IDatabaseSync;
   const select_board = db.prepare('select b.mac, m.name as mcu_name, bt.name as board_name, bt.version as board_version, b.first_connected_dt, b.last_connected_dt, b.last_connected_com_port, b.settings as board_settings, bt.settings as board_type_settings from boards as b inner join board_types as bt on bt.id=b.board_type_id inner join mcu_types as m ON m.id=bt.mcu_id ORDER BY last_connected_dt DESC LIMIT 1');
   bi = select_board.get() as IBoardInfo;
@@ -140,6 +136,8 @@ function getMostRecentlyConnectedBoardInfo(): void {
   bi.espIdfProjectDirectory = ai.espIdfProjectDirectory;
   bi.hostname_template = ai.hostname_template
   db.close();
+  console.log(`Compiling for an ${bi.mcu_name} on board ${bi.board_name} ${bi.board_version} with mac 0x${bi.mac_6char} or ${bi.mac} at port ${bi.last_connected_com_port}`)
+  cb();
 }
 
 

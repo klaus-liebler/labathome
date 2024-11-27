@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "gulp": "node --import tsx node_modules/gulp/bin/gulp",
-    "compileFB": "node --import tsx node_modules/gulp/bin/gulp compileAndDistributeFlatbuffers"
+    "compileFB": "node --import tsx node_modules/gulp/bin/gulp compileAndDistributeFlatbuffers",
+    "bfc": "node --import tsx node_modules/gulp/bin/gulp buildForCurrent"
   },
   "author": "",
   "license": "ISC",

@@ -5,19 +5,17 @@ import { FlowchartOperator, TypeInfo } from "./FlowchartOperator";
 import * as operatorimpl from "./FlowchartOperatorImpl";
 import { ColorNumColor2ColorDomString, EventCoordinatesInSVG, Html, KeyValueTuple, Severity, Svg } from "../utils/common";
 import { IAppManagement } from "../utils/interfaces";
-import { SerializeContext } from "./SerializeContext";
+import * as flatbuffers from 'flatbuffers';
 import { SimulationManager } from "./SimulationManager";
 import { FlowchartData, OperatorData, LinkData } from "./FlowchartData";
 import { FilelistDialog, FilenameDialog, OkDialog } from "../dialog_controller/dialog_controller";
-import { html } from "lit-html";
-
-const URL_PREFIX = "";
+import { Namespace, RequestFbdDelete, RequestFbdList, RequestFbdRun, RequestLoadDefaultJson, RequestLoadJson, RequestSaveDefaultJsonAndBin, RequestSaveJson, ResponseDebugData, ResponseFbdDelete, ResponseFbdList, ResponseFbdRun, ResponseLoadDefaultJson, ResponseLoadJson, Responses, ResponseSaveDefaultJsonAndBin, ResponseSaveJson, ResponseWrapper } from "../../generated/flatbuffers/functionblock";
 
 
 export class FlowchartOptions {
     canUserEditLinks: boolean = true;
     canUserMoveOperators: boolean = true;
-    
+
     distanceFromArrow: number = 3;
     defaultOperatorClass: string = 'flowchart-default-operator';
     defaultLinkColor: string = '#3366ff';
@@ -29,7 +27,7 @@ export class FlowchartOptions {
     linkVerticalDecal: number = 0;
 }
 
-export class FlowchartCallback{
+export class FlowchartCallback {
     onOperatorSelect?: (operatorId: string) => boolean;
     onOperatorUnselect?: () => boolean;
     onOperatorMouseOver?: (operatorId: string) => boolean;
@@ -47,6 +45,37 @@ export class FlowchartCallback{
 
 
 export class Flowchart {
+    OnMessage(namespace: number, bb: flatbuffers.ByteBuffer) {
+        if(namespace!=Namespace.Value) return;
+
+        let messageWrapper = ResponseWrapper.getRootAsResponseWrapper(bb)
+        switch (messageWrapper.responseType()) {
+            case Responses.ResponseDebugData:
+                this.onResponseDebugData(<ResponseDebugData>messageWrapper.response(new ResponseDebugData()));
+                break
+            case Responses.ResponseLoadDefaultJson:
+                this.onResponseLoadDefaultJson(<ResponseLoadDefaultJson>messageWrapper.response(new ResponseLoadDefaultJson()))
+                break
+            case Responses.ResponseSaveDefaultJsonAndBin:
+                this.onResponseSaveDefaultJsonAndBin(<ResponseSaveDefaultJsonAndBin>messageWrapper.response(new ResponseSaveDefaultJsonAndBin()))
+                break
+            case Responses.ResponseLoadJson:
+                this.onResponseLoadJson(<ResponseLoadJson>messageWrapper.response(new ResponseLoadJson()))
+                break
+            case Responses.ResponseSaveJson:
+                this.onResponseSaveJson(<ResponseSaveJson>messageWrapper.response(new ResponseSaveJson()))
+                break
+            case Responses.ResponseFbdList:
+                this.onResponseFbdList(<ResponseFbdList>messageWrapper.response(new ResponseFbdList()))
+                break
+            case Responses.ResponseFbdDelete:
+                this.onResponseFbdDelete(<ResponseFbdDelete>messageWrapper.response(new ResponseFbdDelete()))
+                break
+            case Responses.ResponseFbdRun:
+                this.onResponseFbdRun(<ResponseFbdRun>messageWrapper.response(new ResponseFbdRun()))
+                break
+        }
+    }
 
     private operatorRegistry: operatorimpl.OperatorRegistry;
     private simulationManager?: SimulationManager | null;
@@ -80,97 +109,76 @@ export class Flowchart {
     private markerArrow: SVGPathElement;
     private markerCircle: SVGCircleElement;
 
-    public triggerDebug() {
+    private onResponseDebugData(d: ResponseDebugData) {
         if (this.currentDebugInfo == null) return;
 
-        let xhr = new XMLHttpRequest;
-        xhr.onerror = (e) => { console.error("Fehler beim XMLHttpRequest!"); };
-        xhr.open("GET", URL_PREFIX + "/fbd", true);
-        xhr.responseType = "arraybuffer";
-        xhr.onload = (e) => {
-            if (this.currentDebugInfo == null) return;
-
-            let arrayBuffer = xhr.response; // Note: not oReq.responseText
-            if (!arrayBuffer || arrayBuffer.byteLength <= 16) {
-                console.error("! arrayBuffer || arrayBuffer.byteLength<16");
-                this.currentDebugInfo = null;
-                return;
-            }
-            let ctx = new SerializeContext(arrayBuffer);
-            let hash = ctx.readU32();
-            if (hash != this.currentDebugInfo.hash) {
-                console.error("hash!=this.currentDebugInfo.hash");
-                this.currentDebugInfo = null;
-                return;
-            }
-            let binaryCount = ctx.readU32();
-            for (let adressOffset = 0; adressOffset < binaryCount; adressOffset++) {
-                let value = ctx.readU32();
-                if (adressOffset < 2) continue;
-                let connectorType = ConnectorType.BOOLEAN
-                let map = this.currentDebugInfo.typeIndex2adressOffset2ListOfLinks.get(connectorType)!;
-                let linksToChange = map.get(adressOffset);
-                if (linksToChange === undefined) {
-                    console.error(`linksToColorize===undefined for connectorType ${connectorType} addressOffset ${adressOffset} and value ${value}`);
-                    continue;
-                }
-                linksToChange.forEach((e) => {
-                    e.SetColor(value == 1 ? "red" : "grey");
-                    e.SetCaption("" + value);
-                });
-            }
-
-            let integerCount = ctx.readU32();
-            for (let adressOffset = 0; adressOffset < integerCount; adressOffset++) {
-                let value = ctx.readS32();
-                if (adressOffset < 2) continue;
-                let connectorType = ConnectorType.INTEGER
-                let map = this.currentDebugInfo.typeIndex2adressOffset2ListOfLinks.get(connectorType)!;
-                let linksToChange = map.get(adressOffset);
-                if (linksToChange === undefined) {
-                    console.error(`linksToColorize===undefined for connectorType ${connectorType} addressOffset ${adressOffset} and value ${value}`);
-                    continue;
-                }
-                linksToChange.forEach((e) => {
-                    e.SetCaption("" + value);
-                });
-            }
-
-            let floatsCount = ctx.readU32();
-            for (let adressOffset = 0; adressOffset < floatsCount; adressOffset++) {
-                let value = ctx.readF32();
-                if (adressOffset < 2) continue;
-                let connectorType = ConnectorType.FLOAT
-                let map = this.currentDebugInfo.typeIndex2adressOffset2ListOfLinks.get(connectorType)!;
-                let linksToChange = map.get(adressOffset);
-                if (linksToChange === undefined) {
-                    console.error(`linksToColorize===undefined for connectorType ${connectorType} addressOffset ${adressOffset} and value ${value}`);
-                    continue;
-                }
-
-                linksToChange.forEach((e) => {
-                    e.SetCaption(value.toFixed(2));
-                });
-            }
-
-            let colorsCount = ctx.readU32();
-            for (let adressOffset = 0; adressOffset < colorsCount; adressOffset++) {
-                let value = ctx.readU32();
-                if (adressOffset < 2) continue;
-                let connectorType = ConnectorType.COLOR
-                let map = this.currentDebugInfo.typeIndex2adressOffset2ListOfLinks.get(connectorType)!;
-                let linksToChange = map.get(adressOffset);
-                if (linksToChange === undefined) {
-                    console.error(`linksToColorize===undefined for connectorType ${connectorType} addressOffset ${adressOffset} and value ${value}`);
-                    continue;
-                }
-                linksToChange.forEach((e) => {
-                    e.SetCaption("" + value);
-                    e.SetColor(ColorNumColor2ColorDomString(value));
-                });
-            }
+        if (d.debugInfoHash() != this.currentDebugInfo.hash) {
+            console.error("hash!=this.currentDebugInfo.hash");
+            this.currentDebugInfo = null;
+            return;
         }
-        xhr.send();
+        for (let adressOffset = 0; adressOffset < d.boolsLength(); adressOffset++) {
+            var value = d.bools(adressOffset);
+            if (adressOffset < 2) continue;
+
+            let connectorType = ConnectorType.BOOLEAN
+            let map = this.currentDebugInfo.typeIndex2adressOffset2ListOfLinks.get(connectorType)!;
+            let linksToChange = map.get(adressOffset);
+            if (linksToChange === undefined) {
+                console.error(`linksToColorize===undefined for connectorType ${connectorType} addressOffset ${adressOffset} and value ${value}`);
+                continue;
+            }
+            linksToChange.forEach((e) => {
+                e.SetColor(value ? "red" : "grey");
+                e.SetCaption("" + value);
+            });
+        }
+
+        for (let adressOffset = 0; adressOffset < d.integersLength(); adressOffset++) {
+            let value = d.integers(adressOffset);
+            if (adressOffset < 2) continue;
+            let connectorType = ConnectorType.INTEGER
+            let map = this.currentDebugInfo.typeIndex2adressOffset2ListOfLinks.get(connectorType)!;
+            let linksToChange = map.get(adressOffset);
+            if (linksToChange === undefined) {
+                console.error(`linksToColorize===undefined for connectorType ${connectorType} addressOffset ${adressOffset} and value ${value}`);
+                continue;
+            }
+            linksToChange.forEach((e) => {
+                e.SetCaption("" + value);
+            });
+        }
+
+        for (let adressOffset = 0; adressOffset < d.floatsLength(); adressOffset++) {
+            let value = d.floats(adressOffset)
+            if (adressOffset < 2) continue;
+            let connectorType = ConnectorType.FLOAT
+            let map = this.currentDebugInfo.typeIndex2adressOffset2ListOfLinks.get(connectorType)!;
+            let linksToChange = map.get(adressOffset);
+            if (linksToChange === undefined) {
+                console.error(`linksToColorize===undefined for connectorType ${connectorType} addressOffset ${adressOffset} and value ${value}`);
+                continue;
+            }
+            linksToChange.forEach((e) => {
+                e.SetCaption(value.toFixed(2));
+            });
+        }
+
+        for (let adressOffset = 0; adressOffset < d.colorsLength(); adressOffset++) {
+            let value = d.colors(adressOffset)
+            if (adressOffset < 2) continue;
+            let connectorType = ConnectorType.COLOR
+            let map = this.currentDebugInfo.typeIndex2adressOffset2ListOfLinks.get(connectorType)!;
+            let linksToChange = map.get(adressOffset);
+            if (linksToChange === undefined) {
+                console.error(`linksToColorize===undefined for connectorType ${connectorType} addressOffset ${adressOffset} and value ${value}`);
+                continue;
+            }
+            linksToChange.forEach((e) => {
+                e.SetCaption("" + value);
+                e.SetColor(ColorNumColor2ColorDomString(value));
+            });
+        }
     }
 
     public _notifyGlobalMousemoveWithLink(e: MouseEvent) {
@@ -258,7 +266,6 @@ export class Flowchart {
         link.SetColor(this.options.defaultSelectedLinkColor);
     }
 
-
     private deleteSelectedThing(): void {
         if (this.selectedOperator) {
             this.DeleteOperator(this.selectedOperator.GlobalOperatorIndex);
@@ -288,7 +295,6 @@ export class Flowchart {
     }
 
     private saveJSONToLocalFile() {
-
         let text = this.fbd2json();
         let filename = "functionBlockDiagram.json";
         var element = document.createElement('a');
@@ -301,7 +307,6 @@ export class Flowchart {
     }
 
     private saveBinToLocalFile() {
-        let text = this.fbd2json();
         let compilerInstance = new FlowchartCompiler(this.operators);
         let binFile = compilerInstance.Compile();
         let blob = new Blob([new Uint8Array(binFile.buf, 0, binFile.buf.byteLength)], { type: "octet/stream" });
@@ -327,106 +332,94 @@ export class Flowchart {
         reader.readAsText(files[0]);
     }
 
-    private put2fbd(buf: ArrayBuffer) {
-        let xhr = new XMLHttpRequest;
-        xhr.open("PUT", URL_PREFIX + "/fbd", true);
-        xhr.onloadend = (e) => {
-            if (xhr.status != 200) {
-                this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `HTTP Error ${xhr.status}`));
-                return;
-            }
-            this.appManagement.ShowDialog(new OkDialog(Severity.SUCCESS, `Successfully saved`));
-        }
-        xhr.onerror = (e) => {
-            this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `Generic Error`));
-        }
-        xhr.send(buf);
+    private compileAndSendBin2Run() {
+        let compilerInstance = new FlowchartCompiler(this.operators);
+        let guidAndBufAndMap: HashAndBufAndMaps = compilerInstance.Compile();
+        this.currentDebugInfo = guidAndBufAndMap;
+        let b = new flatbuffers.Builder(1024);
+        b.finish(RequestFbdRun.createRequestFbdRun(b,RequestFbdRun.createBinVector(b, new Uint8Array(guidAndBufAndMap.buf) )));
+        this.appManagement.WrapAndSend(Namespace.Value, b, 3000);
     }
 
-    private saveJSONToLabathomeFile() {
+    private onResponseFbdRun(m:ResponseFbdRun){
+        this.appManagement.ShowSnackbar(Severity.SUCCESS,`File now runs on Lab@Home`);
+    }
 
-        this.appManagement.ShowDialog(new FilenameDialog("Enter filename (without Extension", (ok: boolean, filename: string) => {
+    private saveJSONToLabathome() {
+        this.appManagement.ShowDialog(new FilenameDialog("Enter filename (without Extension!)", (ok: boolean, filename: string) => {
             if (!ok) return;
-            let xhr_json = new XMLHttpRequest;
-            xhr_json.open("POST", URL_PREFIX + "/fbdstorejson/" + filename, true);
-            xhr_json.onloadend = (e) => {
-                if (xhr_json.status != 200) {
-                    this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `HTTP Error ${xhr_json.status}`));
-                    return;
-                }
-                this.appManagement.ShowDialog(new OkDialog(Severity.SUCCESS, `Successfully saved`));
-            }
-            xhr_json.onerror = (e) => { this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `Generic Error`)); }
-            xhr_json.send(this.fbd2json());
+            let b = new flatbuffers.Builder(1024);
+            b.finish(RequestSaveJson.createRequestSaveJson(b, b.createString(filename), b.createString(this.fbd2json())));
+            this.appManagement.WrapAndSend(Namespace.Value, b, 3000);
         }));
-
     }
 
-    private saveJSONandBINToLabathomeDefaultFile(buf: ArrayBuffer) {
-        let xhr_bin = new XMLHttpRequest();
-        xhr_bin.open("POST", URL_PREFIX + "/fbddefaultbin", true);
-        xhr_bin.onloadend = (e) => {
-            if (xhr_bin.status != 200) {
-                this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `HTTP Error ${xhr_bin.status}`));
-                return;
-            }
-            let xhr_json = new XMLHttpRequest();
-            xhr_json.open("POST", URL_PREFIX + "/fbddefaultjson", true);
-            xhr_json.onloadend = (e) => {
-                if (xhr_json.status != 200) {
-                    this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `HTTP Error ${xhr_json.status}`));
-                    return;
-                }
-                this.appManagement.ShowDialog(new OkDialog(Severity.SUCCESS, `Successfully set a new default FBD`));
-            }
-            xhr_json.onerror = (e) => { this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `Generic Error`)); }
-            xhr_json.send(this.fbd2json())
-        }
-        xhr_bin.onerror = (e) => { this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `Generic Error`)); }
-        xhr_bin.send(buf);
+    private onResponseSaveJson(m:ResponseSaveJson){
+        this.appManagement.ShowSnackbar(Severity.SUCCESS,`File saved successfully`);
+    }
+
+    private saveJSONandBINToLabathomeDefaultFile() {
+        let compilerInstance = new FlowchartCompiler(this.operators);
+        let guidAndBufAndMap: HashAndBufAndMaps = compilerInstance.Compile();
+        let b = new flatbuffers.Builder(1024);
+        b.finish(RequestSaveDefaultJsonAndBin.createRequestSaveDefaultJsonAndBin(
+            b, 
+            b.createString(this.fbd2json()), 
+            RequestSaveDefaultJsonAndBin.createBinVector(b, new Uint8Array(guidAndBufAndMap.buf))));
+        this.appManagement.WrapAndSend(Namespace.Value, b, 3000);
+    }
+
+    private onResponseSaveDefaultJsonAndBin(m:ResponseSaveDefaultJsonAndBin){
+        this.appManagement.ShowSnackbar(Severity.SUCCESS,`File saved successfully`);
     }
 
     private openJSONFromLabathome() {
-        let xhr = new XMLHttpRequest;
-        xhr.open("GET", URL_PREFIX + "/fbdstorejson/", true);//GET without filename, but with "/" at the end!!!
-        xhr.onload = (e) => {
-            let s = xhr.responseText;
-            let data = <string[]>JSON.parse(s);
-            this.appManagement.ShowDialog(new FilelistDialog(data,
-                (ok: boolean, filename: string) => {
-                    if (!ok) return;
-                    let xhr = new XMLHttpRequest;
-                    xhr.open("GET", URL_PREFIX + "/fbdstorejson/" + filename, true); //GET with the filename selected in the dialog
-                    xhr.onload = (e) => {
-                        let s = xhr.responseText;
-                        let data = <FlowchartData>JSON.parse(s);
-                        this.setData(data);
-                    }
-                    xhr.send();
-                },
-                (ok: boolean, filename: string) => {
-                    if (!ok) return;
-                    let xhr = new XMLHttpRequest;
-                    xhr.open("DELETE", URL_PREFIX + "/fbdstorejson/" + filename, true); //GET with the filename selected in the dialog
-                    xhr.onloadend = (e) => {
-                        this.appManagement.ShowDialog(new OkDialog(1, `File ${filename} deleted successfully`));
-                    }
-                    xhr.send();
-                }
-            ));
+        let b = new flatbuffers.Builder(1024);
+        b.finish(RequestFbdList.createRequestFbdList(b))
+        this.appManagement.WrapAndSend(Namespace.Value, b, 3000);
+    }
+    private onResponseFbdList(l:ResponseFbdList){
+        var filesArr=new Array<string>();
+        for(var i=0; i<l.filesLength();i++){
+            filesArr.push(l.files(i))
         }
-        xhr.send();
+        this.appManagement.ShowDialog(new FilelistDialog(filesArr,
+            (ok: boolean, filename: string) => {
+                if (!ok) return;
+                let b = new flatbuffers.Builder(1024);
+                b.finish(RequestLoadJson.createRequestLoadJson(b, b.createString(filename)))
+                this.appManagement.WrapAndSend(Namespace.Value, b, 3000);
+            },
+            (ok: boolean, filename: string) => {
+                if (!ok) return;
+                let b = new flatbuffers.Builder(1024);
+                b.finish(RequestFbdDelete.createRequestFbdDelete(b, b.createString(filename)))
+                this.appManagement.WrapAndSend(Namespace.Value, b, 3000);
+            }
+        ));
     }
 
+    private onResponseFbdDelete(d:ResponseFbdDelete){
+        this.appManagement.ShowSnackbar(Severity.SUCCESS,`File deleted successfully`);
+    }
+
+    private onResponseLoadJson(l:ResponseLoadJson){
+        let data = <FlowchartData>JSON.parse(l.json());
+        this.setData(data);
+            
+    }
+    
+
     private openDefaultJSONFromLabathome() {
-        let xhr = new XMLHttpRequest;
-        xhr.open("GET", URL_PREFIX + "/fbddefaultjson", true);
-        xhr.onload = (e) => {
-            let s = xhr.responseText;
-            let data = <FlowchartData>JSON.parse(s);
-            this.setData(data);
-        }
-        xhr.send();
+        let b = new flatbuffers.Builder(1024);
+        b.finish(RequestLoadDefaultJson.createRequestLoadDefaultJson(b))
+        this.appManagement.WrapAndSend(Namespace.Value, b, 3000);
+    }
+
+    private onResponseLoadDefaultJson(l:ResponseLoadDefaultJson){
+        let data = <FlowchartData>JSON.parse(l.json());
+        this.setData(data);
+            
     }
 
     private buildMenu(subcontainer: HTMLDivElement) {
@@ -464,7 +457,7 @@ export class Flowchart {
 
         Html(menuFileDropContent, "a", ["href", "#"], [], "💾 Save (labathome)").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
-            this.saveJSONToLabathomeFile();
+            this.saveJSONToLabathome();
             e.preventDefault();
         }
         Html(menuFileDropContent, "a", ["href", "#"], [], "💾 Save Bin (Local)").onclick = (e) => {
@@ -483,17 +476,12 @@ export class Flowchart {
         };
         Html(menuDebugDropContent, "a", ["href", "#"], [], "☭ Run Now").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
-            let compilerInstance = new FlowchartCompiler(this.operators);
-            let guidAndBufAndMap: HashAndBufAndMaps = compilerInstance.Compile();
-            this.currentDebugInfo = guidAndBufAndMap;
-            this.put2fbd(guidAndBufAndMap.buf);
+            this.compileAndSendBin2Run();
             e.preventDefault();
         }
         Html(menuDebugDropContent, "a", ["href", "#"], [], "👣 Set as Startup-App").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
-            let compilerInstance = new FlowchartCompiler(this.operators);
-            let guidAndBufAndMap: HashAndBufAndMaps = compilerInstance.Compile();
-            this.saveJSONandBINToLabathomeDefaultFile(guidAndBufAndMap.buf);
+            this.saveJSONandBINToLabathomeDefaultFile();
             e.preventDefault();
         }
         let menuSimulation = Html(toolbar, "div", [], ["dropdown"]);
@@ -519,7 +507,7 @@ export class Flowchart {
         //let menuDebugLink3 = $.Html(menuDebugDropContent, "a", ["href", "#"], [], "◯ Erase");
     }
 
-    public RenderUi(subcontainer: HTMLDivElement){
+    public RenderUi(subcontainer: HTMLDivElement) {
         if (!subcontainer) throw new Error("container is null");
         //let subcontainer = <HTMLDivElement>Html(container, "div", [], ["develop-ui"]);
         subcontainer.onclick = (e) => {
@@ -596,8 +584,8 @@ export class Flowchart {
         this.recreateFlowchartFromData();
     }
 
-    constructor(private appManagement: IAppManagement, private flowchartData:FlowchartData = null, private flowchartCallbacks:FlowchartCallback, private options: FlowchartOptions) { 
-        this.operatorRegistry = operatorimpl.OperatorRegistry.Build(); 
+    constructor(private appManagement: IAppManagement, private flowchartData: FlowchartData = null, private flowchartCallbacks: FlowchartCallback, private options: FlowchartOptions) {
+        this.operatorRegistry = operatorimpl.OperatorRegistry.Build();
     }
 
 
@@ -616,11 +604,11 @@ export class Flowchart {
     }
 
     public setData(data: FlowchartData) {
-        this.flowchartData=data;
+        this.flowchartData = data;
         this.recreateFlowchartFromData();
 
     }
-    private recreateFlowchartFromData(){
+    private recreateFlowchartFromData() {
 
         this.links.forEach((e) => e.RemoveFromDOM());
         this.links.clear();

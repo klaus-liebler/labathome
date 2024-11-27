@@ -44,6 +44,7 @@ export abstract class FlowchartOperator {
     private outputSvgG:SVGGElement;
     get OutputSvgG(): SVGGElement { return this.outputSvgG;}
     private debugInfoSvgText:SVGTextElement;
+    private lastMouseDownDt:number=0;;
 
     get TypeInfo(){return this.typeInfo;}
 
@@ -123,9 +124,16 @@ export abstract class FlowchartOperator {
         this.outputSvgG= <SVGGElement>Svg(this.elementSvgG,"g", ["transform", "translate(140 50)"], ["operator-outputs"]);
 
 
-        this.elementSvgG.onclick = (e) => {
-            console.log("FlowchartOperator this.elementSvgG.onclick");
-            parent._notifyOperatorClicked(this, e);
+        this.elementSvgG.onmousedown = (e) => {
+            this.lastMouseDownDt=Date.now()
+            //console.log(`FlowchartOperator ${this.Caption} onmousedown ${this.lastMouseDownDt}`);
+        };
+        this.elementSvgG.onmouseup = (e) => {
+            var diff = Date.now()-this.lastMouseDownDt
+            //console.log(`FlowchartOperator ${this.Caption} onmouseup diff=${diff}`);
+            if(diff<400){
+                parent._notifyOperatorClicked(this, e);
+            }
         };
         
         if (this.parent.Options.canUserMoveOperators) {

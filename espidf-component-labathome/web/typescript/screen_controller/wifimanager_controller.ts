@@ -1,7 +1,7 @@
 
 import { ScreenController } from "./screen_controller";
 import * as flatbuffers from 'flatbuffers';
-import { RequestNetworkInformation, RequestWifiConnect, RequestWifiDisconnect, Requests, Responses, ResponseNetworkInformation, ResponseWifiConnect, ResponseWrapper } from "../../generated/flatbuffers/wifimanager";
+import { Namespace, RequestNetworkInformation, RequestWifiConnect, RequestWifiDisconnect, Requests, Responses, ResponseNetworkInformation, ResponseWifiConnect, ResponseWrapper } from "../../generated/flatbuffers/wifimanager";
 import { Severity, ip4_2_string } from "../utils/common";
 //import icon_lock from '../../assets/icon-lock.svg'
 import { TemplateResult, html, render } from "lit-html";
@@ -9,7 +9,7 @@ import { Ref, createRef, ref } from "lit-html/directives/ref.js";
 import { unsafeSVG } from "lit-html/directives/unsafe-svg.js";
 import { OkCancelDialog, OkDialog, PasswordDialog } from "../dialog_controller/dialog_controller";
 
-const FLATBUFFERS_NAMESPACE = 1
+
 
 const icon_lock = '<svg width="24" height="24" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path style="fill: black;" d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"></path></svg>'
 export class WifimanagerController extends ScreenController {
@@ -137,13 +137,13 @@ export class WifimanagerController extends ScreenController {
     private sendRequestWifiAccesspoints(forceNewSearch: boolean) {
         let b = new flatbuffers.Builder(1024);
         b.finish(RequestNetworkInformation.createRequestNetworkInformation(b, forceNewSearch))
-        this.appManagement.WrapAndSend(FLATBUFFERS_NAMESPACE, b, 30000);
+        this.appManagement.WrapAndSend(Namespace.Value, b, 30000);
     }
 
     private sendRequestWifiConnect(ssid: string, password: string) {
         let b = new flatbuffers.Builder(1024);
         b.finish(RequestWifiConnect.createRequestWifiConnect(b, b.createString(ssid), b.createString(password)))
-        this.appManagement.WrapAndSend(FLATBUFFERS_NAMESPACE, b, 30000);
+        this.appManagement.WrapAndSend(Namespace.Value, b, 30000);
     }
 
     private onBtnWifiDisconnect() {
@@ -152,13 +152,13 @@ export class WifimanagerController extends ScreenController {
 
     private sendRequestWifiDisconnect() {
         let b = new flatbuffers.Builder(1024);
-        b.finish(RequestWifiDisconnect.createRequestWifiDisconnect(b),)
-        this.appManagement.WrapAndSend(FLATBUFFERS_NAMESPACE, b, 30000);
+        b.finish(RequestWifiDisconnect.createRequestWifiDisconnect(b))
+        this.appManagement.WrapAndSend(Namespace.Value, b, 30000);
 
     }
 
     OnCreate(): void {
-        this.appManagement.RegisterWebsocketMessageNamespace(this, FLATBUFFERS_NAMESPACE);
+        this.appManagement.RegisterWebsocketMessageNamespace(this, Namespace.Value);
     }
 
     OnFirstStart(): void {
@@ -228,8 +228,8 @@ export class WifimanagerController extends ScreenController {
     }
 
     OnMessage(namespace: number, bb: flatbuffers.ByteBuffer): void {
+        if (namespace != Namespace.Value) return
         let messageWrapper = ResponseWrapper.getRootAsResponseWrapper(bb)
-        if (namespace != FLATBUFFERS_NAMESPACE) return
         switch (messageWrapper.responseType()) {
             case Responses.ResponseNetworkInformation:
                 this.onResponseNetworkInformation(<ResponseNetworkInformation>messageWrapper.response(new ResponseNetworkInformation()));

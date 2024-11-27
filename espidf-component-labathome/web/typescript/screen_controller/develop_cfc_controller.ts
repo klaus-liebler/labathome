@@ -7,12 +7,18 @@ import { createRef, ref, Ref } from "lit-html/directives/ref.js";
 import { ByteBuffer } from "flatbuffers";
 
 
+import { Namespace, ResponseDebugData, Responses, ResponseWrapper} from "../../generated/flatbuffers/functionblock";
 
 
 export class DevelopCFCController extends ScreenController {
     
-    OnMessage(_namespace: number, _bb: ByteBuffer): void {
-        
+    OnMessage(namespace: number, bb: ByteBuffer): void {
+        if(namespace!=Namespace.Value) return;
+        let messageWrapper = ResponseWrapper.getRootAsResponseWrapper(bb)
+        switch (messageWrapper.responseType()) {
+            case Responses.ResponseDebugData:
+                this.fc.OnResponseDebugData(<ResponseDebugData>messageWrapper.response(new ResponseDebugData()));
+        }
     }
     private mainDiv:Ref<HTMLInputElement> = createRef();
     private fc: Flowchart;

@@ -1,4 +1,4 @@
-import { Mac6, RequestRestart, RequestSystemData, ResponseSystemData, Responses } from "../../generated/flatbuffers/system";
+import {Namespace, Mac6, RequestRestart, RequestSystemData, ResponseSystemData, Responses } from "../../generated/flatbuffers/system";
 
 
 import { ScreenController } from "./screen_controller";
@@ -11,7 +11,6 @@ import { html } from "lit-html";
 import { Ref, createRef, ref } from "lit-html/directives/ref.js";
 import { OkCancelDialog, OkDialog } from "../dialog_controller/dialog_controller";
 
-const FLATBUFFERS_NAMESPACE = 2
 
 export class SystemController extends ScreenController {
     private btnUpload:Ref<HTMLInputElement> = createRef();
@@ -25,13 +24,13 @@ export class SystemController extends ScreenController {
     private sendRequestRestart() {
         let b = new flatbuffers.Builder(1024);
         b.finish(RequestRestart.createRequestRestart(b))
-        this.appManagement.WrapAndSend(FLATBUFFERS_NAMESPACE, b);
+        this.appManagement.WrapAndSend(Namespace.Value, b);
     }
 
     private sendRequestSystemdata() {
         let b = new flatbuffers.Builder(1024);
         b.finish(RequestSystemData.createRequestSystemData(b))
-        this.appManagement.WrapAndSend(FLATBUFFERS_NAMESPACE, b, 30000);
+        this.appManagement.WrapAndSend(Namespace.Value, b, 30000);
     }
 
     partitionString(original: string | null, def: string) {
@@ -40,6 +39,7 @@ export class SystemController extends ScreenController {
 
     public OnMessage(namespace:number, bb: flatbuffers.ByteBuffer): void {
 
+        if(namespace!=Namespace.Value) return;
         let sd = ResponseSystemData.getRootAsResponseSystemData(bb)
         this.tblParameters.value!.textContent = "";
 
@@ -133,7 +133,7 @@ export class SystemController extends ScreenController {
     }
 
     OnCreate(): void {
-        this.appManagement.RegisterWebsocketMessageNamespace(this, FLATBUFFERS_NAMESPACE);
+        this.appManagement.RegisterWebsocketMessageNamespace(this, Namespace.Value);
 
     }
     OnFirstStart(): void {

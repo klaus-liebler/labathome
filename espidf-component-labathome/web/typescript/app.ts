@@ -1,24 +1,21 @@
-import "../style/app.css"
 import { TemplateResult, html, render } from "lit-html";
+import "../style/app.css";
 
 import { Ref, createRef, ref } from "lit-html/directives/ref.js";
 import { HeaterExperimentController } from "./screen_controller/heater_experiment_controller";
 
-import { DevelopCFCController } from "./screen_controller/develop_cfc_controller";
-import { PtnExperimentController } from "./PtnExperimentController";
-import { AirspeedExperimentController } from "./AirspeedExperimentController";
-import { FFTExperimentController } from "./FFTExperimentController";
-import { WifimanagerController } from "./screen_controller/wifimanager_controller";
-import { Chatbot } from "./chatbot";
-import { IAppManagement, IWebsocketMessageListener } from "./utils/interfaces";
-import { DefaultScreenController, ScreenController } from "./screen_controller/screen_controller";
-import { runCarRace } from "./screen_controller/racinggame_controller";
-import { FilenameDialog, PasswordDialog, OkDialog, OkCancelDialog, DialogController } from "./dialog_controller/dialog_controller";
-import { SystemController } from "./screen_controller/system_controller";
-import { Severity, Html, severity2class, severity2symbol } from "./utils/common";
-import RouterMenu, { IRouteHandler, Route } from "./utils/routermenu";
 import * as flatbuffers from "flatbuffers";
+import { Chatbot } from "./chatbot";
+import { DialogController, OkDialog } from "./dialog_controller/dialog_controller";
+import { DevelopCFCController } from "./screen_controller/develop_cfc_controller";
+import { runCarRace } from "./screen_controller/racinggame_controller";
+import { DefaultScreenController, ScreenController } from "./screen_controller/screen_controller";
+import { SystemController } from "./screen_controller/system_controller";
+import { WifimanagerController } from "./screen_controller/wifimanager_controller";
+import { Html, Severity, severity2class, severity2symbol } from "./utils/common";
 import { WS_URL } from "./utils/constants";
+import { IAppManagement, IWebsocketMessageListener } from "./utils/interfaces";
+import RouterMenu, { IRouteHandler, Route } from "./utils/routermenu";
 
 
 class Router2ContentAdapter implements IRouteHandler {
@@ -221,16 +218,18 @@ class AppController implements IAppManagement {
     runCarRace(el);
   }
 
+  
   public Startup(screenControllersBuilder: (app: AppController) => void) {
     screenControllersBuilder(this);
     const Template = html`
-            <header><span @click=${() => this.easteregg()}> Lab@Home WebUI</span></header>
+            <header style="background-image: url('data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnICB3aWR0aD0nNTU5JyBoZWlnaHQ9JzY3LjEnIHZpZXdCb3g9JzAgMCAxMDAwIDEyMCc+PHJlY3QgZmlsbD0nI0ZGRkZGRicgd2lkdGg9JzEwMDAnIGhlaWdodD0nMTIwJy8+PGcgIGZpbGw9J25vbmUnIHN0cm9rZT0nI0M5RUVENicgc3Ryb2tlLXdpZHRoPScxNCcgc3Ryb2tlLW9wYWNpdHk9JzEnPjxwYXRoIGQ9J00tNTAwIDc1YzAgMCAxMjUtMzAgMjUwLTMwUzAgNzUgMCA3NXMxMjUgMzAgMjUwIDMwczI1MC0zMCAyNTAtMzBzMTI1LTMwIDI1MC0zMHMyNTAgMzAgMjUwIDMwczEyNSAzMCAyNTAgMzBzMjUwLTMwIDI1MC0zMCcvPjxwYXRoIGQ9J00tNTAwIDQ1YzAgMCAxMjUtMzAgMjUwLTMwUzAgNDUgMCA0NXMxMjUgMzAgMjUwIDMwczI1MC0zMCAyNTAtMzBzMTI1LTMwIDI1MC0zMHMyNTAgMzAgMjUwIDMwczEyNSAzMCAyNTAgMzBzMjUwLTMwIDI1MC0zMCcvPjxwYXRoIGQ9J00tNTAwIDEwNWMwIDAgMTI1LTMwIDI1MC0zMFMwIDEwNSAwIDEwNXMxMjUgMzAgMjUwIDMwczI1MC0zMCAyNTAtMzBzMTI1LTMwIDI1MC0zMHMyNTAgMzAgMjUwIDMwczEyNSAzMCAyNTAgMzBzMjUwLTMwIDI1MC0zMCcvPjxwYXRoIGQ9J00tNTAwIDE1YzAgMCAxMjUtMzAgMjUwLTMwUzAgMTUgMCAxNXMxMjUgMzAgMjUwIDMwczI1MC0zMCAyNTAtMzBzMTI1LTMwIDI1MC0zMHMyNTAgMzAgMjUwIDMwczEyNSAzMCAyNTAgMzBzMjUwLTMwIDI1MC0zMCcvPjxwYXRoIGQ9J00tNTAwLTE1YzAgMCAxMjUtMzAgMjUwLTMwUzAtMTUgMC0xNXMxMjUgMzAgMjUwIDMwczI1MC0zMCAyNTAtMzBzMTI1LTMwIDI1MC0zMHMyNTAgMzAgMjUwIDMwczEyNSAzMCAyNTAgMzBzMjUwLTMwIDI1MC0zMCcvPjxwYXRoIGQ9J00tNTAwIDEzNWMwIDAgMTI1LTMwIDI1MC0zMFMwIDEzNSAwIDEzNXMxMjUgMzAgMjUwIDMwczI1MC0zMCAyNTAtMzBzMTI1LTMwIDI1MC0zMHMyNTAgMzAgMjUwIDMwczEyNSAzMCAyNTAgMzBzMjUwLTMwIDI1MC0zMCcvPjwvZz48L3N2Zz4=');"><span @click=${() => this.easteregg()}> Lab@Home WebUI</span></header>
             <nav>${this.menu.Template()}<a href="javascript:void(0);" @click=${() => this.menu.ToggleHamburgerMenu()}><i>≡</i></a></nav>
             <main ${ref(this.mainRef)}></main>
             <footer>Klaus Liebler, &copy;2024 ${__APP_NAME__}</footer>
             <div ${ref(this.modalSpinner)} class="modal"><span class="loader"></span></div>
             <div id="snackbar">Some text some message..</div>
-            <div ${ref(this.dialog)}></div>`
+            <div ${ref(this.dialog)}></div>
+            ${this.chatbot.Template()}`
     render(Template, document.body);
     console.log(`Connecting to ${WS_URL}`)
     this.socket = new WebSocket(WS_URL)
