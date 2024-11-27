@@ -1,12 +1,14 @@
 
 import { CategoryScale, Chart, LinearScale, LineController, LineElement, PointElement } from 'chart.js';
-import { SerializeContext } from "../flowchart/SerializeContext";
 import { ScreenController } from './screen_controller';
 import { Html, HtmlAsFirstChild } from '../utils/common';
 import { IAppManagement } from '../utils/interfaces';
 import { html } from 'lit-html';
 import { ByteBuffer } from 'flatbuffers';
 import { createRef, ref, Ref } from 'lit-html/directives/ref.js';
+import * as flatbuffers from 'flatbuffers';
+import { Mode, Namespace, RequestHeater, ResponseHeater } from "../../generated/flatbuffers/heaterexperiment";
+
 
 export let DE_de = new Intl.NumberFormat('de-DE');
 export const CHART_EACH_INTERVAL = 2;
@@ -36,7 +38,7 @@ export class HeaterExperimentController extends ScreenController {
     private chartCanvas: Ref<HTMLCanvasElement> = createRef();
 
     private counter = 10 ^ 6;
-    private mode: number = -1;
+    private mode: Mode = Mode.FunctionBlock;
     private seconds = 0;
 
     private recording = false;
@@ -46,21 +48,21 @@ export class HeaterExperimentController extends ScreenController {
             <label>Main Controls</label>
             <div class="mode_toggler">
               <label>
-                <input type="radio" name="heaterexperiment_mode" @click=${() => {this.onModeChange(0)}} value="0" checked />
+                <input type="radio" name="heaterexperiment_mode" @click=${() => {this.onModeChange(Mode.FunctionBlock)}} checked />
                 <div class="functionblock box">
                   <span>Functionblock</span>
                 </div>
               </label>
 
               <label>
-                <input type="radio" name="heaterexperiment_mode" @click=${() => {this.onModeChange(1)}} value="1" />
+                <input type="radio" name="heaterexperiment_mode" @click=${() => {this.onModeChange(Mode.OpenLoop)}}  />
                 <div class="openloop box">
                   <span>Open Loop</span>
                 </div>
               </label>
 
               <label>
-                <input type="radio" name="heaterexperiment_mode" @click=${() => {this.onModeChange(2)}} value="2" />
+                <input type="radio" name="heaterexperiment_mode" @click=${() => {this.onModeChange(Mode.ClosedLoop)}}  />
                 <div class="closedloop box">
                   <span>Closed Loop</span>
                 </div>
@@ -237,9 +239,52 @@ public OnFirstStart(): void {
     }
 
 
-    public OnMessage(_namespace: number, _bb: ByteBuffer): void {
+    public OnMessage(namespace: number, bb: ByteBuffer): void {
+        if(namespace!=Namespace.Value) return;
+        let r = ResponseHeater.getRootAsResponseHeater(bb);
 
+              
+        var now = new Date(Date.now());
+
+        if (this.recording) {
+            let tr = HtmlAsFirstChild(this.tbody.value!, "tr", []);
+            for (let i = 0; i < 6; i++) {
+                Html(tr, "td", [], [], this.tfirstRow.value!.children[i].textContent!);
+            }
+            if (this.counter >= CHART_EACH_INTERVAL) {
+                if (this.chart.data!.labels!.length > 100) {
+                    this.chart.data!.labels?.shift();
+                    this.chart.data!.datasets!.forEach((dataset) => {
+                        dataset!.data!.shift();
+                    });
+                }
+                this.chart.data!.labels!.push(now.toLocaleTimeString("de-DE"));
+                this.chart.data?.datasets![0].data?.push(r.setpointTemperatureDegrees());
+                this.chart.data?.datasets![1].data?.push(r.actualTemperatureDegrees());
+                this.chart.data?.datasets![2].data?.push(r.heaterPowerPercent());
+                this.chart.data?.datasets![3].data?.push(r.fanSpeedPercent());
+                //this.setpointTemperatureValues.push(SetpointTemperature)
+                //this.heaterValues.push(Heater);
+                //this.fanValues.push(Fan);
+                //this.actualTemperatureValues.push(ActualTemperature);
+                this.chart.update();
+                //FIXME this.chartData = {labels:this.dateValues, series: [this.setpointTemperatureValues, this.actualTemperatureValues, this.heaterValues, this.fanValues,],};
+                //FIXME this.chart.update(this.chartData);
+                this.counter = 0;
+            }
+            this.counter++;
+            this.seconds++;
+        }
+
+        this.tfirstRow.value!.children[0].textContent = now.toLocaleTimeString("de-DE");
+        this.tfirstRow.value!.children[1].textContent = DE_de.format(this.seconds);
+        this.tfirstRow.value!.children[2].textContent = DE_de.format(r.setpointTemperatureDegrees());
+        this.tfirstRow.value!.children[3].textContent = DE_de.format(r.actualTemperatureDegrees());
+        this.tfirstRow.value!.children[4].textContent = DE_de.format(r.heaterPowerPercent());
+        this.tfirstRow.value!.children[5].textContent = DE_de.format(r.fanSpeedPercent());
     }
+
+    
     private resetData() {
         this.chart.data!.labels = [];
         this.chart.data!.datasets!.forEach((dataset) => {
@@ -250,7 +295,7 @@ public OnFirstStart(): void {
         this.seconds = 0;
     }
     
-    private onModeChange(newMode: number) {
+    private onModeChange(newMode: Mode) {
         if(newMode==this.mode) return;
         switch (newMode) {
             case 0:
@@ -282,91 +327,23 @@ public OnFirstStart(): void {
     }
 
     private sendAndReceive() {
-        let buffer = new ArrayBuffer(256);
-        let ctx = new SerializeContext(buffer);
-        ctx.writeU32(this.mode);
-        if (this.mode == 0) {
-            ctx.writeF32(0);
-            ctx.writeF32(0);
-        } else if (this.mode == 1) {
-            ctx.writeF32(this.inputSetpointHeater.value!.valueAsNumber);
-            ctx.writeF32(this.inputFanOL.value!.valueAsNumber);
-        }
-        else {
-            ctx.writeF32(this.inputSetpointTemperature.value!.valueAsNumber);
-            ctx.writeF32(this.inputFanCL.value!.valueAsNumber);
-        }
-        ctx.writeF32(this.inputKP.value!.valueAsNumber);
-        ctx.writeF32(this.inputTN.value!.valueAsNumber);
-        ctx.writeF32(this.inputTV.value!.valueAsNumber);
-        ctx.writeU32(this.inputReset.value!.checked ? 1 : 0);
-        ctx.writeF32(this.inputWP.value!.valueAsNumber);
-        let xhr = new XMLHttpRequest;
-        xhr.onerror = (e) => { console.log("Fehler beim XMLHttpRequest!"); };
-        xhr.open("PUT", "/heaterexperiment", true);
-        xhr.responseType = "arraybuffer";
-        xhr.onload = (e) => {
-            let SetpointTemperature: number, Heater: number, Fan: number, ActualTemperature: number;
-            let arrayBuffer = xhr.response; // Note: not oReq.responseText
-            if (!arrayBuffer || arrayBuffer.byteLength != 4 + 4 + 4 + 4) {
-                console.error("! arrayBuffer || arrayBuffer.byteLength!=4+4+4+4");
-                SetpointTemperature = 0;
-                Heater = 0;
-                Fan = 0;
-                ActualTemperature = 20 + (-5 + 10 * Math.random());
-            }
-            else {
-                let ctx = new SerializeContext(arrayBuffer);
-                SetpointTemperature = ctx.readF32();
-                Heater = ctx.readF32();
-                Fan = ctx.readF32();
-                ActualTemperature = ctx.readF32();
-            }
-            let now = new Date(Date.now());
-
-            if (this.recording) {
-                let tr = HtmlAsFirstChild(this.tbody.value!, "tr", []);
-                for (let i = 0; i < 6; i++) {
-                    Html(tr, "td", [], [], this.tfirstRow.value!.children[i].textContent!);
-                }
-                if (this.counter >= CHART_EACH_INTERVAL) {
-                    if (this.chart.data!.labels!.length > 100) {
-                        this.chart.data!.labels?.shift();
-                        this.chart.data!.datasets!.forEach((dataset) => {
-                            dataset!.data!.shift();
-                        });
-                    }
-                    this.chart.data!.labels!.push(now.toLocaleTimeString("de-DE"));
-                    this.chart.data?.datasets![0].data?.push(SetpointTemperature);
-                    this.chart.data?.datasets![1].data?.push(ActualTemperature);
-                    this.chart.data?.datasets![2].data?.push(Heater);
-                    this.chart.data?.datasets![3].data?.push(Fan);
-                    //this.setpointTemperatureValues.push(SetpointTemperature)
-                    //this.heaterValues.push(Heater);
-                    //this.fanValues.push(Fan);
-                    //this.actualTemperatureValues.push(ActualTemperature);
-                    this.chart.update();
-                    //FIXME this.chartData = {labels:this.dateValues, series: [this.setpointTemperatureValues, this.actualTemperatureValues, this.heaterValues, this.fanValues,],};
-                    //FIXME this.chart.update(this.chartData);
-                    this.counter = 0;
-                }
-                this.counter++;
-                this.seconds++;
-            }
-
-            this.tfirstRow.value!.children[0].textContent = now.toLocaleTimeString("de-DE");
-            this.tfirstRow.value!.children[1].textContent = DE_de.format(this.seconds);
-            this.tfirstRow.value!.children[2].textContent = DE_de.format(SetpointTemperature);
-            this.tfirstRow.value!.children[3].textContent = DE_de.format(ActualTemperature);
-            this.tfirstRow.value!.children[4].textContent = DE_de.format(Heater);
-            this.tfirstRow.value!.children[5].textContent = DE_de.format(Fan);
-        };
-        xhr.send(ctx.getResult());
+        let b = new flatbuffers.Builder(1024);
+        b.finish(RequestHeater.createRequestHeater(b, this.mode,
+            this.inputSetpointHeater.value!.valueAsNumber,
+            this.inputSetpointTemperature.value!.valueAsNumber,
+            this.mode==Mode.OpenLoop?this.inputFanOL.value!.valueAsNumber:this.inputFanCL.value!.valueAsNumber,
+            this.inputKP.value!.valueAsNumber,
+            this.inputTN.value!.valueAsNumber,
+            this.inputTV.value!.valueAsNumber,
+            this.inputWP.value!.valueAsNumber,
+            this.inputReset.value!.checked ? true : false
+         ))
+        this.appManagement.WrapAndSend(Namespace.Value, b, 3000);
     }
+                
 
     constructor(appManagement: IAppManagement) {
         super(appManagement);
-        
         Chart.register(LinearScale, LineController, CategoryScale, PointElement, LineElement)
     }
 }

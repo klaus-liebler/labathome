@@ -13,12 +13,8 @@ import { Namespace, ResponseDebugData, Responses, ResponseWrapper} from "../../g
 export class DevelopCFCController extends ScreenController {
     
     OnMessage(namespace: number, bb: ByteBuffer): void {
-        if(namespace!=Namespace.Value) return;
-        let messageWrapper = ResponseWrapper.getRootAsResponseWrapper(bb)
-        switch (messageWrapper.responseType()) {
-            case Responses.ResponseDebugData:
-                this.fc.OnResponseDebugData(<ResponseDebugData>messageWrapper.response(new ResponseDebugData()));
-        }
+        this.fc.OnMessage(namespace,bb);
+        
     }
     private mainDiv:Ref<HTMLInputElement> = createRef();
     private fc: Flowchart;
@@ -28,7 +24,7 @@ export class DevelopCFCController extends ScreenController {
     
 
     OnFirstStart(): void {
-        this.timer = window.setInterval(() => { this.fc.triggerDebug(); }, 1000);
+        this.timer = window.setInterval(() => { this.fc.TriggerDebug();}, 1000);
         this.fc.RenderUi(this.mainDiv.value!);
     }
     OnRestart(): void {

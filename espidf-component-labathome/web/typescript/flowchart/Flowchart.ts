@@ -9,7 +9,7 @@ import * as flatbuffers from 'flatbuffers';
 import { SimulationManager } from "./SimulationManager";
 import { FlowchartData, OperatorData, LinkData } from "./FlowchartData";
 import { FilelistDialog, FilenameDialog, OkDialog } from "../dialog_controller/dialog_controller";
-import { Namespace, RequestFbdDelete, RequestFbdList, RequestFbdRun, RequestLoadDefaultJson, RequestLoadJson, RequestSaveDefaultJsonAndBin, RequestSaveJson, ResponseDebugData, ResponseFbdDelete, ResponseFbdList, ResponseFbdRun, ResponseLoadDefaultJson, ResponseLoadJson, Responses, ResponseSaveDefaultJsonAndBin, ResponseSaveJson, ResponseWrapper } from "../../generated/flatbuffers/functionblock";
+import { Namespace, RequestDebugData, RequestFbdDelete, RequestFbdList, RequestFbdRun, RequestLoadDefaultJson, RequestLoadJson, RequestSaveDefaultJsonAndBin, RequestSaveJson, ResponseDebugData, ResponseFbdDelete, ResponseFbdList, ResponseFbdRun, ResponseLoadDefaultJson, ResponseLoadJson, Responses, ResponseSaveDefaultJsonAndBin, ResponseSaveJson, ResponseWrapper } from "../../generated/flatbuffers/functionblock";
 
 
 export class FlowchartOptions {
@@ -45,6 +45,11 @@ export class FlowchartCallback {
 
 
 export class Flowchart {
+    TriggerDebug() {
+        let b = new flatbuffers.Builder(1024);
+        b.finish(RequestDebugData.createRequestDebugData(b))
+        this.appManagement.WrapAndSend(Namespace.Value, b, 3000);
+    }
     OnMessage(namespace: number, bb: flatbuffers.ByteBuffer) {
         if(namespace!=Namespace.Value) return;
 
