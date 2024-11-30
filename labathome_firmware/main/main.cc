@@ -24,10 +24,9 @@ constexpr TickType_t xFrequency {pdMS_TO_TICKS(50)};
 #endif
 #include <esp_https_server.h>
 #include <esp_tls.h>
-// #include <webmanager.hh> //include esp_https_server before!!!
-#include <wifi_sta.hh>
+#include <webmanager.hh> //include esp_https_server before!!!
 
-#include "http_handlers.hh"
+
 static const char *TAG = "main";
 #include "HAL.hh"
 
@@ -48,19 +47,18 @@ static HAL * hal = new HAL_Impl();
 #include "esp_log.h"
 #include "spiffs.hh"
 
+#include "webmanager_plugins/heaterexperiment_plugin.hh"
+#include "webmanager_plugins/functionblock_plugin.hh"
+
 DeviceManager *devicemanager{nullptr};
 httpd_handle_t http_server{nullptr};
 
-#ifndef CONFIG_SMOPLA_HTTP_SCRATCHPAD_SIZE
-#define CONFIG_SMOPLA_HTTP_SCRATCHPAD_SIZE 2048
-#endif
+
 #define NVS_PARTITION_NAME NVS_DEFAULT_PART_NAME
 
 FLASH_FILE(esp32_pem_crt);
 FLASH_FILE(esp32_pem_key);
 
-
-uint8_t http_scatchpad[CONFIG_SMOPLA_HTTP_SCRATCHPAD_SIZE] ALL4;
 
 extern "C" void app_main()
 {
@@ -77,9 +75,18 @@ extern "C" void app_main()
     }
     ESP_ERROR_CHECK(SpiffsManager::Init());
 
+    //Generating deviceManager
+    devicemanager = new DeviceManager(hal);
+    
     //Configure Network
-    WIFISTA::InitAndRun(WIFI_SSID, WIFI_PASS, "labathome_%02x%02x%02x");
-    const char *hostname = WIFISTA::GetHostname();
+    webmanager::M* wm = webmanager::M::GetSingleton();
+    std::vector<webmanager::iWebmanagerPlugin*> plugins;
+    plugins.push_back(new HeaterExperimentPlugin(devicemanager));
+    plugins.push_back(new FunctionblockPlugin(devicemanager));
+    wm->Begin("labathome_%02x%02x%02x", "labathome", "labathome_%02x%02x%02x", false, &plugins, true);
+
+    
+    const char *hostname = wm->GetHostname();
     httpd_ssl_config_t httpd_conf = HTTPD_SSL_CONFIG_DEFAULT();
     httpd_conf.servercert = esp32_pem_crt_start;
     httpd_conf.servercert_len = esp32_pem_crt_end-esp32_pem_crt_start;
@@ -87,18 +94,36 @@ extern "C" void app_main()
     httpd_conf.prvtkey_len = esp32_pem_key_end-esp32_pem_key_start;
     httpd_conf.httpd.uri_match_fn = httpd_uri_match_wildcard;
     httpd_conf.httpd.max_uri_handlers = 15;
-    httpd_conf.httpd.global_user_ctx = http_scatchpad;
     ESP_ERROR_CHECK(httpd_ssl_start(&http_server, &httpd_conf));
     ESP_LOGI(TAG, "HTTPS Server listening on https://%s:%d", hostname, httpd_conf.port_secure);
 
     // Start all managers
-    devicemanager = new DeviceManager(hal);
+    
     hal->InitAndRun();
     devicemanager->InitAndRun();
     ESP_LOGI(TAG, "RED %d YEL %d GRN %d", hal->GetButtonRedIsPressed(), hal->GetButtonEncoderIsPressed(), hal->GetButtonGreenIsPressed());
 
     // Allow Browser Access
-    RegisterHandlers();
+    wm->RegisterHTTPDHandlers(http_server);
+    httpd_uri_t sensors_get = {
+        "/sensors", 
+        HTTP_GET, 
+        [](httpd_req_t *req){
+            size_t l=2048;
+            char *buf= new char[l];
+            devicemanager->GetHAL()->GetSensorsAsJSON(buf, l);
+            httpd_resp_set_type(req, "application/json");
+            httpd_resp_send(req, buf, l);
+            delete[] buf;
+            return ESP_OK;
+        }, 
+        nullptr, false, false, nullptr
+    };
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &sensors_get));
+
+
+
+    wm->CallMeAfterInitializationToMarkCurrentPartitionAsValid();
  
 
     // Start eternal supervisor loop

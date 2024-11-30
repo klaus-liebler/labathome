@@ -37,6 +37,7 @@
 
 #include "../../labathome_firmware_stm32arduino/src/stm32_esp32_communication.hh"
 #if(LCD_DISPLAY>0)
+#include "webmanager.hh"
 #include "spilcd16.hh"
 #include "FullTextLineRenderer.hh"
 #include "breakout_renderer.hh"
@@ -337,18 +338,19 @@ private:
     {
 #if(LCD_DISPLAY>0)
 
+        auto wm=webmanager::M::GetSingleton();
         lineRenderer->printfl(0, Color::WHITE, Color::BLACK, "Lab@HomeV%d",__BOARD_VERSION__);
         display.Draw(lineRenderer);
-        lineRenderer->printfl(1, Color::WHITE, Color::BLACK, "SSID: %s", WIFISTA::GetSsid());
+        lineRenderer->printfl(1, Color::WHITE, Color::BLACK, "SSID: %s", wm->GetSsid());
         display.Draw(lineRenderer);
-        lineRenderer->printfl(2, Color::WHITE, Color::BLACK, WIFISTA::GetHostname());
+        lineRenderer->printfl(2, Color::WHITE, Color::BLACK, wm->GetHostname());
         display.Draw(lineRenderer);
 
-        if (WIFISTA::GetState() == WIFISTA::ConnectionState::CONNECTED)
+        if (wm->GetStaState() == webmanager::WifiStationState::CONNECTED)
         {
             lineRenderer->printfl(3, Color::WHITE, Color::GREEN, "WIFI Connected!");
             display.Draw(lineRenderer);
-            esp_ip4_addr_t newIpAddress = WIFISTA::GetIpAddress();
+            esp_ip4_addr_t newIpAddress = wm->GetIpAddress();
             lineRenderer->printfl(4, Color::WHITE, Color::BLACK, "IP:" IPSTR, IP2STR(&newIpAddress));
             display.Draw(lineRenderer);
         }
@@ -399,7 +401,8 @@ public:
         static int64_t nextOneLineStatus{0};
 
         int64_t now = millis();
-        esp_ip4_addr_t newIpAddress = WIFISTA::GetIpAddress();
+        auto wm=webmanager::M::GetSingleton();
+        esp_ip4_addr_t newIpAddress = wm->GetIpAddress();
         //GetButtonGreenIsPressed does not work, if ESP_PROG is connected!
 #if(LCD_DISPLAY>0)
         if (newIpAddress.addr != savedIpAddress.addr){

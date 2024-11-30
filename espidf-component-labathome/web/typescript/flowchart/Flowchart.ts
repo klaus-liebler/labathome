@@ -9,7 +9,7 @@ import * as flatbuffers from 'flatbuffers';
 import { SimulationManager } from "./SimulationManager";
 import { FlowchartData, OperatorData, LinkData } from "./FlowchartData";
 import { FilelistDialog, FilenameDialog, OkDialog } from "../dialog_controller/dialog_controller";
-import { Namespace, RequestDebugData, RequestFbdDelete, RequestFbdList, RequestFbdRun, RequestLoadDefaultJson, RequestLoadJson, RequestSaveDefaultJsonAndBin, RequestSaveJson, ResponseDebugData, ResponseFbdDelete, ResponseFbdList, ResponseFbdRun, ResponseLoadDefaultJson, ResponseLoadJson, Responses, ResponseSaveDefaultJsonAndBin, ResponseSaveJson, ResponseWrapper } from "../../generated/flatbuffers/functionblock";
+import { Namespace, RequestDebugData, RequestFbdRun, ResponseDebugData, ResponseFbdRun, Responses, ResponseWrapper } from "../../generated/flatbuffers/functionblock";
 
 
 export class FlowchartOptions {
@@ -25,6 +25,7 @@ export class FlowchartOptions {
     multipleLinksOnOutput: boolean = true;
     multipleLinksOnInput: boolean = false;
     linkVerticalDecal: number = 0;
+    httpServerBasePath="/files"
 }
 
 export class FlowchartCallback {
@@ -57,24 +58,6 @@ export class Flowchart {
         switch (messageWrapper.responseType()) {
             case Responses.ResponseDebugData:
                 this.onResponseDebugData(<ResponseDebugData>messageWrapper.response(new ResponseDebugData()));
-                break
-            case Responses.ResponseLoadDefaultJson:
-                this.onResponseLoadDefaultJson(<ResponseLoadDefaultJson>messageWrapper.response(new ResponseLoadDefaultJson()))
-                break
-            case Responses.ResponseSaveDefaultJsonAndBin:
-                this.onResponseSaveDefaultJsonAndBin(<ResponseSaveDefaultJsonAndBin>messageWrapper.response(new ResponseSaveDefaultJsonAndBin()))
-                break
-            case Responses.ResponseLoadJson:
-                this.onResponseLoadJson(<ResponseLoadJson>messageWrapper.response(new ResponseLoadJson()))
-                break
-            case Responses.ResponseSaveJson:
-                this.onResponseSaveJson(<ResponseSaveJson>messageWrapper.response(new ResponseSaveJson()))
-                break
-            case Responses.ResponseFbdList:
-                this.onResponseFbdList(<ResponseFbdList>messageWrapper.response(new ResponseFbdList()))
-                break
-            case Responses.ResponseFbdDelete:
-                this.onResponseFbdDelete(<ResponseFbdDelete>messageWrapper.response(new ResponseFbdDelete()))
                 break
             case Responses.ResponseFbdRun:
                 this.onResponseFbdRun(<ResponseFbdRun>messageWrapper.response(new ResponseFbdRun()))
@@ -337,95 +320,90 @@ export class Flowchart {
         reader.readAsText(files[0]);
     }
 
-    private compileAndSendBin2Run() {
-        let compilerInstance = new FlowchartCompiler(this.operators);
-        let guidAndBufAndMap: HashAndBufAndMaps = compilerInstance.Compile();
-        this.currentDebugInfo = guidAndBufAndMap;
-        let b = new flatbuffers.Builder(1024);
-        b.finish(RequestFbdRun.createRequestFbdRun(b,RequestFbdRun.createBinVector(b, new Uint8Array(guidAndBufAndMap.buf) )));
-        this.appManagement.WrapAndSend(Namespace.Value, b, 3000);
-    }
-
     private onResponseFbdRun(m:ResponseFbdRun){
         this.appManagement.ShowSnackbar(Severity.SUCCESS,`File now runs on Lab@Home`);
     }
 
-    private saveJSONToLabathome() {
-        this.appManagement.ShowDialog(new FilenameDialog("Enter filename (without Extension!)", (ok: boolean, filename: string) => {
-            if (!ok) return;
-            let b = new flatbuffers.Builder(1024);
-            b.finish(RequestSaveJson.createRequestSaveJson(b, b.createString(filename), b.createString(this.fbd2json())));
-            this.appManagement.WrapAndSend(Namespace.Value, b, 3000);
-        }));
-    }
+    private postFbdFileToLabathome(path:string, onSuccessAction?:(path:string)=>void, onFailAction?:(path:string)=>void){
+        var compilerInstance = new FlowchartCompiler(this.operators);
+        var guidAndBufAndMap: HashAndBufAndMaps = compilerInstance.Compile();
+        var view1 = new DataView(new ArrayBuffer(4));
+        view1.setUint32(0, 123456, true); //ESP32 is little-endian: true für little-endian, false für big-endian
+        var stringBuffer = new TextEncoder().encode(this.fbd2json()).buffer;
+        var combinedBuffer = new Uint8Array(view1.byteLength + guidAndBufAndMap.buf.byteLength + stringBuffer.byteLength);
+        combinedBuffer.set(new Uint8Array(view1.buffer), 0);
+        combinedBuffer.set(new Uint8Array(guidAndBufAndMap.buf), 4);
+        combinedBuffer.set(new Uint8Array(stringBuffer), 4 + guidAndBufAndMap.buf.byteLength);
 
-    private onResponseSaveJson(m:ResponseSaveJson){
-        this.appManagement.ShowSnackbar(Severity.SUCCESS,`File saved successfully`);
-    }
-
-    private saveJSONandBINToLabathomeDefaultFile() {
-        let compilerInstance = new FlowchartCompiler(this.operators);
-        let guidAndBufAndMap: HashAndBufAndMaps = compilerInstance.Compile();
-        let b = new flatbuffers.Builder(1024);
-        b.finish(RequestSaveDefaultJsonAndBin.createRequestSaveDefaultJsonAndBin(
-            b, 
-            b.createString(this.fbd2json()), 
-            RequestSaveDefaultJsonAndBin.createBinVector(b, new Uint8Array(guidAndBufAndMap.buf))));
-        this.appManagement.WrapAndSend(Namespace.Value, b, 3000);
-    }
-
-    private onResponseSaveDefaultJsonAndBin(m:ResponseSaveDefaultJsonAndBin){
-        this.appManagement.ShowSnackbar(Severity.SUCCESS,`File saved successfully`);
-    }
-
-    private openJSONFromLabathome() {
-        let b = new flatbuffers.Builder(1024);
-        b.finish(RequestFbdList.createRequestFbdList(b))
-        this.appManagement.WrapAndSend(Namespace.Value, b, 3000);
-    }
-    private onResponseFbdList(l:ResponseFbdList){
-        var filesArr=new Array<string>();
-        for(var i=0; i<l.filesLength();i++){
-            filesArr.push(l.files(i))
-        }
-        this.appManagement.ShowDialog(new FilelistDialog(filesArr,
-            (ok: boolean, filename: string) => {
-                if (!ok) return;
-                let b = new flatbuffers.Builder(1024);
-                b.finish(RequestLoadJson.createRequestLoadJson(b, b.createString(filename)))
-                this.appManagement.WrapAndSend(Namespace.Value, b, 3000);
-            },
-            (ok: boolean, filename: string) => {
-                if (!ok) return;
-                let b = new flatbuffers.Builder(1024);
-                b.finish(RequestFbdDelete.createRequestFbdDelete(b, b.createString(filename)))
-                this.appManagement.WrapAndSend(Namespace.Value, b, 3000);
+        let xhr_json = new XMLHttpRequest;
+        xhr_json.open("POST",this.options.httpServerBasePath+path, true);
+        xhr_json.onloadend = (e) => {
+            if(xhr_json.status!=200){
+                this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `HTTP Error ${xhr_json.status}`));
+                if(onFailAction)onFailAction(path)
+                return;
             }
-        ));
+            this.appManagement.ShowSnackbar(Severity.SUCCESS, `Successfully saved`);
+            if(onSuccessAction)onSuccessAction(path)
+        }
+        xhr_json.onerror = (e) => { 
+            this.appManagement.ShowDialog(new OkDialog(Severity.ERROR, `Generic Error`))
+            if(onFailAction)onFailAction(path)    
+        }
+        xhr_json.send(combinedBuffer);
     }
 
-    private onResponseFbdDelete(d:ResponseFbdDelete){
-        this.appManagement.ShowSnackbar(Severity.SUCCESS,`File deleted successfully`);
+    private getFbdFileFromLabathome(path:string){
+        let xhr = new XMLHttpRequest;
+        xhr.open("GET", this.options.httpServerBasePath+path, true);
+        xhr.onload = (e) => {
+            let s = xhr.response as ArrayBuffer;
+            var dv = new DataView(s);
+            var sizeOfBinary= dv.getUint32(0, true);
+            //var the_binary = s.slice(4, 4+sizeOfBinary);
+            var the_json = new TextDecoder().decode(s.slice(4+sizeOfBinary));
+            this.setData(<FlowchartData>JSON.parse(the_json));
+        }
+        xhr.send();
     }
 
-    private onResponseLoadJson(l:ResponseLoadJson){
-        let data = <FlowchartData>JSON.parse(l.json());
-        this.setData(data);
-            
-    }
-    
-
-    private openDefaultJSONFromLabathome() {
-        let b = new flatbuffers.Builder(1024);
-        b.finish(RequestLoadDefaultJson.createRequestLoadDefaultJson(b))
-        this.appManagement.WrapAndSend(Namespace.Value, b, 3000);
+    private deleteFdbFileFromLabathome(path:string){
+        let xhr = new XMLHttpRequest;
+        xhr.open("DELETE", this.options.httpServerBasePath+path, true); //GET with the filename selected in the dialog
+        xhr.onloadend = (e) => {
+            this.appManagement.ShowSnackbar(Severity.SUCCESS, `File ${path} deleted successfully`);
+        }
+        xhr.send();
     }
 
-    private onResponseLoadDefaultJson(l:ResponseLoadDefaultJson){
-        let data = <FlowchartData>JSON.parse(l.json());
-        this.setData(data);
-            
+    private getFbdFileListFromLabathome(path_with_slash_at_the_end:string){
+        let xhr = new XMLHttpRequest;
+        xhr.open("GET", this.options.httpServerBasePath+path_with_slash_at_the_end, true);
+        xhr.onload = (e) => {
+            let s = xhr.responseText;
+            let data = <{files:string[], dirs:string[]}>JSON.parse(s);
+            this.appManagement.ShowDialog(new FilelistDialog(data.files,
+                (ok:boolean, filename:string)=>{
+                    if(!ok) return;
+                    this.getFbdFileFromLabathome(path_with_slash_at_the_end+filename);
+                },
+                (ok:boolean, filename:string)=>{
+                    if(!ok) return;
+                    this.deleteFdbFileFromLabathome(path_with_slash_at_the_end+filename);
+                }
+            ));
+        }
+        xhr.send();
     }
+
+    private enterFilenameAndPostFbd(){
+        this.appManagement.ShowDialog(new FilenameDialog("Enter filename (without Extension", (ok:boolean, filename:string)=>{
+            if(!ok) return
+            this.postFbdFileToLabathome("/fbdstore/"+filename+".fbd")
+        }));
+
+    }
+
 
     private buildMenu(subcontainer: HTMLDivElement) {
         let fileInput = <HTMLInputElement>Html(subcontainer, "input", ["type", "file", "id", "fileInput", "accept", ".json"]);
@@ -446,12 +424,12 @@ export class Flowchart {
         }
         Html(menuFileDropContent, "a", ["href", "#"], [], "📂 Open (labathome)").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
-            this.openJSONFromLabathome()
+           this.getFbdFileListFromLabathome("/fbdstore/")
             e.preventDefault();
         }
         Html(menuFileDropContent, "a", ["href", "#"], [], "📂 Open Default (labathome)").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
-            this.openDefaultJSONFromLabathome()
+            this.getFbdFileFromLabathome("/default.fbd")
             e.preventDefault();
         }
         Html(menuFileDropContent, "a", ["href", "#"], [], "💾 Save (Local)").onclick = (e) => {
@@ -462,7 +440,7 @@ export class Flowchart {
 
         Html(menuFileDropContent, "a", ["href", "#"], [], "💾 Save (labathome)").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
-            this.saveJSONToLabathome();
+            this.enterFilenameAndPostFbd();
             e.preventDefault();
         }
         Html(menuFileDropContent, "a", ["href", "#"], [], "💾 Save Bin (Local)").onclick = (e) => {
@@ -481,12 +459,21 @@ export class Flowchart {
         };
         Html(menuDebugDropContent, "a", ["href", "#"], [], "☭ Run Now").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
-            this.compileAndSendBin2Run();
+            this.postFbdFileToLabathome("/temp.fbd", 
+                (p:string)=>{
+                    let b = new flatbuffers.Builder(1024);
+                    b.finish(RequestFbdRun.createRequestFbdRun(b));
+                    this.appManagement.WrapAndSend(Namespace.Value, b, 3000);
+                },
+                (p:string)=>{
+                   console.error(`As file "${p}" could no be savewd on labathome, the RequestFbdRun will not be sent to labathome`)
+                }
+            )
             e.preventDefault();
         }
         Html(menuDebugDropContent, "a", ["href", "#"], [], "👣 Set as Startup-App").onclick = (e) => {
             Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
-            this.saveJSONandBINToLabathomeDefaultFile();
+            this.postFbdFileToLabathome("/default.fbd") 
             e.preventDefault();
         }
         let menuSimulation = Html(toolbar, "div", [], ["dropdown"]);

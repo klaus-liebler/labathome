@@ -37,65 +37,7 @@ export class DevelopCFCController extends ScreenController {
     
     constructor(appManagement:IAppManagement) {
         super(appManagement);
-        let data: FlowchartData = {
-            operators: [
-                {
-                    index: 0,
-                    caption: "RedButton",
-                    globalTypeIndex: 34,
-                    posX: 10,
-                    posY: 10,
-                    configurationData: null,
-                },
-                {
-                    index: 1,
-                    caption: "GreenButton",
-                    globalTypeIndex: 31,
-                    posX: 10,
-                    posY: 150,
-                    configurationData: null,
-                },
-                {
-                    index: 2,
-                    caption: "AND",
-                    globalTypeIndex: 1,
-                    posX: 250,
-                    posY: 10,
-                    configurationData: null,
-                },
-                {
-                    index: 3,
-                    caption: "RedLed",
-                    globalTypeIndex: 50,
-                    posX: 500,
-                    posY: 10,
-                    configurationData: null,
-                },
-            ],
-            links: [
-                {
-                    color: "black",
-                    fromOperatorIndex: 0,
-                    fromOutput: 0,
-                    toOperatorIndex: 2,
-                    toInput: 0
-                },
-                {
-                    color: "black",
-                    fromOperatorIndex: 1,
-                    fromOutput: 0,
-                    toOperatorIndex: 2,
-                    toInput: 1
-                },
-                {
-                    color: "black",
-                    fromOperatorIndex: 2,
-                    fromOutput: 0,
-                    toOperatorIndex: 3,
-                    toInput: 0
-                },
-            ]
-        };
+        let data: FlowchartData = {operators:[],links:[]};
         let options = new FlowchartOptions();
         let callbacks = new FlowchartCallback();
         this.fc = new Flowchart(this.appManagement, data, callbacks, options);

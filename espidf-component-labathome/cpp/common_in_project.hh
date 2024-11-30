@@ -3,7 +3,6 @@
 #include <errorcodes.hh>
 #include <esp_log.h>
 #include <common.hh>
-#include "common_projectconfig.hh"
 
 #define LOGI ESP_LOGI
 #define LOGD ESP_LOGD
