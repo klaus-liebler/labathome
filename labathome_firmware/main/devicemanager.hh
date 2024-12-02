@@ -11,7 +11,8 @@
 #include <pid_t1_controller.hh>
 #include <pidcontroller.hh>
 
-
+#include "flatbuffers/flatbuffers.h"
+#include "../generated/flatbuffers_cpp/heaterexperiment_generated.h"
 class FunctionBlock;
 class Executable
 {
@@ -121,33 +122,24 @@ class DeviceManager:public FBContext
  private:
         HAL *hal;
         PID::Controller<float> *heaterPIDController;
-        PID_T1::Controller<float> *airspeedPIDController;
-        PID_T1::Controller<float> *ptnPIDController;
         Executable *currentExecutable;
         Executable *nextExecutable;
-        Executable* createInitialExecutable();
+        Executable* createDummyInitialExecutableAndEnqueue();
         uint32_t lastExperimentTrigger=0;
         ExperimentMode experimentMode;
         float heaterKP=0, heaterTN_secs=0, heaterTV_secs=0; bool heaterReset=true;
-        float airspeedKP=0, airspeedTN_secs=0, airspeedTV_secs=0;; bool airspeedReset=true;
-        float ptnKP=0, ptnTN_secs=0, ptnTV_secs=0; ; bool ptnReset=true;
         float actualTemperature=0;
         float setpointTemperature=0;
         float heaterWorkingPointOffset{0};
-        float actualAirspeed=0;
-        float setpointAirspeed=0;
-        float actualPtn=0;
-        float setpointPtn=0;
 
 
-        float setpointFan1=0;
-        float setpointFan2=0;
+
+        float setpointFan=0;
         float setpointServo1=0;
         float setpointHeater=0;
         float setpointVoltageOut=0;
 
         void EternalLoop();
-        ErrorCode FindInitialExecutable();
         ErrorCode CheckForNewExecutable();
         ErrorCode Loop();
         
@@ -175,25 +167,13 @@ class DeviceManager:public FBContext
         
        
         int64_t GetMicroseconds();
-        ErrorCode ParseNewExecutableAndEnqueue(const uint8_t  *buffer, size_t length);
+        ErrorCode ParseNewExecutableAndEnqueue(const char* path);
         HAL *GetHAL();
         
         DeviceManager(HAL *hal);
         ErrorCode InitAndRun();
-
-        ErrorCode TriggerAirspeedExperimentClosedLoop(float setpointAirspeed, float setpointServo1, float KP, float TN, float TV, bool reset, AirspeedExperimentData *data);
-        ErrorCode TriggerAirspeedExperimentOpenLoop(float setpointFan2, float setpointServo1, AirspeedExperimentData *data);
-        ErrorCode TriggerAirspeedExperimentFunctionblock(AirspeedExperimentData *data);
-        ErrorCode TriggerHeaterExperimentClosedLoop(float setpointTemperature, float setpointFan, float KP, float TN, float TV, bool reset, float workingPointOffset, HeaterExperimentData *data);
-        ErrorCode TriggerHeaterExperimentOpenLoop(float setpointHeater, float setpointFan, HeaterExperimentData *data);
-        ErrorCode TriggerHeaterExperimentFunctionblock(HeaterExperimentData *data);
-
-        ErrorCode TriggerPtnExperimentClosedLoop(float setpoint, float KP, float TN, float TV, bool reset, float **data);
-        ErrorCode TriggerPtnExperimentOpenLoop(float setpoint, float **data);
-        ErrorCode TriggerPtnExperimentFunctionblock(float **data);       
-        
-        ErrorCode TriggerBorisUDP(uint8_t *data, size_t dataLen, uint8_t* responseBufferU8, size_t& responseLen);
+        ErrorCode TriggerHeaterExperiment(const heaterexperiment::RequestHeater *r, flatbuffers::FlatBufferBuilder &b);
         ErrorCode GetDebugInfoSize(size_t *sizeInBytes);
-        ErrorCode GetDebugInfo(uint8_t *buffer, size_t maxSizeInByte);      
+        ErrorCode GetDebugInfo(flatbuffers::FlatBufferBuilder& b);      
 };
 

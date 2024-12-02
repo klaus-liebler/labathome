@@ -1,4 +1,4 @@
-namespace wifimanager;
+namespace webmanager;
 
 enum Namespace:uint32{
     Value=1

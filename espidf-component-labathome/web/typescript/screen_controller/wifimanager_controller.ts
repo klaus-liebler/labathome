@@ -1,7 +1,7 @@
 
 import { ScreenController } from "./screen_controller";
 import * as flatbuffers from 'flatbuffers';
-import { Namespace, RequestNetworkInformation, RequestWifiConnect, RequestWifiDisconnect, Requests, Responses, ResponseNetworkInformation, ResponseWifiConnect, ResponseWrapper } from "../../generated/flatbuffers/wifimanager";
+import { Namespace, RequestNetworkInformation, RequestWifiConnect, RequestWifiDisconnect, Requests, Responses, ResponseNetworkInformation, ResponseWifiConnect, ResponseWrapper } from "../../generated/flatbuffers/webmanager";
 import { Severity, ip4_2_string } from "../utils/common";
 //import icon_lock from '../../assets/icon-lock.svg'
 import { TemplateResult, html, render } from "lit-html";

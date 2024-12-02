@@ -2,12 +2,20 @@
 #include "esp_log.h"
 #include "errorcodes.hh"
 #include <vector>
-#include "common_in_project.hh"
 #include <math.h>
-#include "winfactboris_messages.hh"
 #include "devicemanager.hh"
+#include "common.hh"
+#include "common-esp32.hh"
+#include "../generated/flatbuffers_cpp/functionblock_generated.h"
+#include "esp_vfs.h"
 
 constexpr uint32_t TRIGGER_FALLBACK_TIME_MS{10000};
+constexpr size_t FILE_PATH_MAX =ESP_VFS_PATH_MAX + CONFIG_SPIFFS_OBJ_NAME_LEN;
+
+constexpr const char* FBDSTORE_BASE = "/spiffs/fbd/";
+constexpr const char* FBDSTORE_BASE_DIRECTORY = "/spiffs/fbd";    
+constexpr const char *DEFAULT_FBD_FILENAME =  "/spiffs/default.fbd";
+constexpr const char *TEMP_FBD_FILENAME = "/spiffs/temp.fbd";
 constexpr TickType_t xFrequency {pdMS_TO_TICKS(50)};
 constexpr const char *TAG = "devicemanager";
 
@@ -17,17 +25,13 @@ constexpr const char *TAG = "devicemanager";
 
 DeviceManager::DeviceManager(HAL *hal):hal(hal)
 {
-    currentExecutable = this->createInitialExecutable();
+    currentExecutable = this->createDummyInitialExecutableAndEnqueue();
     nextExecutable = nullptr;
     heaterPIDController = new PID::Controller<float>(&actualTemperature, &setpointHeater, &setpointTemperature, 0, 100, PID::Mode::OFF, PID::AntiWindup::ON_LIMIT_INTEGRATOR, PID::Direction::DIRECT, 1000);
-    airspeedPIDController = new PID_T1::Controller<float>(&actualAirspeed, &setpointFan2, &setpointAirspeed, 0, 100, PID_T1::Mode::OFF, PID_T1::AntiWindup::ON_SWICH_OFF_INTEGRATOR, PID_T1::Direction::DIRECT, 1000);
-    ptnPIDController = new PID_T1::Controller<float>(&actualPtn, &setpointVoltageOut, &setpointPtn, 0, 3.3, PID_T1::Mode::OFF, PID_T1::AntiWindup::ON_SWICH_OFF_INTEGRATOR, PID_T1::Direction::DIRECT, 1000);
 }
-
 
 ErrorCode DeviceManager::InitAndRun()
 {
-
     xTaskCreate([](void* p){((DeviceManager*)p)->EternalLoop();}, "plcTask", 4096 * 4, this, 6, NULL);
     return ErrorCode::OK;
 }
@@ -63,7 +67,6 @@ ErrorCode DeviceManager::SetBinary(size_t index, bool value)
 
 ErrorCode DeviceManager::SetInteger(size_t index, int value)
 {
-
     if (index >= this->currentExecutable->integers.size()){
         return ErrorCode::INDEX_OUT_OF_BOUNDS;
     }
@@ -158,6 +161,32 @@ HAL *DeviceManager::GetHAL()
     return this->hal;
 }
 
+void DeviceManager::EternalLoop(){   
+    ESP_LOGI(TAG, "PLC Manager started");
+    TickType_t xLastWakeTime;
+    
+    // Initialise the xLastWakeTime variable with the current time.
+    xLastWakeTime = xTaskGetTickCount();
+    if(this->ParseNewExecutableAndEnqueue("/spiffs/default.fbd")!=ErrorCode::OK){
+        ESP_LOGW(TAG, "No default.fbd found. Continuing with factory dummy fbd");
+    }
+    hal->GreetUserOnStartup();
+
+    ESP_LOGD(TAG, "devicemanager main loop starts");
+    while (true)
+    {
+        xTaskDelayUntil(&xLastWakeTime, xFrequency);
+        ESP_LOGD(TAG, "CheckForNewExecutable");
+        CheckForNewExecutable();
+        ESP_LOGD(TAG, "BeforeLoop");
+        hal->BeforeLoop();
+        ESP_LOGD(TAG, "Loop");
+        Loop();
+        ESP_LOGD(TAG, "AfterLoop");
+        hal->AfterLoop();
+    }
+}
+
 class ParseContext
 {
 public:
@@ -196,43 +225,48 @@ public:
     }
 };
 
-void DeviceManager::EternalLoop(){   
-    ESP_LOGI(TAG, "PLC Manager started");
-    TickType_t xLastWakeTime;
-    
-    // Initialise the xLastWakeTime variable with the current time.
-    xLastWakeTime = xTaskGetTickCount();
-    this->FindInitialExecutable();
-    hal->GreetUserOnStartup();
-
-    ESP_LOGD(TAG, "devicemanager main loop starts");
-    while (true)
-    {
-        xTaskDelayUntil(&xLastWakeTime, xFrequency);
-        ESP_LOGD(TAG, "CheckForNewExecutable");
-        CheckForNewExecutable();
-        ESP_LOGD(TAG, "BeforeLoop");
-        hal->BeforeLoop();
-        ESP_LOGD(TAG, "Loop");
-        Loop();
-        ESP_LOGD(TAG, "AfterLoop");
-        hal->AfterLoop();
-    }
-}
-
 #define S(x, ...) do {                 \
         ESP_LOGI(TAG, "Found " #x);                      \
         functionBlocks[cfgIndex] = new x ( __VA_ARGS__ );\
     } while(0);\
     break;\
 
-ErrorCode DeviceManager::ParseNewExecutableAndEnqueue(const uint8_t  *buffer, size_t length)
+ErrorCode DeviceManager::ParseNewExecutableAndEnqueue(const char* path)
 {
+    FILE *fd = NULL;
+    struct stat file_stat;
+    
+    if (stat(path, &file_stat) == -1) {
+        ESP_LOGI(TAG, "FBD file %s does not exist.", path);
+        return ErrorCode::OK;
+    }
+    fd = fopen(path, "r");
+    if (!fd) {
+        ESP_LOGE(TAG, "Failed to read existing file : %s", path);
+        return ErrorCode::FILE_SYSTEM_ERROR;
+    }
+    ESP_LOGI(TAG, "Opening FBD %s was successful", path);
+    size_t sizeOfBinaryData{0};
+    size_t size_read = fread(&sizeOfBinaryData, 4, 1, fd);
+    if(size_read!=4){
+        ESP_LOGE(TAG, "Unable to read sizeOfBinaryData : %s", path);
+        return ErrorCode::FILE_SYSTEM_ERROR;
+    }
+    ESP_LOGI(TAG, "sizeOfBinaryData in FBD %s is %u", path, sizeOfBinaryData);
+    uint8_t buffer[sizeOfBinaryData];
+    size_read = fread(&buffer, 1, sizeOfBinaryData, fd);
+    if(size_read!=file_stat.st_size){
+        ESP_LOGE(TAG, "Unable to read file completely : %s", path);
+        return ErrorCode::FILE_SYSTEM_ERROR;
+    }
+    ESP_LOGI(TAG, "Successfully read flatbufferArea of %s", path);
+
+    
     ParseContext *ctx = new ParseContext();
     ctx->buf = buffer;
     ctx->byteOffset = 0;
-    ctx->maxOffset=length;
-    ESP_LOGI(TAG, "Starting to parse new Executable of length %d", length);
+    ctx->maxOffset=sizeOfBinaryData;
+    ESP_LOGI(TAG, "Starting to parse new Executable of length %d", sizeOfBinaryData);
     const uint32_t dataStructureVersion = ctx->ReadU32();
     if(dataStructureVersion!=0xAFFECAFE){
         ESP_LOGE(TAG, "dataStructureVersion!=0xAFFECAFE");
@@ -362,9 +396,8 @@ ErrorCode DeviceManager::ParseNewExecutableAndEnqueue(const uint8_t  *buffer, si
     return ErrorCode::OK;
 }
 
-Executable *DeviceManager::createInitialExecutable()
+Executable* DeviceManager::createDummyInitialExecutableAndEnqueue()
 {
-#if TARGET==LABATHOME_V10
     FB_RedButton *button_red = new FB_RedButton(0,2);
     FB_RedLED *led_red = new FB_RedLED(1,2);
     const uint32_t booleansCount = 3;
@@ -382,32 +415,7 @@ Executable *DeviceManager::createInitialExecutable()
     uint32_t hash = 0;
    
     size_t debugSizeBytes = 4 /*Hashcode!*/ +4*(booleansCount+1+integersCount+1+floatsCount+1+colorsCount+1);//jeweils noch ein size_t für die Länge
-    Executable *e = new Executable(hash, debugSizeBytes, functionBlocks, binaries, integers, floats, colors);
-
-#elif TARGET==PTNCHEN_V2
-    FB_RedButton *button_red = new FB_RedButton(0,2);
-    FB_Bool2FloatConverter * conv = new FB_Bool2FloatConverter(1, 2, 2, 3.3, 0);
-    FB_AnalogOutput0 *analog_output = new FB_AnalogOutput0(2,2);
-    const uint32_t booleansCount = 3;
-    const uint32_t integersCount = 2;
-    const uint32_t floatsCount = 3;
-    const uint32_t colorsCount = 2;
-    
-    std::vector<FunctionBlock *> functionBlocks(1);
-    std::vector<bool> binaries(booleansCount);
-    std::vector<int> integers(integersCount);
-    std::vector<float> floats(floatsCount);
-    std::vector<uint32_t> colors(colorsCount);
-    functionBlocks[0] = button_red;
-    functionBlocks[1] = conv;
-    functionBlocks[2] = analog_output;
-    uint32_t hash = 0;
-    size_t debugSizeBytes = 4 /*Hashcode!*/ +4*(booleansCount+1+integersCount+1+floatsCount+1+colorsCount+1);//jeweils noch ein size_t für die Länge
-    Executable *e = new Executable(hash, debugSizeBytes, functionBlocks, binaries, integers, floats, colors);
-#else
-    #error "No createInitialExecutable available for this target defined. See devicemanager.cc"
-#endif
-    return e;
+    return new Executable(hash, debugSizeBytes, functionBlocks, binaries, integers, floats, colors);
 }
 
 ErrorCode DeviceManager::GetDebugInfoSize(size_t *sizeInBytes){
@@ -415,80 +423,25 @@ ErrorCode DeviceManager::GetDebugInfoSize(size_t *sizeInBytes){
     return ErrorCode::OK;
 }
 
-ErrorCode DeviceManager::GetDebugInfo(uint8_t *buffer, size_t maxSizeInByte){
-    int *bufAsINT32 = (int*)buffer;
-    float *bufAsFLOAT = (float*)buffer;
-    uint32_t *bufAsUINT32 = (uint32_t*)buffer;
-    size_t offset32 = 0;
-    if(maxSizeInByte<this->currentExecutable->debugSizeBytes) return ErrorCode::INDEX_OUT_OF_BOUNDS;
-    
-    //First, the Hash
-    bufAsUINT32[offset32]=this->currentExecutable->hash;
-    offset32++;
-    
-    //Then bools
-    bufAsUINT32[offset32]=this->currentExecutable->binaries.size();
-    offset32++;
+ErrorCode DeviceManager::GetDebugInfo(flatbuffers::FlatBufferBuilder& b){
+    std::vector<uint8_t>bools;
     for (size_t vecPos = 0; vecPos < this->currentExecutable->binaries.size(); vecPos++) {
-        if (this->currentExecutable->binaries[vecPos]) {
-            bufAsUINT32[vecPos+offset32] = 1;
-        }
-        else
-        {
-            bufAsUINT32[vecPos+offset32] = 0;
-        }
+        bools.push_back(this->currentExecutable->binaries[vecPos]?1:0);
     }
-    offset32+=this->currentExecutable->binaries.size();
-
-    //then S32
-    bufAsUINT32[offset32]=this->currentExecutable->integers.size();
-    offset32++;
+    std::vector<int32_t> integers;
     for (size_t vecPos = 0; vecPos < this->currentExecutable->integers.size(); vecPos++) {
-        bufAsINT32[vecPos+offset32] = this->currentExecutable->integers[vecPos];
+        integers.push_back(this->currentExecutable->integers[vecPos]);
     }
-    offset32+=this->currentExecutable->integers.size();
-
-    //then f32
-    bufAsUINT32[offset32]=this->currentExecutable->floats.size();
-    offset32++;
+    std::vector<float> floats;
     for (size_t vecPos = 0; vecPos < this->currentExecutable->floats.size(); vecPos++) {
-        bufAsFLOAT[vecPos+offset32] = this->currentExecutable->floats[vecPos];
+        floats.push_back(this->currentExecutable->floats[vecPos]);
     }
-    offset32+=this->currentExecutable->floats.size();
-    
-    //then colors
-    bufAsUINT32[offset32]=this->currentExecutable->colors.size();
-    offset32++;
+   std::vector<uint32_t> colors;
     for (size_t vecPos = 0; vecPos < this->currentExecutable->colors.size(); vecPos++) {
-        bufAsUINT32[vecPos+offset32] = this->currentExecutable->colors[vecPos];
+        colors.push_back(this->currentExecutable->colors[vecPos]);
     }
-    offset32+=this->currentExecutable->colors.size();
-    
+    functionblock::CreateResponseDebugDataDirect(b, this->currentExecutable->hash, &bools, &integers, &floats, &colors );
     return ErrorCode::OK;
-}
-
-ErrorCode DeviceManager::FindInitialExecutable()
-{
-    FILE *fd = NULL;
-    struct stat file_stat;
-    ESP_LOGI(TAG, "Trying to open %s", labathome::config::paths::DEFAULT_FBD_BIN_FILENAME);
-    if (stat(labathome::config::paths::DEFAULT_FBD_BIN_FILENAME, &file_stat) == -1) {
-        ESP_LOGI(TAG, "Default PLC file %s does not exist. Using factory default instead", labathome::config::paths::DEFAULT_FBD_BIN_FILENAME);
-        return ErrorCode::OK;
-    }
-    fd = fopen(labathome::config::paths::DEFAULT_FBD_BIN_FILENAME, "r");
-    if (!fd) {
-        ESP_LOGE(TAG, "Failed to read existing file : %s", labathome::config::paths::DEFAULT_FBD_BIN_FILENAME);
-        return ErrorCode::FILE_SYSTEM_ERROR;
-    }
-    uint8_t buf[file_stat.st_size];
-    size_t size_read = fread(buf, 1, file_stat.st_size, fd);
-    if(size_read!=file_stat.st_size){
-        ESP_LOGE(TAG, "Unable to read file completely : %s", labathome::config::paths::DEFAULT_FBD_BIN_FILENAME);
-        return ErrorCode::FILE_SYSTEM_ERROR;
-    }
-    ESP_LOGI(TAG, "Successfully read %s", labathome::config::paths::DEFAULT_FBD_BIN_FILENAME);
-    return this->ParseNewExecutableAndEnqueue(buf, size_read);
 }
 
 ErrorCode DeviceManager::CheckForNewExecutable()
@@ -525,6 +478,7 @@ ErrorCode DeviceManager::CheckForNewExecutable()
     ESP_LOGI(TAG, "New executable Init Phase 3");
     return ErrorCode::OK;
 }
+
 ErrorCode DeviceManager::Loop()
 {
     static ExperimentMode previousExperimentMode = ExperimentMode::functionblock; //set in last line of this method
@@ -541,11 +495,11 @@ ErrorCode DeviceManager::Loop()
         hal->SetHeaterDuty(0);
         hal->SetServoPosition(0, 0.);
         //hal->SetAnalogOutput(0); do not set a out voltage here as this may interfere with MP3 play
-        this->setpointAirspeed=0;
-        this->setpointFan2=0.0;
-        this->setpointHeater=0.0;
-        this->setpointServo1=0;
-        this->setpointTemperature=0;
+        //this->setpointAirspeed=0;
+        //this->setpointFan=0.0;
+        //this->setpointHeater=0.0;
+        //this->setpointServo1=0;
+        //this->setpointTemperature=0;
     }
     
     if(experimentMode == ExperimentMode::functionblock)
@@ -558,7 +512,7 @@ ErrorCode DeviceManager::Loop()
     else if(experimentMode==ExperimentMode::openloop_heater){
         heaterPIDController->SetMode(PID::Mode::OFF, nowMsSteady);
         hal->SetHeaterDuty(this->setpointHeater);
-        hal->SetFanDuty(0, this->setpointFan2);
+        hal->SetFanDuty(0, this->setpointFan);
     }
     else if(experimentMode==ExperimentMode::closedloop_heater){
         if(heaterReset){
@@ -574,9 +528,10 @@ ErrorCode DeviceManager::Loop()
              ESP_LOGI(TAG, "Computed a new setpointHeater %F", setpointHeater);
         }
         hal->SetHeaterDuty(this->setpointHeater);
-        hal->SetFanDuty(0, this->setpointFan2);
+        hal->SetFanDuty(0, this->setpointFan);
     }
     else if(experimentMode==ExperimentMode::openloop_ptn){
+        /*
         ptnPIDController->SetMode(PID_T1::Mode::OFF, nowMsSteady);
         float *voltages;
         hal->GetAnalogInputs(&voltages);
@@ -585,8 +540,10 @@ ErrorCode DeviceManager::Loop()
         hal->ColorizeLed(2, CRGB::FromTemperature(0, 3.3, voltages[2]));
         hal->ColorizeLed(3, CRGB::FromTemperature(0, 3.3, voltages[3]));
         hal->SetAnalogOutput(0, this->setpointVoltageOut);
+        */
     }
     else if(experimentMode==ExperimentMode::closedloop_ptn){
+        /*
         if(ptnReset){
             ptnPIDController->Reset();
         }
@@ -606,6 +563,7 @@ ErrorCode DeviceManager::Loop()
              ESP_LOGI(TAG, "Computed a new  setpointPtn %F", setpointVoltageOut);
         }
         hal->SetAnalogOutput(0, this->setpointVoltageOut);
+        */
     }
     else if(experimentMode==ExperimentMode::closedloop_airspeed){
         /*File
@@ -642,259 +600,24 @@ ErrorCode DeviceManager::Loop()
     return ErrorCode::OK;
 }
 
-ErrorCode DeviceManager::TriggerHeaterExperimentClosedLoop(float setpointTemperature, float setpointFan, float KP, float TN, float TV, bool reset, float workingPointOffset, HeaterExperimentData *data){
-    //Trigger
+ErrorCode DeviceManager::TriggerHeaterExperiment(const heaterexperiment::RequestHeater* r, flatbuffers::FlatBufferBuilder &b){
+    if(r->mode()==heaterexperiment::Mode::Mode_FunctionBlock) return ErrorCode::GENERIC_ERROR;
     this->lastExperimentTrigger=hal->GetMillis();
-    this->heaterReset=reset;
-    this->experimentMode=ExperimentMode::closedloop_heater;
-    //New Setpoints
-    this->setpointTemperature=setpointTemperature;
-    this->setpointFan2=setpointFan;
-    this->heaterKP=KP;
-    this->heaterTN_secs=TN;
-    this->heaterTV_secs=TV;
-    this->heaterWorkingPointOffset=workingPointOffset;
-    //Fill return data
-    hal->GetFanDuty(0, &data->Fan);
-    data->Heater=hal->GetHeaterState();
-    hal->GetHeaterTemperature(&data->ActualTemperature);
-    data->SetpointTemperature=this->setpointTemperature;
-    return ErrorCode::OK;
-}
-ErrorCode DeviceManager::TriggerHeaterExperimentOpenLoop(float setpointHeater, float setpointFan, HeaterExperimentData *data){
-    //Trigger
-    this->lastExperimentTrigger=hal->GetMillis();
-    this->experimentMode=ExperimentMode::openloop_heater;
-    //New Setpoints
-    this->setpointHeater=setpointHeater;
-    this->setpointFan2=setpointFan;
-    //Fill return data
-    hal->GetFanDuty(0, &data->Fan);
-    data->Heater=hal->GetHeaterState();
-    hal->GetHeaterTemperature(&(data->ActualTemperature));
-    data->SetpointTemperature=0;
-    return ErrorCode::OK;
-}
-ErrorCode DeviceManager::TriggerHeaterExperimentFunctionblock(HeaterExperimentData *data){
-    //Trigger
-    this->lastExperimentTrigger=hal->GetMillis();
-    this->experimentMode=ExperimentMode::functionblock;
-    //Fill return data
-    hal->GetFanDuty(0, &data->Fan);
-    data->Heater=hal->GetHeaterState();
-    hal->GetHeaterTemperature(&(data->ActualTemperature));
-    data->SetpointTemperature=0;
-    return ErrorCode::OK;
-}
-ErrorCode DeviceManager::TriggerPtnExperimentClosedLoop(float setpoint, float KP, float TN, float TV, bool reset, float **data){
-    //Trigger
-    this->lastExperimentTrigger=hal->GetMillis();
-    this->ptnReset=reset;
-    this->experimentMode=ExperimentMode::closedloop_ptn;
-    //New Setpoints
-    this->setpointPtn=setpoint;
-    this->ptnKP=KP;
-    this->ptnTN_secs=TN;
-    this->ptnTV_secs=TV;
-    //Fill return data
-    hal->GetAnalogInputs(data);
-    return ErrorCode::OK;
-}
-ErrorCode DeviceManager::TriggerPtnExperimentOpenLoop(float setpoint, float **data){
-    //Trigger
-    this->lastExperimentTrigger=hal->GetMillis();
-    this->experimentMode=ExperimentMode::openloop_ptn;
-    //New Setpoints
-    this->setpointVoltageOut=setpoint;
+    this->heaterReset=r->regulator_reset();
+    this->experimentMode=r->mode()==heaterexperiment::Mode::Mode_ClosedLoop?ExperimentMode::closedloop_heater:ExperimentMode::openloop_heater;
     
-    //Fill return data
-    hal->GetAnalogInputs(data);
-    return ErrorCode::OK;
-}
-ErrorCode DeviceManager::TriggerPtnExperimentFunctionblock(float **data){
-    //Trigger
-    this->lastExperimentTrigger=hal->GetMillis();
-    this->experimentMode=ExperimentMode::functionblock;
-    //Fill return data
-    hal->GetAnalogInputs(data);
-    return ErrorCode::OK;
-}
-ErrorCode DeviceManager::TriggerAirspeedExperimentClosedLoop(float setpointAirspeed, float setpointServo1, float KP, float TN, float TV, bool reset, AirspeedExperimentData *data){
-    //Trigger
-    this->lastExperimentTrigger=hal->GetMillis();
-    this->airspeedReset=reset;
-    this->experimentMode=ExperimentMode::closedloop_airspeed;
     //New Setpoints
-    this->setpointAirspeed=setpointAirspeed;
-    this->setpointServo1=setpointServo1;
-    this->airspeedKP=KP;
-    this->airspeedTN_secs=TN;
-    this->airspeedTV_secs=TV;
-    //Fill return data 
-    hal->GetFanDuty(0, &data->Fan);
-    hal->GetAirSpeed(&(data->ActualAirspeed));
-    data->SetpointAirspeed=setpointAirspeed;
-    data->Servo=this->setpointServo1;
+    this->setpointTemperature=r->setpoint_temperature_degrees();
+    this->setpointFan=r->fan_speed_percent();
+    this->heaterKP=r->kp();
+    this->heaterTN_secs=r->tn();
+    this->heaterTV_secs=r->tv();
+    this->heaterWorkingPointOffset=r->heater_power_working_point_percent();
+    float heaterTemp{0.0};
+    float fanDuty{0.0};
+    hal->GetFanDuty(0, &fanDuty);
+    hal->GetHeaterTemperature(&heaterTemp);
+    b.Finish(heaterexperiment::CreateResponseHeater(b, setpointTemperature, heaterTemp, hal->GetHeaterState(), fanDuty));
     return ErrorCode::OK;
 }
-ErrorCode DeviceManager::TriggerAirspeedExperimentOpenLoop(float setpointFan2, float setpointServo1, AirspeedExperimentData *data){
-    //Trigger
-    this->lastExperimentTrigger=hal->GetMillis();
-    this->experimentMode=ExperimentMode::openloop_heater;
-    //New Setpoints
-    this->setpointFan2=setpointFan2;
-    this->setpointServo1=setpointServo1;
-    //Fill return data
-    hal->GetFanDuty(0, &data->Fan);
-    hal->GetAirSpeed(&(data->ActualAirspeed));
-    data->SetpointAirspeed=setpointAirspeed;
-    data->Servo=this->setpointServo1;
-    return ErrorCode::OK;
-}
-ErrorCode DeviceManager::TriggerAirspeedExperimentFunctionblock(AirspeedExperimentData *data){
-    //Trigger
-    this->lastExperimentTrigger=hal->GetMillis();
-    this->experimentMode=ExperimentMode::functionblock;
-    //Fill return data
-    hal->GetFanDuty(0, &data->Fan);
-    hal->GetAirSpeed(&(data->ActualAirspeed));
-    data->SetpointAirspeed=setpointAirspeed;
-    data->Servo=this->setpointServo1;
-    return ErrorCode::OK;
-}
-/*
-ErrorCode DeviceManager::TriggerBorisUDP(uint8_t *requestU8, size_t requestLen, uint8_t* responseU8, size_t& responseLen){
-    //Trigger
-    this->lastExperimentTrigger=hal->GetMillis();
-    this->experimentMode=ExperimentMode::boris_udp;
-    if((uint32_t)requestU8%4!=0){
-        ESP_LOGE(TAG, "Data Buffer not aligned property");
-        return ErrorCode::GENERIC_ERROR;
-    }
-    if((uint32_t)responseU8%4!=0){
-        ESP_LOGE(TAG, "Response Buffer not aligned property");
-        return ErrorCode::GENERIC_ERROR;
-    }
 
-    if(responseLen<sizeof(MessageInputDataLabAtHome)){
-        ESP_LOGE(TAG, "Response Buffer (%d) is too small for the response(%d)", responseLen, sizeof(MessageInputDataLabAtHome));
-        return ErrorCode::GENERIC_ERROR;
-    }
-   
-
-    uint32_t* requestU32 = (uint32_t*) requestU8;
-    uint32_t messageType = requestU32[0];
-    
-    switch (messageType)
-    {
-        case MESSAGE_TYPE_CONFIG:{
-            hal->UpdatePinConfiguration(requestU8, requestLen);
-        }
-        break;
-        case MESSAGE_TYPE_OUTPUTDATA_LABATHOME:{
-             if(requestLen!=sizeof(MessageOutputDataLabAtHome)){
-                ESP_LOGE(TAG, "requestLen %d!=sizeof(MessageOutputDataLabAtHome)", requestLen);
-                return ErrorCode::INDEX_OUT_OF_BOUNDS;
-            }
-            MessageOutputDataLabAtHome* output = (MessageOutputDataLabAtHome*)requestU8;
-            
-            LOGD(TAG, "Got a MESSAGE_TYPE_OUTPUTDATA_LABATHOME with DutyFan1 %f RelayK3 %d LED0 %lu", output->DutyFan1Percent, output->RelayK3, output->LED0);
-           
-
-            if(!std::isnan(output->AnalogOutputVolts)){
-                hal->SetAnalogOutput(0, output->AnalogOutputVolts);
-            }
-            if(!std::isnan(output->AngleServo1Degress)){
-                hal->SetServoPosition(0, output->AngleServo1Degress);
-            }
-            if(!std::isnan(output->AngleServo2Degress)){
-                hal->SetServo1Position(1, output->AngleServo2Degress);
-            }
-            if(!std::isnan(output->DutyFan1Percent)){
-                hal->SetFanDuty(output->DutyFan1Percent);
-            }
-            
-            
-            if(!std::isnan(output->DutyFan2Percent)){
-                //Data from WinFact still has this field hal->SetFan2Duty(output->DutyFan2Percent);
-            }
-            
-            if(!std::isnan(output->DutyHeaterPercent)){
-                hal->SetHeaterDuty(output->DutyHeaterPercent);
-            }
-            if(!std::isnan(output->DutyPowerLedPercent)){
-                hal->SetLedPowerWhiteDuty(output->DutyPowerLedPercent);
-            }
-            hal->ColorizeLed(0, output->LED0);
-            hal->ColorizeLed(1, output->LED1);
-            hal->ColorizeLed(2, output->LED2);
-            hal->ColorizeLed(3, output->LED3);
-            if(output->RelayK3!=0xFF){
-                hal->SetRelayState(output->RelayK3);
-            }
-            if(output->SoundIsValid == VALID){
-                hal->SetSound(output->SoundValue);
-            }
-            if(!std::isnan(output->UsbSupplyVoltageVolts)){
-                ESP_LOGE(TAG, "output->UsbSupplyVoltageVolts not yet implemented");
-            }
-            MessageInputDataLabAtHome* input = (MessageInputDataLabAtHome*)responseU8;
-            float* analogInputs{nullptr};
-            hal->GetCO2PPM(&input->AirCo2PPM);
-            hal->GetAirPressure(&input->AirPressurePa);
-            hal->GetAirPressure(&input->AirQualityPercent);
-            hal->GetAmbientBrightness(&input->AmbientBrightnessLux);
-            hal->GetAnalogInputs(&analogInputs);
-            input->AnalogInputVolt=analogInputs[0];
-            input->ButtonGreen=hal->GetButtonGreenIsPressed();
-            input->ButtonRed=hal->GetButtonRedIsPressed();
-            input->ButtonYellow=hal->GetButtonEncoderIsPressed();
-            //hal->GetFanRpm(&input->Fan1RotationsRpM);
-            hal->GetHeaterTemperature(&input->HeaterTemperatureDegCel);
-            hal->GetEncoderValue(&input->IncrementalEncoderDetents);
-            input->IncrementalEncoderIsValid=0x01;
-            input->MessageType=MESSAGE_TYPE_INPUTDATA_LABATHOME;
-            input->MovementSensor=hal->IsMovementDetected();
-            input->SoundIsValid=0x01;
-            int32_t songNumber;
-            hal->GetSound(&songNumber);
-            input->SoundValue=(BorisInt)songNumber;
-            input->UsbSupplyVoltageVolts=hal->GetUSBCVoltage();
-            hal->GetWifiRssiDb(&input->WifiSignalStrengthDB);
-            responseLen=sizeof(MessageInputDataLabAtHome);
-         
-        }
-        break;
-        case MESSAGE_TYPE_OUTPUTDATA_PTNCHEN:{
-             if(requestLen!=sizeof(MessageOutputDataPtnchen)){
-                ESP_LOGE(TAG, "requestLen %d!=sizeof(MessageOutputDataPtnchen)", requestLen);
-                return ErrorCode::INDEX_OUT_OF_BOUNDS;
-            }
-            MessageOutputDataPtnchen* output = (MessageOutputDataPtnchen*)requestU8;
-            
-            LOGD(TAG, "Got a MESSAGE_TYPE_OUTPUTDATA_Ptnchen with Output %f LED0 %lu", output->AnalogOutputVolts, output->LED0);
-            if(!std::isnan(output->AnalogOutputVolts)){
-                hal->SetAnalogOutput(0, output->AnalogOutputVolts);
-            }
-            hal->ColorizeLed(0, output->LED0);
-            hal->ColorizeLed(1, output->LED1);
-            hal->ColorizeLed(2, output->LED2);
-            hal->ColorizeLed(3, output->LED3);
-            
-            MessageInputDataPtnchen* input = (MessageInputDataPtnchen*)responseU8;
-            float* analogInputs{nullptr};
-            hal->GetAnalogInputs(&analogInputs);
-            bool button = hal->GetButtonRedIsPressed();
-            input->Button=button;
-            input->INPUT=analogInputs[0];
-            input->MessageType=MESSAGE_TYPE_INPUTDATA_PTNCHEN;
-            input->PTN1=analogInputs[1];
-            input->PTN2=analogInputs[2];
-            input->PTN3=analogInputs[3];
-            responseLen=sizeof(MessageInputDataPtnchen);
-        }
-        break;
-    }
-    return ErrorCode::OK;
-}
-*/
