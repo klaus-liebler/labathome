@@ -81,6 +81,21 @@ export default gulp.series(
 export async function getGitInfo(cb: gulp.TaskFunctionCallback) {
   console.log(await getLastCommit());
 }
+import {ApiKeysClient} from '@google-cloud/apikeys'
+export async function createGoogleApiKey(cb: gulp.TaskFunctionCallback){
+  const parent = 'labathome-434220'
+  const key  = {}
+  const keyId= strInterpolator(bi.hostname_template, bi);
+  
+
+  // Instantiates a client
+  const apikeysClient = new ApiKeysClient();
+    const [operation] = await apikeysClient.createKey({parent, key, keyId});
+    const [response] = await operation.promise();
+    console.log(response);
+    cb();
+}
+
 
 export async function compileAndDistributeFlatbuffers(cb: gulp.TaskFunctionCallback) {
   await flatbuffers_generate_c();
