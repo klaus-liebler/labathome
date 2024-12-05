@@ -12,10 +12,7 @@
 constexpr uint32_t TRIGGER_FALLBACK_TIME_MS{10000};
 constexpr size_t FILE_PATH_MAX =ESP_VFS_PATH_MAX + CONFIG_SPIFFS_OBJ_NAME_LEN;
 
-constexpr const char* FBDSTORE_BASE = "/spiffs/fbd/";
-constexpr const char* FBDSTORE_BASE_DIRECTORY = "/spiffs/fbd";    
-constexpr const char *DEFAULT_FBD_FILENAME =  "/spiffs/default.fbd";
-constexpr const char *TEMP_FBD_FILENAME = "/spiffs/temp.fbd";
+
 constexpr TickType_t xFrequency {pdMS_TO_TICKS(50)};
 constexpr const char *TAG = "devicemanager";
 
@@ -167,7 +164,7 @@ void DeviceManager::EternalLoop(){
     
     // Initialise the xLastWakeTime variable with the current time.
     xLastWakeTime = xTaskGetTickCount();
-    if(this->ParseNewExecutableAndEnqueue("/spiffs/default.fbd")!=ErrorCode::OK){
+    if(this->ParseNewExecutableAndEnqueue(DEFAULT_FBD_FILEPATH)!=ErrorCode::OK){
         ESP_LOGW(TAG, "No default.fbd found. Continuing with factory dummy fbd");
     }
     hal->GreetUserOnStartup();

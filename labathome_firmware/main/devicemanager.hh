@@ -13,6 +13,12 @@
 
 #include "flatbuffers/flatbuffers.h"
 #include "../generated/flatbuffers_cpp/heaterexperiment_generated.h"
+
+//see Flowchart.ts -values must be the same
+constexpr const char *FBDSTORE_BASE_DIRECTORY = "/spiffs/fbdstore/";    
+constexpr const char *DEFAULT_FBD_FILEPATH =  "/spiffs/default.fbd";
+constexpr const char *TEMP_FBD_FILEPATH = "/spiffs/temp.fbd";
+
 class FunctionBlock;
 class Executable
 {

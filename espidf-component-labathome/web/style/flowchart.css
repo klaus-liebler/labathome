@@ -34,6 +34,7 @@
   grid-column: 2;
   margin:5px;
 }
+
 .dropdown {
   float: left;
   overflow: hidden; 
@@ -75,10 +76,6 @@
 
 .dropdown-content a:hover {
   background-color: #ddd;
-}
-
-.show {
-  display: block;
 }
 
 .flowchart-operatorlibdiv{

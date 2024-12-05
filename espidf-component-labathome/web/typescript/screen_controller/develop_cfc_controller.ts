@@ -7,8 +7,6 @@ import { createRef, ref, Ref } from "lit-html/directives/ref.js";
 import { ByteBuffer } from "flatbuffers";
 
 
-import { Namespace, ResponseDebugData, Responses, ResponseWrapper} from "../../generated/flatbuffers/functionblock";
-
 
 export class DevelopCFCController extends ScreenController {
     

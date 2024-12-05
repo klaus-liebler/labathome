@@ -14,7 +14,7 @@ dialog[open] {
   animation: slide-up 0.4s ease-out;
 }
 
-#dialog-close {
+dialog>header>button {
   position: absolute;
   top: 0.2em;
   right: 0.2em;
@@ -24,13 +24,13 @@ dialog[open] {
   border: 0;
   font-size: 2em;
 }
-#dialog-heading,
-#dialog-body,
-#dialog-footer {
+dialog>header,
+dialog>main,
+dialog>footer {
   padding: 1em;
 }
 
-#dialog-heading {
+dialog>header{
   margin: 0;
   padding-bottom: 0.6em;
   background-color: var(--blue-7);
@@ -39,14 +39,14 @@ dialog[open] {
   border-bottom: 1px solid var(--blue-5);
 }
 
-#dialog-body{
+dialog>main{
   button {
     width:50px;
     height: 30px;;
   }
 }
 
-#dialog-footer {
+dialog>footer {
   border-bottom: 1px solid var(--blue-5);
   button {
     padding: 0.4em 1em 0.2em;

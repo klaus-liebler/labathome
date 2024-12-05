@@ -15,7 +15,7 @@ export default defineConfig({
     __BOARD_NAME__: JSON.stringify("BOARD_NAME"),
     __BOARD_VERSION__: 0,
     __BOARD_MAC__: 1,
-    __APP_NAME__: JSON.stringify("La@Home build manually"),
+    __APP_NAME__: JSON.stringify("Lab@Home build manually"),
     __APP_VERSION__: JSON.stringify("APP_VERSION"),
     __CREATION_DT__: 0,
     ENABLE_HEATER_EXPERIMENT: true,
@@ -34,10 +34,14 @@ export default defineConfig({
       key: fs.readFileSync('../certificates/testserver.pem.key'),
       cert: fs.readFileSync('../certificates/testserver.pem.crt'),
     },
+
     proxy: {
       "/webmanager_ws": {
         target: "ws://localhost:3000",
         ws: true,
+      },
+      "/files":{
+        target: "http://localhost:3000",
       }
     }
   }

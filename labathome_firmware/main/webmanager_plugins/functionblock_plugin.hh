@@ -38,7 +38,7 @@ class FunctionblockPlugin : public webmanager::iWebmanagerPlugin
         
         case functionblock::Requests::Requests_RequestFbdRun:
         {
-            devicemanager->ParseNewExecutableAndEnqueue("/spiffs/temp.fbd");
+            devicemanager->ParseNewExecutableAndEnqueue(TEMP_FBD_FILEPATH);
             flatbuffers::FlatBufferBuilder b(256);
             functionblock::CreateResponseFbdRun(b);
             callback->WrapAndSendAsync(functionblock::Namespace::Namespace_Value, b);

@@ -10,7 +10,12 @@ import { SimulationManager } from "./SimulationManager";
 import { FlowchartData, OperatorData, LinkData } from "./FlowchartData";
 import { FilelistDialog, FilenameDialog, OkDialog } from "../dialog_controller/dialog_controller";
 import { Namespace, RequestDebugData, RequestFbdRun, ResponseDebugData, ResponseFbdRun, Responses, ResponseWrapper } from "../../generated/flatbuffers/functionblock";
+import { Menu, MenuItem, MenuManager } from "./MenuManager";
 
+//see devicemanager.hh
+const FBDSTORE_BASE_DIRECTORY = "/spiffs/fbdstore/";    
+const DEFAULT_FBD_FILEPATH =  "/spiffs/default.fbd";
+const TEMP_FBD_FILEPATH = "/spiffs/temp.fbd";
 
 export class FlowchartOptions {
     canUserEditLinks: boolean = true;
@@ -43,10 +48,15 @@ export class FlowchartCallback {
     onAfterChange?: (changeType: any) => void;
 }
 
-
+enum FlowchartMode{
+    EDIT,
+    SIMULATE,
+    DEBUG,
+}
 
 export class Flowchart {
     TriggerDebug() {
+        if(this.mode!=FlowchartMode.DEBUG) return;
         let b = new flatbuffers.Builder(1024);
         b.finish(RequestDebugData.createRequestDebugData(b))
         this.appManagement.WrapAndSend(Namespace.Value, b, 3000);
@@ -65,6 +75,7 @@ export class Flowchart {
         }
     }
 
+    private mode=FlowchartMode.EDIT;
     private operatorRegistry: operatorimpl.OperatorRegistry;
     private simulationManager?: SimulationManager | null;
     private operators = new Map<number, FlowchartOperator>();
@@ -98,6 +109,7 @@ export class Flowchart {
     private markerCircle: SVGCircleElement;
 
     private onResponseDebugData(d: ResponseDebugData) {
+        if(this.mode!=FlowchartMode.DEBUG) return;
         if (this.currentDebugInfo == null) return;
 
         if (d.debugInfoHash() != this.currentDebugInfo.hash) {
@@ -170,6 +182,7 @@ export class Flowchart {
     }
 
     public _notifyGlobalMousemoveWithLink(e: MouseEvent) {
+        if(this.mode!=FlowchartMode.EDIT) return;
         if (this.lastOutputConnectorClicked != null && !this.temporaryLinkSnapped) {
             let end = EventCoordinatesInSVG(e, this.flowchartContainerSvgSvg, this.positionRatio);
             this.temporaryLink.setAttribute('x2', "" + end.x);
@@ -178,10 +191,12 @@ export class Flowchart {
     }
 
     public _notifyGlobalMouseupWithLink(e: MouseEvent) {
+        if(this.mode!=FlowchartMode.EDIT) return;
         this.unsetTemporaryLink();
     }
 
     public _notifyOutputConnectorMousedown(c: FlowchartOutputConnector, e: MouseEvent) {
+        if(this.mode!=FlowchartMode.EDIT) return;
         this.temporaryLinkSnapped = false;
         let start = c.GetLinkpoint();
         let end = EventCoordinatesInSVG(e, this.flowchartContainerSvgSvg, this.positionRatio);
@@ -201,6 +216,7 @@ export class Flowchart {
     }
 
     public _notifyInputConnectorMouseup(c: FlowchartInputConnector, e: MouseEvent) {
+        if(this.mode!=FlowchartMode.EDIT) return;
         if (this.lastOutputConnectorClicked == null) return;
         if (!this.options.multipleLinksOnInput && c.LinksLength > 0) return;
         if (this.lastOutputConnectorClicked.Type == c.Type) {
@@ -211,14 +227,17 @@ export class Flowchart {
     }
 
     public _notifyOperatorClicked(o: FlowchartOperator, e: MouseEvent) {
+        if(this.mode!=FlowchartMode.EDIT) return;
         this.SelectOperator(o);
     }
 
     public _notifyLinkClicked(link: FlowchartLink, e: MouseEvent) {
+        if(this.mode!=FlowchartMode.EDIT) return;
         this.selectLink(link);
     }
 
     public _notifyInputConnectorMouseenter(c: FlowchartInputConnector, e: MouseEvent) {
+        if(this.mode!=FlowchartMode.EDIT) return;
         if (this.lastOutputConnectorClicked == null || this.lastOutputConnectorClicked.Type != c.Type) return;
         if (!this.options.multipleLinksOnInput && c.LinksLength > 0) return;
 
@@ -230,11 +249,13 @@ export class Flowchart {
     }
 
     public _notifyInputConnectorMouseleave(c: FlowchartInputConnector, e: MouseEvent) {
+        if(this.mode!=FlowchartMode.EDIT) return;
         this.temporaryLinkSnapped = false;
         this.temporaryLink.setAttribute("marker-end", "url(#marker-arrow)");
     }
 
     public unselectLink() {
+        if(this.mode!=FlowchartMode.EDIT) return;
         if (this.selectedLink != null) {
             if (this.flowchartCallbacks.onLinkUnselect && !this.flowchartCallbacks.onLinkUnselect(this.selectedLink)) {
                 return;
@@ -245,6 +266,7 @@ export class Flowchart {
     }
 
     public selectLink(link: FlowchartLink) {
+        if(this.mode!=FlowchartMode.EDIT) return;
         this.unselectLink();
         if (this.flowchartCallbacks.onLinkSelect && !this.flowchartCallbacks.onLinkSelect(link)) {
             return;
@@ -255,6 +277,7 @@ export class Flowchart {
     }
 
     private deleteSelectedThing(): void {
+        if(this.mode!=FlowchartMode.EDIT) return;
         if (this.selectedOperator) {
             this.DeleteOperator(this.selectedOperator.GlobalOperatorIndex);
         }
@@ -328,7 +351,7 @@ export class Flowchart {
         var compilerInstance = new FlowchartCompiler(this.operators);
         var guidAndBufAndMap: HashAndBufAndMaps = compilerInstance.Compile();
         var view1 = new DataView(new ArrayBuffer(4));
-        view1.setUint32(0, 123456, true); //ESP32 is little-endian: true für little-endian, false für big-endian
+        view1.setUint32(0, guidAndBufAndMap.buf.byteLength, true); //ESP32 is little-endian: true für little-endian, false für big-endian
         var stringBuffer = new TextEncoder().encode(this.fbd2json()).buffer;
         var combinedBuffer = new Uint8Array(view1.byteLength + guidAndBufAndMap.buf.byteLength + stringBuffer.byteLength);
         combinedBuffer.set(new Uint8Array(view1.buffer), 0);
@@ -356,6 +379,7 @@ export class Flowchart {
     private getFbdFileFromLabathome(path:string){
         let xhr = new XMLHttpRequest;
         xhr.open("GET", this.options.httpServerBasePath+path, true);
+        xhr.responseType="arraybuffer"
         xhr.onload = (e) => {
             let s = xhr.response as ArrayBuffer;
             var dv = new DataView(s);
@@ -399,10 +423,11 @@ export class Flowchart {
     private enterFilenameAndPostFbd(){
         this.appManagement.ShowDialog(new FilenameDialog("Enter filename (without Extension", (ok:boolean, filename:string)=>{
             if(!ok) return
-            this.postFbdFileToLabathome("/fbdstore/"+filename+".fbd")
+            this.postFbdFileToLabathome(FBDSTORE_BASE_DIRECTORY+filename+".fbd")
         }));
 
     }
+    
 
 
     private buildMenu(subcontainer: HTMLDivElement) {
@@ -411,101 +436,52 @@ export class Flowchart {
         fileInput.onchange = (e) => {
             this.openFromLocalFile(fileInput.files);
         }
-
-        let toolbar = Html(subcontainer, "div", [], ["develop-toolbar"]);
-        let menuFile = Html(toolbar, "div", [], ["dropdown"]);
-        let menuFileDropBtn = <HTMLButtonElement>Html(menuFile, "button", [], ["dropbtn"], "File ▼");
-        let menuFileDropContent = Html(menuFile, "div", [], ["dropdown-content"]);
-        menuFileDropBtn.onclick = (e) => { menuFileDropContent.classList.toggle("show"); };
-        Html(menuFileDropContent, "a", ["href", "#"], [], "📂 Open (Local)").onclick = (e) => {
-            Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
-            fileInput.click();
-            e.preventDefault();
-        }
-        Html(menuFileDropContent, "a", ["href", "#"], [], "📂 Open (labathome)").onclick = (e) => {
-            Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
-           this.getFbdFileListFromLabathome("/fbdstore/")
-            e.preventDefault();
-        }
-        Html(menuFileDropContent, "a", ["href", "#"], [], "📂 Open Default (labathome)").onclick = (e) => {
-            Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
-            this.getFbdFileFromLabathome("/default.fbd")
-            e.preventDefault();
-        }
-        Html(menuFileDropContent, "a", ["href", "#"], [], "💾 Save (Local)").onclick = (e) => {
-            Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
-            this.saveJSONToLocalFile();
-            e.preventDefault();
-        }
-
-        Html(menuFileDropContent, "a", ["href", "#"], [], "💾 Save (labathome)").onclick = (e) => {
-            Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
-            this.enterFilenameAndPostFbd();
-            e.preventDefault();
-        }
-        Html(menuFileDropContent, "a", ["href", "#"], [], "💾 Save Bin (Local)").onclick = (e) => {
-            Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
-            this.saveBinToLocalFile();
-            e.preventDefault();
-        }
-        //let runbutton = $.Html(toolbar, "a", ["href", "#"], ["develop-toolbar"], "Run");
-
-        let menuDebug = Html(toolbar, "div", [], ["dropdown"]);
-        let menuDebugDropBtn = <HTMLButtonElement>Html(menuDebug, "button", [], ["dropbtn"], "Debug ▼");
-
-        let menuDebugDropContent = Html(menuDebug, "div", [], ["dropdown-content"]);
-        menuDebugDropBtn.onclick = (e) => {
-            menuDebugDropContent.classList.toggle("show");
-        };
-        Html(menuDebugDropContent, "a", ["href", "#"], [], "☭ Run Now").onclick = (e) => {
-            Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
-            this.postFbdFileToLabathome("/temp.fbd", 
-                (p:string)=>{
-                    let b = new flatbuffers.Builder(1024);
-                    b.finish(RequestFbdRun.createRequestFbdRun(b));
-                    this.appManagement.WrapAndSend(Namespace.Value, b, 3000);
-                },
-                (p:string)=>{
-                   console.error(`As file "${p}" could no be savewd on labathome, the RequestFbdRun will not be sent to labathome`)
-                }
-            )
-            e.preventDefault();
-        }
-        Html(menuDebugDropContent, "a", ["href", "#"], [], "👣 Set as Startup-App").onclick = (e) => {
-            Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
-            this.postFbdFileToLabathome("/default.fbd") 
-            e.preventDefault();
-        }
-        let menuSimulation = Html(toolbar, "div", [], ["dropdown"]);
-        let menuSimulationDropBtn = <HTMLButtonElement>Html(menuSimulation, "button", [], ["dropbtn"], "Simulation ▼");
-
-        let menuSimulationDropContent = Html(menuSimulation, "div", [], ["dropdown-content"]);
-        menuSimulationDropBtn.onclick = (e) => {
-            menuSimulationDropContent.classList.toggle("show");
-        };
-        Html(menuSimulationDropContent, "a", ["href", "#"], [], "➤ Start Simulation").onclick = (e) => {
-            Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
-            let compilerInstance = new FlowchartCompiler(this.operators);
-            this.simulationManager = new SimulationManager(compilerInstance.CompileForSimulation());
-            this.simulationManager.Start(false);
-            e.preventDefault();
-        }
-        Html(menuSimulationDropContent, "a", ["href", "#"], [], "× Stop Simulation").onclick = (e) => {
-            Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
-            this.simulationManager?.Stop();
-            e.preventDefault();
-        }
-        //let menuDebugLink2 = $.Html(menuDebugDropContent, "a", ["href", "#"], [], "◉ Stop");
-        //let menuDebugLink3 = $.Html(menuDebugDropContent, "a", ["href", "#"], [], "◯ Erase");
+        var mm:MenuManager=new MenuManager(
+            [
+                new Menu("File", [
+                    new MenuItem("📂 Open (Local)", ()=>fileInput.click()),
+                    new MenuItem("📂 Open (labathome)", ()=>this.getFbdFileListFromLabathome(FBDSTORE_BASE_DIRECTORY)),
+                    new MenuItem("📂 Open Default (labathome)", ()=>this.getFbdFileFromLabathome(DEFAULT_FBD_FILEPATH)),
+                    new MenuItem("💾 Save (Local)", ()=>this.saveJSONToLocalFile()),
+                    new MenuItem("💾 Save (labathome)", ()=>this.enterFilenameAndPostFbd()),
+                    new MenuItem("💾 Save Bin (Local)", ()=>this.saveBinToLocalFile()),
+                ]),
+                new Menu("Debug",[
+                    new MenuItem("☭ Start Debug", ()=>this.postFbdFileToLabathome(TEMP_FBD_FILEPATH, 
+                        (p:string)=>{
+                            let b = new flatbuffers.Builder(1024);
+                            b.finish(RequestFbdRun.createRequestFbdRun(b));
+                            this.appManagement.WrapAndSend(Namespace.Value, b, 3000);
+                            this.mode=FlowchartMode.DEBUG;
+                        },
+                        (p:string)=>{
+                           console.error(`As file "${p}" could no be saved on labathome, the RequestFbdRun will not be sent to labathome`)
+                        }
+                    )),
+                    new MenuItem("× Stop Debug", ()=>this.mode=FlowchartMode.EDIT), 
+                    new MenuItem("👣 Set as Startup-App", ()=>this.postFbdFileToLabathome(DEFAULT_FBD_FILEPATH)), 
+                ]),
+                new Menu("Simulation",[
+                    new MenuItem("➤ Start Simulation", ()=>{
+                        let compilerInstance = new FlowchartCompiler(this.operators);
+                        this.simulationManager = new SimulationManager(compilerInstance.CompileForSimulation());
+                        this.simulationManager.Start(false);
+                        this.mode=FlowchartMode.SIMULATE;
+                    }),
+                    new MenuItem("× Stop Simulation",()=>{
+                        this.simulationManager?.Stop();
+                        this.mode=FlowchartMode.EDIT;
+                    }) 
+                ])
+            ]
+        );
+        mm.Render(subcontainer)
     }
 
     public RenderUi(subcontainer: HTMLDivElement) {
         if (!subcontainer) throw new Error("container is null");
         //let subcontainer = <HTMLDivElement>Html(container, "div", [], ["develop-ui"]);
-        subcontainer.onclick = (e) => {
-            if ((<HTMLElement>e.target).classList.contains("dropbtn")) return;
-            Array.prototype.forEach.call(document.getElementsByClassName("dropdown-content"), (elem: HTMLDivElement) => { elem.classList.remove("show"); });
-        }
+        
 
         this.buildMenu(subcontainer);
 
@@ -573,6 +549,7 @@ export class Flowchart {
             this.operators.set(o.GlobalOperatorIndex, o);
         });
 
+        this.getFbdFileFromLabathome(DEFAULT_FBD_FILEPATH);
         this.recreateFlowchartFromData();
     }
 
@@ -600,8 +577,8 @@ export class Flowchart {
         this.recreateFlowchartFromData();
 
     }
-    private recreateFlowchartFromData() {
 
+    private recreateFlowchartFromData() {
         this.links.forEach((e) => e.RemoveFromDOM());
         this.links.clear();
         this.operators.forEach((e) => e.RemoveFromDOM());
