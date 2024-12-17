@@ -1,6 +1,6 @@
 import * as fs from "node:fs"
 import path from "node:path";
-import * as P from "../paths";
+import { BOARDS_BASE_DIR } from "../gulpfile_config";
 
 export interface IBoardInfo{
   mac:number,
@@ -19,6 +19,7 @@ export interface IBoardInfo{
   hostname_template:string,
   application_settings:any,
   espIdfProjectDirectory:string,
+  encryption_key_set:boolean,
 }
 
 export interface IApplicationInfo{
@@ -58,11 +59,11 @@ export function existsBoardSpecificPath(bi:IBoardInfo, subdir:string, filename:s
 
 export function boardSpecificPath(bi:IBoardInfo, subdir?:string, filename?:string){
   if(!subdir)
-    return path.join(P.BOARDS_BASE_DIR, bi.mac+"_"+bi.mac_12char);
+    return path.join(BOARDS_BASE_DIR, bi.mac+"_"+bi.mac_12char);
   else if(!filename)
-    return path.join(P.BOARDS_BASE_DIR, bi.mac+"_"+bi.mac_12char, subdir);
+    return path.join(BOARDS_BASE_DIR, bi.mac+"_"+bi.mac_12char, subdir);
   else
-    return path.join(P.BOARDS_BASE_DIR, bi.mac+"_"+bi.mac_12char, subdir, filename);
+    return path.join(BOARDS_BASE_DIR, bi.mac+"_"+bi.mac_12char, subdir, filename);
 }
 
 export function writeBoardSpecificFileCreateDirLazy(bi:IBoardInfo, subdir:string, filename:string, data: string | NodeJS.ArrayBufferView, callback?: fs.NoParamCallback) {

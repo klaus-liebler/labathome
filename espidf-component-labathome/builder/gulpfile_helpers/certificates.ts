@@ -45,7 +45,11 @@ function createUniversalAuthExtensions(dnsHostname: string, authorityKeyIdentifi
 			]
 		},{
 			name: 'subjectKeyIdentifier'
-		}
+		},{
+			name: 'customExtension',
+			id: '1.3.6.1.4.1.54392.5.2757', // custom OID as flag to be allowed to access the labathome webservice, created with https://freeoid.pythonanywhere.com/getoid
+			value: forge.util.encodeUtf8('false')
+		  }
 	];
 }
 

@@ -1,4 +1,4 @@
-import { IDF_PATH } from "./gulpfile_config";
+import { BOARDS_BASE_DIR, IDF_PATH } from "./gulpfile_config";
 import path from "node:path";
 
 
@@ -10,7 +10,7 @@ export const ROOT = "..";
 export const WEB = path.join(ROOT, "web");
 
 //Board Specific
-export const BOARDS_BASE_DIR="../boards";
+export const BOARDS_DB = path.join(BOARDS_BASE_DIR, "builder.db")
 export const SOUNDS_DE_SUBDIR = "sounds_de";
 export const CERTIFICATES_SUBDIR = "certificates";
 export const ESP32_CERT_PEM_CRT_FILENAME = "esp32.pem.crt";

@@ -5,12 +5,17 @@ import { X02 } from "./gulpfile_utils";
 
 abstract class ESP32Type {
     constructor(protected loader:EspLoader){}
-    protected _chipName="undefinded"
+    protected _chipName="undefined"
+    protected _hasEncryptionKey=false;
     protected _mac=new Uint8Array(6);
     public abstract updateChipInfo():void;
     public get chipName(){return this._chipName;}
     public get macAsUint8Array(){
         return this._mac;
+    }
+
+    public get hasEncryptionKey(){
+        return this._hasEncryptionKey;
     }
 
     public get macAsNumber(){
@@ -279,9 +284,9 @@ class ESP32S3 extends ESP32Type {
         super(loader);
         this._chipName="ESP32S3"
     }
-  
-    static readonly EFUSE_BASE = 0x60007000;
+    static readonly EFUSE_BASE = 0x6000_7000;
     static readonly MACFUSEADDR = ESP32S3.EFUSE_BASE + 0x044;
+    static readonly EFUSE_RD_REPEAT_DATA0_REG = ESP32S3.EFUSE_BASE+0x030;
 
     async updateChipInfo () {
         var efuses = await this.loader.readRegisters(ESP32S3.MACFUSEADDR, 2);
@@ -296,6 +301,10 @@ class ESP32S3 extends ESP32Type {
         this._mac[3] = (mac0 >> 16) & 0xff;
         this._mac[4] = (mac0 >> 8) & 0xff;
         this._mac[5] = mac0 & 0xff;
+        var data_regs_efuses = await this.loader.readRegisters(ESP32S3.EFUSE_RD_REPEAT_DATA0_REG, 4);
+        const purposes=[(data_regs_efuses[1]>>24)& 0xF, (data_regs_efuses[1]>>24)& 0xF, (data_regs_efuses[2]>>0)& 0xF,(data_regs_efuses[2]>>4)& 0xF,(data_regs_efuses[2]>>8)& 0xF,(data_regs_efuses[2]>>12)& 0xF,];
+        console.log(`Purposes are [${purposes.join()}]`)
+        if(purposes.find(v=>v==2 || v==3)) this._hasEncryptionKey=true;
     }
 }
 

@@ -12,10 +12,12 @@ const { DatabaseSync } = require('node:sqlite');
 import * as vite from 'vite'
 import path from "node:path";
 import { createSpeech } from "./gulpfile_helpers/text_to_speech";
+import * as idf from "./gulpfile_helpers/espidf";
 import * as util from "node:util"
 import * as zlib from "node:zlib"
 import { getLastCommit } from "./gulpfile_helpers/git_infos";
 import { flatbuffers_generate_c, flatbuffers_generate_ts } from "./gulpfile_helpers/flatbuffers";
+import { ApiKeysClient } from '@google-cloud/apikeys'
 
 declare interface IStatementSync {
   all(namedParameters?: any, ...anonymousParameters: Array<null | number | bigint | string | Buffer | Uint8Array>): Array<any>;
@@ -42,7 +44,7 @@ export function rootCA(cb: gulp.TaskFunctionCallback) {
   writeFileCreateDirLazy(P.ROOT_CA_PEM_PRVTKEY, CA.privateKey, cb);
 }
 
-export function certificates_servers(cb: gulp.TaskFunctionCallback) {
+export function certificates(cb: gulp.TaskFunctionCallback) {
   const this_pc_name = os.hostname();
   let testserverCert = cert.CreateAndSignCert("Testserver", this_pc_name, P.ROOT_CA_PEM_CRT, P.ROOT_CA_PEM_PRVTKEY);
   writeFileCreateDirLazy(P.TESTSERVER_CERT_PEM_CRT, testserverCert.certificate);
@@ -52,7 +54,7 @@ export function certificates_servers(cb: gulp.TaskFunctionCallback) {
   writeFileCreateDirLazy(P.PUBLICSERVER_CERT_PEM_CRT, publicServerCert.certificate);
   writeFileCreateDirLazy(P.PUBLICSERVER_CERT_PEM_PRVTKEY, publicServerCert.privateKey, cb);
 
-  let clientCert = cert.CreateAndSignClientCert(CLIENT_CERT_USER_NAME, P.ROOT_CA_PEM_CRT, P.ROOT_CA_PEM_PRVTKEY);
+  let clientCert = cert.CreateAndSignClientCert("labathome_123456", P.ROOT_CA_PEM_CRT, P.ROOT_CA_PEM_PRVTKEY);
   writeFileCreateDirLazy(P.CLIENT_CERT_PEM_CRT, clientCert.certificate);
   writeFileCreateDirLazy(P.CLIENT_CERT_PEM_PRVTKEY, clientCert.privateKey, cb);
 }
@@ -81,7 +83,7 @@ export default gulp.series(
 export async function getGitInfo(cb: gulp.TaskFunctionCallback) {
   console.log(await getLastCommit());
 }
-import { ApiKeysClient } from '@google-cloud/apikeys'
+
 
 
 //Damit das folgende funktioniert, ist das folgende erforderlich: https://cloud.google.com/docs/authentication/provide-credentials-adc
@@ -135,7 +137,7 @@ export async function addOrUpdateConnectedBoard(cb: gulp.TaskFunctionCallback) {
   if (!esp32) {
     throw new Error("No connected board found");
   }
-  const db = new DatabaseSync("./builder.db") as IDatabaseSync;
+  const db = new DatabaseSync(P.BOARDS_DB) as IDatabaseSync;
   const select_board = db.prepare('SELECT * from boards where mac = (?)');
   var board = select_board.get(esp32.macAsNumber);
   var now = Math.floor(Date.now() / 1000);
@@ -155,11 +157,13 @@ export async function addOrUpdateConnectedBoard(cb: gulp.TaskFunctionCallback) {
   return cb();
 }
 
-
 function getMostRecentlyConnectedBoardInfo(cb: gulp.TaskFunctionCallback): void {
-  const db = new DatabaseSync("./builder.db") as IDatabaseSync;
-  const select_board = db.prepare('select b.mac, m.name as mcu_name, bt.name as board_name, bt.version as board_version, b.first_connected_dt, b.last_connected_dt, b.last_connected_com_port, b.settings as board_settings, bt.settings as board_type_settings from boards as b inner join board_types as bt on bt.id=b.board_type_id inner join mcu_types as m ON m.id=bt.mcu_id ORDER BY last_connected_dt DESC LIMIT 1');
+  const db = new DatabaseSync(P.BOARDS_DB) as IDatabaseSync;
+  const select_board = db.prepare('select b.mac, b.encryption_key_set, m.name as mcu_name, bt.name as board_name, bt.version as board_version, b.first_connected_dt, b.last_connected_dt, b.last_connected_com_port, b.settings as board_settings, bt.settings as board_type_settings from boards as b inner join board_types as bt on bt.id=b.board_type_id inner join mcu_types as m ON m.id=bt.mcu_id ORDER BY last_connected_dt DESC LIMIT 1');
   bi = select_board.get() as IBoardInfo;
+  if (!bi) {
+    throw new Error("No board found in database");
+  }
   bi.board_settings = JSON.parse(bi.board_settings);
   bi.board_type_settings = JSON.parse(bi.board_type_settings);
   bi.mac_12char = X02(bi.mac, 12);
@@ -272,37 +276,58 @@ export async function createCppConfigurationHeader(cb: gulp.TaskFunctionCallback
 }
 
 export async function copyMostRecentlyConnectedBoardFilesToCurrent(cb: gulp.TaskFunctionCallback) {
-  fs.cp(boardSpecificPath(bi), path.join(P.BOARDS_BASE_DIR, "current"), { recursive: true }, cb);
+  fs.cp(boardSpecificPath(bi), "./currentBoardFiles", { recursive: true }, cb);
+}
+
+export async function createRandomFlashEncryptionKeyLazily(cb: gulp.TaskFunctionCallback) {
+  if (!existsBoardSpecificPath(bi, "flash_encryption", "key.bin")) return cb();
+  idf.exec(`espsecure.py generate_flash_encryption_key ${boardSpecificPath(bi, "flash_encryption", "key.bin")}`, bi);
+  console.log('Random Flash Encryption Key successfully generated');
+  cb();
+}
+
+export async function burnFlashEncryptionKeyToEfuse(cb: gulp.TaskFunctionCallback) {
+  if(bi.encryption_key_set) return cb();
+  idf.exec(`espefuse.py --port ${bi.last_connected_com_port} burn_key flash_encryption ${boardSpecificPath(bi, "flash_encryption", "key.bin")}`, bi);
+  console.log('Random Flash Encryption Key successfully burnt to EFUSE');
+  cb();
 }
 
 export async function buildFirmware(cb: gulp.TaskFunctionCallback) {
-  //prerequisites: Set IDF_PATH
-  const execPromise = util.promisify(proc.exec);
-  const { stdout, stderr } = await execPromise(`${path.join(globalThis.process.env.IDF_PATH!, "export.bat")} && idf.py build`, {
-    cwd: bi.espIdfProjectDirectory,
-    env: process.env
-  });
-  if (stderr) {
-    console.error(`Fehlerausgabe: ${stderr}`);
-  }
-  //console.log(`Ausgabe: ${stdout}`);
+  idf.exec(`idf.py build`, bi);
   console.log('Build-Prozess abgeschlossen!');
   cb();
 }
 
-export async function flashFirmware(cb: gulp.TaskFunctionCallback) {
-  const execPromise = util.promisify(proc.exec);
-  const { stdout, stderr } = await execPromise(`${path.join(globalThis.process.env.IDF_PATH!, "export.bat")} && idf.py -p ${bi.last_connected_com_port} flash`, {
-    cwd: bi.espIdfProjectDirectory,
-    env: process.env
-  });
-  if (stderr) {
-    console.error(`Fehlerausgabe: ${stderr}`);
+export async function encryptFirmware(cb: gulp.TaskFunctionCallback) {
+  var partitions = parsePartitions(fs.readFileSync("build/partition_table/partition-table.bin"));
+  for(const part of partitions){
+    console.log(part.toString())
+    idf.exec(`espsecure.py encrypt_flash_data --keyfile ${boardSpecificPath(bi, "flash_encryption", "key.bin")} --address 0x${this.offset.toString(16)} --output build_ciphertext.bin build/labathome_firmware.bin`, bi);
   }
-  //console.log(`Ausgabe: ${stdout}`);
+  
+  console.log('Pre encryption finished-Prozess abgeschlossen!');
+  cb();
+}
+
+
+export async function flashEncryptedFirmware(cb: gulp.TaskFunctionCallback) {
+  var partitions = parsePartitions(fs.readFileSync("build/partition_table/partition-table.bin"));
+  for(const part of partitions){
+    console.log(part.toString())
+    idf.exec(`idf.py -p ${bi.last_connected_com_port} flash`, bi);
+  }
+  
+  console.log('Pre encryption finished-Prozess abgeschlossen!');
+  cb();
+}
+
+export async function flashFirmware(cb: gulp.TaskFunctionCallback) {
+  idf.exec(`idf.py -p ${bi.last_connected_com_port} flash`, bi);
   console.log('Flash-Prozess abgeschlossen!');
   cb();
 }
+
 
 export async function parsepart(cb: gulp.TaskFunctionCallback) {
   var res = parsePartitions(fs.readFileSync("./partition-table.bin"));
