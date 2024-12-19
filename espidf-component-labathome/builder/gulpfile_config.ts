@@ -1,16 +1,19 @@
+import path from "node:path";
 import { X02 } from "./gulpfile_helpers/gulpfile_utils";
 const LABATHOME_150100 = 2
 const LABATHOME_150200 = 3
 
 
-export const BOARDS_BASE_DIR="C:/Users/KlausLiebler/netcase/esp32_boards";
+
 export const DEFAULT_BOARD_TYPE_ID=LABATHOME_150100
 
 export const USERSETTINGS_PARTITION_NAME="nvs"
 export const USERSETTINGS_PARTITION_SIZE_KILOBYTES=16;
 
 export const IDF_PATH=globalThis.process.env.IDF_PATH as string;
+export const USERPROFILE =globalThis.process.env.USERPROFILE as string;
 
+export const BOARDS_BASE_DIR= path.join(USERPROFILE, "netcase/esp32_boards");
 
 export const ESP32_HOSTNAME_TEMPLATE_XX = (mac:Uint8Array)=>{
     return `labathome_${X02(mac[3])}${X02(mac[4])}${X02(mac[5])}`;

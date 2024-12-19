@@ -66,9 +66,13 @@ export function boardSpecificPath(bi:IBoardInfo, subdir?:string, filename?:strin
     return path.join(BOARDS_BASE_DIR, bi.mac+"_"+bi.mac_12char, subdir, filename);
 }
 
-export function writeBoardSpecificFileCreateDirLazy(bi:IBoardInfo, subdir:string, filename:string, data: string | NodeJS.ArrayBufferView, callback?: fs.NoParamCallback) {
+export function createBoardSpecificPathLazy(bi:IBoardInfo, subdir:string) {
   var directory= boardSpecificPath(bi, subdir);
   fs.mkdirSync(directory, { recursive: true });
+}
+
+export function writeBoardSpecificFileCreateDirLazy(bi:IBoardInfo, subdir:string, filename:string, data: string | NodeJS.ArrayBufferView, callback?: fs.NoParamCallback) {
+  createBoardSpecificPathLazy(bi, subdir)
   if (callback) {
     fs.writeFile(boardSpecificPath(bi, subdir, filename), data, callback);
   } else {

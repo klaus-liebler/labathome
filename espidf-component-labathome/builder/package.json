@@ -5,7 +5,7 @@
   "main": "gulpfile.ts",
   "type": "module",
   "scripts": {
-    "gulp": "node --import tsx node_modules/gulp/bin/gulp",
+    "start": "node --import tsx node_modules/gulp/bin/gulp",
     "compileFB": "node --import tsx node_modules/gulp/bin/gulp compileAndDistributeFlatbuffers",
     "bfc": "node --import tsx node_modules/gulp/bin/gulp buildForCurrent",
     "gapi": "node --import tsx node_modules/gulp/bin/gulp createGoogleApiKey",

@@ -302,9 +302,10 @@ class ESP32S3 extends ESP32Type {
         this._mac[4] = (mac0 >> 8) & 0xff;
         this._mac[5] = mac0 & 0xff;
         var data_regs_efuses = await this.loader.readRegisters(ESP32S3.EFUSE_RD_REPEAT_DATA0_REG, 4);
-        const purposes=[(data_regs_efuses[1]>>24)& 0xF, (data_regs_efuses[1]>>24)& 0xF, (data_regs_efuses[2]>>0)& 0xF,(data_regs_efuses[2]>>4)& 0xF,(data_regs_efuses[2]>>8)& 0xF,(data_regs_efuses[2]>>12)& 0xF,];
-        console.log(`Purposes are [${purposes.join()}]`)
+        const purposes=[(data_regs_efuses[1]>>24)& 0xF, (data_regs_efuses[1]>>28)& 0xF, (data_regs_efuses[2]>>0)& 0xF,(data_regs_efuses[2]>>4)& 0xF,(data_regs_efuses[2]>>8)& 0xF,(data_regs_efuses[2]>>12)& 0xF,];
+        
         if(purposes.find(v=>v==2 || v==3)) this._hasEncryptionKey=true;
+        console.log(`Purposes are [${purposes.join()} -->hasEncryptionKey=${this.hasEncryptionKey}]`)
     }
 }
 

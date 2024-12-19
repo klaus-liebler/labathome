@@ -1,11 +1,11 @@
 import * as gulp from "gulp";
 import fs from "node:fs";
 import os from "node:os";
-import proc from "node:child_process";
+import proc, { ChildProcess } from "node:child_process";
 import * as esp from "./gulpfile_helpers/esp32"
 import { parsePartitions } from "./gulpfile_helpers/partition_parser"
 import * as cert from "./gulpfile_helpers/certificates"
-import { IBoardInfo, writeFileCreateDirLazy, X02, writeBoardSpecificFileCreateDirLazy, IApplicationInfo, existsBoardSpecificPath, strInterpolator, boardSpecificPath } from "./gulpfile_helpers/gulpfile_utils";
+import { IBoardInfo, writeFileCreateDirLazy, X02, writeBoardSpecificFileCreateDirLazy, IApplicationInfo, existsBoardSpecificPath, strInterpolator, boardSpecificPath, createBoardSpecificPathLazy } from "./gulpfile_helpers/gulpfile_utils";
 import { CLIENT_CERT_USER_NAME, DEFAULT_BOARD_TYPE_ID, PUBLIC_SERVER_FQDN } from "./gulpfile_config";
 import * as P from "./paths";
 const { DatabaseSync } = require('node:sqlite');
@@ -118,10 +118,8 @@ export async function createGoogleApiKey(cb: gulp.TaskFunctionCallback) {
   for await (const response of iterable) {
     console.log(response.restrictions?.apiTargets![0]);
   }
-
   cb();
 }
-
 
 export async function compileAndDistributeFlatbuffers(cb: gulp.TaskFunctionCallback) {
   await flatbuffers_generate_c();
@@ -130,7 +128,6 @@ export async function compileAndDistributeFlatbuffers(cb: gulp.TaskFunctionCallb
   fs.cpSync(P.GENERATED_FLATBUFFERS_TS, P.DEST_FLATBUFFERS_TYPESCRIPT_SERVER, { recursive: true });
   cb();
 }
-
 
 export async function addOrUpdateConnectedBoard(cb: gulp.TaskFunctionCallback) {
   var esp32 = await esp.GetESP32Object();
@@ -147,17 +144,17 @@ export async function addOrUpdateConnectedBoard(cb: gulp.TaskFunctionCallback) {
     if (!mcuType) {
       throw new Error(`Database does not know ${esp32.chipName}`);
     }
-    const insert_board = db.prepare('INSERT INTO boards VALUES(?,?,?,?,?,?,?,?)');
-    insert_board.run(esp32.macAsNumber, mcuType.id, DEFAULT_BOARD_TYPE_ID, now, now, esp32.comPort.path, null, null);
+    const insert_board = db.prepare('INSERT INTO boards VALUES(?,?,?,?,?,?,?,?,?)');
+    insert_board.run(esp32.macAsNumber, mcuType.id, DEFAULT_BOARD_TYPE_ID, now, now, esp32.comPort.path, null, null, esp32.hasEncryptionKey?1:0);
   } else {
-    const update_board = db.prepare('UPDATE boards set last_connected_dt = ?, last_connected_com_port= ? where mac = ? ');
-    update_board.run(now, esp32.comPort.path, esp32.macAsNumber);
+    const update_board = db.prepare('UPDATE boards set last_connected_dt = ?, last_connected_com_port= ?, encryption_key_set=? where mac = ? ');
+    update_board.run(now, esp32.comPort.path, esp32.macAsNumber, esp32.hasEncryptionKey?1:0);
   }
 
   return cb();
 }
 
-function getMostRecentlyConnectedBoardInfo(cb: gulp.TaskFunctionCallback): void {
+function getMostRecentlyConnectedBoardInfo_withoutCallback(): void {
   const db = new DatabaseSync(P.BOARDS_DB) as IDatabaseSync;
   const select_board = db.prepare('select b.mac, b.encryption_key_set, m.name as mcu_name, bt.name as board_name, bt.version as board_version, b.first_connected_dt, b.last_connected_dt, b.last_connected_com_port, b.settings as board_settings, bt.settings as board_type_settings from boards as b inner join board_types as bt on bt.id=b.board_type_id inner join mcu_types as m ON m.id=bt.mcu_id ORDER BY last_connected_dt DESC LIMIT 1');
   bi = select_board.get() as IBoardInfo;
@@ -179,10 +176,13 @@ function getMostRecentlyConnectedBoardInfo(cb: gulp.TaskFunctionCallback): void 
   bi.espIdfProjectDirectory = ai.espIdfProjectDirectory;
   bi.hostname_template = ai.hostname_template
   db.close();
+}
+
+function getMostRecentlyConnectedBoardInfo(cb: gulp.TaskFunctionCallback): void {
+  getMostRecentlyConnectedBoardInfo_withoutCallback();
   console.log(`Compiling for an ${bi.mcu_name} on board ${bi.board_name} ${bi.board_version} with mac 0x${bi.mac_6char} or ${bi.mac} at port ${bi.last_connected_com_port}`)
   cb();
 }
-
 
 export function createBoardCertificatesLazily(cb: gulp.TaskFunctionCallback) {
 
@@ -276,25 +276,34 @@ export async function createCppConfigurationHeader(cb: gulp.TaskFunctionCallback
 }
 
 export async function copyMostRecentlyConnectedBoardFilesToCurrent(cb: gulp.TaskFunctionCallback) {
-  fs.cp(boardSpecificPath(bi), "./currentBoardFiles", { recursive: true }, cb);
+  getMostRecentlyConnectedBoardInfo_withoutCallback()
+  fs.cp(boardSpecificPath(bi), "../currentBoardFiles", { recursive: true }, cb);
 }
 
 export async function createRandomFlashEncryptionKeyLazily(cb: gulp.TaskFunctionCallback) {
-  if (!existsBoardSpecificPath(bi, "flash_encryption", "key.bin")) return cb();
-  idf.exec(`espsecure.py generate_flash_encryption_key ${boardSpecificPath(bi, "flash_encryption", "key.bin")}`, bi);
+  getMostRecentlyConnectedBoardInfo_withoutCallback()
+  if (existsBoardSpecificPath(bi, "flash_encryption", "key.bin")){
+    console.info(`flash_encryption key for board  ${bi.board_name} ${bi.board_version} with mac 0x${bi.mac_6char} has already been created`);
+    return cb();
+  }
+  createBoardSpecificPathLazy(bi, "flash_encryption");
+  idf.espsecure(`generate_flash_encryption_key --keylen 512 ${boardSpecificPath(bi, "flash_encryption", "key.bin")}`, bi, true);
   console.log('Random Flash Encryption Key successfully generated');
   cb();
 }
 
 export async function burnFlashEncryptionKeyToEfuse(cb: gulp.TaskFunctionCallback) {
+  getMostRecentlyConnectedBoardInfo_withoutCallback()
   if(bi.encryption_key_set) return cb();
-  idf.exec(`espefuse.py --port ${bi.last_connected_com_port} burn_key flash_encryption ${boardSpecificPath(bi, "flash_encryption", "key.bin")}`, bi);
+  idf.espefuse(`--port ${bi.last_connected_com_port} --do-not-confirm burn_key BLOCK_KEY0 ${boardSpecificPath(bi, "flash_encryption", "key.bin")} XTS_AES_256_KEY`, bi);
+  //
   console.log('Random Flash Encryption Key successfully burnt to EFUSE');
   cb();
 }
 
 export async function buildFirmware(cb: gulp.TaskFunctionCallback) {
-  idf.exec(`idf.py build`, bi);
+  getMostRecentlyConnectedBoardInfo_withoutCallback()
+  idf.exec(`idf.py build`, bi, true);
   console.log('Build-Prozess abgeschlossen!');
   cb();
 }
@@ -332,7 +341,6 @@ export async function flashFirmware(cb: gulp.TaskFunctionCallback) {
 export async function parsepart(cb: gulp.TaskFunctionCallback) {
   var res = parsePartitions(fs.readFileSync("./partition-table.bin"));
   res.forEach(v => { console.log(v.toString()) })
-
   cb();
 }
 
