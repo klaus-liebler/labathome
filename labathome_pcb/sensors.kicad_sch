@@ -7845,7 +7845,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "VL53L5x"
+		(property "Value" "VL53L0x"
 			(at 138.43 24.1299 0)
 			(effects
 				(font
