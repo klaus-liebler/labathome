@@ -5,3 +5,4 @@ export const URL_PREFIX = "https://"+HOST;
 export const WS_PREFIX = "wss://"+HOST;
 export const WS_URL = WS_PREFIX + "/webmanager_ws";
 export const UPLOAD_URL=URL_PREFIX+"/ota";
+export const LABBY_URL = URL_PREFIX+"/labathome"

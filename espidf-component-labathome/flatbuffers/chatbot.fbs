@@ -1,0 +1,29 @@
+namespace chatbot;
+
+enum Namespace:uint32{
+    Value=5
+}
+
+union Requests{
+    RequestChat, 
+}
+
+union Responses{
+    ResponseChat, 
+}
+
+table ResponseChat{
+    text:string;
+}
+
+table RequestChat{
+    text:string;
+}
+
+table RequestWrapper{
+    request:Requests;
+}
+
+table ResponseWrapper{
+    response:Responses;
+}

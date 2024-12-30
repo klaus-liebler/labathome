@@ -49,3 +49,11 @@ table ResponseSystemData{
     chip_temperature:float;
     partitions:[PartitionInfo];
 }
+
+table RequestWrapper{
+    request:Requests;
+}
+
+table ResponseWrapper{
+    response:Responses;
+}

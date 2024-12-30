@@ -28,33 +28,36 @@
     margin: 0px;
     overflow-x: hidden;
     width: 100%;
-    >nav{
+
+    >nav {
       overflow: hidden;
       background: #333;
       position: relative;
       width: 100%;
       padding: 10px;
       margin-bottom: 20px;
-      
-      >ul{
+
+      >ul {
         display: none;
         list-style-type: none;
+        
+
         >li>a>span:nth-child(1) {
           display: none;
         }
       }
 
-      a{
-        color:white;
+      a {
+        color: white;
         padding: 14px 16px;
         text-decoration: none;
         font-size: 17px;
-        display: block;        
+        display: block;
       }
 
-      
+
       >a>i {
-        color:white;
+        color: white;
         background: #333;
         display: block;
         position: absolute;
@@ -79,42 +82,42 @@
     grid-row-gap: 10px;
     padding: 0;
     margin: 0;
-  }
 
+    >nav {
+      grid-column: 1/span 1;
+      grid-row-start: 2/span 1;
+
+      >a {
+        display: none;
+      }
+
+      >ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        background-color: #f1f1f1;
+        >li>a{
+          display: block;
+          color: #000;
+          padding: 8px 16px;
+          text-decoration: none;
+          display: flex;
+          flex-direction: row;
+          transition: color .2s ease-out;
   
-
-  body>nav {
-    grid-column: 1/span 1;
-    grid-row-start: 2/span 1;
-
-    ul {
-      list-style-type: none;
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      background-color: #f1f1f1;
-    }
-
-    >a{
-      display: none;
-    }
-
-    li a {
-      display: block;
-      color: #000;
-      padding: 8px 16px;
-      text-decoration: none;
-      display: flex;
-      flex-direction: row;
-      transition: color .2s ease-out;
-
-      :hover {
-        color: red;
+          :hover {
+            color: red;
+          }
+  
+          :nth-child(1) {
+            width: 30px;
+          }
+        }
       }
-      
-      :nth-child(1) {
-        width: 30px;
-      }
+
+
+
     }
   }
 
@@ -160,31 +163,57 @@
 }
 
 
-#snackbar{
-  visibility: hidden; /* Hidden by default. Visible on click */
-  min-width: 250px; /* Set a default minimum width */
-  margin-left: -125px; /* Divide value of min-width by 2 */
-  background-color: #4e4d4dcd; /* Black background color */
-  color: #fff; /* White text color */
-  text-align: center; /* Centered text */
-  border-radius: 2px; /* Rounded borders */
-  padding: 16px; /* Padding */
-  position: fixed; /* Sit on top of the screen */
-  z-index: 1; /* Add a z-index if needed */
-  left: 50%; /* Center the snackbar */
-  bottom: 30px; /* 30px from the bottom */
+#snackbar {
+  visibility: hidden;
+  /* Hidden by default. Visible on click */
+  min-width: 250px;
+  /* Set a default minimum width */
+  margin-left: -125px;
+  /* Divide value of min-width by 2 */
+  background-color: #4e4d4dcd;
+  /* Black background color */
+  color: #fff;
+  /* White text color */
+  text-align: center;
+  /* Centered text */
+  border-radius: 2px;
+  /* Rounded borders */
+  padding: 16px;
+  /* Padding */
+  position: fixed;
+  /* Sit on top of the screen */
+  z-index: 1;
+  /* Add a z-index if needed */
+  left: 50%;
+  /* Center the snackbar */
+  bottom: 30px;
+  /* 30px from the bottom */
 }
 
 
 @keyframes fadein {
-  from {bottom: 0; opacity: 0;}
-  to {bottom: 30px; opacity: 1;}
+  from {
+    bottom: 0;
+    opacity: 0;
+  }
+
+  to {
+    bottom: 30px;
+    opacity: 1;
+  }
 }
 
 
 @keyframes fadeout {
-  from {bottom: 30px; opacity: 1;}
-  to {bottom: 0; opacity: 0;}
+  from {
+    bottom: 30px;
+    opacity: 1;
+  }
+
+  to {
+    bottom: 0;
+    opacity: 0;
+  }
 }
 
 input:invalid {
@@ -212,7 +241,7 @@ input:invalid:required {
 }
 
 
-svg .iconsize{
+svg .iconsize {
   height: 24px;
   width: 24px;
 }
@@ -233,9 +262,9 @@ th {
   padding: 8px;
 }
 
-td.minwidth{
-  width:1%; 
-  white-space:nowrap;
+td.minwidth {
+  width: 1%;
+  white-space: nowrap;
 }
 
 tr:nth-child(odd) {
@@ -306,16 +335,12 @@ p {
   margin-bottom: 10px;
 }
 
-button.withsvg{
+button.withsvg {
   display: flex;
   align-items: center;
   padding: 5px;
-  span{
+
+  span {
     margin-left: 5px;
   }
 }
-
-
-
-
-

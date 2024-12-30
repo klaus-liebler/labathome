@@ -1,9 +1,9 @@
 import { SerialPort, SlipDecoder, SlipEncoder } from "serialport";
 import { SetOptions } from '@serialport/bindings-interface'
 import { autoDetect } from '@serialport/bindings-cpp'
-import { X02 } from "./gulpfile_utils";
+import { X02 } from "./utils";
 
-abstract class ESP32Type {
+export abstract class ESP32Type {
     constructor(protected loader:EspLoader){}
     protected _chipName="undefined"
     protected _hasEncryptionKey=false;
@@ -305,7 +305,6 @@ class ESP32S3 extends ESP32Type {
         const purposes=[(data_regs_efuses[1]>>24)& 0xF, (data_regs_efuses[1]>>28)& 0xF, (data_regs_efuses[2]>>0)& 0xF,(data_regs_efuses[2]>>4)& 0xF,(data_regs_efuses[2]>>8)& 0xF,(data_regs_efuses[2]>>12)& 0xF,];
         
         if(purposes.find(v=>v==2 || v==3)) this._hasEncryptionKey=true;
-        console.log(`Purposes are [${purposes.join()} -->hasEncryptionKey=${this.hasEncryptionKey}]`)
     }
 }
 
@@ -349,7 +348,7 @@ export async function GetESP32Object(): Promise<ESP32Type|null> {
         if(pi.productId!="1001" || pi.vendorId!="303A"){
             continue;
         }
-        console.log(`Checking Port ${pi.friendlyName}`);
+        console.log(`Checking Port '${pi.friendlyName}'`);
         ret=await GetESP32ObjectFromSpecificPort(pi.path)
         if(ret){
             return ret;

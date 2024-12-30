@@ -4,6 +4,31 @@ dialog {
   border-radius: 0.6rem;
   box-shadow: 0 0 1em black;
   min-width: 30vw;
+
+ 
+
+}
+
+dialog.simple>main{
+  display: grid;
+  grid-template-columns: 50px 1fr;
+  >section:nth-child(1){
+    font-size: 3em;
+    .error{
+      color: red;
+    }
+    .warn{
+      color: orange;
+    }
+    .info{
+      color: blue;
+    }
+    .success{
+      color: green;
+    }
+    color: blueviolet;
+    background-color: white;
+  }
 }
 
 dialog::backdrop {

@@ -148,7 +148,7 @@ export class HeaterExperimentController extends ScreenController {
                 <td></td>
               </tr>
             </thead>
-            <tbody id="heaterexperiment_tabBody">
+            <tbody ${ref(this.tbody)}>
             </tbody>
           </table>
     `

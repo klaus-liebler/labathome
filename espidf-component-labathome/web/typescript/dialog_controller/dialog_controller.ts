@@ -40,7 +40,7 @@ export abstract class SimpleDialogController extends DialogController {
 
     public Template() {
         return html`
-    <dialog @cancel=${() => this.cancelHandler()} @click=${(e: MouseEvent) => this.backdropClickedHandler(e)} ${ref(this.dialog)}>
+    <dialog class="simple" @cancel=${() => this.cancelHandler()} @click=${(e: MouseEvent) => this.backdropClickedHandler(e)} ${ref(this.dialog)}>
         <header>
             <span>${this.headingStr}</span>
             <button @click=${() => this.dialog.value!.close("cancelled")} type="button">&times;</button>

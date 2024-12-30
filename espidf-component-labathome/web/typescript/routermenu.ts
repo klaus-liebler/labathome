@@ -33,7 +33,7 @@ export default class RouterMenu implements IHtmlRenderer {
   }
 
   public ToggleHamburgerMenu(){
-    
+    console.error("ToggleHamburgerMenu")
     if (this.list.value!.style.display === "block") {
       this.list.value!.style.display = "none";
     } else {

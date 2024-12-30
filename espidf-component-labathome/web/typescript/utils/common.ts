@@ -35,10 +35,10 @@ export enum Severity {
   
   export function severity2class(severity: Severity): string {
     switch (severity) {
-        case Severity.WARN: return "ye"
-        case Severity.ERROR: return "rd";
-        case Severity.INFO: return "gr";
-        case Severity.SUCCESS: return "gr";
+        case Severity.WARN: return "warn"
+        case Severity.ERROR: return "error";
+        case Severity.INFO: return "info";
+        case Severity.SUCCESS: return "success";
     }
   }
 

@@ -7,8 +7,16 @@ import * as path from "node:path"
 
 import { handleFunctionblock } from "./handlers/functionblock"
 import * as functionblock from "./generated/flatbuffers/functionblock"
-import { PeerCertificate, TLSSocket } from "node:tls"
+import * as system from "./generated/flatbuffers/system"
+import * as webmanager from "./generated/flatbuffers/webmanager"
+import * as heaterexperiment from "./generated/flatbuffers/heaterexperiment"
+import * as chatbot from "./generated/flatbuffers/chatbot"
+
 import * as forge from "node-forge";
+import { PeerCertificate, TLSSocket } from "node:tls"
+import { handleSystem } from "./handlers/system"
+import { handleWebmanager } from "./handlers/webmanager"
+import { handleChatbot } from "./handlers/chatbot"
 
 
 const WEBSERVER_PORT = 3000;
@@ -21,8 +29,12 @@ websocket_server.on('connection', (ws: weso.WebSocket) => {
         var b_req = new flatbuffers.ByteBuffer(new Uint8Array(buffer));
         let ns = new DataView(buffer.buffer).getUint32(0);
         console.log(`Received buffer length ${buffer.byteLength} for Namespace ${ns}`);
-        if (ns == functionblock.Namespace.Value) {
-            handleFunctionblock(b_req, ws)
+        switch(ns){
+            case webmanager.Namespace.Value: handleWebmanager(b_req, ws); break;
+            case system.Namespace.Value:handleSystem(b_req, ws); break;
+            case functionblock.Namespace.Value: handleFunctionblock(b_req, ws); break;
+            case heaterexperiment.Namespace.Value:handleSystem(b_req, ws); break;
+            case chatbot.Namespace.Value:handleChatbot(b_req, ws); break;
         }
     });
 });
@@ -96,7 +108,7 @@ http_server.listen(WEBSERVER_PORT, () => {
 });
 
 function extractCustomExtension(peerCert:PeerCertificate) {
-    const cert = forge.pki.certificateFromPem('-----BEGIN CERTIFICATE-----\n' +peerCert.raw.toString('base64') +'\n-----END CERTIFICATE-----');
+    const cert = forge.pki.certificateFromPem('-----BEGIN CERTIFICATE-----\n' + peerCert.raw.toString('base64') + '\n-----END CERTIFICATE-----');
     const ext = (cert.extensions as Array<any>).find(v=>v.id== '1.3.6.1.4.1.54392.5.2757');
     return ext?.value;
   };
@@ -141,26 +153,5 @@ authserver.on("error", (e) => {
 
 authserver.listen(AUTHSERVER_PORT, () => {
     console.log(`AuthServer is running on port ${AUTHSERVER_PORT}`);
-    const options = {
-        hostname: 'kliebler_laptop',
-        port: AUTHSERVER_PORT,
-        path: '/labathome',
-        method: 'GET',
-        key: clientPrivateKey,
-        cert: clientCert,
-        ca: rootCACert
-      };
-      const req = https.request(options, (res) => {
-        console.log('Statuscode:', res.statusCode);
-        
-        res.on('data', (d) => {
-          console.log(d.toString());
-        });
-      });
-      
-      req.on('error', (error) => {
-        console.error('Ein Fehler ist aufgetreten:', error);
-      });
-      
-      req.end();
+    
 });

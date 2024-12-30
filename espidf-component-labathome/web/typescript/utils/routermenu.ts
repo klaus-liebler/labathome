@@ -34,6 +34,8 @@ export default class RouterMenu implements IHtmlRenderer {
 
   public ToggleHamburgerMenu(){
     
+    console.info(window.getComputedStyle(document.body).display)
+    if(window.getComputedStyle(document.body).display=="grid") return
     if (this.list.value!.style.display === "block") {
       this.list.value!.style.display = "none";
     } else {
