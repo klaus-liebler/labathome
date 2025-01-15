@@ -58,16 +58,7 @@
           "width": 0.0
         }
       ],
-      "drc_exclusions": [
-        "starved_thermal|186050000|55000000|a790c348-f7b9-4572-ab85-6780cf38d2ae|266b1406-2abe-458b-aa1d-d54627ae2b03|B.Cu",
-        "starved_thermal|186050000|57800000|a790c348-f7b9-4572-ab85-6780cf38d2ae|f41a4f66-ea81-4f1a-8200-faea47f3837a|B.Cu",
-        "starved_thermal|188850000|55000000|a790c348-f7b9-4572-ab85-6780cf38d2ae|5ce1d135-36d9-4d64-b667-0fe05126d5d5|B.Cu",
-        "starved_thermal|188850000|57800000|a790c348-f7b9-4572-ab85-6780cf38d2ae|78466107-78f9-4023-bdb0-a07ec4cae711|B.Cu",
-        "starved_thermal|188850000|67900000|a790c348-f7b9-4572-ab85-6780cf38d2ae|64252717-f8d8-4408-8fe9-d68d80297c1d|B.Cu",
-        "starved_thermal|188850000|70700000|a790c348-f7b9-4572-ab85-6780cf38d2ae|c560a0e9-5347-46dd-b546-1fb732e815da|B.Cu",
-        "starved_thermal|188850000|80400000|a790c348-f7b9-4572-ab85-6780cf38d2ae|f696dee9-3d05-4b74-86f7-b913e3a6f0c5|B.Cu",
-        "starved_thermal|188850000|83200000|a790c348-f7b9-4572-ab85-6780cf38d2ae|fd504e27-14be-4e66-b91e-3725e61fbb64|B.Cu"
-      ],
+      "drc_exclusions": [],
       "meta": {
         "version": 2
       },
@@ -620,7 +611,7 @@
   "sheets": [
     [
       "e4d6926a-1a8b-424d-97c4-66b6ad87e4ac",
-      "Root"
+      "Stammblatt"
     ],
     [
       "faeff10d-104f-4ca8-a480-26bd51140cf0",
