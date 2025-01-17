@@ -58,7 +58,9 @@
           "width": 0.0
         }
       ],
-      "drc_exclusions": [],
+      "drc_exclusions": [
+        "isolated_copper|111743899|89871919|64c3770a-c08d-4725-a597-98b8b0edc914|00000000-0000-0000-0000-000000000000"
+      ],
       "meta": {
         "version": 2
       },
