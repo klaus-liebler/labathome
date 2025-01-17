@@ -3,15 +3,23 @@
 #include <Wire.h>
 #include "USBPowerDelivery.h"
 #include <SimpleFOC.h>
-// #include <TMCStepper.h>
-#include <TMC2209.h>
+
 #include "log.h"
 #include <common.hh>
+#include <gpioG4.hh>
 #include <single_led.hh>
 #include "encoder.hh"
 #include "errorcheck.hh"
 #include "stm32_esp32_communication.hh"
 #include "errormanager.hh"
+
+#if defined(ARDUINO_LABATHOME_15_3)
+  // #include <TMCStepper.h>
+  #include <TMC2209.h>
+  #include <HardwareSerial.h>
+  //#include <SCServo.h>
+  #include "busservo.hh"
+#endif
 
 #include "hal.hh"
 
@@ -22,9 +30,6 @@ float brushless_motor_velocity{0.0};
 constexpr int POLE_PAIRS{7};
 BLDCMotor bldcmotor = BLDCMotor(POLE_PAIRS);
 BLDCDriver3PWM bldcdriver = BLDCDriver3PWM(PIN::BL_DRV1, PIN::BL_DRV2, PIN::BL_DRV3, PIN::BL_ENABLE);
-// TMC2209Stepper stepperdriver(PIN::UART3_RX, PIN::UART3_TX, R_SENSE, DRIVER_ADDRESS);
-HardwareSerial & stepper_serial_stream = Serial3;
-TMC2209 stepperdriver;
 
 constexpr time_t TIMEOUT_FOR_FAILSAFE{3000};
 bool alreadySetToFailsafe{false};
@@ -48,52 +53,71 @@ constexpr uint32_t HALL_PH1_CH_CH = 4;
 constexpr uint32_t HALL_PH2_CH_CH = 3;
 constexpr uint32_t HALL_PH3_CH_CH = 2;
 
-HardwareSerial Serial3(PIN::UART3_RX, PIN::UART3_TX);
-
 
 #ifdef ARDUINO_LABATHOME_15_0
 HardwareTimer *TIM_LED_WHITE{nullptr}; // TIM4 for Power LED, ch 4
 constexpr uint32_t LED_WHITE_CH = 4;
-
 HardwareTimer *TIM_SERVO_0_1{nullptr}; // TIM15 for Servo0+1, ch1,2
 constexpr uint32_t SERVO0_CH = 1;
 constexpr uint32_t SERVO1_CH = 2;
-
 HardwareTimer *TIM_SERVO_2{nullptr}; // TIM16 for Servo2, ch1
 constexpr uint32_t SERVO2_CH = 1;
-
 HardwareTimer *TIM_FAN{nullptr}; // TIM17 for Fan, ch1
 constexpr uint32_t FAN_CH = 1;
+
+
 #elif defined(ARDUINO_LABATHOME_15_1)
 HardwareTimer *TIM_SERVO{nullptr}; // TIM1
 constexpr uint32_t SERVO0_CH = 1;
 constexpr uint32_t SERVO1_CH = 2;
 constexpr uint32_t SERVO2_CH = 3;
 constexpr uint32_t SERVO3_CH = 4;
-
 HardwareTimer *TIM_FAN_LED_WHITE{nullptr}; // TIM15
 constexpr uint32_t FAN_CH = 1;
 constexpr uint32_t LED_WHITE_CH = 2;
-
 OPAMP_HandleTypeDef hopamp2;
 OPAMP_HandleTypeDef hopamp3;
-#elif defined(ARDUINO_LABATHOME_15_2) || defined(ARDUINO_LABATHOME_15_3)
+
+
+#elif defined(ARDUINO_LABATHOME_15_2) 
 HardwareTimer *TIM_SERVO{nullptr}; // TIM1
 constexpr uint32_t SERVO0_CH = 1;
 constexpr uint32_t SERVO1_CH = 2;
 constexpr uint32_t SERVO2_CH = 3;
 constexpr uint32_t SERVO3_CH = 4;
-
 HardwareTimer *TIM_FAN_LED_WHITE{nullptr}; // TIM15
 constexpr uint32_t LED_WHITE_CH = 1;
 constexpr uint32_t FAN_CH = 2;
-
 OPAMP_HandleTypeDef hopamp2;
 OPAMP_HandleTypeDef hopamp3;
+
+
+#elif defined(ARDUINO_LABATHOME_15_3)
+HardwareTimer *TIM_SERVO{nullptr}; // TIM1
+constexpr uint32_t SERVO0_CH = 1;
+constexpr uint32_t SERVO1_CH = 2;
+constexpr uint32_t SERVO2_CH = 3;
+constexpr uint32_t SERVO3_CH = 4;
+HardwareTimer *TIM_FAN_LED_WHITE{nullptr}; // TIM15
+constexpr uint32_t LED_WHITE_CH = 1;
+constexpr uint32_t FAN_CH = 2;
+OPAMP_HandleTypeDef hopamp2;
+OPAMP_HandleTypeDef hopamp3;
+HardwareSerial StepperSerial(PIN::UART3_RX, PIN::UART3_TX);
+//Important: Define TX-Pin in the "const PinMap PinMap_UART_TX[]"-structure as OpenDrain
+HardwareSerial ServoBusSerial(PIN::ADC1_U1R, PIN::ADC0_U1T);
+// TMC2209Stepper stepperdriver(PIN::UART3_RX, PIN::UART3_TX, R_SENSE, DRIVER_ADDRESS);
+HardwareSerial & stepper_serial_stream = StepperSerial;
+TMC2209 stepperdriver;
+//SMS_STS servoBus;
+ServoBus<true, GPIO::Pin::C4> servoBus(&ServoBusSerial);
+
 
 #else
 #error "No known board defined"
 #endif
+
+
 SINGLE_LED::BlinkPattern WAITING_FOR_CONNECTION(500, 500);
 SINGLE_LED::BlinkPattern UNDER_CONTROL_FROM_MASTER(100, 900);
 SINGLE_LED::BlinkPattern PROBLEM(100, 100);
@@ -332,8 +356,8 @@ void app_loop20ms(uint32_t now)
   s2e_buffer.Rotenc = encoder.GetTicks();
   s2e_buffer.Brightness = analogRead(PIN::BRIGHTNESS);
   s2e_buffer.UsbpdVoltage_mv = PowerSink.activeVoltage;
-  s2e_buffer.Adc0 = analogRead(PIN::ADC_0);
-  s2e_buffer.Adc1 = analogRead(PIN::ADC_1);
+  //s2e_buffer.Adc0 = analogRead(PIN::ADC_0_U1T);
+  //s2e_buffer.Adc1 = analogRead(PIN::ADC_1_U1R);
 #if defined(ARDUINO_LABATHOME_15_2)
   s2e_buffer.PIN_PB12 = digitalRead(PIN::PIN_PB12);
   s2e_buffer.Adc2_24V = analogRead(PIN::ADC_2_24V);
@@ -405,24 +429,22 @@ void app_loop_superfast(uint32_t now)
 
 void setup()
 {
+
+  led = new SINGLE_LED::M(PIN::LED_INFO, true, &WAITING_FOR_CONNECTION);
+  led->Begin(millis(), &WAITING_FOR_CONNECTION, 10000);  
   Serial.begin(115200);
   
-  // Serial.println("Application started Serial.println");
   log_info("Application started");
-  while (false)
-  {
-    log_info("STM32 inactive!!!, see main.cpp");
-    delay(100);
-  }
+  
+  
   log_info("Init gpio");
   pinMode(PIN::BTN_RED, INPUT);
   pinMode(PIN::BTN_YELLOW, INPUT);
   pinMode(PIN::MOVEMENT, INPUT);
   pinMode(PIN::BL_FAULT, INPUT);
   pinMode(PIN::HEATER, OUTPUT);
-  pinMode(PIN::ADC_0, INPUT_ANALOG);
-  pinMode(PIN::ADC_1, INPUT_ANALOG);
   pinMode(PIN::BRIGHTNESS, INPUT_ANALOG);
+
 #if (defined(ARDUINO_LABATHOME_15_1) || defined(ARDUINO_LABATHOME_15_2))
   pinMode(PIN::RELAY, OUTPUT);
   pinMode(PIN::BL_SLEEP, OUTPUT);
@@ -444,7 +466,17 @@ void setup()
   HAL_ERROR_CHECK(HAL_OPAMP_Init(&hopamp2));
   HAL_ERROR_CHECK(HAL_OPAMP_Start(&hopamp2));
 #endif
-#if (defined(ARDUINO_LABATHOME_15_2) || defined(ARDUINO_LABATHOME_15_3))
+
+#ifdef ARDUINO_LABATHOME_15_2
+  pinMode(PIN::ADC_2_24V, INPUT_ANALOG);
+  pinMode(PIN::LCD_RESET, INPUT);
+  pinMode(PIN::BL_RESET, OUTPUT);
+  pinMode(PIN::PIN_PB12, INPUT);
+  //pinMode(PIN::ADC_0, INPUT_ANALOG);
+  //pinMode(PIN::ADC_1, INPUT_ANALOG);
+#endif
+
+#ifdef ARDUINO_LABATHOME_15_3
   pinMode(PIN::ADC_2_24V, INPUT_ANALOG);
   pinMode(PIN::LCD_RESET, INPUT);
   pinMode(PIN::BL_RESET, OUTPUT);
@@ -491,20 +523,34 @@ void setup()
   TIM_FAN_LED_WHITE->setPWM(LED_WHITE_CH, PA_2_ALT1, 50, 0);
 
 #elif defined(ARDUINO_LABATHOME_15_3)
-  Serial3.begin(115200);
+  log_info("Init ServoBus");
+  ServoBusSerial.begin(1000000, SERIAL_8N1);
+  //servoBus.pSerial = &ServoBusSerial;
+  bool dummy=true;
+  while(true){
+    log_info("servoBus.Ping(5) returns %d",servoBus.Ping(5));
+    servoBus.WritePosEx(5, 4095, 3400, 50);//servo(ID1) speed=3400，acc=50，move to position=4095.
+    delay(2000);
+    servoBus.WritePosEx(5, 2000, 1500, 50);//servo(ID1) speed=3400，acc=50，move to position=2000.
+     delay(2000);
+    led->Force(dummy);
+    dummy = !dummy;
+  }
+  log_info("Init StepperSerial");
+  StepperSerial.begin(115200);
   pinMode(PIN::STEPPER_EN, OUTPUT);
   pinMode(PIN::FAN_SERVO4_STEPPER3_DIR, OUTPUT);
   pinMode(PIN::LED_WHITE_P_SERVO5_STEPPER3_STEP, OUTPUT);
   digitalWrite(PIN::STEPPER_EN, LOW); // Enable driver in hardware
-                                      /*
-                                        stepperdriver.begin();
-                                        stepperdriver.toff(5);                 // Enables driver in software
-                                        stepperdriver.rms_current(600);        // Set motor RMS current
-                                        stepperdriver.microsteps(16);          // Set microsteps to 1/16th
-                                        //StealthChop=Leise
-                                        stepperdriver.pwm_autoscale(true);     // Needed for stealthChop
-                                        */
-  stepperdriver.setup(Serial3, 115200, TMC2209::SERIAL_ADDRESS_0);
+  /*
+    stepperdriver.begin();
+    stepperdriver.toff(5);                 // Enables driver in software
+    stepperdriver.rms_current(600);        // Set motor RMS current
+    stepperdriver.microsteps(16);          // Set microsteps to 1/16th
+    //StealthChop=Leise
+    stepperdriver.pwm_autoscale(true);     // Needed for stealthChop
+    */
+  stepperdriver.setup(StepperSerial, 115200, TMC2209::SERIAL_ADDRESS_0);
   delay(2000);
 
   stepperdriver.setRunCurrent(100);
@@ -512,10 +558,10 @@ void setup()
   stepperdriver.enable();
   stepperdriver.moveAtVelocity(20000);
 
+  
+
 #endif
-  log_info("Init Info LED");
-  led = new SINGLE_LED::M(PIN::LED_INFO, true, &WAITING_FOR_CONNECTION);
-  led->Begin(millis(), &WAITING_FOR_CONNECTION, 10000);
+
 
   log_info("Init USB PD");
   PowerSink.start(USB_PD::handleUsbPdEvent);
@@ -642,7 +688,16 @@ void loop_steppertest()
   stepperdriver.shaft(shaft);
   */
 }
+
+void loop_busservotest(){
+  servoBus.WritePosEx(5, 4095, 3400, 50);//servo(ID1) speed=3400，acc=50，move to position=4095.
+  delay(2000);
+  
+  servoBus.WritePosEx(5, 2000, 1500, 50);//servo(ID1) speed=3400，acc=50，move to position=2000.
+  delay(2000);
+}
+
 void loop()
 {
-  loop_steppertest();
+  loop_busservotest();
 }

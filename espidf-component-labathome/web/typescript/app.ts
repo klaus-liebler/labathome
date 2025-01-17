@@ -91,9 +91,10 @@ class AppController implements IAppManagement {
     })
   }
   public WrapAndSend(namespace:number, b:flatbuffers.Builder, maxLockingTimeMs: number=0):void{
-    console.log(`Send Request Namespace ${namespace} to server`)
+    var arr= b.asUint8Array()
     
-    var m=new BufferedMessage(b.asUint8Array(), namespace, maxLockingTimeMs)
+    
+    var m=new BufferedMessage(arr, namespace, maxLockingTimeMs)
     if (!this.socket || this.socket.readyState != this.socket.OPEN) {
       console.info('sendWebsocketMessage --> not OPEN --> buffering')
       this.messageBuffer.push(m);
@@ -103,6 +104,7 @@ class AppController implements IAppManagement {
   }
 
   private sendMessage(m:BufferedMessage){
+    console.log(`Send message of Namespace ${m.namespace} with net length ${m.data.byteLength} to server`)
     const bufferLength = 4 + m.data.byteLength;
     const arrayBuffer = new ArrayBuffer(bufferLength);
     const dataView = new DataView(arrayBuffer);

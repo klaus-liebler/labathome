@@ -3,12 +3,10 @@ import fs from "node:fs";
 import os from "node:os";
 import proc from "node:child_process";
 
-import { APP_SUBTYPE, DATA_SUBTYPE, parsePartitions } from "./gulpfile_helpers/espidf"
 import * as cert from "./gulpfile_helpers/certificates"
-import { IBoardInfo, writeFileCreateDirLazy, writeBoardSpecificFileCreateDirLazy, existsBoardSpecificPath, strInterpolator, boardSpecificPath, createBoardSpecificPathLazy, IApplicationInfo } from "./gulpfile_helpers/utils";
+import { writeFileCreateDirLazy, writeBoardSpecificFileCreateDirLazy, existsBoardSpecificPath, strInterpolator, boardSpecificPath, createBoardSpecificPathLazy } from "./gulpfile_helpers/utils";
 import { PUBLIC_SERVER_FQDN } from "./gulpfile_config";
 import * as P from "./paths";
-import * as db from "./gulpfile_helpers/database"
 import * as vite from 'vite'
 import { createSpeech } from "./gulpfile_helpers/text_to_speech";
 import * as idf from "./gulpfile_helpers/espidf";
@@ -190,12 +188,12 @@ export async function copyMostRecentlyConnectedBoardFilesToCurrent(cb: gulp.Task
 
 export async function createRandomFlashEncryptionKeyLazily(cb: gulp.TaskFunctionCallback) {
   const c=await Context.get();
-  if (existsBoardSpecificPath(c, "flash_encryption", "key.bin")){
+  if (existsBoardSpecificPath(c, P.FLASH_KEY_SUBDIR, P.FLASH_KEY_FILENAME)) {
     console.info(`flash_encryption key for board  ${c.b.board_name} ${c.b.board_version} with mac 0x${c.b.mac_6char} has already been created`);
     return cb();
   }
-  createBoardSpecificPathLazy(c, "flash_encryption");
-  idf.espsecure(`generate_flash_encryption_key --keylen 256 ${boardSpecificPath(c, "flash_encryption", "key.bin")}`, true);
+  createBoardSpecificPathLazy(c, P.FLASH_KEY_SUBDIR);
+  idf.espsecure(`generate_flash_encryption_key --keylen 256 ${boardSpecificPath(c, P.FLASH_KEY_SUBDIR, P.FLASH_KEY_FILENAME)}`, true);
   console.log('Random Flash Encryption Key successfully generated');
   cb();
 }
@@ -203,7 +201,7 @@ export async function createRandomFlashEncryptionKeyLazily(cb: gulp.TaskFunction
 export async function burnFlashEncryptionKeyToAndActivateEncryptedFlash(cb: gulp.TaskFunctionCallback) {
   const c=await Context.get();
   if(c.b.encryption_key_set) return cb();
-  idf.espefuse(`--port ${c.b.last_connected_com_port} --do-not-confirm burn_key BLOCK_KEY0 ${boardSpecificPath(c, "flash_encryption", "key.bin")} XTS_AES_128_KEY`);
+  idf.espefuse(`--port ${c.b.last_connected_com_port} --do-not-confirm burn_key BLOCK_KEY0 ${boardSpecificPath(c,  P.FLASH_KEY_SUBDIR, P.FLASH_KEY_FILENAME)} XTS_AES_128_KEY`);
   idf.espefuse(`--port ${c.b.last_connected_com_port} --do-not-confirm burn_key SPI_BOOT_CRYPT_CNT 1`);
   console.log('Random Flash Encryption Key successfully burned to EFUSE; encryption of flash activated!');
   cb();

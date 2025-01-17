@@ -1,7 +1,8 @@
-import { IBoardInfo, IApplicationInfo } from "./utils";
+import { IBoardInfo, IApplicationInfo, existsBoardSpecificPath } from "./utils";
 import * as esp from "./esp32"
 import * as db from "./database"
 import * as idf from "./espidf"
+import * as P from "./paths";
 
 export class Context{
   
@@ -14,8 +15,9 @@ export class Context{
       if (!esp32) {
         throw new Error("No connected board found");
       }
-      console.log(`Found ${esp32.chipName} on ${esp32.comPort.path} with mac ${esp32.macAsHexString} and encryption key '${esp32.hasEncryptionKey}'`)
+      console.log(`Found ${esp32.chipName} on ${esp32.comPort.path} with mac ${esp32.macAsHexString} and encryption key '${esp32.hasEncryptionKey?"already written":"not written"}'`)
       await db.updateDatabase(esp32);
+      
     }
     if(!Context.instance){
       const bi_and_ai=db.getMostRecentlyConnectedBoardInfo();
@@ -29,6 +31,12 @@ export class Context{
       if(!Context.instance.f){
         Context.instance.f = idf.GetFlashArgs(Context.instance.a.espIdfProjectDirectory)
       }
+    }
+    //sanity check
+    if(Context.instance.b.encryption_key_set && !existsBoardSpecificPath(Context.instance, P.FLASH_KEY_SUBDIR, P.FLASH_KEY_FILENAME)) {
+      throw new Error("Inconsistency between database and file system: encryption key set in database but not on file system ");
+    }else if(!Context.instance.b.encryption_key_set && existsBoardSpecificPath(Context.instance, P.FLASH_KEY_SUBDIR, P.FLASH_KEY_FILENAME)){
+      throw new Error("Inconsistency between database and file system: encryption key not set in database but on file system ");
     }
     return Context.instance!;
   }

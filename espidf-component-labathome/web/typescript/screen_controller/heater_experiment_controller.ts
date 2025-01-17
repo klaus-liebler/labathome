@@ -235,7 +235,7 @@ public OnFirstStart(): void {
     }
 
     public OnCreate() {
-        
+        this.appManagement.RegisterWebsocketMessageNamespace(this, Namespace.Value);
     }
 
 
@@ -338,7 +338,7 @@ public OnFirstStart(): void {
             this.inputWP.value!.valueAsNumber,
             this.inputReset.value!.checked ? true : false
          ))
-        this.appManagement.WrapAndSend(Namespace.Value, b, 3000);
+        this.appManagement.WrapAndSend(Namespace.Value, b, 0);
     }
                 
 

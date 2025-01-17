@@ -1,12 +1,12 @@
 import * as flatbuffers from "flatbuffers"
 import * as wm from "../generated/flatbuffers/webmanager"
-import * as weso  from "ws"
 import { ResponseWifiConnect, ResponseWifiDisconnect } from "../generated/flatbuffers/webmanager";
+import { ISender } from "..";
 
 const AP_GOOD="Connect to AP -50dB Auth=2";
 const AP_BAD="Connect to AP -100dB Auth=2";
 
-export function handleWebmanager(buffer: flatbuffers.ByteBuffer, ws: weso.WebSocket){
+export function handleWebmanager(buffer: flatbuffers.ByteBuffer, sender: ISender){
     var rw=wm.RequestWrapper.getRootAsRequestWrapper(buffer)
     switch (rw.requestType()) {
         case wm.Requests.RequestWifiConnect:{
@@ -19,13 +19,13 @@ export function handleWebmanager(buffer: flatbuffers.ByteBuffer, ws: weso.WebSoc
                 let r = ResponseWifiConnect.createResponseWifiConnect(b, false, b.createString(AP_BAD),0,0,0, -62);
                 b.finish(wm.ResponseWrapper.createResponseWrapper(b, wm.Responses.ResponseWifiConnect, r));
             }
-            ws.send(b.asUint8Array());
+            sender.send(wm.Namespace.Value, b);
         }
         break;
         case wm.Requests.RequestWifiDisconnect:{
             let b = new flatbuffers.Builder(1024);
             b.finish(wm.ResponseWrapper.createResponseWrapper(b, wm.Responses.ResponseWifiDisconnect, ResponseWifiDisconnect.createResponseWifiDisconnect(b)));
-            ws.send(b.asUint8Array());
+            sender.send(wm.Namespace.Value, b);
         }
         break;
         case wm.Requests.RequestNetworkInformation:{
@@ -43,7 +43,7 @@ export function handleWebmanager(buffer: flatbuffers.ByteBuffer, ws: weso.WebSoc
                 b.createString("MyHostnameKL"), 
                 b.createString("MySsidApKL"),  b.createString("Password"), 32,true, b.createString("ssidSta"), 32,43,23,23,accesspointsOffset);
             b.finish(wm.ResponseWrapper.createResponseWrapper(b, wm.Responses.ResponseNetworkInformation, r));
-            ws.send(b.asUint8Array());
+            sender.send(wm.Namespace.Value, b);
         }
         break
     }

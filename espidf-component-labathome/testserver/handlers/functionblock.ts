@@ -3,10 +3,11 @@ import * as flatbuffers from "flatbuffers"
 import * as functionblock from "../generated/flatbuffers/functionblock"
 import * as weso  from "ws"
 import { randomInt } from "node:crypto";
+import { ISender } from "..";
 const FBDSTORE_BASE_DIRECTORY = "/spiffs/fbdstore/";    
 const DEFAULT_FBD_FILEPATH =  "/spiffs/default.fbd";
 const TEMP_FBD_FILEPATH = "/spiffs/temp.fbd";
-export function handleFunctionblock(buffer: flatbuffers.ByteBuffer, ws: weso.WebSocket){
+export function handleFunctionblock(buffer: flatbuffers.ByteBuffer, sender: ISender){
     var rw=functionblock.RequestWrapper.getRootAsRequestWrapper(buffer)
     switch (rw.requestType()) {
         case functionblock.Requests.RequestDebugData:{
@@ -36,7 +37,7 @@ export function handleFunctionblock(buffer: flatbuffers.ByteBuffer, ws: weso.Web
                 functionblock.ResponseDebugData.createColorsVector(b, colors)
             );
             b.finish(functionblock.ResponseWrapper.createResponseWrapper(b, functionblock.Responses.ResponseDebugData, r));
-            ws.send(b.asUint8Array());
+            sender.send(functionblock.Namespace.Value, b);
 
         }
         break;

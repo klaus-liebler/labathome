@@ -264,108 +264,6 @@
 				)
 			)
 		)
-		(symbol "Connector:TestPoint"
-			(pin_numbers hide)
-			(pin_names
-				(offset 0.762) hide)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "TP"
-				(at 0 6.858 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "TestPoint"
-				(at 0 5.08 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 5.08 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "~"
-				(at 5.08 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "test point"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "test point tp"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_fp_filters" "Pin* Test*"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "TestPoint_0_1"
-				(circle
-					(center 0 3.302)
-					(radius 0.762)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "TestPoint_1_1"
-				(pin passive line
-					(at 0 0 90)
-					(length 2.54)
-					(name "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-		)
 		(symbol "Connector_Generic:Conn_01x04"
 			(pin_names
 				(offset 1.016) hide)
@@ -5621,7 +5519,7 @@
 	)
 	(global_label "STEPPER_DIR2"
 		(shape output)
-		(at 124.46 76.2 0)
+		(at 124.46 82.55 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5631,7 +5529,7 @@
 		)
 		(uuid "1bd4ff32-6932-49f2-a51d-933ee1fccb37")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 141.0522 76.2 0)
+			(at 141.0522 82.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5751,7 +5649,7 @@
 			)
 		)
 	)
-	(global_label "SERVO_BUS_TX_EN"
+	(global_label "PB12"
 		(shape output)
 		(at 68.58 110.49 0)
 		(fields_autoplaced yes)
@@ -5763,7 +5661,7 @@
 		)
 		(uuid "32c66df8-239e-4d5a-9738-8c20c90db407")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 88.9822 110.49 0)
+			(at 76.5242 110.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6171,7 +6069,7 @@
 	)
 	(global_label "OPAMP3-"
 		(shape output)
-		(at 110.49 102.87 180)
+		(at 104.14 123.19 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6181,7 +6079,7 @@
 		)
 		(uuid "64fcc72e-4bcf-40c7-80cb-7cab44f78fa4")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 98.3124 102.87 0)
+			(at 91.9624 123.19 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6367,6 +6265,28 @@
 			)
 		)
 	)
+	(global_label "PB12"
+		(shape input)
+		(at 116.84 123.19 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "76e70f85-6a91-4def-8282-76482b14bec2")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 124.7842 123.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "USBPD_D-"
 		(shape input)
 		(at 68.58 64.77 0)
@@ -6413,7 +6333,7 @@
 	)
 	(global_label "STEPPER_STEP3"
 		(shape output)
-		(at 124.46 80.01 0)
+		(at 124.46 76.2 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6423,7 +6343,7 @@
 		)
 		(uuid "8221b5c9-b59e-475c-ac36-611e511d79b8")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 142.5035 80.01 0)
+			(at 142.5035 76.2 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7117,22 +7037,22 @@
 	)
 	(global_label "OPAMP3+"
 		(shape output)
-		(at 110.49 109.22 180)
+		(at 116.84 120.65 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right)
+			(justify left)
 		)
 		(uuid "d3b7f640-f84b-4f67-87c8-f174bbab448c")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 98.3124 109.22 0)
+			(at 129.0176 120.65 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
 				(hide yes)
 			)
 		)
@@ -7249,7 +7169,7 @@
 	)
 	(global_label "STEPPER_DIR3"
 		(shape output)
-		(at 124.46 82.55 0)
+		(at 124.46 80.01 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -7259,7 +7179,7 @@
 		)
 		(uuid "db9c4ce7-9dae-43ff-97fc-eb13c6e5af8e")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 141.0522 82.55 0)
+			(at 141.0522 80.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7315,7 +7235,7 @@
 	)
 	(global_label "OPAMP3Q"
 		(shape input)
-		(at 110.49 97.79 180)
+		(at 104.14 125.73 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -7325,7 +7245,7 @@
 		)
 		(uuid "e48d1a0d-13b2-4073-9371-16e9f1c179a7")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 98.5543 97.79 0)
+			(at 92.2043 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7891,6 +7811,86 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector_Generic:Conn_02x03_Odd_Even")
+		(at 109.22 123.19 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "14d81f97-74b4-4a28-88e6-a55c4783377b")
+		(property "Reference" "J26"
+			(at 110.49 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "EXT"
+			(at 110.49 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_2x03_P2.54mm_Vertical"
+			(at 109.22 123.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 109.22 123.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic connector, double row, 02x03, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 109.22 123.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "bebf8c99-9ceb-43d4-b62d-e83de2938477")
+		)
+		(pin "3"
+			(uuid "b8a4fd1b-46fc-4b15-a32a-31caa096f788")
+		)
+		(pin "4"
+			(uuid "17a5d950-d78d-48d9-8daf-6af36779a32a")
+		)
+		(pin "2"
+			(uuid "fac4d40b-a14b-41b6-ac4a-985d341ad5ae")
+		)
+		(pin "6"
+			(uuid "f37826f3-75dc-49c9-bd3d-e3c4b8288d46")
+		)
+		(pin "5"
+			(uuid "954f6b6c-3cda-460b-91a1-94b2e0a5a578")
+		)
+		(instances
+			(project ""
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/88291a06-4a87-426a-8cf8-e855480a1e3f"
+					(reference "J26")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Amplifier_Operational:LM358")
 		(at 41.91 179.07 0)
 		(mirror x)
@@ -8105,6 +8105,71 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/88291a06-4a87-426a-8cf8-e855480a1e3f"
 					(reference "#PWR0199")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 104.14 120.65 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "238953de-5b1f-477c-8a7d-329b49d5f9f9")
+		(property "Reference" "#PWR0259"
+			(at 107.95 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 98.806 120.65 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 104.14 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 104.14 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 104.14 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "db36646a-d1a9-4088-9203-960f3e9422eb")
+		)
+		(instances
+			(project "labathome_pcb"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/88291a06-4a87-426a-8cf8-e855480a1e3f"
+					(reference "#PWR0259")
 					(unit 1)
 				)
 			)
@@ -9183,6 +9248,71 @@
 	)
 	(symbol
 		(lib_id "power:GND")
+		(at 116.84 125.73 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "755aa192-2275-4913-891c-52bc118d4b4d")
+		(property "Reference" "#PWR0238"
+			(at 116.84 132.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 116.84 130.81 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 116.84 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 116.84 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 116.84 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "c9e6f781-6030-4bb2-a991-ac79b9ea622d")
+		)
+		(instances
+			(project "labathome_pcb"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/88291a06-4a87-426a-8cf8-e855480a1e3f"
+					(reference "#PWR0238")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
 		(at 125.73 189.23 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -10150,73 +10280,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 110.49 109.22 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "bff5a540-d6a1-4ec1-83d2-eda754a785e0")
-		(property "Reference" "TP4"
-			(at 115.57 107.9499 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "OP3+"
-			(at 115.57 110.4899 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_1.5x1.5mm"
-			(at 110.49 114.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 110.49 114.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "test point"
-			(at 110.49 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "d77f63ea-51a4-46e4-8c41-d40444b02812")
-		)
-		(instances
-			(project "labathome_pcb"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/88291a06-4a87-426a-8cf8-e855480a1e3f"
-					(reference "TP4")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:LED")
 		(at 237.49 148.59 90)
 		(unit 1)
@@ -10491,73 +10554,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 110.49 102.87 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "d54f467a-5337-4f0a-b3c7-ddfb60bee8c1")
-		(property "Reference" "TP3"
-			(at 115.57 101.5999 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "OP3-"
-			(at 115.57 104.1399 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_1.5x1.5mm"
-			(at 110.49 107.95 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 110.49 107.95 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "test point"
-			(at 110.49 102.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "807a38ff-2d51-403f-94ef-2d42718e789e")
-		)
-		(instances
-			(project "labathome_pcb"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/88291a06-4a87-426a-8cf8-e855480a1e3f"
-					(reference "TP3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Jumper:SolderJumper_2_Open")
 		(at 133.35 125.73 0)
 		(unit 1)
@@ -10619,73 +10615,6 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/88291a06-4a87-426a-8cf8-e855480a1e3f"
 					(reference "JP5")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 110.49 97.79 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "dca27b88-1234-4abc-a428-9506ae81b65b")
-		(property "Reference" "TP2"
-			(at 115.57 96.5199 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "OP3Q"
-			(at 115.57 99.0599 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_1.5x1.5mm"
-			(at 110.49 102.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 110.49 102.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "test point"
-			(at 110.49 97.79 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "0df8d60b-c601-4cc7-99ab-fd4cfc7e0ab6")
-		)
-		(instances
-			(project ""
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/88291a06-4a87-426a-8cf8-e855480a1e3f"
-					(reference "TP2")
 					(unit 1)
 				)
 			)

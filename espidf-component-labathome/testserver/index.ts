@@ -17,7 +17,10 @@ import { PeerCertificate, TLSSocket } from "node:tls"
 import { handleSystem } from "./handlers/system"
 import { handleWebmanager } from "./handlers/webmanager"
 import { handleChatbot } from "./handlers/chatbot"
-
+import { handleHeaterexperiment } from "./handlers/heaterexperiment"
+export interface ISender{
+    send(ns:number, builder:flatbuffers.Builder):void;
+ }
 
 const WEBSERVER_PORT = 3000;
 const AUTHSERVER_PORT = 3001;
@@ -26,15 +29,26 @@ websocket_server.on('connection', (ws: weso.WebSocket) => {
     console.info("Handle connection");
     ws.on('error', console.error);
     ws.on('message', (buffer: Buffer, isBinary: boolean) => {
-        var b_req = new flatbuffers.ByteBuffer(new Uint8Array(buffer));
-        let ns = new DataView(buffer.buffer).getUint32(0);
+        var b_req = new flatbuffers.ByteBuffer(new Uint8Array(buffer.buffer, buffer.byteOffset + 4, buffer.length - 4));
+        let ns = buffer.readUint32BE(0);
         console.log(`Received buffer length ${buffer.byteLength} for Namespace ${ns}`);
+        var cb = new class implements ISender{
+            public send(ns:number, builder:flatbuffers.Builder){
+                const data = builder.asUint8Array();
+                const arrayBuffer = new ArrayBuffer(4 + data.byteLength);
+                new DataView(arrayBuffer).setUint32(0, ns);
+                const newData = new Uint8Array(arrayBuffer);
+                newData.set(data, 4);
+                ws.send(newData);
+                  
+            }
+        }
         switch(ns){
-            case webmanager.Namespace.Value: handleWebmanager(b_req, ws); break;
-            case system.Namespace.Value:handleSystem(b_req, ws); break;
-            case functionblock.Namespace.Value: handleFunctionblock(b_req, ws); break;
-            case heaterexperiment.Namespace.Value:handleSystem(b_req, ws); break;
-            case chatbot.Namespace.Value:handleChatbot(b_req, ws); break;
+            case webmanager.Namespace.Value: handleWebmanager(b_req, cb); break;
+            case system.Namespace.Value:handleSystem(b_req, cb); break;
+            case functionblock.Namespace.Value: handleFunctionblock(b_req, cb); break;
+            case heaterexperiment.Namespace.Value:handleHeaterexperiment(b_req, cb); break;
+            case chatbot.Namespace.Value:handleChatbot(b_req, cb); break;
         }
     });
 });

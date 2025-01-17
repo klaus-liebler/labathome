@@ -16,6 +16,8 @@ export const CERTIFICATES_SUBDIR = "certificates";
 export const ESP32_CERT_PEM_CRT_FILENAME = "esp32.pem.crt";
 export const ESP32_CERT_PEM_PRVTKEY_FILENAME = "esp32.pem.key";
 export const ESP32_CERT_PEM_PUBKEY_FILENAME = "esp32.pem.pubkey";
+export const FLASH_KEY_SUBDIR ="flash_encryption"
+export const FLASH_KEY_FILENAME= "key.bin"
 
 //various servers
 export const TESTSERVER = path.join(ROOT, "testserver");

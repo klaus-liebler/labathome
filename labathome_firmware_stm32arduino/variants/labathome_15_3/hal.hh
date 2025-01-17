@@ -10,8 +10,8 @@
     constexpr uint32_t Servo2{PC2};//TIM1.3
     constexpr uint32_t Servo3{PC3};//TIM1.4
     
-    constexpr uint32_t ADC_0{PC4};
-    constexpr uint32_t ADC_1{PC5};
+    constexpr uint32_t ADC0_U1T{PC4};
+    constexpr uint32_t ADC1_U1R{PC5};
 
     constexpr uint32_t BL_DRV1{PC6};//TIM8.1
     constexpr uint32_t BL_DRV2{PC7};//TIM8.2

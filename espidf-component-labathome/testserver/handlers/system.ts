@@ -1,7 +1,7 @@
 import * as flatbuffers from "flatbuffers"
 import * as system from "../generated/flatbuffers/system"
-import * as weso  from "ws"
-export function handleSystem(buffer: flatbuffers.ByteBuffer, ws: weso.WebSocket){
+import { ISender } from "..";
+export function handleSystem(buffer: flatbuffers.ByteBuffer, sender:ISender){
     var rw=system.RequestWrapper.getRootAsRequestWrapper(buffer)
     switch (rw.requestType()) {
         case system.Requests.RequestSystemData:{
@@ -26,7 +26,7 @@ export function handleSystem(buffer: flatbuffers.ByteBuffer, ws: weso.WebSocket)
             system.ResponseSystemData.addSecondsUptime(b, BigInt(10));
             let rsd = system.ResponseSystemData.endResponseSystemData(b);
             b.finish(system.ResponseWrapper.createResponseWrapper(b, system.Responses.ResponseSystemData, rsd));
-            ws.send(b.asUint8Array());
+            sender.send(system.Namespace.Value, b);
         }
         break;
     }

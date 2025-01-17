@@ -96,6 +96,10 @@ namespace SINGLE_LED
             
         }
 
+        void Force(bool onoff){
+            digitalWrite(gpio, (onoff^invert)?HIGH:LOW);
+        }
+
         void Begin(uint32_t now, AnimationPattern *pattern=&CONST_OFF, uint32_t timeToAutoOff=0)
         {
             pinMode(gpio, OUTPUT);
