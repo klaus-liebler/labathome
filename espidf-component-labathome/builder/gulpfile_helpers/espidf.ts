@@ -156,13 +156,6 @@ export function exec(command: string, idfProjectDirectory: string, suppressStdOu
     console.log(stdout.toString());
 }
 
-
-
-
-
-
-
-
 export interface ConfigEnvironment {
   COMPONENT_KCONFIGS: string;
   COMPONENT_KCONFIGS_PROJBUILD: string;

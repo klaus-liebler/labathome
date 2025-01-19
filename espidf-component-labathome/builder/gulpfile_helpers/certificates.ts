@@ -62,20 +62,20 @@ function createSubject(commonName: string): forge.pki.CertificateField[] {
 	}, {
 		shortName: 'ST',
 		value: DEFAULT_STATE,
-		valueTagClass: forge.asn1.Type.UTF8
+		valueTagClass: forge.asn1.Type.UTF8 as any
 	}, {
 		shortName: 'L',
 		value: DEFAULT_LOCALITY,
-		valueTagClass: forge.asn1.Type.UTF8
+		valueTagClass: forge.asn1.Type.UTF8 as any
 	}, {
 		shortName: 'O',
 		value: DEFAULT_ORGANIZATION,//hier muss vermutlich was stehen
-		valueTagClass: forge.asn1.Type.UTF8
+		valueTagClass: forge.asn1.Type.UTF8 as any
 	}, 
 	{
 		shortName: 'CN',
 		value: commonName,//hier muss vermutlich beim host certificate etwas anderes stehen, als der Hostname
-		valueTagClass: forge.asn1.Type.UTF8
+		valueTagClass: forge.asn1.Type.UTF8 as any
 	}];
 }
 

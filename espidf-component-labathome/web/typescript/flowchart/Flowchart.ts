@@ -59,7 +59,7 @@ export class Flowchart {
         if(this.mode!=FlowchartMode.DEBUG) return;
         let b = new flatbuffers.Builder(1024);
         b.finish(RequestDebugData.createRequestDebugData(b))
-        this.appManagement.WrapAndSend(Namespace.Value, b, 3000);
+        this.appManagement.SendFinishedBuilder(Namespace.Value, b, 3000);
     }
     OnMessage(namespace: number, bb: flatbuffers.ByteBuffer) {
         if(namespace!=Namespace.Value) return;
@@ -451,7 +451,7 @@ export class Flowchart {
                         (p:string)=>{
                             let b = new flatbuffers.Builder(1024);
                             b.finish(RequestFbdRun.createRequestFbdRun(b));
-                            this.appManagement.WrapAndSend(Namespace.Value, b, 3000);
+                            this.appManagement.SendFinishedBuilder(Namespace.Value, b, 3000);
                             this.mode=FlowchartMode.DEBUG;
                         },
                         (p:string)=>{

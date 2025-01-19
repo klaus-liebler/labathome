@@ -5329,7 +5329,6 @@
 	)
 	(label "D11_COOL"
 		(at 45.72 21.59 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5340,7 +5339,6 @@
 	)
 	(label "D14_COOL"
 		(at 22.86 21.59 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5351,7 +5349,6 @@
 	)
 	(label "PGND"
 		(at 243.84 54.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5362,7 +5359,6 @@
 	)
 	(label "D13_COOL"
 		(at 53.34 21.59 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5373,7 +5369,6 @@
 	)
 	(label "D10_COOL"
 		(at 38.1 21.59 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5384,7 +5379,6 @@
 	)
 	(label "D9_COOL"
 		(at 60.96 21.59 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5395,7 +5389,6 @@
 	)
 	(label "D12_COOL"
 		(at 30.48 21.59 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5406,7 +5399,6 @@
 	)
 	(label "PGND"
 		(at 243.84 44.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5417,7 +5409,6 @@
 	)
 	(label "PGND"
 		(at 243.84 46.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)

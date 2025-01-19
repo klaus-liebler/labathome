@@ -1,0 +1,71 @@
+namespace wifimanager;
+
+enum Namespace:uint32{
+    Value=1
+}
+
+table AccessPoint{
+    ssid:string (required);
+    primary_channel:int;
+    rssi:int;
+    auth_mode:int;
+}
+
+
+table RequestNetworkInformation{
+    force_new_search:bool;
+}
+
+table ResponseNetworkInformation{
+    hostname:string;
+    ssid_ap:string;
+    password_ap:string;
+    ip_ap:uint32;
+    is_connected_sta:bool;
+    ssid_sta:string;
+    ip_sta:uint32;
+    netmask_sta:uint32;
+    gateway_sta:uint32;
+    rssi_sta:int8;
+    accesspoints:[AccessPoint] (required);
+}
+
+
+table RequestWifiConnect{
+    ssid:string;
+    password:string;
+}
+
+table ResponseWifiConnect{
+    success:bool;
+    ssid:string;
+    ip:uint32;
+    netmask:uint32;
+    gateway:uint32;
+    rssi:int8;
+}
+
+table RequestWifiDisconnect{}
+
+table ResponseWifiDisconnect{}
+
+union Requests{
+    RequestNetworkInformation, 
+    RequestWifiConnect, 
+    RequestWifiDisconnect, 
+}
+
+union Responses{
+    ResponseNetworkInformation, 
+    ResponseWifiConnect, 
+    ResponseWifiDisconnect, 
+}
+
+
+table RequestWrapper{
+    request:Requests;
+}
+
+table ResponseWrapper{
+    response:Responses;
+}

@@ -1,4 +1,4 @@
-import {Namespace, Mac6, RequestRestart, RequestSystemData, ResponseSystemData, Responses } from "../../generated/flatbuffers/system";
+import {Namespace, Mac6, RequestRestart, RequestSystemData, ResponseSystemData, Responses, Requests, RequestWrapper, ResponseWrapper } from "../../generated/flatbuffers/system";
 
 
 import { ScreenController } from "./screen_controller";
@@ -12,6 +12,8 @@ import { Ref, createRef, ref } from "lit-html/directives/ref.js";
 import { OkCancelDialog, OkDialog } from "../dialog_controller/dialog_controller";
 
 
+
+
 export class SystemController extends ScreenController {
     private btnUpload:Ref<HTMLInputElement> = createRef();
     private inpOtafile:Ref<HTMLInputElement> = createRef();
@@ -23,14 +25,14 @@ export class SystemController extends ScreenController {
 
     private sendRequestRestart() {
         let b = new flatbuffers.Builder(1024);
-        b.finish(RequestRestart.createRequestRestart(b))
-        this.appManagement.WrapAndSend(Namespace.Value, b);
+        b.finish(RequestWrapper.createRequestWrapper(b,Requests.RequestRestart, RequestRestart.createRequestRestart(b)));
+        this.appManagement.SendFinishedBuilder(Namespace.Value, b);
     }
 
     private sendRequestSystemdata() {
         let b = new flatbuffers.Builder(1024);
-        b.finish(RequestSystemData.createRequestSystemData(b))
-        this.appManagement.WrapAndSend(Namespace.Value, b, 30000);
+        b.finish(RequestWrapper.createRequestWrapper(b,Requests.RequestSystemData, RequestSystemData.createRequestSystemData(b)))
+        this.appManagement.SendFinishedBuilder(Namespace.Value, b, 30000);
     }
 
     partitionString(original: string | null, def: string) {
@@ -40,7 +42,9 @@ export class SystemController extends ScreenController {
     public OnMessage(namespace:number, bb: flatbuffers.ByteBuffer): void {
 
         if(namespace!=Namespace.Value) return;
-        let sd = ResponseSystemData.getRootAsResponseSystemData(bb)
+        var rw=ResponseWrapper.getRootAsResponseWrapper(bb);
+        if(rw.responseType()!=Responses.ResponseSystemData) throw new Error("Unexpected Response Type");
+        var sd=rw.response(new ResponseSystemData());
         this.tblParameters.value!.textContent = "";
 
         let secondsEpoch = sd.secondsEpoch();

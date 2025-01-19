@@ -4516,7 +4516,6 @@
 	)
 	(label "SW"
 		(at 59.69 110.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4527,7 +4526,6 @@
 	)
 	(label "FB"
 		(at 54.61 113.03 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4538,7 +4536,6 @@
 	)
 	(label "BOOT"
 		(at 53.34 107.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)

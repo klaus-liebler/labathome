@@ -1,7 +1,7 @@
 
 import { ScreenController } from "./screen_controller";
 import * as flatbuffers from 'flatbuffers';
-import { Namespace, RequestNetworkInformation, RequestWifiConnect, RequestWifiDisconnect, Requests, Responses, ResponseNetworkInformation, ResponseWifiConnect, ResponseWrapper } from "../../generated/flatbuffers/webmanager";
+import { Namespace, RequestNetworkInformation, RequestWifiConnect, RequestWifiDisconnect, Requests, Responses, ResponseNetworkInformation, ResponseWifiConnect, ResponseWrapper, RequestWrapper } from "../../generated/flatbuffers/wifimanager";
 import { Severity, ip4_2_string } from "../utils/common";
 //import icon_lock from '../../assets/icon-lock.svg'
 import { TemplateResult, html, render } from "lit-html";
@@ -136,14 +136,14 @@ export class WifimanagerController extends ScreenController {
 
     private sendRequestWifiAccesspoints(forceNewSearch: boolean) {
         let b = new flatbuffers.Builder(1024);
-        b.finish(RequestNetworkInformation.createRequestNetworkInformation(b, forceNewSearch))
-        this.appManagement.WrapAndSend(Namespace.Value, b, 30000);
+        b.finish(RequestWrapper.createRequestWrapper(b,Requests.RequestNetworkInformation, RequestNetworkInformation.createRequestNetworkInformation(b, forceNewSearch)))
+        this.appManagement.SendFinishedBuilder(Namespace.Value, b, 30000);
     }
 
     private sendRequestWifiConnect(ssid: string, password: string) {
         let b = new flatbuffers.Builder(1024);
-        b.finish(RequestWifiConnect.createRequestWifiConnect(b, b.createString(ssid), b.createString(password)))
-        this.appManagement.WrapAndSend(Namespace.Value, b, 30000);
+        b.finish(RequestWrapper.createRequestWrapper(b,Requests.RequestWifiConnect, RequestWifiConnect.createRequestWifiConnect(b, b.createString(ssid), b.createString(password))))
+        this.appManagement.SendFinishedBuilder(Namespace.Value, b, 30000);
     }
 
     private onBtnWifiDisconnect() {
@@ -152,8 +152,8 @@ export class WifimanagerController extends ScreenController {
 
     private sendRequestWifiDisconnect() {
         let b = new flatbuffers.Builder(1024);
-        b.finish(RequestWifiDisconnect.createRequestWifiDisconnect(b))
-        this.appManagement.WrapAndSend(Namespace.Value, b, 30000);
+        b.finish(RequestWrapper.createRequestWrapper(b,Requests.RequestWifiDisconnect, RequestWifiDisconnect.createRequestWifiDisconnect(b)))
+        this.appManagement.SendFinishedBuilder(Namespace.Value, b, 30000);
 
     }
 

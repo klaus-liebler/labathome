@@ -4,14 +4,7 @@ enum Namespace:uint32{
     Value=2
 }
 
-union Requests{
-    RequestRestart,
-    RequestSystemData, 
-}
 
-union Responses{
-    ResponseSystemData, 
-}
 
 struct Mac6 {
     v:[uint8:6];
@@ -48,6 +41,15 @@ table ResponseSystemData{
     chip_cores:uint8;
     chip_temperature:float;
     partitions:[PartitionInfo];
+}
+
+union Requests{
+    RequestRestart,
+    RequestSystemData, 
+}
+
+union Responses{
+    ResponseSystemData, 
 }
 
 table RequestWrapper{

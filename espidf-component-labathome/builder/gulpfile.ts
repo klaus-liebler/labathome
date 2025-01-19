@@ -17,6 +17,30 @@ import { createApiKey } from "./gulpfile_helpers/google_cloud";
 import path from "path";
 import {Context} from "./gulpfile_helpers/context"
 
+export const doOnce = gulp.series(
+  createRootCA,
+  createVariousTestCertificates
+);
+
+
+export const buildForCurrent = gulp.series(
+  compileAndDistributeFlatbuffers,
+  buildAndCompressWebProject,
+  createBoardCertificatesLazily,
+  createRandomFlashEncryptionKeyLazily,
+  createBoardSoundsLazily,
+  createCppConfigurationHeader,
+  copyMostRecentlyConnectedBoardFilesToCurrent,
+  buildFirmware,
+  encryptFirmware,
+)
+
+
+export default gulp.series(
+  addOrUpdateConnectedBoard,
+  buildForCurrent,
+  flashEncryptedFirmware,
+)
 
 
 export async function addOrUpdateConnectedBoard(cb: gulp.TaskFunctionCallback){
@@ -25,7 +49,7 @@ export async function addOrUpdateConnectedBoard(cb: gulp.TaskFunctionCallback){
 }
 
 
-export function rootCA(cb: gulp.TaskFunctionCallback) {
+export function createRootCA(cb: gulp.TaskFunctionCallback) {
   let CA = cert.CreateRootCA();
   if (fs.existsSync(P.ROOT_CA_PEM_CRT) || fs.existsSync(P.ROOT_CA_PEM_CRT)) {
     return cb(new Error("rootCA Certificate and Key have already been created. Delete them manually to be able to recreate them"));
@@ -34,7 +58,7 @@ export function rootCA(cb: gulp.TaskFunctionCallback) {
   writeFileCreateDirLazy(P.ROOT_CA_PEM_PRVTKEY, CA.privateKey, cb);
 }
 
-export function certificates(cb: gulp.TaskFunctionCallback) {
+export function createVariousTestCertificates(cb: gulp.TaskFunctionCallback) {
   const this_pc_name = os.hostname();
   let testserverCert = cert.CreateAndSignCert("Testserver", this_pc_name, P.ROOT_CA_PEM_CRT, P.ROOT_CA_PEM_PRVTKEY);
   writeFileCreateDirLazy(P.TESTSERVER_CERT_PEM_CRT, testserverCert.certificate);
@@ -48,33 +72,6 @@ export function certificates(cb: gulp.TaskFunctionCallback) {
   writeFileCreateDirLazy(P.CLIENT_CERT_PEM_CRT, clientCert.certificate);
   writeFileCreateDirLazy(P.CLIENT_CERT_PEM_PRVTKEY, clientCert.privateKey, cb);
 }
-
-
-
-export const buildForCurrent = gulp.series(
-  compileAndDistributeFlatbuffers,
-  buildWebProject,
-  brotliCompress,
-  createBoardCertificatesLazily,
-  createRandomFlashEncryptionKeyLazily,
-  createBoardSoundsLazily,
-  createCppConfigurationHeader,
-  copyMostRecentlyConnectedBoardFilesToCurrent,
-  buildFirmware,
-)
-
-
-export default gulp.series(
-  addOrUpdateConnectedBoard,
-  buildForCurrent,
-  encryptFirmware,
-  flashFirmware,
-)
-
-export async function getGitInfo(cb: gulp.TaskFunctionCallback) {
-  console.log(await getLastCommit());
-}
-
 
 export async function createGoogleApiKey(cb: gulp.TaskFunctionCallback) {
   await createApiKey()
@@ -134,15 +131,16 @@ async function createObjectWithDefines(c:Context) {
   defines.__APP_NAME__ = JSON.stringify(c.a.name);
   defines.__APP_VERSION__ = JSON.stringify(c.a.version);
   defines.__CREATION_DT__ = JSON.stringify(Math.floor(Date.now() / 1000));
+  defines.__GIT_SHORT_HASH__ = JSON.stringify((await getLastCommit(true)).shortHash);
   return defines;
 }
 
-export async function buildWebProject(cb: gulp.TaskFunctionCallback) {
+export async function buildAndCompressWebProject(cb: gulp.TaskFunctionCallback) {
   const c=await Context.get();
   await vite.build({
 
     root: "../web",
-    define: createObjectWithDefines(c),
+    define: await createObjectWithDefines(c),
     esbuild: {
       //drop:["console", 'debugger'],
       legalComments: 'none',
@@ -155,19 +153,14 @@ export async function buildWebProject(cb: gulp.TaskFunctionCallback) {
       emptyOutDir: true
     }
   });
-  cb();
-}
-
-export async function brotliCompress(cb: gulp.TaskFunctionCallback) {
-  const c=await Context.get();
   const origPath = boardSpecificPath(c, "web", "index.html")
   const compressedPath = boardSpecificPath(c, "web", "index.compressed.br")
   const result = zlib.brotliCompressSync(fs.readFileSync(origPath));
   fs.writeFileSync(compressedPath, result);
   console.log(`Compressed file written to ${compressedPath}. FileSize = ${result.byteLength} byte = ${(result.byteLength / 1024.0).toFixed(2)} kiB`);
   return cb();
-  
 }
+
 
 export async function createCppConfigurationHeader(cb: gulp.TaskFunctionCallback) {
   const c=await Context.get();
@@ -200,9 +193,13 @@ export async function createRandomFlashEncryptionKeyLazily(cb: gulp.TaskFunction
 
 export async function burnFlashEncryptionKeyToAndActivateEncryptedFlash(cb: gulp.TaskFunctionCallback) {
   const c=await Context.get();
-  if(c.b.encryption_key_set) return cb();
+  if(c.b.encryption_key_set){
+    console.info(`flash_encryption key for board  ${c.b.board_name} ${c.b.board_version} with mac 0x${c.b.mac_12char} has already been burned to efuse`);
+    return cb();
+  }
+   
   idf.espefuse(`--port ${c.b.last_connected_com_port} --do-not-confirm burn_key BLOCK_KEY0 ${boardSpecificPath(c,  P.FLASH_KEY_SUBDIR, P.FLASH_KEY_FILENAME)} XTS_AES_128_KEY`);
-  idf.espefuse(`--port ${c.b.last_connected_com_port} --do-not-confirm burn_key SPI_BOOT_CRYPT_CNT 1`);
+  idf.espefuse(`--port ${c.b.last_connected_com_port} --do-not-confirm burn_efuse SPI_BOOT_CRYPT_CNT 1`);
   console.log('Random Flash Encryption Key successfully burned to EFUSE; encryption of flash activated!');
   cb();
 }

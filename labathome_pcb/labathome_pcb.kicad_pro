@@ -59,7 +59,16 @@
         }
       ],
       "drc_exclusions": [
-        "isolated_copper|111743899|89871919|64c3770a-c08d-4725-a597-98b8b0edc914|00000000-0000-0000-0000-000000000000"
+        "annular_width|102650000|67530000|805810c0-1508-4fe4-b138-9e72ebb7b0e1|00000000-0000-0000-0000-000000000000",
+        "annular_width|102650000|76170000|6d4c1a03-8819-4dfc-8b5c-e1fd6c0ce48b|00000000-0000-0000-0000-000000000000",
+        "annular_width|102700000|124280000|be4bf62b-0b68-4f0c-a986-17c0d71e104c|00000000-0000-0000-0000-000000000000",
+        "annular_width|102700000|132920000|f4f2305f-2514-4142-8197-d10df1c179e6|00000000-0000-0000-0000-000000000000",
+        "annular_width|106830000|67530000|a740af06-a6ce-4c2f-8b91-6128ddb4a794|00000000-0000-0000-0000-000000000000",
+        "annular_width|106830000|76170000|57e66c01-71e7-4cbb-b3fe-aed6ba8f58c4|00000000-0000-0000-0000-000000000000",
+        "annular_width|106880000|124280000|a4adb028-ef06-46fd-9178-c245190b2e79|00000000-0000-0000-0000-000000000000",
+        "annular_width|106880000|132920000|e07efbe2-9f2c-4677-92cc-c809335380c9|00000000-0000-0000-0000-000000000000",
+        "isolated_copper|111743899|89871919|64c3770a-c08d-4725-a597-98b8b0edc914|00000000-0000-0000-0000-000000000000",
+        "solder_mask_bridge|185450000|116700000|29c5d7cb-fb0a-4a41-9de1-f827463506f7|47d84804-791a-452f-bc8b-0c6a3a2e7463"
       ],
       "meta": {
         "version": 2
@@ -544,7 +553,7 @@
           "group_by": false,
           "label": "Datasheet",
           "name": "Datasheet",
-          "show": true
+          "show": false
         },
         {
           "group_by": false,
@@ -556,20 +565,44 @@
           "group_by": false,
           "label": "Qty",
           "name": "${QUANTITY}",
-          "show": true
+          "show": false
         },
         {
           "group_by": true,
           "label": "DNP",
           "name": "${DNP}",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "#",
+          "name": "${ITEM_NUMBER}",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Sim.Device",
+          "name": "Sim.Device",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Sim.Pins",
+          "name": "Sim.Pins",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Description",
+          "name": "Description",
           "show": true
         }
       ],
       "filter_string": "",
       "group_symbols": true,
-      "name": "Grouped By Value",
+      "name": "",
       "sort_asc": true,
-      "sort_field": "Referenz"
+      "sort_field": "Sim.Device"
     },
     "connection_grid_size": 50.0,
     "drawing": {
@@ -613,7 +646,7 @@
   "sheets": [
     [
       "e4d6926a-1a8b-424d-97c4-66b6ad87e4ac",
-      "Stammblatt"
+      "Root"
     ],
     [
       "faeff10d-104f-4ca8-a480-26bd51140cf0",

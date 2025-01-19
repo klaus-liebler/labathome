@@ -2,7 +2,7 @@ import { IBoardInfo, IApplicationInfo, existsBoardSpecificPath } from "./utils";
 import * as esp from "./esp32"
 import * as db from "./database"
 import * as idf from "./espidf"
-import * as P from "./paths";
+import * as P from "../paths";
 
 export class Context{
   
@@ -15,7 +15,7 @@ export class Context{
       if (!esp32) {
         throw new Error("No connected board found");
       }
-      console.log(`Found ${esp32.chipName} on ${esp32.comPort.path} with mac ${esp32.macAsHexString} and encryption key '${esp32.hasEncryptionKey?"already written":"not written"}'`)
+      console.log(`Found ${esp32.chipName} on ${esp32.comPort.path} with mac ${esp32.macAsHexString} (decimal: ${esp32.macAsNumber}) and encryption key '${esp32.hasEncryptionKey?"already written":"not written"}'`)
       await db.updateDatabase(esp32);
       
     }

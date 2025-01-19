@@ -5277,7 +5277,6 @@
 	)
 	(label "24V_INP"
 		(at 156.21 170.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5288,7 +5287,6 @@
 	)
 	(label "24V_INP"
 		(at 162.56 119.38 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5310,28 +5308,6 @@
 		(uuid "02e3a138-0300-4673-b8ed-e9d9f56a44bd")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 23.6244 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "OPAMP3-"
-		(shape output)
-		(at 195.58 157.48 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "0a50ee6b-c50c-4a49-a5aa-be66fcd405a2")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 183.4024 157.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5803,28 +5779,6 @@
 			)
 		)
 	)
-	(global_label "UART3_TX"
-		(shape input)
-		(at 208.28 160.02 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "44970f75-f0c1-4325-9247-27d5109b0da7")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 220.2761 160.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "Servo3"
 		(shape output)
 		(at 33.02 67.31 180)
@@ -5957,28 +5911,6 @@
 			)
 		)
 	)
-	(global_label "OPAMP3Q"
-		(shape input)
-		(at 195.58 160.02 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "50676cae-3ed4-4385-8b64-1ccecdc779ba")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 183.6443 160.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "ADC1_U1R"
 		(shape input)
 		(at 33.02 72.39 180)
@@ -6069,7 +6001,7 @@
 	)
 	(global_label "OPAMP3-"
 		(shape output)
-		(at 104.14 123.19 180)
+		(at 196.85 125.73 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6079,7 +6011,7 @@
 		)
 		(uuid "64fcc72e-4bcf-40c7-80cb-7cab44f78fa4")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 91.9624 123.19 0)
+			(at 184.6724 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6102,28 +6034,6 @@
 		(uuid "65070807-9932-4d62-8c00-05993d038a58")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 21.931 74.93 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "UART3_RX"
-		(shape output)
-		(at 195.58 154.94 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "66d660d5-e76e-4343-b794-a4bfe7c3c603")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 183.2815 154.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6267,7 +6177,7 @@
 	)
 	(global_label "PB12"
 		(shape input)
-		(at 116.84 123.19 0)
+		(at 209.55 125.73 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6277,7 +6187,7 @@
 		)
 		(uuid "76e70f85-6a91-4def-8282-76482b14bec2")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 124.7842 123.19 0)
+			(at 217.4942 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6542,28 +6452,6 @@
 		(uuid "98a5c7ea-37c5-4938-99a1-c8c76346fe5f")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 154.94 107.3839 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "OPAMP3+"
-		(shape output)
-		(at 208.28 154.94 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "99d22f90-f356-43a5-a331-567fd7573e5e")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 220.4576 154.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6969,28 +6857,6 @@
 			)
 		)
 	)
-	(global_label "PB12"
-		(shape bidirectional)
-		(at 208.28 157.48 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "cbbbfc8b-ab8b-44d9-b931-1d9eef60dd98")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 217.3355 157.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "Servo1"
 		(shape input)
 		(at 124.46 71.12 180)
@@ -7037,7 +6903,7 @@
 	)
 	(global_label "OPAMP3+"
 		(shape output)
-		(at 116.84 120.65 0)
+		(at 209.55 123.19 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -7047,7 +6913,7 @@
 		)
 		(uuid "d3b7f640-f84b-4f67-87c8-f174bbab448c")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 129.0176 120.65 0)
+			(at 221.7276 123.19 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7235,7 +7101,7 @@
 	)
 	(global_label "OPAMP3Q"
 		(shape input)
-		(at 104.14 125.73 180)
+		(at 196.85 128.27 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -7245,7 +7111,7 @@
 		)
 		(uuid "e48d1a0d-13b2-4073-9371-16e9f1c179a7")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 92.2043 125.73 0)
+			(at 184.9143 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7812,7 +7678,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_02x03_Odd_Even")
-		(at 109.22 123.19 0)
+		(at 201.93 125.73 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7821,7 +7687,7 @@
 		(fields_autoplaced yes)
 		(uuid "14d81f97-74b4-4a28-88e6-a55c4783377b")
 		(property "Reference" "J26"
-			(at 110.49 114.3 0)
+			(at 203.2 116.84 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7829,7 +7695,7 @@
 			)
 		)
 		(property "Value" "EXT"
-			(at 110.49 116.84 0)
+			(at 203.2 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7837,7 +7703,7 @@
 			)
 		)
 		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_2x03_P2.54mm_Vertical"
-			(at 109.22 123.19 0)
+			(at 201.93 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7846,7 +7712,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 109.22 123.19 0)
+			(at 201.93 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7855,7 +7721,7 @@
 			)
 		)
 		(property "Description" "Generic connector, double row, 02x03, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 109.22 123.19 0)
+			(at 201.93 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8112,7 +7978,7 @@
 	)
 	(symbol
 		(lib_id "power:+3V3")
-		(at 104.14 120.65 90)
+		(at 196.85 123.19 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -8120,7 +7986,7 @@
 		(dnp no)
 		(uuid "238953de-5b1f-477c-8a7d-329b49d5f9f9")
 		(property "Reference" "#PWR0259"
-			(at 107.95 120.65 0)
+			(at 200.66 123.19 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8129,7 +7995,7 @@
 			)
 		)
 		(property "Value" "+3V3"
-			(at 98.806 120.65 90)
+			(at 191.516 123.19 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8137,7 +8003,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 104.14 120.65 0)
+			(at 196.85 123.19 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8146,7 +8012,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 104.14 120.65 0)
+			(at 196.85 123.19 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8155,7 +8021,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+3V3\""
-			(at 104.14 120.65 0)
+			(at 196.85 123.19 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8767,15 +8633,6 @@
 				(hide yes)
 			)
 		)
-		(property "Option" "Sound only"
-			(at 38.1 170.18 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
 		(pin "1"
 			(uuid "619779a1-ce14-4654-a0eb-462b14bc13a4")
 		)
@@ -9248,7 +9105,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 116.84 125.73 0)
+		(at 209.55 128.27 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -9256,7 +9113,7 @@
 		(dnp no)
 		(uuid "755aa192-2275-4913-891c-52bc118d4b4d")
 		(property "Reference" "#PWR0238"
-			(at 116.84 132.08 0)
+			(at 209.55 134.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9265,7 +9122,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 116.84 130.81 90)
+			(at 209.55 133.35 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9273,7 +9130,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 116.84 125.73 0)
+			(at 209.55 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9282,7 +9139,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 116.84 125.73 0)
+			(at 209.55 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9291,7 +9148,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 116.84 125.73 0)
+			(at 209.55 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10194,86 +10051,6 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/88291a06-4a87-426a-8cf8-e855480a1e3f"
 					(reference "#PWR0223")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector_Generic:Conn_02x03_Odd_Even")
-		(at 200.66 157.48 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board no)
-		(dnp yes)
-		(fields_autoplaced yes)
-		(uuid "be9408c3-cb4d-41fb-95e2-30a740e3d678")
-		(property "Reference" "J34"
-			(at 201.93 148.59 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "STM32 EXT"
-			(at 201.93 151.13 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_2x03_P2.54mm_Vertical"
-			(at 200.66 157.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 200.66 157.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Generic connector, double row, 02x03, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 200.66 157.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "6"
-			(uuid "a554ad69-e30b-4510-85c0-2f0e7cb9bd92")
-		)
-		(pin "5"
-			(uuid "3571f2fe-000a-4154-bee6-2f71cb4066d1")
-		)
-		(pin "2"
-			(uuid "b8cafc62-2ac0-45ad-a3fa-e2ea63d4e9dd")
-		)
-		(pin "1"
-			(uuid "3a96ba08-e13a-494f-94ed-0ae244d23e58")
-		)
-		(pin "4"
-			(uuid "8b74cca0-bb79-4946-b76a-89f214044d2a")
-		)
-		(pin "3"
-			(uuid "a115e649-d417-41e0-95f6-5f57d8166fee")
-		)
-		(instances
-			(project ""
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/88291a06-4a87-426a-8cf8-e855480a1e3f"
-					(reference "J34")
 					(unit 1)
 				)
 			)

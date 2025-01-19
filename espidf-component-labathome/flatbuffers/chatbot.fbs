@@ -4,20 +4,20 @@ enum Namespace:uint32{
     Value=5
 }
 
-union Requests{
-    RequestChat, 
-}
-
-union Responses{
-    ResponseChat, 
-}
-
 table ResponseChat{
     text:string;
 }
 
 table RequestChat{
     text:string;
+}
+
+union Requests{
+    RequestChat, 
+}
+
+union Responses{
+    ResponseChat, 
 }
 
 table RequestWrapper{

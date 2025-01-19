@@ -59,6 +59,7 @@ export async function updateDatabase(esp32: ESP32Type) {
     insert_board.run(esp32.macAsNumber, mcuType.id, DEFAULT_BOARD_TYPE_ID, now, now, esp32.comPort.path, null, null, esp32.hasEncryptionKey?1:0);
   } else {
     const update_board = db.prepare('UPDATE boards set last_connected_dt = ?, last_connected_com_port= ?, encryption_key_set=? where mac = ? ');
-    update_board.run(now, esp32.comPort.path, esp32.macAsNumber, esp32.hasEncryptionKey?1:0);
+    update_board.run(now, esp32.comPort.path, esp32.hasEncryptionKey?1:0, esp32.macAsNumber);
   }
+  db.close();
 }

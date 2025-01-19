@@ -3,6 +3,26 @@ export function EventCoordinatesInSVG(evt:MouseEvent, element:Element, positionR
     return {x: (evt.clientX - rect.left)/positionRatio, y:(evt.clientY - rect.top)/positionRatio}
 }
 
+export function uint8Array2HexString(d: Uint8Array) {
+    var s = "";
+    for (let index = 0; index < d.length; index++) {
+      var xx = d[index].toString(16);
+      if (xx.length == 1) s += "0" + xx;
+      else s += xx;
+    }
+    return s;
+  }
+  
+  export function numberArray2HexString(d: Array<number>) {
+    var s = "";
+    for (let index = 0; index < d.length; index++) {
+      var xx = d[index].toString(16);
+      if (xx.length == 1) s += "0" + xx;
+      else s += xx;
+    }
+    return s;
+  }
+
 export interface Location2D {
     x: number;
     y: number;

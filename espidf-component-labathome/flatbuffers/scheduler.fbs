@@ -1,0 +1,97 @@
+namespace scheduler;
+
+enum Namespace:uint32{
+    Value=8
+}
+
+struct OneWeekIn15MinutesData{
+    v:[uint8:84];
+}
+
+table OneWeekIn15Minutes{
+    data:OneWeekIn15MinutesData;
+}
+
+table Predefined{}
+
+table SunRandom{
+    offset_minutes:uint16;
+    random_minutes:uint16;
+}
+
+union uSchedule{
+    Predefined,
+    OneWeekIn15Minutes,
+    SunRandom,
+}
+
+enum eSchedule:byte{
+    Predefined,
+    OneWeekIn15Minutes,
+    SunRandom,
+}
+
+table Schedule{
+    name:string;
+    schedule:uSchedule;
+}
+
+table ResponseSchedulerListItem{
+    name:string;
+    type: eSchedule;
+}
+
+table ResponseSchedulerList{
+    items:[ResponseSchedulerListItem];//List
+}
+
+table RequestSchedulerList{
+}
+
+table RequestSchedulerOpen{
+    name:string;
+    type: eSchedule;  
+}
+
+table ResponseSchedulerOpen{
+    payload:Schedule;
+}
+
+table RequestSchedulerSave{
+    payload:Schedule;
+}
+
+table ResponseSchedulerSave{
+    name:string;
+}
+
+table RequestSchedulerRename{
+    old_name:string;
+    new_name:string;
+}
+
+table RequestSchedulerDelete{
+    name:string;
+}
+
+union Requests{
+    RequestSchedulerList,   
+    RequestSchedulerOpen,
+    RequestSchedulerSave,
+    RequestSchedulerRename,
+    RequestSchedulerDelete,
+}
+
+union Responses{
+    ResponseSchedulerList,   
+    ResponseSchedulerOpen,
+    ResponseSchedulerSave,
+}
+
+table RequestWrapper{
+    request:Requests;
+}
+
+table ResponseWrapper{
+    response:Responses;
+}

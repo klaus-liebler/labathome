@@ -11,7 +11,7 @@ export enum ControllerState {
 export abstract class ScreenController implements IWebsocketMessageListener {
     private state=ControllerState.CREATED
     constructor(protected appManagement: IAppManagement) {}
-    public abstract OnCreate(): void;
+    
     public OnStartPublic(){
         switch (this.state) {
             case ControllerState.CREATED:
@@ -42,6 +42,7 @@ export abstract class ScreenController implements IWebsocketMessageListener {
                 break;
         }
     }
+    public abstract OnCreate(): void;
     protected abstract OnFirstStart(): void;
     protected abstract OnRestart(): void;
     abstract OnPause(): void;

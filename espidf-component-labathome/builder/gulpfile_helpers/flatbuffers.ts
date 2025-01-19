@@ -6,7 +6,7 @@ import * as P from "../paths";
 
 export async function flatbuffers_generate(options: string, outputBaseDir: string) {
   const execPromise = util.promisify(proc.exec);
-  for (const file of await fs.readdir(P.FLATBUFFERS_SCHEMA_PATH)) {
+  for (const file of (await fs.readdir(P.FLATBUFFERS_SCHEMA_PATH)).filter(e=>e.endsWith(".fbs"))) {
     console.info(`Processing flatbuffer schema ${file} with options ${options}`)
     const { stdout, stderr } = await execPromise(`flatc ${options} -o ${outputBaseDir} ${path.join(P.FLATBUFFERS_SCHEMA_PATH, file)}`, {
       env: process.env

@@ -1,21 +1,18 @@
 import { TemplateResult, html, render } from "lit-html";
+import { Ref, createRef, ref } from "lit-html/directives/ref.js";
 import "../style/app.css";
 
-import { Ref, createRef, ref } from "lit-html/directives/ref.js";
-import { HeaterExperimentController } from "./screen_controller/heater_experiment_controller";
 
 import * as flatbuffers from "flatbuffers";
 import { Chatbot } from "./chatbot";
 import { DialogController, OkDialog } from "./dialog_controller/dialog_controller";
-import { DevelopCFCController } from "./screen_controller/develop_cfc_controller";
 import { runCarRace } from "./screen_controller/racinggame_controller";
 import { DefaultScreenController, ScreenController } from "./screen_controller/screen_controller";
-import { SystemController } from "./screen_controller/system_controller";
-import { WifimanagerController } from "./screen_controller/wifimanager_controller";
 import { Html, Severity, severity2class, severity2symbol } from "./utils/common";
-import { LABBY_URL, WS_URL } from "./utils/constants";
-import { IAppManagement, IWebsocketMessageListener } from "./utils/interfaces";
+import { WS_URL } from "./utils/constants";
+import { IAppManagement, IScreenControllerHost, IWebsocketMessageListener } from "./utils/interfaces";
 import RouterMenu, { IRouteHandler, Route } from "./utils/routermenu";
+import { BuildScreenControllers } from "./screen_controllers_builder";
 
 
 class Router2ContentAdapter implements IRouteHandler {
@@ -26,21 +23,11 @@ class Router2ContentAdapter implements IRouteHandler {
   }
 }
 
-function AddScreenControllers(app: AppController): void {
-  app.AddScreenController("dashboard", new RegExp("^/$"), html`<span>&#127760;</span><span>Home</span>`, DefaultScreenController)
-  app.AddScreenController("fbd", new RegExp("^/fbd$"), html`<span>🥽</span><span>Function Block</span>`, DevelopCFCController)
-  app.AddScreenController("heater", new RegExp("^/heater$"), html`<span>🥽</span><span>Control Heater</span>`, HeaterExperimentController)
-  app.AddScreenController("system", new RegExp("^/system$"), html`<span>🧰</span><span>System Settings</span>`, SystemController)
-  //app.AddScreenController("properties", new RegExp("^/properties$"), html`<span>⌘</span><span>Properties</span>`, UsersettingsController)
-  app.AddScreenController("wifiman", new RegExp("^/wifiman$"), html`<span>📶</span><span>Wifi Manager</span>`, WifimanagerController)
-
-}
-
 class BufferedMessage {
   constructor(public data: Uint8Array, public namespace: number, public maxLockingTimeMs: number) { }
 }
 
-class AppController implements IAppManagement {
+class AppController implements IAppManagement, IScreenControllerHost {
   private routes: Array<Route> = []
   
   private namespace2listener = new Map<number, Array<IWebsocketMessageListener>>();
@@ -55,11 +42,9 @@ class AppController implements IAppManagement {
   private mainContent: ScreenController = new DefaultScreenController(this);
   private mainRef: Ref<HTMLInputElement> = createRef();
   
-
   private dialog: Ref<HTMLDivElement> = createRef();
   private snackbarTimeout: number = -1;
 
-  private screenControllers: ScreenController[];
   private chatbot: Chatbot;
 
 
@@ -90,7 +75,7 @@ class AppController implements IAppManagement {
       })
     })
   }
-  public WrapAndSend(namespace:number, b:flatbuffers.Builder, maxLockingTimeMs: number=0):void{
+  public SendFinishedBuilder(namespace:number, b:flatbuffers.Builder, maxLockingTimeMs: number=0):void{
     var arr= b.asUint8Array()
     
     
@@ -133,16 +118,6 @@ class AppController implements IAppManagement {
   }
 
   private onWebsocketData(arrayBuffer: ArrayBuffer) {
-    if (arrayBuffer.byteLength == 4096) {
-      //TODO: it is dumb idea to use the size of the message to test whether it is a raw timeseries message or not. But hopefully, Flatbuffer messages never get that big
-      // this.timeseriesScreenController?.onTimeseriesMessage(data);
-      // if(this.messagesToUnlock.includes(Responses.ResponseTimeseriesDummy)){
-      //   clearTimeout(this.modalSpinnerTimeoutHandle);
-      //   this.messagesToUnlock=[Responses.NONE];
-      //   this.setModal(false);
-      // }
-      return
-    }
     const dataView = new DataView(arrayBuffer);
     const namespace = dataView.getUint32(0);
     console.log(`A message of namespace ${namespace} with length ${arrayBuffer.byteLength} has arrived.`)
@@ -151,7 +126,6 @@ class AppController implements IAppManagement {
       this.lockingNamespace = null
       this.setModal(false)
     }
-    const arr = new Uint8Array(arrayBuffer, 4);
     let bb = new flatbuffers.ByteBuffer(new Uint8Array(arrayBuffer, 4))
     //let messageWrapper = ResponseWrapper.getRootAsResponseWrapper(bb)
     this.namespace2listener.get(namespace)?.forEach((v) => {
@@ -187,15 +161,12 @@ class AppController implements IAppManagement {
     child.SetParameter(params)
   }
 
-  public AddScreenController<T extends ScreenController>(url: string, urlPattern: RegExp, caption: TemplateResult<1>, type: { new(m: IAppManagement): T; }): ScreenController {
-    let controllerObject = new type(this);
+  public AddScreenController(url: string, urlPattern: RegExp, caption: TemplateResult<1>, controllerObject: ScreenController){ 
     var w = new Route(url, urlPattern, caption, new Router2ContentAdapter(controllerObject, this))
     this.routes.push(w)
     controllerObject.OnCreate();
     return controllerObject
   }
-
-
 
   private setModal(state: boolean) {
     this.modalSpinner.value!.style.display = state ? "flex" : "none";
@@ -210,9 +181,6 @@ class AppController implements IAppManagement {
     console.log(text)
   }
 
-  
-
-
   private easteregg() {
     document.body.innerText = "";
     document.body.innerHTML = "<canvas id='c'>"
@@ -221,8 +189,8 @@ class AppController implements IAppManagement {
   }
 
   
-  public Startup(screenControllersBuilder: (app: AppController) => void) {
-    screenControllersBuilder(this);
+  public Startup() {
+    BuildScreenControllers(this, this);
     const Template = html`
             <header style="background-image: url('data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnICB3aWR0aD0nNTU5JyBoZWlnaHQ9JzY3LjEnIHZpZXdCb3g9JzAgMCAxMDAwIDEyMCc+PHJlY3QgZmlsbD0nI0ZGRkZGRicgd2lkdGg9JzEwMDAnIGhlaWdodD0nMTIwJy8+PGcgIGZpbGw9J25vbmUnIHN0cm9rZT0nI0M5RUVENicgc3Ryb2tlLXdpZHRoPScxNCcgc3Ryb2tlLW9wYWNpdHk9JzEnPjxwYXRoIGQ9J00tNTAwIDc1YzAgMCAxMjUtMzAgMjUwLTMwUzAgNzUgMCA3NXMxMjUgMzAgMjUwIDMwczI1MC0zMCAyNTAtMzBzMTI1LTMwIDI1MC0zMHMyNTAgMzAgMjUwIDMwczEyNSAzMCAyNTAgMzBzMjUwLTMwIDI1MC0zMCcvPjxwYXRoIGQ9J00tNTAwIDQ1YzAgMCAxMjUtMzAgMjUwLTMwUzAgNDUgMCA0NXMxMjUgMzAgMjUwIDMwczI1MC0zMCAyNTAtMzBzMTI1LTMwIDI1MC0zMHMyNTAgMzAgMjUwIDMwczEyNSAzMCAyNTAgMzBzMjUwLTMwIDI1MC0zMCcvPjxwYXRoIGQ9J00tNTAwIDEwNWMwIDAgMTI1LTMwIDI1MC0zMFMwIDEwNSAwIDEwNXMxMjUgMzAgMjUwIDMwczI1MC0zMCAyNTAtMzBzMTI1LTMwIDI1MC0zMHMyNTAgMzAgMjUwIDMwczEyNSAzMCAyNTAgMzBzMjUwLTMwIDI1MC0zMCcvPjxwYXRoIGQ9J00tNTAwIDE1YzAgMCAxMjUtMzAgMjUwLTMwUzAgMTUgMCAxNXMxMjUgMzAgMjUwIDMwczI1MC0zMCAyNTAtMzBzMTI1LTMwIDI1MC0zMHMyNTAgMzAgMjUwIDMwczEyNSAzMCAyNTAgMzBzMjUwLTMwIDI1MC0zMCcvPjxwYXRoIGQ9J00tNTAwLTE1YzAgMCAxMjUtMzAgMjUwLTMwUzAtMTUgMC0xNXMxMjUgMzAgMjUwIDMwczI1MC0zMCAyNTAtMzBzMTI1LTMwIDI1MC0zMHMyNTAgMzAgMjUwIDMwczEyNSAzMCAyNTAgMzBzMjUwLTMwIDI1MC0zMCcvPjxwYXRoIGQ9J00tNTAwIDEzNWMwIDAgMTI1LTMwIDI1MC0zMFMwIDEzNSAwIDEzNXMxMjUgMzAgMjUwIDMwczI1MC0zMCAyNTAtMzBzMTI1LTMwIDI1MC0zMHMyNTAgMzAgMjUwIDMwczEyNSAzMCAyNTAgMzBzMjUwLTMwIDI1MC0zMCcvPjwvZz48L3N2Zz4=');"><span @click=${() => this.easteregg()}> Lab@Home WebUI</span></header>
             <nav>${this.menu.Template()}<a href="javascript:void(0);" @click=${() => this.menu.ToggleHamburgerMenu()}><i>≡</i></a></nav>
@@ -278,7 +246,7 @@ class AppController implements IAppManagement {
 let app: AppController;
 document.addEventListener("DOMContentLoaded", (e) => {
   app = new AppController();
-  app.Startup(AddScreenControllers);
+  app.Startup();
 });
 
 

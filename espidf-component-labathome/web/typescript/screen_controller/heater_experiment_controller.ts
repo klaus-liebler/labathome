@@ -338,7 +338,7 @@ public OnFirstStart(): void {
             this.inputWP.value!.valueAsNumber,
             this.inputReset.value!.checked ? true : false
          ))
-        this.appManagement.WrapAndSend(Namespace.Value, b, 0);
+        this.appManagement.SendFinishedBuilder(Namespace.Value, b, 0);
     }
                 
 

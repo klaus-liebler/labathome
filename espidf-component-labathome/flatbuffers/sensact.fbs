@@ -1,0 +1,57 @@
+include "../generated/sensact_fbs/applicationIds.fbs.inc";
+include "../generated/sensact_fbs/commandTypes.fbs.inc";
+
+namespace sensact;
+
+enum Namespace:uint32{
+    Value=9
+}
+
+table RequestCommand {
+    id:ApplicationId;
+    cmd:Command;
+    payload:ulong;
+}
+
+table ResponseCommand{
+
+}
+
+
+table RequestStatus{
+    ids:[ApplicationId];
+}
+
+struct ResponseStatusItem{
+    id:ApplicationId;
+    status:uint;//state of an item must fit into 32bit. How these 32bits are used, dependes of the application type
+}
+
+table ResponseStatus{
+    states:[ResponseStatusItem];
+}
+
+table NotifyStatus{
+    id:ApplicationId;
+    status:uint;//state of an item must fit into 32bit. How these 32bits are used, dependes of the application type
+}
+
+
+union Requests{
+    RequestStatus,   
+    RequestCommand,
+}
+
+union Responses{
+    ResponseStatus,   
+    ResponseCommand,
+    NotifyStatus,
+}
+
+table RequestWrapper{
+    request:Requests;
+}
+
+table ResponseWrapper{
+    response:Responses;
+}
