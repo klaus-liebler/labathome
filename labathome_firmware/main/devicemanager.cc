@@ -20,7 +20,7 @@ constexpr const char *TAG = "devicemanager";
 #define ClearBit(A, k) (A[(k / 32)] &= ~(1 << (k % 32)))
 #define TestBit(A, k) (A[(k / 32)] & (1 << (k % 32)))
 
-DeviceManager::DeviceManager(HAL *hal):hal(hal)
+DeviceManager::DeviceManager(iHAL *hal):hal(hal)
 {
     currentExecutable = this->createDummyInitialExecutableAndEnqueue();
     nextExecutable = nullptr;
@@ -153,7 +153,7 @@ int64_t DeviceManager::GetMicroseconds()
     return hal->GetMicros();
 }
 
-HAL *DeviceManager::GetHAL()
+iHAL *DeviceManager::GetHAL()
 {
     return this->hal;
 }

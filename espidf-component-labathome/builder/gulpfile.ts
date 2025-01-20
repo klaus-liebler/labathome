@@ -1,7 +1,8 @@
 import * as gulp from "gulp";
 import fs from "node:fs";
 import os from "node:os";
-import proc from "node:child_process";
+import path from "node:path";
+import * as zlib from "node:zlib"
 
 import * as cert from "./gulpfile_helpers/certificates"
 import { writeFileCreateDirLazy, writeBoardSpecificFileCreateDirLazy, existsBoardSpecificPath, strInterpolator, boardSpecificPath, createBoardSpecificPathLazy } from "./gulpfile_helpers/utils";
@@ -10,12 +11,12 @@ import * as P from "./paths";
 import * as vite from 'vite'
 import { createSpeech } from "./gulpfile_helpers/text_to_speech";
 import * as idf from "./gulpfile_helpers/espidf";
-import * as zlib from "node:zlib"
 import { getLastCommit } from "./gulpfile_helpers/git";
 import { flatbuffers_generate_c, flatbuffers_generate_ts } from "./gulpfile_helpers/flatbuffers";
 import { createApiKey } from "./gulpfile_helpers/google_cloud";
-import path from "path";
 import {Context} from "./gulpfile_helpers/context"
+import { prepare_labathome_files } from "./gulpfile_helpers/labathome";
+import { prepare_sensact_files } from "./gulpfile_helpers/sensact";
 
 export const doOnce = gulp.series(
   createRootCA,
@@ -24,6 +25,7 @@ export const doOnce = gulp.series(
 
 
 export const buildForCurrent = gulp.series(
+  prepare_board_specific_files,
   compileAndDistributeFlatbuffers,
   buildAndCompressWebProject,
   createBoardCertificatesLazily,
@@ -47,6 +49,18 @@ export async function addOrUpdateConnectedBoard(cb: gulp.TaskFunctionCallback){
   await Context.get(true);
   return cb();
 }
+
+export async function prepare_board_specific_files(cb: gulp.TaskFunctionCallback){
+  const c = await Context.get();
+  if(c.a.name.toLocaleLowerCase().startsWith("labathome")){
+    prepare_labathome_files(c);
+  }
+  else if(c.a.name.toLocaleLowerCase().startsWith("sensact")){
+    prepare_sensact_files(c);
+  }
+  return cb()
+}
+
 
 
 export function createRootCA(cb: gulp.TaskFunctionCallback) {
@@ -206,7 +220,7 @@ export async function burnFlashEncryptionKeyToAndActivateEncryptedFlash(cb: gulp
 
 export async function buildFirmware(cb: gulp.TaskFunctionCallback) {
   const c=await Context.get();
-  idf.exec(`idf.py build`, c.a.espIdfProjectDirectory, true);
+  idf.exec_in_idf_terminal(`idf.py build`, c.a.espIdfProjectDirectory, true);
   console.log('Build-Prozess abgeschlossen!');
   cb();
 }
@@ -246,19 +260,9 @@ export async function flashEncryptedFirmware(cb: gulp.TaskFunctionCallback) {
 
 export async function flashFirmware(cb: gulp.TaskFunctionCallback) {
   const c=await Context.get();
-  idf.exec(`idf.py -p ${c.b.last_connected_com_port} flash`, c.a.espIdfProjectDirectory);
+  idf.exec_in_idf_terminal(`idf.py -p ${c.b.last_connected_com_port} flash`, c.a.espIdfProjectDirectory);
   console.log('Flash-Prozess abgeschlossen!');
   cb();
-}
-
-
-
-
-export function show_nvs(cb: gulp.TaskFunctionCallback) {
-  proc.exec(`py "${P.NVS_TOOL}" --port COM23`, (err, stdout, stderr) => {
-    console.log(stdout);
-    cb(err);
-  });
 }
 
 

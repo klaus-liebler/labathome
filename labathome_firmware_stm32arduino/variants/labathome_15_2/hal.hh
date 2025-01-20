@@ -22,7 +22,7 @@
     constexpr uint32_t LED_INFO{PC12};
     constexpr uint32_t HEATER{PC13};
     constexpr uint32_t MOVEMENT{PC14};
-    constexpr uint32_t RELAY_STEPPER_EN{PC15};
+    constexpr uint32_t RELAY{PC15};
    
   
     constexpr uint32_t ROT_A{PA0};//TIM2.1

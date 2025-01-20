@@ -28,7 +28,7 @@ constexpr TickType_t xFrequency {pdMS_TO_TICKS(50)};
 
 
 static const char *TAG = "main";
-#include "HAL.hh"
+#include <hal/hal_impl.hh>
 
 
 
@@ -36,8 +36,7 @@ static const char *TAG = "main";
 #include "HAL_labathomeV10.hh"
 static HAL * hal = new HAL_Impl(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR);
 #elif(__BOARD_VERSION__>=150000 && __BOARD_VERSION__<160000)
-#include "HAL_labathomeV15.hh"
-static HAL * hal = new HAL_Impl();
+static iHAL * hal = new HAL_Impl();
 #else
 #error Unknown __BOARD_VERSION__ ##__BOARD_VERSION
 #endif
@@ -104,7 +103,8 @@ extern "C" void app_main()
     ESP_LOGI(TAG, "RED %d YEL %d GRN %d", hal->GetButtonRedIsPressed(), hal->GetButtonEncoderIsPressed(), hal->GetButtonGreenIsPressed());
 
     // Allow Browser Access
-    wm->RegisterHTTPDHandlers(http_server);
+    //the "sensor" endpoint is used to get the sensor data as JSON
+    //register this before the webmanager, because the webmanager has a wildcard handler
     httpd_uri_t sensors_get = {
         "/sensors", 
         HTTP_GET, 
@@ -121,7 +121,7 @@ extern "C" void app_main()
     };
     ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &sensors_get));
 
-
+    wm->RegisterHTTPDHandlers(http_server);
 
     wm->CallMeAfterInitializationToMarkCurrentPartitionAsValid();
  

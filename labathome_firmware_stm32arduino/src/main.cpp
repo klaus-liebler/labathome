@@ -17,7 +17,6 @@
   // #include <TMCStepper.h>
   #include <TMC2209.h>
   #include <HardwareSerial.h>
-  //#include <SCServo.h>
   #include "busservo.hh"
 #endif
 
@@ -652,7 +651,7 @@ void loop_default()
     app_loop1000ms(now);
   }
 }
-
+#if defined(ARDUINO_LABATHOME_15_3)
 bool shaft = false;
 
 void loop_steppertest()
@@ -696,8 +695,9 @@ void loop_busservotest(){
   servoBus.WritePosEx(5, 2000, 1500, 50);//servo(ID1) speed=3400，acc=50，move to position=2000.
   delay(2000);
 }
+#endif
 
 void loop()
 {
-  loop_busservotest();
+  loop_default();
 }

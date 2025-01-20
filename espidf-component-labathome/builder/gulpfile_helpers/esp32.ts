@@ -279,14 +279,34 @@ class ESP32Classic extends ESP32Type {
 
 }
 
+enum KeyPurpose{
+    USER_EMPTY=0,
+    RESERVED=1,
+    XTS_AES_256_KEY_1=2,
+    XTS_AES_256_KEY_2=3,
+    XTS_AES_128_KEY=4,
+    HMAC_DOWN_ALL=5,
+    HMAC_DOWN_JTAG=6,
+    HMAC_DOWN_DIGITAL_SIGNATURE=7,
+    HMAC_UP=8,
+    SECURE_BOOT_DIGEST0=9,
+    SECURE_BOOT_DIGEST1=10,
+    SECURE_BOOT_DIGEST2=11,
+}
+
 class ESP32S3 extends ESP32Type {
     constructor(loader:EspLoader){
         super(loader);
         this._chipName="ESP32S3"
     }
     static readonly EFUSE_BASE = 0x6000_7000;
-    static readonly MACFUSEADDR = ESP32S3.EFUSE_BASE + 0x044;
-    static readonly EFUSE_RD_REPEAT_DATA0_REG = ESP32S3.EFUSE_BASE+0x030;
+    static readonly EFUSE_RD_REG_BASE           = ESP32S3.EFUSE_BASE + 0x030  //BLOCK0 read base address
+    static readonly EFUSE_BLOCK1_ADDR           = ESP32S3.EFUSE_BASE + 0x44;
+    static readonly EFUSE_BLOCK2_ADDR           = ESP32S3.EFUSE_BASE + 0x5C;
+    static readonly EFUSE_RD_REPEAT_DATA0_REG   = ESP32S3.EFUSE_BASE + 0x030;
+    static readonly EFUSE_RD_REPEAT_DATA1_REG   = ESP32S3.EFUSE_BASE + 0x034;
+    
+    static readonly MACFUSEADDR                 = ESP32S3.EFUSE_BLOCK1_ADDR;
 
     async updateChipInfo () {
         var efuses = await this.loader.readRegisters(ESP32S3.MACFUSEADDR, 2);
@@ -301,10 +321,16 @@ class ESP32S3 extends ESP32Type {
         this._mac[3] = (mac0 >> 16) & 0xff;
         this._mac[4] = (mac0 >> 8) & 0xff;
         this._mac[5] = mac0 & 0xff;
-        var data_regs_efuses = await this.loader.readRegisters(ESP32S3.EFUSE_RD_REPEAT_DATA0_REG, 4);
-        const purposes=[(data_regs_efuses[1]>>24)& 0xF, (data_regs_efuses[1]>>28)& 0xF, (data_regs_efuses[2]>>0)& 0xF,(data_regs_efuses[2]>>4)& 0xF,(data_regs_efuses[2]>>8)& 0xF,(data_regs_efuses[2]>>12)& 0xF,];
-        
-        if(purposes.find(v=>v==2 || v==3)) this._hasEncryptionKey=true;
+        var data_regs_efuses = await this.loader.readRegisters(ESP32S3.EFUSE_RD_REPEAT_DATA1_REG, 2);
+        const purposes=[((data_regs_efuses[0]>>24)& 0xF) as KeyPurpose, ((data_regs_efuses[0]>>28)& 0xF) as KeyPurpose, ((data_regs_efuses[1]>>0)& 0xF) as KeyPurpose,((data_regs_efuses[1]>>4)& 0xF) as KeyPurpose,((data_regs_efuses[1]>>8)& 0xF) as KeyPurpose,((data_regs_efuses[1]>>12)& 0xF) as KeyPurpose,];
+        const SPI_BOOT_CRYPT_CNT = (data_regs_efuses[0]>>18)& 0x7
+        if(purposes[0]==KeyPurpose.XTS_AES_256_KEY_1 && purposes[1]==KeyPurpose.XTS_AES_256_KEY_2) this._hasEncryptionKey=true;
+        else if(!(purposes[0]==KeyPurpose.USER_EMPTY && purposes[1]==KeyPurpose.USER_EMPTY)){
+            throw Error("Unexpected key purposes");
+        }
+        if(this.hasEncryptionKey && !(SPI_BOOT_CRYPT_CNT==0b1 || SPI_BOOT_CRYPT_CNT==0b11 || SPI_BOOT_CRYPT_CNT==0b111)){
+            throw Error(`Encryption Key is XTS_AES_256, but SPI_BOOT_CRYPT_CNT has no odd number of ones, but 0b${SPI_BOOT_CRYPT_CNT.toString(2)}`);	
+        }
     }
 }
 

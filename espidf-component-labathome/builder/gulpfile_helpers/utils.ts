@@ -1,7 +1,8 @@
-import * as fs from "node:fs"
 import path from "node:path";
+import fs from "node:fs";
 import { BOARDS_BASE_DIR } from "../gulpfile_config";
 import { Context } from "./context";
+import { IStringBuilder } from "../../usersettings/typescript/utils/usersettings_base";
 
 export interface IBoardInfo{
   mac:number,
@@ -26,7 +27,9 @@ export interface IApplicationInfo{
   espIdfProjectDirectory:string,
 }
 
-
+export class SearchReplace{
+  constructor(public search:string, public replaceFilePath:string){}
+}
 
 
 export function X02(num: number|bigint, len = 2) { let str = num.toString(16); return "0".repeat(len - str.length) + str; }
@@ -80,6 +83,19 @@ export function writeBoardSpecificFileCreateDirLazy(c:Context, subdir:string, fi
 }
 
 
+
+export function CopyBoardSpecificFiles(targetDir:string, pathsWithDynamicFiles:Array<string>, namesToSearchFor:Array<string>) {
+    pathsWithDynamicFiles.forEach((p)=>{
+         namesToSearchFor.forEach((n)=>{
+            if(fs.existsSync(path.join(p, n))){
+                console.info(`Copying ${path.join(p, n)} to ${path.join(targetDir, path.basename(p))}`);
+                fs.cpSync(path.join(p, n), path.join(targetDir, path.basename(p)), { recursive: true });
+            }
+         })
+    });   
+}
+
+
 export function createWriteStreamCreateDirLazy(pathLike: fs.PathLike): fs.WriteStream {
   fs.mkdirSync(path.dirname(pathLike.toString()), { recursive: true });
   return fs.createWriteStream(pathLike);
@@ -103,4 +119,43 @@ export function strInterpolator(str, ...values:any[]) {
       return values_flat[p1] !== void 0 ? values_flat[p1] : "";
     }
   });
+}
+
+export default function templateSpecial(fillInFilePath:string, templatePath: string, defaultSearch:string, furtherSearchReplace:SearchReplace[]) {
+  const file = fs.readFileSync(fillInFilePath, {encoding:"utf-8"});
+  const htmlTemplate:string = fs.readFileSync(templatePath, {encoding:"utf-8"});
+  furtherSearchReplace.forEach(e => {
+    e.replaceFilePath=fs.readFileSync(e.replaceFilePath, {encoding:"utf-8"});
+  });
+  
+  var content =  htmlTemplate.replace(defaultSearch, file);
+  furtherSearchReplace.forEach(e => {
+    content=content.replace(e.search, e.replaceFilePath);
+  });  
+  //TODO, not used right now..
+
+};
+
+export class StringBuilderImpl implements IStringBuilder {
+
+  constructor(initialValue: string | null = null) {
+    if (initialValue) {
+      this.AppendLine(initialValue);
+    }
+  }
+
+  public get Code() {
+    return this.code;
+  }
+  private code = "";
+  public AppendLine(line: string): void {
+    this.code += line + "\r\n";
+  }
+
+  public Clear(initialValue: string | null = null) {
+    this.code = "";
+    if (initialValue) {
+      this.AppendLine(initialValue);
+    }
+  }
 }

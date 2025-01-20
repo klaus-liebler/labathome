@@ -7,7 +7,7 @@
 #include "crgb.hh"
 
 
-class HAL
+class iHAL
 {
     public:
         virtual ErrorCode HardwareTest(){return ErrorCode::OK;};

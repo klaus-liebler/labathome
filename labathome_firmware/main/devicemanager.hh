@@ -4,7 +4,7 @@
 #include "sdkconfig.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
-#include "HAL.hh"
+#include "iHAL.hh"
 #include "errorcodes.hh"
 #include <vector>
 #include <cstring>
@@ -76,7 +76,7 @@ class FBContext{
         
 
         virtual int64_t GetMicroseconds()=0;
-        virtual HAL *GetHAL()=0;
+        virtual iHAL *GetHAL()=0;
 };
 
 class FunctionBlock {
@@ -126,7 +126,7 @@ enum class ExperimentMode
 class DeviceManager:public FBContext
 {
  private:
-        HAL *hal;
+        iHAL *hal;
         PID::Controller<float> *heaterPIDController;
         Executable *currentExecutable;
         Executable *nextExecutable;
@@ -174,9 +174,9 @@ class DeviceManager:public FBContext
        
         int64_t GetMicroseconds();
         ErrorCode ParseNewExecutableAndEnqueue(const char* path);
-        HAL *GetHAL();
+        iHAL *GetHAL();
         
-        DeviceManager(HAL *hal);
+        DeviceManager(iHAL *hal);
         ErrorCode InitAndRun();
         ErrorCode TriggerHeaterExperiment(const heaterexperiment::RequestHeater *r, flatbuffers::FlatBufferBuilder &b);
         ErrorCode GetDebugInfoSize(size_t *sizeInBytes);

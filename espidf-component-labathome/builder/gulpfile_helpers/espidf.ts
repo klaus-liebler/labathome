@@ -2,6 +2,8 @@ import { execSync } from 'node:child_process';
 import path from "path";
 import fs from "node:fs";
 import { Hash, createHash } from 'node:crypto'
+import { GENERATED_USERSETTINGS, NVS_PARTITION_GEN_TOOL, PART_TOOL } from '../paths';
+import { IDF_PATH, USERSETTINGS_PARTITION_SIZE_KILOBYTES } from '../gulpfile_config';
 
 const MAX_PARTITION_LENGTH = 0xC00;   // 3K for partition data (96 entries) leaves 1K in a 4K sector for signature
 const MD5_PARTITION_BEGIN = 0xEBEB;  // The first 2 bytes are like magic numbers for MD5 sum
@@ -134,19 +136,19 @@ export function esptool(params: string, suppressStdOut: boolean = false, working
   tool("esptool.py", params, suppressStdOut, workingDirectory)
 }
 
+
 export function tool(tool: string, params: string, suppressStdOut: boolean = false, workingDirectory: string="./") {
-  const cmd = `${path.join(globalThis.process.env.IDF_PATH!, "export.bat")} && python.exe ${path.join(globalThis.process.env.IDF_PATH!, "components", "esptool_py", "esptool", tool)} ${params} `
-  console.info(`Executing ${cmd}`)
-  const stdout = execSync(cmd, {
-    cwd: workingDirectory,
-    env: process.env
-  });
-  if (!suppressStdOut && stdout)
-    console.log(stdout.toString());
+  const cmd = `python.exe ${path.join(IDF_PATH, "components", "esptool_py", "esptool", tool)} ${params} `
+  exec_in_idf_terminal(cmd, workingDirectory, suppressStdOut)
 }
 
-export function exec(command: string, idfProjectDirectory: string, suppressStdOut: boolean = false) {
-  const cmd = `${path.join(globalThis.process.env.IDF_PATH!, "export.bat")} && ${command}`
+export function partition_gen(source_file:string, target_file:string, suppressStdOut: boolean = false) {
+  const cmd = `python.exe ${path.join(IDF_PATH, NVS_PARTITION_GEN_TOOL)} generate "${source_file}" "${target_file}" ${USERSETTINGS_PARTITION_SIZE_KILOBYTES * 1024}`
+  exec_in_idf_terminal(cmd, GENERATED_USERSETTINGS, suppressStdOut)
+}
+
+export function exec_in_idf_terminal(command: string, idfProjectDirectory: string, suppressStdOut: boolean = false) {
+  const cmd = `${path.join(IDF_PATH, "export.bat")} && ${command}`
   console.info(`Executing ${cmd}`)
   const stdout = execSync(cmd, {
     cwd: idfProjectDirectory,

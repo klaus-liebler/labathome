@@ -3,7 +3,7 @@
 #define AUDIO 1
 #include <__build_config.hh>
 
-#include "HAL.hh"
+#include "iHAL.hh"
 
 #include <inttypes.h>
 #include <limits>
@@ -213,7 +213,7 @@ constexpr i2s_port_t I2S_PORT{I2S_NUM_0}; // must be I2S_NUM_0, as only this hat
 constexpr const char *MOUNT_POINT = "/sdcard";
 #define TAG "HAL"
 
-class HAL_Impl : public HAL
+class HAL_Impl : public iHAL
 {
 private:
     // management objects

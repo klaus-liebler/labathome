@@ -1,0 +1,69 @@
+namespace usersettings;
+
+enum Namespace:uint32{
+    Value=10
+}
+
+table StringSetting{
+    value:string;
+}
+
+table IntegerSetting{
+    value:int;
+} 
+
+table BooleanSetting{
+    value:bool;
+}
+
+table EnumSetting{
+    value:int;
+}
+
+union Setting{
+    StringSetting, 
+    IntegerSetting, 
+    BooleanSetting, 
+    EnumSetting,
+}
+
+table SettingWrapper{
+    setting_key:string;
+    setting:Setting;
+}
+
+table RequestGetUserSettings{
+    group_key:string;
+}
+
+table ResponseGetUserSettings{
+    group_key:string;
+    settings:[SettingWrapper];
+}
+
+table RequestSetUserSettings{
+    group_key:string;
+    settings:[SettingWrapper];
+} 
+table ResponseSetUserSettings{
+    group_key:string;
+    setting_keys:[string];
+}
+
+union Requests{
+    RequestGetUserSettings,
+    RequestSetUserSettings, 
+}
+
+union Responses{
+    ResponseGetUserSettings,
+    ResponseSetUserSettings, 
+}
+
+table RequestWrapper{
+    request:Requests;
+}
+
+table ResponseWrapper{
+    response:Responses;
+}
