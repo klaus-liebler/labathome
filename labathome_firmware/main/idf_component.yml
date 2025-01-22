@@ -1,3 +1,0 @@
-dependencies:
-  idf: ">=5.3.0"
-  espressif/mdns: ">=1.2.3"

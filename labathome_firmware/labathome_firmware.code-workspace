@@ -4,7 +4,7 @@
 			"path": "."
 		},
 		{
-			"path": "../espidf-component-labathome"
+			"path": "../../espidf-component-webmanager"
 		}
 	],
 	"settings": {
