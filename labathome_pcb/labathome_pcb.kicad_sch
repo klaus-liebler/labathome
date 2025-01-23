@@ -11134,7 +11134,7 @@
 				)
 			)
 		)
-		(property "Footprint" "liebler_CONN:USB_C_Receptacle_HRO_TYPE-C-31-M-12_IMPROVED"
+		(property "Footprint" "liebler_CONN:USB_C_Receptacle_HRO_TYPE-C-31-M-12_smaller"
 			(at 203.2 38.1 0)
 			(effects
 				(font
