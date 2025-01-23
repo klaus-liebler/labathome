@@ -63,6 +63,7 @@ extern "C" void app_main()
     // Configure Logging
     //esp_log_level_set(TAG, ESP_LOG_INFO);
     //esp_log_level_set("esp_https_server", ESP_LOG_WARN);
+    
 
     // Configure NVS and SPIFFS
     esp_err_t ret = nvs_flash_init_partition(NVS_PARTITION_NAME);

@@ -5,6 +5,12 @@
 		},
 		{
 			"path": "../../espidf-component-webmanager"
+		},
+		{
+			"path": "../../npm-packages/@klaus-liebler/web-components"
+		},
+		{
+			"path": "../../npm-packages/@klaus-liebler/commons"
 		}
 	],
 	"settings": {

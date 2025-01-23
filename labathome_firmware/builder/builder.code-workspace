@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../../npm-packages/@klaus-liebler/espidf-vite"
+		},
+		{
+			"path": "../../../npm-packages/@klaus-liebler/commons"
+		}
+	],
+	"settings": {}
+}

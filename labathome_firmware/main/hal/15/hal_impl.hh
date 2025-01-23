@@ -1,5 +1,5 @@
 #pragma once
-#define LCD_DISPLAY 1
+#define LCD_DISPLAY 0
 #define AUDIO 1
 #include <__build_config.hh>
 
@@ -668,7 +668,7 @@ public:
         qrRendererIpAddr = new lcd_common::QrCodeRenderer<240, 240, 40, 0, 3>();
         qrRendererWifiCredentials = new lcd_common::QrCodeRenderer<240, 240, 40, 0, 3>();
         char* wifiCredentials;
-        asprintf(&wifiCredentials, "WIFI:T:WPA;S:%s;P:%s;;", WIFI_SSID, WIFI_PASS);
+        asprintf(&wifiCredentials, "WIFI:T:WPA;S:%s;P:%s;;", "todo", "todo");
         qrRendererWifiCredentials->DisplayText(wifiCredentials);
         free(wifiCredentials);
 #endif

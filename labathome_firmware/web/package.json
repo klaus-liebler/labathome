@@ -18,9 +18,9 @@
     "@google/generative-ai": "^0.21.0",
     "@klaus-liebler/vite-single-file": "file:../../../npm-packages/@klaus-liebler/vite-single-file",
     "@klaus-liebler/web-components": "file:../../../npm-packages/@klaus-liebler/web-components",
-    "@types/node": "^22.10.7",
+    "@types/node": "^22.10.9",
     "esbuild-minify-templates": "^0.11.0",
-    "flatbuffers": "^24.12.23",
+    "flatbuffers": "^25.1.21",
     "lit-html": "^3.2.1",
     "vite": "^6.0.11",
     "vite-plugin-svgo": "^1.6.2"

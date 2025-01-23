@@ -16,6 +16,7 @@
     "typescript": "^5.7.2"
   },
   "dependencies": {
+    "@klaus-liebler/websocket_file_testserver": "file:../../../npm-packages/@klaus-liebler/websocket_file_testserver",
     "@types/websocket": "^1.0.8",
     "@types/ws": "^8.5.8",
     "cors": "^2.8.5",

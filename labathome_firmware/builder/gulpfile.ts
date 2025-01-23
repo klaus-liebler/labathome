@@ -11,14 +11,15 @@ import { flatbuffers_generate_c, flatbuffers_generate_ts } from "@klaus-liebler/
 import { createApiKey } from "@klaus-liebler/espidf-vite/google_cloud";
 import {Context, ContextConfig} from "@klaus-liebler/espidf-vite/context"
 import { prepare_labathome_files } from "@klaus-liebler/espidf-vite/labathome";
-import { strInterpolator, writeFileCreateDirLazy } from "@klaus-liebler/espidf-vite/utils";
+import {mac_12char, mac_6char, writeFileCreateDirLazy } from "@klaus-liebler/espidf-vite/utils";
 import * as vite_helper from "@klaus-liebler/espidf-vite/vite_helper";
+import { strInterpolator } from "@klaus-liebler/commons";
 
 
 //Default Board Type
 
 export const DEFAULT_BOARD_NAME="LABATHOME"
-export const DEFAULT_BOARD_VERSION="150200"
+export const DEFAULT_BOARD_VERSION=150200
 
 
 //Paths
@@ -36,7 +37,7 @@ const CERTIFICATES = path.join(USERPROFILE, "netcase/certificates");
 //not needed export const ROOT_CA_SUBJECT_NAME ="Klaus Liebler"
 const ROOT_CA_COMMON_NAME ="AAA Klaus Liebler personal Root CA"
 const PUBLIC_SERVER_FQDN = "liebler.iui.hs-osnabrueck.de"
-const HOSTNAME_TEMPLATE = "labathome_${mac_6char}}"
+const HOSTNAME_TEMPLATE = "labathome_${mac_6char}"
 const APPLICATION_NAME = "labathome"
 const APPLICATION_VERSION = "1.0"
 
@@ -153,6 +154,8 @@ export async function compileAndDistributeFlatbuffers(cb: gulp.TaskFunctionCallb
   cb();
 }
 
+
+
 export async function createBoardCertificatesLazily(cb: gulp.TaskFunctionCallback) {
   const c=await Context.get(contextConfig);
   const p = new P.Paths(c);
@@ -160,8 +163,8 @@ export async function createBoardCertificatesLazily(cb: gulp.TaskFunctionCallbac
     && p.existsBoardSpecificPath(P.CERTIFICATES_SUBDIR, P.ESP32_CERT_PEM_CRT_FILE)) {
     return cb();
   }
-  const hostname = strInterpolator(HOSTNAME_TEMPLATE, c.b, c.c);
-  let esp32Cert = cert.CreateAndSignCert(hostname, hostname, P.ROOT_CA_PEM_CRT_FILE, P.ROOT_CA_PEM_PRVTKEY_FILE);
+  const hostname = strInterpolator(HOSTNAME_TEMPLATE, {mac_6char:mac_6char(c.b.mac), mac_12char:mac_12char(c.b.mac)});
+  let esp32Cert = cert.CreateAndSignCert(hostname, hostname, path.join(CERTIFICATES, P.ROOT_CA_PEM_CRT_FILE), path.join(CERTIFICATES, P.ROOT_CA_PEM_PRVTKEY_FILE));
   p.writeBoardSpecificFileCreateDirLazy(P.CERTIFICATES_SUBDIR, P.ESP32_CERT_PEM_PRVTKEY_FILE, esp32Cert.privateKey);
   p.writeBoardSpecificFileCreateDirLazy(P.CERTIFICATES_SUBDIR, P.ESP32_CERT_PEM_CRT_FILE, esp32Cert.certificate, cb);
 }
@@ -179,14 +182,8 @@ async function createObjectWithDefines(c:Context) {
   for (const [k, v] of Object.entries(c.b.board_settings?.web ?? {})) {
     defines[k] = JSON.stringify(v);
   }
-  for (const [k, v] of Object.entries(c.b.board_type_settings?.web ?? {})) {
-    defines[k] = JSON.stringify(v);
-  }
 
   for (const [k, v] of Object.entries(c.b.board_settings?.firmware ?? {})) {
-    defines[k] = JSON.stringify(v);
-  }
-  for (const [k, v] of Object.entries(c.b.board_type_settings?.firmware ?? {})) {
     defines[k] = JSON.stringify(v);
   }
 
@@ -203,7 +200,7 @@ async function createObjectWithDefines(c:Context) {
 export async function buildAndCompressWebProject(cb: gulp.TaskFunctionCallback) {
   const c = await Context.get(contextConfig);
   const p = new P.Paths(c);
-  vite_helper.buildAndCompressWebProject(p.WEB, p.boardSpecificPath(P.WEB_SUBDIR),  await createObjectWithDefines(c));
+  await vite_helper.buildAndCompressWebProject(p.WEB, p.boardSpecificPath(P.WEB_SUBDIR),  await createObjectWithDefines(c));
   return cb();
 }
 

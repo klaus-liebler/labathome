@@ -31,8 +31,8 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
     server: {
       open: "https://protzklotz:5173",
       https: {
-        key: fs.readFileSync('../certificates/testserver.pem.key'),
-        cert: fs.readFileSync('../certificates/testserver.pem.crt'),
+        key: fs.readFileSync(process.env.USERPROFILE+"/netcase/certificates/testserver.pem.key"),
+        cert: fs.readFileSync(process.env.USERPROFILE+"/netcase/certificates/testserver.pem.crt"),
       },
 
       proxy: {
