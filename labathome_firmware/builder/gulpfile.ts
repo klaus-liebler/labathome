@@ -11,10 +11,11 @@ import { flatbuffers_generate_c, flatbuffers_generate_ts } from "@klaus-liebler/
 import { createApiKey } from "@klaus-liebler/espidf-vite/google_cloud";
 import {Context, ContextConfig} from "@klaus-liebler/espidf-vite/context"
 import { prepare_labathome_files } from "@klaus-liebler/espidf-vite/labathome";
+import * as usersettings from "@klaus-liebler/espidf-vite/usersettings"
 import {mac_12char, mac_6char, writeFileCreateDirLazy } from "@klaus-liebler/espidf-vite/utils";
 import * as vite_helper from "@klaus-liebler/espidf-vite/vite_helper";
 import { strInterpolator } from "@klaus-liebler/commons";
-
+import * as UsersettingsBuilder from "../usersettings/usersettings"
 
 //Default Board Type
 
@@ -67,6 +68,7 @@ export const doOnce = gulp.series(
 export const buildForCurrent = gulp.series(
   prepare_board_specific_files,
   compileAndDistributeFlatbuffers,
+  generateUsersettings,
   buildAndCompressWebProject,
   createBoardCertificatesLazily,
   createRandomFlashEncryptionKeyLazily,
@@ -88,8 +90,18 @@ async function createRandomFlashEncryptionKeyLazily(cb: gulp.TaskFunctionCallbac
   cb();
 }
 
+async function generateUsersettings(cb: gulp.TaskFunctionCallback) {
+  const c=await Context.get(contextConfig)
+  await usersettings.generate_usersettings(c, UsersettingsBuilder.Build());
+  cb();
+}
+
 async function buildFirmware(cb: gulp.TaskFunctionCallback) {
-  await idf.buildFirmware(await Context.get(contextConfig));
+  const c=await Context.get(contextConfig)
+  const p = new P.Paths(c)
+  await idf.buildFirmware(c);
+  //await idf.nvs_partition_gen_encrypt(c, ()=>true)
+
   cb();
 } 
 

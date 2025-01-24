@@ -47,6 +47,8 @@ static iHAL * hal = new HAL_Impl();
 
 #include "webmanager_plugins/heaterexperiment_plugin.hh"
 #include "webmanager_plugins/functionblock_plugin.hh"
+#include "webmanager_plugins/systeminfo_plugin.hh"
+
 
 DeviceManager *devicemanager{nullptr};
 httpd_handle_t http_server{nullptr};
@@ -82,6 +84,8 @@ extern "C" void app_main()
     std::vector<webmanager::iWebmanagerPlugin*> plugins;
     plugins.push_back(new HeaterExperimentPlugin(devicemanager));
     plugins.push_back(new FunctionblockPlugin(devicemanager));
+    plugins.push_back(new SystemInfoPlugin());
+    
     wm->Begin("labathome_%02x%02x%02x", "labathome", "labathome_%02x%02x%02x", false, &plugins, true);
 
     

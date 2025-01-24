@@ -437,7 +437,13 @@ ErrorCode DeviceManager::GetDebugInfo(flatbuffers::FlatBufferBuilder& b){
     for (size_t vecPos = 0; vecPos < this->currentExecutable->colors.size(); vecPos++) {
         colors.push_back(this->currentExecutable->colors[vecPos]);
     }
-    functionblock::CreateResponseDebugDataDirect(b, this->currentExecutable->hash, &bools, &integers, &floats, &colors );
+    b.Finish(
+        functionblock::CreateResponseWrapper(
+            b,
+            functionblock::Responses::Responses_ResponseDebugData,
+            functionblock::CreateResponseDebugDataDirect(b, this->currentExecutable->hash, &bools, &integers, &floats, &colors ).Union()
+        )
+    );
     return ErrorCode::OK;
 }
 
@@ -614,7 +620,10 @@ ErrorCode DeviceManager::TriggerHeaterExperiment(const heaterexperiment::Request
     float fanDuty{0.0};
     hal->GetFanDuty(0, &fanDuty);
     hal->GetHeaterTemperature(&heaterTemp);
-    b.Finish(heaterexperiment::CreateResponseHeater(b, setpointTemperature, heaterTemp, hal->GetHeaterState(), fanDuty));
+    b.Finish(
+        //There is only one message type for Request and one for Response. So there is no Wrapper necessary
+        heaterexperiment::CreateResponseHeater(b, setpointTemperature, heaterTemp, hal->GetHeaterState(), fanDuty)
+    );
     return ErrorCode::OK;
 }
 

@@ -15,6 +15,13 @@
             "request": "launch",
             "name": "Certificates Gulp Task",
             "args": ["--import", "tsx", "node_modules/gulp/bin/gulp", "createBoardCertificatesLazily" ],
+        },
+
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Usersettings Gulp Task",
+            "args": ["--import", "tsx", "node_modules/gulp/bin/gulp", "generateUsersettings" ],
         }
     ]
 }

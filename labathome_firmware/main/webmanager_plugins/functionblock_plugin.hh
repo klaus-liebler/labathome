@@ -40,7 +40,13 @@ class FunctionblockPlugin : public webmanager::iWebmanagerPlugin
         {
             devicemanager->ParseNewExecutableAndEnqueue(TEMP_FBD_FILEPATH);
             flatbuffers::FlatBufferBuilder b(256);
-            functionblock::CreateResponseFbdRun(b);
+            b.Finish(
+                functionblock::CreateResponseWrapper(
+                    b,
+                    functionblock::Responses::Responses_ResponseFbdRun,
+                    functionblock::CreateResponseFbdRun(b).Union()
+                )
+            );
             callback->WrapAndSendAsync(functionblock::Namespace::Namespace_Value, b);
             return webmanager::eMessageReceiverResult::OK;
         }
