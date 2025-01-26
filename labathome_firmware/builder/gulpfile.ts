@@ -15,7 +15,7 @@ import * as usersettings from "@klaus-liebler/espidf-vite/usersettings"
 import {mac_12char, mac_6char, writeFileCreateDirLazy } from "@klaus-liebler/espidf-vite/utils";
 import * as vite_helper from "@klaus-liebler/espidf-vite/vite_helper";
 import { strInterpolator } from "@klaus-liebler/commons";
-import * as UsersettingsBuilder from "../usersettings/usersettings"
+import * as usersettings_rt from "usersettings";
 
 //Default Board Type
 
@@ -57,7 +57,7 @@ const COMMON_SENTENCES_DE:Array<tts.FilenameAndSsml> = [
   new tts.FilenameAndSsml("alarm_temperature", "<speak>Temperaturalarm</speak>")
 ]
 
-const contextConfig = new ContextConfig(IDF_PROJECT_ROOT, IDF_COMPONENT_WEBMANAGER_ROOT, BOARDS_BASE_DIR, DEFAULT_BOARD_NAME, DEFAULT_BOARD_VERSION);
+const contextConfig = new ContextConfig("c:/repos/generated", IDF_PROJECT_ROOT, BOARDS_BASE_DIR, DEFAULT_BOARD_NAME, DEFAULT_BOARD_VERSION);
 
 export const doOnce = gulp.series(
   createRootCA,
@@ -66,6 +66,7 @@ export const doOnce = gulp.series(
 
 
 export const buildForCurrent = gulp.series(
+  deleteGenerated,
   prepare_board_specific_files,
   compileAndDistributeFlatbuffers,
   generateUsersettings,
@@ -84,6 +85,10 @@ export default gulp.series(
   buildForCurrent,
   flashEncryptedFirmware,
 )
+async function deleteGenerated(cb: gulp.TaskFunctionCallback) {
+  const c = await Context.get(contextConfig);
+  fs.rmSync(c.c.generatedDirectory, {recursive:true, force:true})
+}
 
 async function createRandomFlashEncryptionKeyLazily(cb: gulp.TaskFunctionCallback) {
   await idf.createRandomFlashEncryptionKeyLazily(await Context.get(contextConfig));
@@ -92,7 +97,7 @@ async function createRandomFlashEncryptionKeyLazily(cb: gulp.TaskFunctionCallbac
 
 async function generateUsersettings(cb: gulp.TaskFunctionCallback) {
   const c=await Context.get(contextConfig)
-  await usersettings.generate_usersettings(c, UsersettingsBuilder.Build());
+  await usersettings.generate_usersettings(c, usersettings_rt.Build());
   cb();
 }
 
@@ -106,12 +111,12 @@ async function buildFirmware(cb: gulp.TaskFunctionCallback) {
 } 
 
 async function encryptFirmware(cb: gulp.TaskFunctionCallback){
-  await idf.encryptFirmware(await Context.get(contextConfig));
+  await idf.encryptPartitions_Bootloader_App_PartitionTable_OtaData(await Context.get(contextConfig));
   cb();
 }
 
 async function flashEncryptedFirmware(cb: gulp.TaskFunctionCallback){
-  await idf.flashEncryptedFirmware(await Context.get(contextConfig));
+  await idf.flashEncryptedFirmware(await Context.get(contextConfig), false, false);
   cb();
 }
 
@@ -160,9 +165,9 @@ export async function createGoogleApiKey(cb: gulp.TaskFunctionCallback) {
 
 export async function compileAndDistributeFlatbuffers(cb: gulp.TaskFunctionCallback) {
   const c= await Context.get(contextConfig)
-  const p = new P.Paths(c);
-  await flatbuffers_generate_c(p.FLATBUFFERS_SCHEMA_PATH, p.WM_GENERATED_FLATBUFFERS_CPP);
-  await flatbuffers_generate_ts(p.FLATBUFFERS_SCHEMA_PATH, FLATBUFFER_OBJECT_DEFINITIONS_NPM_PROJECT);
+  const pa = new P.Paths(c);
+  await flatbuffers_generate_c(path.join(IDF_COMPONENT_WEBMANAGER_ROOT, "flatbuffers"), pa.GENERATED_FLATBUFFERS_CPP);
+  await flatbuffers_generate_ts(path.join(IDF_COMPONENT_WEBMANAGER_ROOT, "flatbuffers"), c.c.generatedDirectory, "flatbuffers_ts");
   cb();
 }
 
@@ -211,8 +216,8 @@ async function createObjectWithDefines(c:Context) {
 
 export async function buildAndCompressWebProject(cb: gulp.TaskFunctionCallback) {
   const c = await Context.get(contextConfig);
-  const p = new P.Paths(c);
-  await vite_helper.buildAndCompressWebProject(p.WEB, p.boardSpecificPath(P.WEB_SUBDIR),  await createObjectWithDefines(c));
+  const pa = new P.Paths(c);
+  await vite_helper.buildAndCompressWebProject(path.join(c.c.idfProjectDirectory, "web"), pa.GENERATED_WEB,  await createObjectWithDefines(c));
   return cb();
 }
 

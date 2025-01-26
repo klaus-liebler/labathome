@@ -2,11 +2,13 @@
 
 #include "webmanager_interfaces.hh"
 #include "flatbuffers/flatbuffers.h"
-#include "../generated/flatbuffers_cpp/systeminfo_generated.h"
+#include "flatbuffers_cpp/systeminfo_generated.h"
 
 class SystemInfoPlugin : public webmanager::iWebmanagerPlugin
 {
 private:
+    temperature_sensor_handle_t tempHandle{nullptr};
+
     esp_err_t sendResponseSystemData(webmanager::iWebmanagerCallback *callback)
     {
         ESP_LOGI(TAG, "Prepare to send ResponseSystemData");
@@ -21,8 +23,7 @@ private:
             esp_ota_get_state_partition(p, &ota_state);
             esp_app_desc_t app_info = {};
             esp_ota_get_partition_description(p, &app_info);
-            if (app_info.project_name[0] == 0xFF)
-            {
+            if(p->subtype>=ESP_PARTITION_SUBTYPE_APP_OTA_MIN && p->subtype<ESP_PARTITION_SUBTYPE_APP_OTA_MAX && !(ota_state==ESP_OTA_IMG_NEW || ota_state==ESP_OTA_IMG_PENDING_VERIFY ||ota_state==ESP_OTA_IMG_VALID ||ota_state==ESP_OTA_IMG_INVALID||ota_state==ESP_OTA_IMG_ABORTED)){
                 partitions_vector.push_back(systeminfo::CreatePartitionInfoDirect(b, p->label, (uint8_t)p->type, (uint8_t)p->subtype, p->size, (uint8_t)ota_state, p == running, "", "", "", ""));
             }
             else
@@ -38,7 +39,7 @@ private:
         gettimeofday(&tv_now, nullptr);
 
         float tsens_out{0.0};
-        // ESP_ERROR_CHECK(temperature_sensor_get_celsius(temp_handle, &tsens_out));
+        ESP_ERROR_CHECK(temperature_sensor_get_celsius(tempHandle, &tsens_out));
         uint8_t mac_buffer[6];
         esp_read_mac(mac_buffer, ESP_MAC_BT);
         auto bt = systeminfo::Mac6(mac_buffer);
@@ -85,7 +86,12 @@ public:
     {
     }
 
-    void OnBegin(webmanager::iWebmanagerCallback *callback) override { (void)(callback); }
+    void OnBegin(webmanager::iWebmanagerCallback *callback) override {
+        (void)(callback);
+        temperature_sensor_config_t temp_sensor_config = TEMPERATURE_SENSOR_CONFIG_DEFAULT(-10, 80);
+        ESP_ERROR_CHECK(temperature_sensor_install(&temp_sensor_config, &tempHandle));
+        ESP_ERROR_CHECK(temperature_sensor_enable(tempHandle));    
+    }
     void OnWifiConnect(webmanager::iWebmanagerCallback *callback) override { (void)(callback); }
     void OnWifiDisconnect(webmanager::iWebmanagerCallback *callback) override { (void)(callback); }
     void OnTimeUpdate(webmanager::iWebmanagerCallback *callback) override { (void)(callback); }
@@ -106,7 +112,7 @@ public:
 
         case systeminfo::Requests::Requests_RequestSystemData:
         {
-
+            sendResponseSystemData(callback);
             return webmanager::eMessageReceiverResult::OK;
         }
         default:

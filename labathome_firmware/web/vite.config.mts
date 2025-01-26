@@ -8,7 +8,7 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
   return {
     plugins: [viteSingleFile(),],//removeViteModuleLoader=true for viteSingleFile had no effect on bundle size
     build: {
-      //minify: true,
+      //minify: false,
       cssCodeSplit: false,
     },
     define: {

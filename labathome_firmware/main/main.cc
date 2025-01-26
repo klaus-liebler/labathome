@@ -27,7 +27,7 @@ constexpr TickType_t xFrequency {pdMS_TO_TICKS(50)};
 
 
 static const char *TAG = "main";
-#include <hal/hal_impl.hh>
+#include <board_specific_cpp/hal/hal_impl.hh>
 
 
 
@@ -48,7 +48,7 @@ static iHAL * hal = new HAL_Impl();
 #include "webmanager_plugins/heaterexperiment_plugin.hh"
 #include "webmanager_plugins/functionblock_plugin.hh"
 #include "webmanager_plugins/systeminfo_plugin.hh"
-
+#include "webmanager_plugins/usersettings_plugin.hh"
 
 DeviceManager *devicemanager{nullptr};
 httpd_handle_t http_server{nullptr};
@@ -85,6 +85,7 @@ extern "C" void app_main()
     plugins.push_back(new HeaterExperimentPlugin(devicemanager));
     plugins.push_back(new FunctionblockPlugin(devicemanager));
     plugins.push_back(new SystemInfoPlugin());
+    plugins.push_back(new UsersettingsPlugin("nvs"));
     
     wm->Begin("labathome_%02x%02x%02x", "labathome", "labathome_%02x%02x%02x", false, &plugins, true);
 

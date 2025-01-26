@@ -13,9 +13,6 @@
 			"path": "../../npm-packages/@klaus-liebler/commons"
 		},
 		{
-			"path": "../../npm-packages/@klaus-liebler/flatbuffer-object-definitions"
-		},
-		{
 			"path": "../../npm-packages/@klaus-liebler/espidf-vite"
 		}
 	],

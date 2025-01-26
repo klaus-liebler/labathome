@@ -2,6 +2,7 @@ import { html } from "lit-html";
 import "../style/app.css";
 import * as c from "@klaus-liebler/web-components"
 import * as usersettings from "../generated/usersettings/usersettings"
+import { WS_URL, WS_URL_ESP32_AP, WS_URL_ESP32_STA } from "@klaus-liebler/web-components/typescript/utils/constants";
 
 function BuildScreenControllers(m: c.interfaces.IAppManagement, h:c.interfaces.IScreenControllerHost): void {
   h.AddScreenController("dashboard", new RegExp("^/$"), html`<span>&#127760;</span><span>Home</span>`, new c.DefaultScreenController(m))
@@ -16,7 +17,7 @@ let app: c.AppController;
 document.addEventListener("DOMContentLoaded", (e) => {
   app = new c.AppController();
   BuildScreenControllers(app, app);
-  app.Startup();
+  app.Startup(WS_URL, "");
 });
 
 
