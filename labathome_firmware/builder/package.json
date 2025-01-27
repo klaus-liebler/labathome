@@ -4,6 +4,7 @@
   "description": "",
   "main": "gulpfile.ts",
   "type": "module",
+  "private": true,
   "scripts": {
     "start": "node --trace-warnings --import tsx node_modules/gulp/bin/gulp",
     "c": "node --trace-warnings --import tsx node_modules/gulp/bin/gulp buildForCurrent"
@@ -14,14 +15,13 @@
     "@klaus-liebler/commons": "file:../../../npm-packages/@klaus-liebler/commons",
     "@klaus-liebler/espidf-vite": "file:../../../npm-packages/@klaus-liebler/espidf-vite",
     "@klaus-liebler/usersettings_codegeneration": "file:../../../npm-packages/@klaus-liebler/usersettings_codegeneration",
+    "usersettings": "file:../usersettings",
     "@types/gulp": "^4.0.17",
     "@types/node": "^22.10.7",
-    "@types/node-forge": "^1.3.11",
     "gulp": "^5.0.0",
     "gulp-cli": "^3.0.0",
-    "node-forge": "^1.3.1",
+    "npm": "^11.0.0",
     "ts-node": "^10.9.2",
-    "tsx": "^4.19.2",
-    "usersettings": "file:../usersettings"
+    "tsx": "^4.19.2"
   }
 }

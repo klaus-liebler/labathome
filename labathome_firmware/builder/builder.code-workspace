@@ -8,6 +8,12 @@
 		},
 		{
 			"path": "../../../npm-packages/@klaus-liebler/commons"
+		},
+		{
+			"path": "../../../npm-packages/@klaus-liebler/usersettings_codegeneration"
+		},
+		{
+			"path": "../usersettings"
 		}
 	],
 	"settings": {}

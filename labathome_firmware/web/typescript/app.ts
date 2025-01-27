@@ -1,7 +1,7 @@
 import { html } from "lit-html";
 import "../style/app.css";
 import * as c from "@klaus-liebler/web-components"
-import * as usersettings from "../generated/usersettings/usersettings"
+import * as usersettings from "../../../../generated/nvs_ts"
 import { WS_URL, WS_URL_ESP32_AP, WS_URL_ESP32_STA } from "@klaus-liebler/web-components/typescript/utils/constants";
 
 function BuildScreenControllers(m: c.interfaces.IAppManagement, h:c.interfaces.IScreenControllerHost): void {

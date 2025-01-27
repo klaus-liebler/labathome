@@ -21,3 +21,4 @@ builder/secrets.ts
 
 **/generated/
 **/dist/
+**/package-lock.json
