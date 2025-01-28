@@ -14,6 +14,9 @@
 		},
 		{
 			"path": "../../npm-packages/@klaus-liebler/espidf-vite"
+		},
+		{
+			"path": "../../generated/flatbuffers_ts"
 		}
 	],
 	"settings": {
