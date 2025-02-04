@@ -4797,6 +4797,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" ""
+			(at 236.22 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" ""
+			(at 236.22 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "9f3d2438-d9dd-4e91-8846-0fbe60f7ea9a")
 		)
@@ -4860,6 +4878,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 179.07 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "INJOINIC IP5306-I2C"
+			(at 179.07 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "INJOINIC"
 			(at 179.07 36.83 0)
 			(effects
 				(font
@@ -5024,6 +5060,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "0402WGF3301TCE"
+			(at 86.36 124.46 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
+			(at 86.36 124.46 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "140878f8-d4dc-4401-9eaa-4f37c9fa63bc")
 		)
@@ -5086,6 +5140,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 209.55 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CL10A226MP8NUNE"
+			(at 209.55 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
 			(at 209.55 29.21 0)
 			(effects
 				(font
@@ -5164,6 +5236,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "CL10A226MP8NUNE"
+			(at 219.71 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 219.71 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "ae17cea7-948d-404d-83f4-0ee5cae10f3d")
 		)
@@ -5226,6 +5316,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 149.86 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "0603WAF100KT5E"
+			(at 149.86 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
 			(at 149.86 44.45 0)
 			(effects
 				(font
@@ -5303,6 +5411,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "CL05A475MP5NRNC"
+			(at 17.78 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 17.78 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "a7868560-ef25-4606-b802-2e06780f8de2")
 		)
@@ -5364,6 +5490,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 43.18 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "TPS54202DDCR"
+			(at 43.18 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Texas Instruments"
 			(at 43.18 110.49 0)
 			(effects
 				(font
@@ -5510,6 +5654,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 100.33 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CL10A226MP8NUNE"
+			(at 100.33 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
 			(at 100.33 109.22 0)
 			(effects
 				(font
@@ -5677,15 +5839,15 @@
 		(fields_autoplaced yes)
 		(uuid "4a25f33b-12d4-429c-93b7-b5e01b7b523d")
 		(property "Reference" "L1"
-			(at 190.5 29.21 90)
+			(at 190.5 30.48 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "1u"
-			(at 190.5 31.75 90)
+		(property "Value" "1uH"
+			(at 190.5 33.02 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5711,6 +5873,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 190.5 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "FXL0630-1R0-M"
+			(at 190.5 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "cjiang (Changjiang Microelectronics Tech)"
 			(at 190.5 35.56 0)
 			(effects
 				(font
@@ -5779,6 +5959,24 @@
 			)
 		)
 		(property "Description" "DC Barrel Jack with an internal switch"
+			(at 74.93 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "DC-005 2.0"
+			(at 74.93 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "BOOMELE(Boom Precision Elec)"
 			(at 74.93 77.47 0)
 			(effects
 				(font
@@ -5924,6 +6122,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "0201WMF1002TEE"
+			(at 86.36 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
+			(at 86.36 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "9d13d1b7-2292-4b87-a3bc-9e9fc37f3606")
 		)
@@ -5985,6 +6201,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 86.36 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "0201WMF1003TEE"
+			(at 86.36 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
 			(at 86.36 109.22 0)
 			(effects
 				(font
@@ -6092,7 +6326,7 @@
 				)
 			)
 		)
-		(property "Value" "10u"
+		(property "Value" "10uH"
 			(at 71.12 103.124 90)
 			(effects
 				(font
@@ -6119,6 +6353,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 71.12 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "FXL0630-100-M"
+			(at 71.12 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "cjiang (Changjiang Microelectronics Tech)"
 			(at 71.12 105.41 0)
 			(effects
 				(font
@@ -6197,6 +6449,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "0603WAF100KT5E"
+			(at 149.86 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
+			(at 149.86 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "0dd6f4f8-a62c-42a7-aeb0-68d74f698a9a")
 		)
@@ -6264,6 +6534,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "CC0603KRX7R9BB104"
+			(at 55.88 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "YAGEO"
+			(at 55.88 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "1a56671f-fe55-4b04-8441-b1b9a8c71691")
 		)
@@ -6323,6 +6611,24 @@
 			)
 		)
 		(property "Description" "1A Low Dropout regulator, positive, 3.3V fixed output, SOT-223"
+			(at 38.1 73.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "AMS1117-3.3"
+			(at 38.1 73.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Advanced Monolithic Systems"
 			(at 38.1 73.66 0)
 			(effects
 				(font
@@ -6471,6 +6777,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "0603WAF100KT5E"
+			(at 194.31 39.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
+			(at 194.31 39.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "93985e12-0171-4f63-819d-68ea92f35cc8")
 		)
@@ -6532,6 +6856,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 90.17 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CL10A226MP8NUNE"
+			(at 90.17 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
 			(at 90.17 109.22 0)
 			(effects
 				(font
@@ -6677,6 +7019,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "0603WAF100KT5E"
+			(at 201.93 39.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
+			(at 201.93 39.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "6efe549e-2429-4945-b007-1b3fe01cfdf1")
 		)
@@ -6739,6 +7099,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 199.39 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CL10A226MP8NUNE"
+			(at 199.39 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
 			(at 199.39 29.21 0)
 			(effects
 				(font
@@ -6955,6 +7333,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "CL10A226MP8NUNE"
+			(at 208.28 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 208.28 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "a330f81e-559a-45fe-b7b0-91c1d518d655")
 		)
@@ -7087,6 +7483,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "CC0402JRNPO9BN560"
+			(at 78.74 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "YAGEO"
+			(at 78.74 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "bcdada85-f454-4978-a98c-ed2b4546ed79")
 		)
@@ -7149,6 +7563,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 194.31 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CL10A226MP8NUNE"
+			(at 194.31 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
 			(at 194.31 46.99 0)
 			(effects
 				(font
@@ -7224,6 +7656,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "0201WMF1002TEE"
+			(at 185.42 52.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
+			(at 185.42 52.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "ac24003c-ee3f-4fe2-a4d7-bfef8ed00a47")
 		)
@@ -7283,6 +7733,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 20.32 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CC0603KRX7R9BB104"
+			(at 20.32 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "YAGEO"
 			(at 20.32 113.03 0)
 			(effects
 				(font
@@ -7492,6 +7960,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "CL05A475MP5NRNC"
+			(at 46.99 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 46.99 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "5309484c-7c39-4064-bc08-23578c850513")
 		)
@@ -7524,8 +8010,8 @@
 				)
 			)
 		)
-		(property "Value" "POWER"
-			(at 19.05 20.32 0)
+		(property "Value" "USB STM32"
+			(at 21.59 20.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7551,6 +8037,24 @@
 			)
 		)
 		(property "Description" "USB 2.0-only 16P Type-C Receptacle connector"
+			(at 25.4 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "TYPE-C-31-M-12"
+			(at 25.4 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Korean Hroparts Elec"
 			(at 25.4 36.83 0)
 			(effects
 				(font
@@ -7671,6 +8175,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 110.49 31.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "0201WMF1002TEE"
+			(at 110.49 31.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
 			(at 110.49 31.75 0)
 			(effects
 				(font
@@ -7807,6 +8329,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 149.86 52.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CGA0805X5R106K350MT"
+			(at 149.86 52.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "HRE"
 			(at 149.86 52.07 0)
 			(effects
 				(font
@@ -8018,6 +8558,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "CL05A105KA5NQNC"
+			(at 55.88 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 55.88 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "1c61a00c-58d8-4f5d-bdcb-971c0b7e22c0")
 		)
@@ -8077,6 +8635,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 176.53 52.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "TS-1095E-A6B3-D2"
+			(at 176.53 52.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Yuandi"
 			(at 176.53 52.07 0)
 			(effects
 				(font
@@ -8218,6 +8794,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "CGA0805X5R106K350MT"
+			(at 25.4 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "HRE"
+			(at 25.4 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "4de619ff-2de9-4be2-b56b-68f28b66e234")
 		)
@@ -8279,6 +8873,24 @@
 		)
 		(property "Description" "2 Channnels Power Mux with Manual and Priority Switchover, 1.6-5.5V Input Voltage, 2.5A Output Current, Ron 40 mOhm, SOT-583-8"
 			(at 133.35 39.116 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "TPS2116DRLR"
+			(at 133.35 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Texas Instruments"
+			(at 133.35 38.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8577,6 +9189,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "CGA0805X5R106K350MT"
+			(at 158.75 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "HRE"
+			(at 158.75 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "6c6034e7-201b-4cf8-83b9-bcf63d76cae9")
 		)
@@ -8703,6 +9333,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 26.67 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CL05A105KA5NQNC"
+			(at 26.67 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
 			(at 26.67 77.47 0)
 			(effects
 				(font
@@ -8980,6 +9628,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" ""
+			(at 218.44 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" ""
+			(at 218.44 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "e838df93-483b-4af1-8ff9-9769afbfbc9d")
 		)
@@ -9041,6 +9707,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 110.49 39.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "0402WGF3301TCE"
+			(at 110.49 39.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
 			(at 110.49 39.37 0)
 			(effects
 				(font

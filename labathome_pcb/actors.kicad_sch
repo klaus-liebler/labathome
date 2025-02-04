@@ -6021,6 +6021,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "MJD31C"
+			(at 58.42 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Jiangsu Changjing Electronics Technology Co., Ltd."
+			(at 58.42 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "7b785aaa-0feb-4f61-af68-ac9cde0f00e3")
 		)
@@ -6091,6 +6109,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "HL-A-2835D46W-S1-08-HR3(2800-3100K)"
+			(at 34.29 21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "HONGLITRONIC(Hongli Zhihui (HONGLITRONIC))"
+			(at 34.29 21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "2f8bd0a4-bb88-4bdf-992a-65dc02a925b6")
 		)
@@ -6152,6 +6188,24 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 220.98 68.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CL05A475MP5NRNC"
+			(at 220.98 68.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
 			(at 220.98 68.58 0)
 			(effects
 				(font
@@ -6294,6 +6348,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" ""
+			(at 95.25 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" ""
+			(at 95.25 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "91368f37-b792-4765-bf1e-ca00e940f4d0")
 		)
@@ -6355,6 +6427,24 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 213.36 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "0402WGF2201TCE"
+			(at 213.36 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
 			(at 213.36 92.71 0)
 			(effects
 				(font
@@ -6430,6 +6520,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "0402WGF1001TCE"
+			(at 43.18 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
+			(at 43.18 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "9dec873a-5db9-415f-9ecb-c7d067254006")
 		)
@@ -6489,6 +6597,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 57.15 21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "HL-A-2835D46W-S1-08-HR3(2800-3100K)"
+			(at 57.15 21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "HONGLITRONIC(Hongli Zhihui (HONGLITRONIC))"
 			(at 57.15 21.59 0)
 			(effects
 				(font
@@ -6622,6 +6748,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 43.18 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "0201WMF1002TEE"
+			(at 43.18 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
 			(at 43.18 146.05 0)
 			(effects
 				(font
@@ -6764,6 +6908,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "GRM033R61A104KE15D"
+			(at 91.44 162.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Murata Electronics"
+			(at 91.44 162.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "96795476-0d23-4ac2-9d82-2e48f53e314b")
 		)
@@ -6825,6 +6987,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 35.56 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "LTST-C230KRKT"
+			(at 35.56 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Lite-On"
 			(at 35.56 138.43 0)
 			(effects
 				(font
@@ -6900,6 +7080,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "0201WMF1002TEE"
+			(at 48.26 67.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
+			(at 48.26 67.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "37541f0d-6d91-44e7-a961-1d9d38571fb2")
 		)
@@ -6961,6 +7159,24 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 109.22 167.64 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "2.54-1*4P"
+			(at 109.22 167.64 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "BOOMELE(Boom Precision Elec)"
 			(at 109.22 167.64 0)
 			(effects
 				(font
@@ -7044,6 +7260,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "SK6812MINI-EA"
+			(at 87.63 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "OPSCO Optoelectronics"
+			(at 87.63 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "714e6de2-e9bb-409c-a38f-19834aea3c43")
 		)
@@ -7111,6 +7345,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 66.04 68.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" ""
+			(at 66.04 68.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" ""
 			(at 66.04 68.58 0)
 			(effects
 				(font
@@ -7242,6 +7494,24 @@
 			)
 		)
 		(property "Description" "5.3A Id, 30V Vds, 27mOhm Rds, N-Channel HEXFET Power MOSFET, SOT-23"
+			(at 53.34 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "AO3400"
+			(at 53.34 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "GOODWORK"
 			(at 53.34 63.5 0)
 			(effects
 				(font
@@ -7846,6 +8116,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "HL-A-2835D46W-S1-08-HR3(2800-3100K)"
+			(at 41.91 21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "HONGLITRONIC(Hongli Zhihui (HONGLITRONIC))"
+			(at 41.91 21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "2a32a3b8-9061-4f48-a2c4-1b563b069601")
 		)
@@ -7908,6 +8196,24 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 113.03 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "5267-03A / 22035035"
+			(at 113.03 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Molex"
 			(at 113.03 101.6 0)
 			(effects
 				(font
@@ -8053,6 +8359,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "SK6812MINI-EA"
+			(at 57.15 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "OPSCO Optoelectronics"
+			(at 57.15 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "3"
 			(uuid "4e70410c-0364-497b-be7f-6b5b5a88231f")
 		)
@@ -8118,6 +8442,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 35.56 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "0402WGF1001TCE"
+			(at 35.56 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
 			(at 35.56 146.05 0)
 			(effects
 				(font
@@ -8195,6 +8537,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "CL05C100JB5NNNC"
+			(at 233.68 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 233.68 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "151dac7a-1b1c-40ed-90e2-7627979910d6")
 		)
@@ -8262,6 +8622,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "0402WGF2200TCE"
+			(at 30.48 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
+			(at 30.48 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "de2a3a8e-bbca-440b-a428-459dfb68fe8d")
 		)
@@ -8321,6 +8699,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 60.96 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "1206W4F100JT5E"
+			(at 60.96 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
 			(at 60.96 41.91 0)
 			(effects
 				(font
@@ -8401,6 +8797,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "AO3400"
+			(at 48.26 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "GOODWORK"
+			(at 48.26 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "f71414a5-0581-4d3f-991d-6f477f9948a6")
 		)
@@ -8473,6 +8887,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "CL05C100JB5NNNC"
+			(at 226.06 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 226.06 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "9e1b1123-da34-4433-a1c8-c52297a41e9c")
 		)
@@ -8535,6 +8967,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 199.39 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "KF2EDGR-3.5-4P"
+			(at 199.39 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Cixi Kefa Elec"
 			(at 199.39 92.71 0)
 			(effects
 				(font
@@ -8619,6 +9069,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "RST100UF35V009"
+			(at 264.16 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "KNSCHA"
+			(at 264.16 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "0795d8c6-e48e-46d4-8ee6-7e6c402aa85a")
 		)
@@ -8680,6 +9148,24 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 233.68 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "0201WMF1002TEE"
+			(at 233.68 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
 			(at 233.68 85.09 0)
 			(effects
 				(font
@@ -8820,6 +9306,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "0402WGF1001TCE"
+			(at 48.26 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
+			(at 48.26 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "39e1deea-94f3-40d9-9a9e-5c5e79f76353")
 		)
@@ -8889,6 +9393,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "CC0603KRX7R9BB104"
+			(at 255.27 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "YAGEO"
+			(at 255.27 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "be6317e8-dcf9-44a1-9785-95b2cec64324")
 		)
@@ -8950,6 +9472,24 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 262.89 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CC0603KRX7R9BB104"
+			(at 262.89 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "YAGEO"
 			(at 262.89 35.56 0)
 			(effects
 				(font
@@ -9085,6 +9625,24 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 259.08 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CC0603KRX7R9BB104"
+			(at 259.08 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "YAGEO"
 			(at 259.08 60.96 0)
 			(effects
 				(font
@@ -9493,6 +10051,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "PZ254-2-09-WS"
+			(at 34.29 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "HCTL"
+			(at 34.29 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "9"
 			(uuid "14f164b6-268b-4712-bf33-90bd9928f8dc")
 		)
@@ -9610,6 +10186,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "SK6812MINI-EA"
+			(at 41.91 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "OPSCO Optoelectronics"
+			(at 41.91 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "3"
 			(uuid "50a809dd-5d4e-42fb-bdda-9e8b6a58d5a6")
 		)
@@ -9685,6 +10279,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "0201WMF1002TEE"
+			(at 226.06 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
+			(at 226.06 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "c3452740-b494-435b-a058-460ad09936fd")
 		)
@@ -9752,6 +10364,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "0402WGF1001TCE"
+			(at 43.18 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
+			(at 43.18 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "ffc6081a-9890-4bfe-ba60-14274e0e75b8")
 		)
@@ -9811,6 +10441,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 45.72 162.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "GRM033R61A104KE15D"
+			(at 45.72 162.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Murata Electronics"
 			(at 45.72 162.56 0)
 			(effects
 				(font
@@ -9951,6 +10599,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "GRM033R61A104KE15D"
+			(at 60.96 162.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Murata Electronics"
+			(at 60.96 162.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "96702f6b-1a94-4314-b5de-f4cc45188ef7")
 		)
@@ -10012,6 +10678,24 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 218.44 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "0402WGF2201TCE"
+			(at 218.44 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
 			(at 218.44 90.17 0)
 			(effects
 				(font
@@ -10219,6 +10903,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" ""
+			(at 50.8 133.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" ""
+			(at 50.8 133.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "24c1a75b-5d9e-4606-b0fd-6243df180808")
 		)
@@ -10355,6 +11057,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "CL05C100JB5NNNC"
+			(at 241.3 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 241.3 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "315d01e8-75aa-4f11-8c06-898999c67aed")
 		)
@@ -10416,6 +11136,24 @@
 		)
 		(property "Description" ""
 			(at 232.41 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "DRV8313PWPR"
+			(at 232.41 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Texas Instruments"
+			(at 232.41 46.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10563,6 +11301,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 49.53 21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "HL-A-2835D46W-S1-08-HR3(2800-3100K)"
+			(at 49.53 21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "HONGLITRONIC(Hongli Zhihui (HONGLITRONIC))"
 			(at 49.53 21.59 0)
 			(effects
 				(font
@@ -10839,6 +11595,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "1206W4F100JT5E"
+			(at 63.5 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
+			(at 63.5 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "b9275e52-a5e4-4d8e-89f9-f8eee26fdc10")
 		)
@@ -11040,6 +11814,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "0201WMF1002TEE"
+			(at 241.3 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
+			(at 241.3 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "4239e9a9-a31b-4cfb-8464-cfca562d8220")
 		)
@@ -11167,6 +11959,24 @@
 			)
 		)
 		(property "Description" "Jumper, 2-pole, closed/bridged"
+			(at 31.75 132.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" ""
+			(at 31.75 132.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" ""
 			(at 31.75 132.08 0)
 			(effects
 				(font
@@ -11309,6 +12119,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "SK6812MINI-EA"
+			(at 72.39 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "OPSCO Optoelectronics"
+			(at 72.39 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "c6e85b59-971c-4fa8-b268-aeb327a77c07")
 		)
@@ -11376,6 +12204,24 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 204.47 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "0201WMF1002TEE"
+			(at 204.47 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
 			(at 204.47 36.83 0)
 			(effects
 				(font
@@ -11518,6 +12364,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "0402WGF2201TCE"
+			(at 208.28 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
+			(at 208.28 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "a22be5f9-964f-4f45-a512-5bd098bf1e16")
 		)
@@ -11579,6 +12443,24 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 106.68 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" ""
+			(at 106.68 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" ""
 			(at 106.68 95.25 0)
 			(effects
 				(font
@@ -12178,6 +13060,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "CL05B103KB5NNNC"
+			(at 247.65 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 247.65 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "b600b457-40b1-4998-b907-f14bc320da30")
 		)
@@ -12238,6 +13138,24 @@
 			)
 		)
 		(property "Description" "Jumper, 2-pole, closed/bridged"
+			(at 38.1 64.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" ""
+			(at 38.1 64.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" ""
 			(at 38.1 64.77 0)
 			(effects
 				(font
@@ -12445,6 +13363,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "GRM033R61A104KE15D"
+			(at 76.2 162.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Murata Electronics"
+			(at 76.2 162.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "70c01b1d-1833-4ec5-98fc-5a8466e9a93d")
 		)
@@ -12507,6 +13443,24 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 251.46 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "201007F100LT4E"
+			(at 251.46 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
 			(at 251.46 58.42 0)
 			(effects
 				(font
@@ -12602,6 +13556,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "1N5819WS"
+			(at 27.94 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Guangdong Hottech"
+			(at 27.94 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "547d61b5-217d-43fe-9c7e-a2ffa86c0e93")
 		)
@@ -12662,6 +13634,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 82.55 64.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "B2B-XH-A(LF)(SN)"
+			(at 82.55 64.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "JST"
 			(at 82.55 64.77 0)
 			(effects
 				(font
@@ -12872,6 +13862,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "KF2EDGR-3.5-4P"
+			(at 267.97 49.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Cixi Kefa Elec"
+			(at 267.97 49.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "f067d168-9fdd-4370-98ee-66dd96441021")
 		)
@@ -12944,6 +13952,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 54.61 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "MMBT3904(RANGE:100-300)"
+			(at 54.61 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Jiangsu Changjing Electronics Technology Co., Ltd."
 			(at 54.61 38.1 0)
 			(effects
 				(font
@@ -13081,6 +14107,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 26.67 21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "HL-A-2835D46W-S1-08-HR3(2800-3100K)"
+			(at 26.67 21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "HONGLITRONIC(Hongli Zhihui (HONGLITRONIC))"
 			(at 26.67 21.59 0)
 			(effects
 				(font

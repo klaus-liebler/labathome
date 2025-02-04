@@ -15,7 +15,6 @@
     "@klaus-liebler/commons": "file:../../../npm-packages/@klaus-liebler/commons",
     "@klaus-liebler/espidf-vite": "file:../../../npm-packages/@klaus-liebler/espidf-vite",
     "@klaus-liebler/usersettings_codegeneration": "file:../../../npm-packages/@klaus-liebler/usersettings_codegeneration",
-    "usersettings": "file:../usersettings",
     "@types/gulp": "^4.0.17",
     "@types/node": "^22.10.7",
     "gulp": "^5.0.0",

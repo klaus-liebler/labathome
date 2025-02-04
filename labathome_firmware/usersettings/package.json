@@ -1,13 +1,8 @@
 {
   "name": "usersettings",
-  "version": "1.0.0",
+  "type": "module",
   "main": "usersettings.ts",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "description": "This packet should never be published to a registry, because is is changed frequently",
   "dependencies": {
     "@klaus-liebler/commons": "file:../../../npm-packages/@klaus-liebler/commons",
     "@klaus-liebler/usersettings_codegeneration": "file:../../../npm-packages/@klaus-liebler/usersettings_codegeneration"

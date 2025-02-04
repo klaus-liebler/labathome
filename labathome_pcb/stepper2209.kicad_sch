@@ -1398,10 +1398,22 @@
 		)
 	)
 	(junction
-		(at 81.28 25.4)
+		(at 119.38 116.84)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "0746bee4-f5e7-4e5f-b577-2bc5aaeba373")
+		(uuid "053d4c90-a62b-4f94-bc03-02f00df2ae2e")
+	)
+	(junction
+		(at 257.81 26.67)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "070889d8-dfbe-42c3-a312-695ae67b97b7")
+	)
+	(junction
+		(at 71.12 25.4)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "08d1f973-97f0-4fb6-9e52-d33f82a48dde")
 	)
 	(junction
 		(at 60.96 25.4)
@@ -1410,16 +1422,46 @@
 		(uuid "1193e147-fa0f-4fa5-94f7-e69536654f55")
 	)
 	(junction
-		(at 148.59 34.29)
+		(at 257.81 34.29)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "20784318-620f-4446-8d06-d09cf28306fc")
+		(uuid "11c41eaf-ab78-4edb-84e2-6650bc9f6352")
+	)
+	(junction
+		(at 139.7 116.84)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "212ab509-a8bd-4539-9a97-5fda588f088c")
+	)
+	(junction
+		(at 237.49 26.67)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "36b58325-71c3-43e7-9bea-76863fc2cefd")
 	)
 	(junction
 		(at 168.91 34.29)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "20eb0540-e39b-4ca9-a673-713f384e2082")
+		(uuid "388e4998-e66a-45c8-b18c-9692fe856534")
+	)
+	(junction
+		(at 247.65 26.67)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "3d330211-6a61-46de-ade7-ce4b8bb77d7f")
+	)
+	(junction
+		(at 148.59 34.29)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "3db5d24c-a78c-4fc0-a945-35cbd4cb3bd6")
+	)
+	(junction
+		(at 139.7 124.46)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "41d612a4-b3ef-4250-a043-2e3bc0d88f9e")
 	)
 	(junction
 		(at 229.87 26.67)
@@ -1428,22 +1470,22 @@
 		(uuid "48881832-eab5-4ad4-97df-8549880f8411")
 	)
 	(junction
-		(at 236.22 34.29)
+		(at 119.38 124.46)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "4d5801cf-55b0-44c4-857d-930cfa5857bf")
+		(uuid "534c2485-de53-483c-b777-e941d2208713")
 	)
 	(junction
-		(at 81.28 33.02)
+		(at 129.54 116.84)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "54b05eed-a11c-4f1b-b598-4e6d689df374")
+		(uuid "5a434129-4c3f-4def-b13f-c10cd4e67544")
 	)
 	(junction
-		(at 256.54 34.29)
+		(at 148.59 26.67)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "5a576006-346e-4c7b-9665-f8c45c08e3bc")
+		(uuid "6acda905-7b88-4035-ac32-40ac30453e4a")
 	)
 	(junction
 		(at 181.61 34.29)
@@ -1452,16 +1494,28 @@
 		(uuid "6d497821-e45b-4a66-a080-6e4b94fb8a52")
 	)
 	(junction
+		(at 237.49 34.29)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "7950ec74-c389-4ec4-9ff7-16edb057ce27")
+	)
+	(junction
 		(at 60.96 33.02)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "7e72d115-4f17-41a5-b176-5d3a7478ef75")
 	)
 	(junction
-		(at 246.38 34.29)
+		(at 81.28 25.4)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "8614e23b-d315-4a98-864f-9bd1bc91ab55")
+		(uuid "8357c178-3acb-4888-a188-81d80459ab37")
+	)
+	(junction
+		(at 247.65 34.29)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "92a9b731-7a5e-4cfd-9cb4-0ff52a876d24")
 	)
 	(junction
 		(at 223.52 24.13)
@@ -1476,10 +1530,10 @@
 		(uuid "a57ce5ea-3690-431a-986f-2445e4fab07c")
 	)
 	(junction
-		(at 256.54 26.67)
+		(at 158.75 26.67)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "b0a389af-7f7e-4378-bc3d-de0eb555ecee")
+		(uuid "abf44f8f-5db5-49ac-85f4-86d0fe4ad653")
 	)
 	(junction
 		(at 48.26 22.86)
@@ -1494,22 +1548,10 @@
 		(uuid "c6b28d82-69f5-419c-8d24-7d2dc4682042")
 	)
 	(junction
-		(at 71.12 25.4)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "ccd590e3-3d70-4e1b-b205-329cbba9e106")
-	)
-	(junction
 		(at 54.61 25.4)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "d4dc201e-210c-47ad-acf7-7cc70e61ed64")
-	)
-	(junction
-		(at 71.12 33.02)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "d649bc58-0ee1-4593-955a-3946fda3172a")
 	)
 	(junction
 		(at 262.89 26.67)
@@ -1524,16 +1566,16 @@
 		(uuid "db7db5a9-dc68-48eb-86a6-0604caacb29c")
 	)
 	(junction
-		(at 158.75 34.29)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "debcc334-9dca-410e-ad02-702a9c368ee1")
-	)
-	(junction
 		(at 93.98 33.02)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "deef0168-9a10-4bdc-9f06-5588f93693e1")
+	)
+	(junction
+		(at 71.12 33.02)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "e098eb06-6526-421d-823a-687dae588e74")
 	)
 	(junction
 		(at 181.61 26.67)
@@ -1542,40 +1584,34 @@
 		(uuid "e6aab533-2a30-4b69-93f2-a91281c479ae")
 	)
 	(junction
-		(at 158.75 26.67)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "ecf6e5f4-b9cc-4c4d-9ed6-de38552c06b0")
-	)
-	(junction
-		(at 246.38 26.67)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "ef0cf548-a191-43a4-bf91-aed2e60b6288")
-	)
-	(junction
-		(at 236.22 26.67)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "ef1391f6-7d48-4fff-85e2-609fe6c38f0e")
-	)
-	(junction
 		(at 168.91 26.67)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "f485f4ea-259a-4cdf-98b1-4a865a693ff6")
+		(uuid "ea270799-d438-4c80-aae7-9a882ae2e079")
 	)
 	(junction
-		(at 148.59 26.67)
+		(at 81.28 33.02)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "f5894914-e280-4d32-89a8-9810041d40a9")
+		(uuid "f5c710e0-d3f0-45e0-9003-57322082f90b")
 	)
 	(junction
 		(at 135.89 24.13)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "f62d3833-3d8b-4e70-b30b-f4339d2c5624")
+	)
+	(junction
+		(at 158.75 34.29)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "fac2380c-4240-41a8-a465-cd1fd4b3396e")
+	)
+	(junction
+		(at 129.54 124.46)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "fe9352fd-9723-4bad-946b-c1646f6751fa")
 	)
 	(no_connect
 		(at 35.56 80.01)
@@ -1637,13 +1673,13 @@
 	)
 	(wire
 		(pts
-			(xy 60.96 33.02) (xy 71.12 33.02)
+			(xy 257.81 26.67) (xy 262.89 26.67)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "0859f4ae-bcdc-4b2b-b33a-2a887c32ac01")
+		(uuid "06c8a105-1e06-4c81-802c-22f9cc8fdf61")
 	)
 	(wire
 		(pts
@@ -1707,13 +1743,13 @@
 	)
 	(wire
 		(pts
-			(xy 60.96 25.4) (xy 71.12 25.4)
+			(xy 257.81 34.29) (xy 269.24 34.29)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "1b80a8b9-8ac3-45e7-a10a-c581cfcef47a")
+		(uuid "1c517cd3-3f35-433f-b870-f8c27b363d54")
 	)
 	(wire
 		(pts
@@ -1727,16 +1763,6 @@
 	)
 	(wire
 		(pts
-			(xy 229.87 26.67) (xy 236.22 26.67)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "21aa766a-6198-45c0-9d1c-dc6597dff4f9")
-	)
-	(wire
-		(pts
 			(xy 241.3 81.28) (xy 243.84 81.28)
 		)
 		(stroke
@@ -1744,6 +1770,16 @@
 			(type default)
 		)
 		(uuid "22f4092c-d182-4ca2-9404-d86b9e97e810")
+	)
+	(wire
+		(pts
+			(xy 119.38 116.84) (xy 129.54 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "241e18ec-4dc7-4ba3-a646-e4ecae9232d6")
 	)
 	(wire
 		(pts
@@ -1767,7 +1803,37 @@
 	)
 	(wire
 		(pts
-			(xy 81.28 25.4) (xy 88.9 25.4)
+			(xy 139.7 116.84) (xy 151.13 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2bb78d18-fbc4-4feb-9142-bc2008612aa7")
+	)
+	(wire
+		(pts
+			(xy 129.54 116.84) (xy 139.7 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2ec19e3f-ec93-4af5-820c-c4dfa160d6aa")
+	)
+	(wire
+		(pts
+			(xy 158.75 26.67) (xy 168.91 26.67)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "316130a9-3939-400f-af9c-31772d56b418")
+	)
+	(wire
+		(pts
+			(xy 60.96 25.4) (xy 71.12 25.4)
 		)
 		(stroke
 			(width 0)
@@ -1787,13 +1853,33 @@
 	)
 	(wire
 		(pts
-			(xy 158.75 26.67) (xy 168.91 26.67)
+			(xy 139.7 124.46) (xy 151.13 124.46)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "47771f03-030d-496e-ba02-df3afcaffb6d")
+		(uuid "3d10ffcd-3f48-43f1-9ba9-aa5108813583")
+	)
+	(wire
+		(pts
+			(xy 168.91 26.67) (xy 181.61 26.67)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3f69c8a3-e2b4-4333-9fe1-652a779e42d5")
+	)
+	(wire
+		(pts
+			(xy 81.28 33.02) (xy 93.98 33.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "46109609-a095-4f4c-a382-a4edf921a391")
 	)
 	(wire
 		(pts
@@ -1837,26 +1923,6 @@
 	)
 	(wire
 		(pts
-			(xy 148.59 34.29) (xy 158.75 34.29)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5827523b-ec2e-4253-bb11-30866933089a")
-	)
-	(wire
-		(pts
-			(xy 168.91 34.29) (xy 181.61 34.29)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5bfd4055-03dc-4637-a542-105ffb5dac35")
-	)
-	(wire
-		(pts
 			(xy 163.83 78.74) (xy 163.83 81.28)
 		)
 		(stroke
@@ -1877,13 +1943,13 @@
 	)
 	(wire
 		(pts
-			(xy 236.22 26.67) (xy 246.38 26.67)
+			(xy 78.74 116.84) (xy 119.38 116.84)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "676dbaca-05b8-4633-8540-9874dbcc640d")
+		(uuid "631bd0d3-094f-4306-81b3-a97cafe829c2")
 	)
 	(wire
 		(pts
@@ -1907,17 +1973,17 @@
 	)
 	(wire
 		(pts
-			(xy 256.54 34.29) (xy 269.24 34.29)
+			(xy 71.12 25.4) (xy 81.28 25.4)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "743f535c-959f-4d97-84cb-4a1b79dc2c68")
+		(uuid "746ea3c6-9b40-461d-b744-2c665121d8d1")
 	)
 	(wire
 		(pts
-			(xy 246.38 34.29) (xy 256.54 34.29)
+			(xy 229.87 34.29) (xy 237.49 34.29)
 		)
 		(stroke
 			(width 0)
@@ -1927,7 +1993,7 @@
 	)
 	(wire
 		(pts
-			(xy 81.28 33.02) (xy 93.98 33.02)
+			(xy 60.96 33.02) (xy 71.12 33.02)
 		)
 		(stroke
 			(width 0)
@@ -1957,6 +2023,16 @@
 	)
 	(wire
 		(pts
+			(xy 158.75 34.29) (xy 168.91 34.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "82914035-3042-41cf-bca1-a5c06b5b0693")
+	)
+	(wire
+		(pts
 			(xy 223.52 33.02) (xy 223.52 24.13)
 		)
 		(stroke
@@ -1964,6 +2040,16 @@
 			(type default)
 		)
 		(uuid "83becdf1-d6f1-4d05-99f4-737bf58d2c41")
+	)
+	(wire
+		(pts
+			(xy 168.91 34.29) (xy 181.61 34.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "88fcb3c1-7e21-4630-a7c4-7b663e197700")
 	)
 	(wire
 		(pts
@@ -1977,13 +2063,13 @@
 	)
 	(wire
 		(pts
-			(xy 246.38 26.67) (xy 256.54 26.67)
+			(xy 237.49 26.67) (xy 247.65 26.67)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "8d9737ff-56be-4fcb-b157-f4b79c1c9e7b")
+		(uuid "8df28cb5-3eb7-4065-9e47-01d73d931282")
 	)
 	(wire
 		(pts
@@ -1997,13 +2083,13 @@
 	)
 	(wire
 		(pts
-			(xy 148.59 26.67) (xy 158.75 26.67)
+			(xy 129.54 124.46) (xy 139.7 124.46)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "9e065d04-ab1e-41cb-adf1-612fab989c35")
+		(uuid "9fccc387-21b3-4fd2-9ff1-5344a237f866")
 	)
 	(wire
 		(pts
@@ -2027,33 +2113,23 @@
 	)
 	(wire
 		(pts
-			(xy 168.91 26.67) (xy 181.61 26.67)
+			(xy 237.49 34.29) (xy 247.65 34.29)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "ad1b1f62-d402-4188-a82d-5ef73274d6c0")
+		(uuid "a972780b-8d0d-48e8-b085-10eb0651581c")
 	)
 	(wire
 		(pts
-			(xy 236.22 34.29) (xy 246.38 34.29)
+			(xy 119.38 124.46) (xy 129.54 124.46)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "b2402401-0871-4aec-b421-1bf1ba5b2c37")
-	)
-	(wire
-		(pts
-			(xy 71.12 33.02) (xy 81.28 33.02)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b49912c4-5a71-4b4e-9d7a-eae2f04a0135")
+		(uuid "b7870771-a62f-4f6e-b834-8a5325ee9293")
 	)
 	(wire
 		(pts
@@ -2064,6 +2140,16 @@
 			(type default)
 		)
 		(uuid "bd97f2db-c6cf-4b28-bfc3-316109aba535")
+	)
+	(wire
+		(pts
+			(xy 247.65 34.29) (xy 257.81 34.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "be167aa9-11ba-4010-a390-37f95e440163")
 	)
 	(wire
 		(pts
@@ -2087,6 +2173,26 @@
 	)
 	(wire
 		(pts
+			(xy 148.59 34.29) (xy 158.75 34.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d3d75d77-d9ab-4fc4-8652-082f29cedfa1")
+	)
+	(wire
+		(pts
+			(xy 71.12 33.02) (xy 81.28 33.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d60eef0d-52d9-46ac-98c1-3c3d2c23b64a")
+	)
+	(wire
+		(pts
 			(xy 123.19 35.56) (xy 123.19 38.1)
 		)
 		(stroke
@@ -2097,7 +2203,7 @@
 	)
 	(wire
 		(pts
-			(xy 256.54 26.67) (xy 262.89 26.67)
+			(xy 229.87 26.67) (xy 237.49 26.67)
 		)
 		(stroke
 			(width 0)
@@ -2117,16 +2223,6 @@
 	)
 	(wire
 		(pts
-			(xy 71.12 25.4) (xy 81.28 25.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ddeffb38-241e-407e-8f61-e3a13883abd8")
-	)
-	(wire
-		(pts
 			(xy 66.04 80.01) (xy 68.58 80.01)
 		)
 		(stroke
@@ -2134,6 +2230,16 @@
 			(type default)
 		)
 		(uuid "e16198cb-7f09-485c-9232-664ead869640")
+	)
+	(wire
+		(pts
+			(xy 81.28 25.4) (xy 88.9 25.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e1a859d4-6305-4959-bcda-0d2968373233")
 	)
 	(wire
 		(pts
@@ -2147,6 +2253,26 @@
 	)
 	(wire
 		(pts
+			(xy 78.74 124.46) (xy 119.38 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e82c1233-973e-42d8-a397-b033f5bb81b7")
+	)
+	(wire
+		(pts
+			(xy 247.65 26.67) (xy 257.81 26.67)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e960a817-84a0-4472-9ad0-b43cda047f86")
+	)
+	(wire
+		(pts
 			(xy 135.89 24.13) (xy 129.54 24.13)
 		)
 		(stroke
@@ -2154,16 +2280,6 @@
 			(type default)
 		)
 		(uuid "eb6dda6a-765a-46de-92e8-22e8fd09cb1e")
-	)
-	(wire
-		(pts
-			(xy 229.87 34.29) (xy 236.22 34.29)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ed3cb420-d14b-46cf-beb5-c5d03b4aedfd")
 	)
 	(wire
 		(pts
@@ -2177,13 +2293,13 @@
 	)
 	(wire
 		(pts
-			(xy 158.75 34.29) (xy 168.91 34.29)
+			(xy 148.59 26.67) (xy 158.75 26.67)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "f53af74e-2302-4e67-b289-23b44f5c2631")
+		(uuid "f502a694-751c-4825-862c-f40f1053eb29")
 	)
 	(wire
 		(pts
@@ -2600,6 +2716,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "GRM155R71H223KA12D"
+			(at 242.57 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Murata Electronics"
+			(at 242.57 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "897f6036-dccc-4f77-879d-c56bbb9c726f")
 		)
@@ -2683,6 +2817,91 @@
 	)
 	(symbol
 		(lib_id "Device:C")
+		(at 71.12 29.21 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "0603138c-e320-4ec5-8765-13dd41a27d0c")
+		(property "Reference" "C69"
+			(at 73.66 26.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "22u/35V"
+			(at 75.692 31.242 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 70.1548 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 71.12 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 71.12 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CGA0805X5R106K350MT"
+			(at 71.12 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "HRE"
+			(at 71.12 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "de33510b-527f-4cfb-82e9-1fc85db7572f")
+		)
+		(pin "2"
+			(uuid "9a3e27dc-de1c-45d9-add8-ba2b35258e6a")
+		)
+		(instances
+			(project "labathome_pcb"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
+					(reference "C69")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
 		(at 31.75 34.29 90)
 		(unit 1)
 		(exclude_from_sim no)
@@ -2727,6 +2946,24 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 31.75 34.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "GRM033R61A104KE15D"
+			(at 31.75 34.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Murata Electronics"
 			(at 31.75 34.29 0)
 			(effects
 				(font
@@ -2864,6 +3101,24 @@
 			)
 		)
 		(property "Description" "Standalone driver for two-phase bipolar stepper motor, 2A, 4.75… 36V, UART, internal FETs, QFN28"
+			(at 226.06 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "TMC2209-LA-T"
+			(at 226.06 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "TRINAMIC Motion Control GmbH"
 			(at 226.06 60.96 0)
 			(effects
 				(font
@@ -3088,6 +3343,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "TMC2209-LA-T"
+			(at 50.8 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "TRINAMIC Motion Control GmbH"
+			(at 50.8 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "18"
 			(uuid "dda917ec-3ad8-4362-bf62-da1e71554c00")
 		)
@@ -3250,73 +3523,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:C")
-		(at 256.54 30.48 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "1f28c7d1-eba5-49cc-976e-3b3887be934f")
-		(property "Reference" "C97"
-			(at 259.08 27.94 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "10u/35V"
-			(at 261.112 32.512 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
-			(at 255.5748 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 256.54 30.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 256.54 30.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "1a2f8dce-6243-4a26-a1ea-71345dbc2a68")
-		)
-		(pin "2"
-			(uuid "85eb9af1-8011-4b91-8e39-745680f6a064")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
-					(reference "C97")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:GND")
 		(at 76.2 87.63 0)
 		(unit 1)
@@ -3401,7 +3607,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "K1"
+		(property "Value" "STEP3"
 			(at 248.412 41.9354 0)
 			(effects
 				(font
@@ -3429,6 +3635,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 246.38 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "XH-4AW"
+			(at 246.38 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "BOOMELE(Boom Precision Elec)"
 			(at 246.38 44.45 0)
 			(effects
 				(font
@@ -3505,6 +3729,24 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 154.94 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CL05A225MQ5NSNC"
+			(at 154.94 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
 			(at 154.94 59.69 0)
 			(effects
 				(font
@@ -3781,6 +4023,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "GRM033R61A104KE15D"
+			(at 217.17 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Murata Electronics"
+			(at 217.17 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "a43f1613-3260-4384-8153-7ffc263817ba")
 		)
@@ -3824,7 +4084,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_2010_5025Metric"
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
 			(at 249.682 85.09 90)
 			(effects
 				(font
@@ -3843,6 +4103,24 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 251.46 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "201007F100LT4E"
+			(at 251.46 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
 			(at 251.46 85.09 0)
 			(effects
 				(font
@@ -4000,73 +4278,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:C")
-		(at 81.28 29.21 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "3d18d160-b7bc-415d-a123-43f5a41def72")
-		(property "Reference" "C85"
-			(at 83.82 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "10u/35V"
-			(at 85.852 31.242 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
-			(at 80.3148 25.4 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 81.28 29.21 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 81.28 29.21 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "387d9c96-62d3-4f5e-8a42-ede4cf3e44d5")
-		)
-		(pin "2"
-			(uuid "b6856162-306c-4fed-966b-9d24ccb8a296")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
-					(reference "C85")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Connector_Generic:Conn_01x04")
 		(at 71.12 43.18 0)
 		(mirror x)
@@ -4085,7 +4296,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "K1"
+		(property "Value" "STEP1"
 			(at 73.152 40.6654 0)
 			(effects
 				(font
@@ -4113,6 +4324,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 71.12 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "XH-4AW"
+			(at 71.12 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "BOOMELE(Boom Precision Elec)"
 			(at 71.12 43.18 0)
 			(effects
 				(font
@@ -4209,140 +4438,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:C")
-		(at 236.22 30.48 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "4315908a-c60a-47bd-b0ec-80e7cf4f5c17")
-		(property "Reference" "C93"
-			(at 238.76 27.94 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "10u/35V"
-			(at 240.792 32.512 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
-			(at 235.2548 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 236.22 30.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 236.22 30.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "2bcdfbd9-830b-41d1-89e1-fd3041b70de3")
-		)
-		(pin "2"
-			(uuid "ab60e09f-92e4-4eb3-b042-1c86d1466e85")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
-					(reference "C93")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 246.38 30.48 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "475f07b6-f11c-4299-9248-21c0c24789f0")
-		(property "Reference" "C96"
-			(at 248.92 27.94 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "10u/35V"
-			(at 250.952 32.512 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
-			(at 245.4148 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 246.38 30.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 246.38 30.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "c92986b2-2eb2-4881-86cf-818393741af2")
-		)
-		(pin "2"
-			(uuid "33ea3246-441d-47c6-9e18-23a8744b041a")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
-					(reference "C96")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:GND")
 		(at 210.82 58.42 270)
 		(unit 1)
@@ -4417,8 +4512,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "4fe2a58f-7301-4786-9f1f-2121e4d3055d")
-		(property "Reference" "C72"
+		(uuid "51fe4cfc-e8fd-4053-9646-e05e7746519e")
+		(property "Reference" "C85"
 			(at 161.29 27.94 0)
 			(effects
 				(font
@@ -4426,7 +4521,7 @@
 				)
 			)
 		)
-		(property "Value" "10u/35V"
+		(property "Value" "22u/35V"
 			(at 163.322 32.512 0)
 			(effects
 				(font
@@ -4461,16 +4556,34 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "CGA0805X5R106K350MT"
+			(at 158.75 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "HRE"
+			(at 158.75 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
-			(uuid "617a06a6-73ed-4b95-b68e-3360e430ebcf")
+			(uuid "2b43b2e4-d8af-4414-abf6-7ea86f6e5d66")
 		)
 		(pin "2"
-			(uuid "af9b14a2-49e2-49fd-9546-664fa33b2ea8")
+			(uuid "a00f0cc9-97f1-4c30-9696-1fd3a4d98922")
 		)
 		(instances
-			(project "labathome_pcb15"
+			(project "labathome_pcb"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
-					(reference "C72")
+					(reference "C85")
 					(unit 1)
 				)
 			)
@@ -4522,6 +4635,24 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 181.61 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CC0603KRX7R9BB104"
+			(at 181.61 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "YAGEO"
 			(at 181.61 30.48 0)
 			(effects
 				(font
@@ -4631,7 +4762,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "K1"
+		(property "Value" "STEP2"
 			(at 160.782 41.9354 0)
 			(effects
 				(font
@@ -4659,6 +4790,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 158.75 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "XH-4AW"
+			(at 158.75 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "BOOMELE(Boom Precision Elec)"
 			(at 158.75 44.45 0)
 			(effects
 				(font
@@ -4808,6 +4957,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "CC0603KRX7R9BB104"
+			(at 142.24 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "YAGEO"
+			(at 142.24 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "29087b5a-cfc5-44ae-ad52-8c6c5a2613e5")
 		)
@@ -4851,7 +5018,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_2010_5025Metric"
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
 			(at 74.422 83.82 90)
 			(effects
 				(font
@@ -4870,6 +5037,24 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 76.2 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "201007F100LT4E"
+			(at 76.2 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
 			(at 76.2 83.82 0)
 			(effects
 				(font
@@ -4954,6 +5139,91 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
 					(reference "#PWR0270")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 257.81 30.48 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "66a2d92d-359d-4f66-adc4-fef6e486cc75")
+		(property "Reference" "C97"
+			(at 260.35 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "22u/35V"
+			(at 262.382 32.512 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 256.8448 26.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 257.81 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 257.81 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CGA0805X5R106K350MT"
+			(at 257.81 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "HRE"
+			(at 257.81 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "39725930-2180-4b78-a72a-7224b1daab1d")
+		)
+		(pin "2"
+			(uuid "b6a2acf1-5935-44e5-9c83-72914f161d6f")
+		)
+		(instances
+			(project "labathome_pcb"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
+					(reference "C97")
 					(unit 1)
 				)
 			)
@@ -5078,6 +5348,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "GRM033R61A104KE15D"
+			(at 129.54 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Murata Electronics"
+			(at 129.54 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "78d77990-00b5-4424-9dbc-f494ccf27c98")
 		)
@@ -5139,6 +5427,24 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 54.61 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CC0603KRX7R9BB104"
+			(at 54.61 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "YAGEO"
 			(at 54.61 29.21 0)
 			(effects
 				(font
@@ -5295,6 +5601,91 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:C")
+		(at 148.59 30.48 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "6dfc93bd-4153-4985-a4ab-0f8fc4b6a0c0")
+		(property "Reference" "C78"
+			(at 151.13 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "22u/35V"
+			(at 153.162 32.512 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 147.6248 26.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 148.59 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 148.59 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CGA0805X5R106K350MT"
+			(at 148.59 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "HRE"
+			(at 148.59 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "12bac023-f214-4d0c-9b44-a6ce1ce603f2")
+		)
+		(pin "2"
+			(uuid "633dc537-aa97-455a-9949-7bf530f52214")
+		)
+		(instances
+			(project "labathome_pcb"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
+					(reference "C78")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 35.56 57.15 270)
 		(unit 1)
@@ -5356,6 +5747,72 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
 					(reference "#PWR0241")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 78.74 124.46 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "70d28a40-c406-48fe-a823-8f28b7d6ad76")
+		(property "Reference" "#PWR0261"
+			(at 78.74 130.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 78.74 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 78.74 124.46 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 78.74 124.46 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 78.74 124.46 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "8b06332a-315f-45ae-848d-a4731e51625a")
+		)
+		(instances
+			(project "labathome_pcb"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
+					(reference "#PWR0261")
 					(unit 1)
 				)
 			)
@@ -5560,6 +6017,91 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:C")
+		(at 129.54 120.65 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "7ea3ac70-bb5e-4f46-8383-28b992365704")
+		(property "Reference" "C103"
+			(at 132.08 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "22u/35V"
+			(at 134.112 122.682 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 128.5748 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 129.54 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 129.54 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CGA0805X5R106K350MT"
+			(at 129.54 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "HRE"
+			(at 129.54 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "71610bf7-d8ad-472c-af60-eac4046cfca5")
+		)
+		(pin "2"
+			(uuid "6419a9a0-cd8b-47b4-bd1e-a0f429b73dd3")
+		)
+		(instances
+			(project "labathome_pcb"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
+					(reference "C103")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+VSW")
 		(at 27.94 34.29 90)
 		(unit 1)
@@ -5747,6 +6289,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "GRM155R71H223KA12D"
+			(at 154.94 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Murata Electronics"
+			(at 154.94 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "76b0eb0a-3562-4412-b6e2-402d53ccf96a")
 		)
@@ -5757,6 +6317,242 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
 					(reference "C71")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 119.38 120.65 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "8957f099-d346-4c2c-ae5a-cdae9ee5e77f")
+		(property "Reference" "C102"
+			(at 121.92 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "22u/35V"
+			(at 123.952 122.682 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 118.4148 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 119.38 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 119.38 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CGA0805X5R106K350MT"
+			(at 119.38 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "HRE"
+			(at 119.38 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "389fb8f1-e799-4971-bf40-fd8e361816c6")
+		)
+		(pin "2"
+			(uuid "5de8ca28-d8ce-49b9-8a54-7af241472a2f")
+		)
+		(instances
+			(project "labathome_pcb"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
+					(reference "C102")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+VSW")
+		(at 78.74 116.84 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "8fe6b75e-68ae-4ce8-8cc3-66323568d92d")
+		(property "Reference" "#PWR0260"
+			(at 78.74 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "5-24V"
+			(at 78.74 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 78.74 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 78.74 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+VSW\""
+			(at 78.74 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "e9b0d983-f058-4d62-a3a8-83920890047e")
+		)
+		(instances
+			(project "labathome_pcb"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
+					(reference "#PWR0260")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 168.91 30.48 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "9036c425-175e-4bf6-b23f-09076dd77b03")
+		(property "Reference" "C88"
+			(at 171.45 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "22u/35V"
+			(at 173.482 32.512 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 167.9448 26.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 168.91 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 168.91 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CGA0805X5R106K350MT"
+			(at 168.91 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "HRE"
+			(at 168.91 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "393c5a06-460d-406d-80e0-d949e005a8b1")
+		)
+		(pin "2"
+			(uuid "51bd52f2-6c84-48d2-a4a3-439dc767e57a")
+		)
+		(instances
+			(project "labathome_pcb"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
+					(reference "C88")
 					(unit 1)
 				)
 			)
@@ -5790,7 +6586,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_2010_5025Metric"
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
 			(at 66.802 83.82 90)
 			(effects
 				(font
@@ -5809,6 +6605,24 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 68.58 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "201007F100LT4E"
+			(at 68.58 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
 			(at 68.58 83.82 0)
 			(effects
 				(font
@@ -5879,6 +6693,24 @@
 			)
 		)
 		(property "Description" "Standalone driver for two-phase bipolar stepper motor, 2A, 4.75… 36V, UART, internal FETs, QFN28"
+			(at 138.43 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "TMC2209-LA-T"
+			(at 138.43 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "TRINAMIC Motion Control GmbH"
 			(at 138.43 60.96 0)
 			(effects
 				(font
@@ -5985,73 +6817,6 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 168.91 30.48 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "a01acae7-06ff-4218-8ee4-8da43b996c40")
-		(property "Reference" "C88"
-			(at 171.45 27.94 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "10u/35V"
-			(at 173.482 32.512 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
-			(at 167.9448 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 168.91 30.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 168.91 30.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "62e301c0-b47f-4105-a22e-eb0899b1b651")
-		)
-		(pin "2"
-			(uuid "3ee23fcc-e0b3-41b2-9175-ccf5bc16532a")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
-					(reference "C88")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
 		(at 41.91 26.67 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -6104,6 +6869,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "GRM033R61A104KE15D"
+			(at 41.91 26.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Murata Electronics"
+			(at 41.91 26.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "43392afd-5a37-40ae-a5b5-dd0df9cb5227")
 		)
@@ -6114,73 +6897,6 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
 					(reference "C87")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 71.12 29.21 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "a1903442-50f7-43fd-ad4a-202a4360e126")
-		(property "Reference" "C78"
-			(at 73.66 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "10u/35V"
-			(at 75.692 31.242 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
-			(at 70.1548 25.4 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 71.12 29.21 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 71.12 29.21 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "f5a15226-6603-4c90-97ad-99426bfb5ee6")
-		)
-		(pin "2"
-			(uuid "c4523b6f-587d-4805-8da7-5acc942940fe")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
-					(reference "C78")
 					(unit 1)
 				)
 			)
@@ -6375,6 +7091,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "GRM155R71H223KA12D"
+			(at 67.31 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Murata Electronics"
+			(at 67.31 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "99efb667-5c88-4b1e-a96b-8707af55a7a8")
 		)
@@ -6445,6 +7179,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "CL05A225MQ5NSNC"
+			(at 67.31 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 67.31 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "a6974435-ac5f-405c-a6b4-0247a2026d71")
 		)
@@ -6506,6 +7258,24 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 229.87 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CC0603KRX7R9BB104"
+			(at 229.87 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "YAGEO"
 			(at 229.87 30.48 0)
 			(effects
 				(font
@@ -6663,6 +7433,91 @@
 	)
 	(symbol
 		(lib_id "Device:C")
+		(at 247.65 30.48 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "bb75892d-7a8f-4364-a86a-abc55c584ea1")
+		(property "Reference" "C96"
+			(at 250.19 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "22u/35V"
+			(at 252.222 32.512 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 246.6848 26.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 247.65 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 247.65 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CGA0805X5R106K350MT"
+			(at 247.65 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "HRE"
+			(at 247.65 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "b71905e0-97b4-49b2-b4ae-632cec2297c8")
+		)
+		(pin "2"
+			(uuid "3cfb77bf-599d-4fb7-ba6e-08ba1cfc8f5d")
+		)
+		(instances
+			(project "labathome_pcb"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
+					(reference "C96")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
 		(at 93.98 29.21 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -6715,6 +7570,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "CC0603KRX7R9BB104"
+			(at 93.98 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "YAGEO"
+			(at 93.98 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "f54d7059-39d6-40d3-a328-29cba2884a69")
 		)
@@ -6758,7 +7631,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_2010_5025Metric"
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
 			(at 154.432 85.09 90)
 			(effects
 				(font
@@ -6777,6 +7650,24 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 156.21 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "201007F100LT4E"
+			(at 156.21 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
 			(at 156.21 85.09 0)
 			(effects
 				(font
@@ -6846,6 +7737,24 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 119.38 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "GRM033R61A104KE15D"
+			(at 119.38 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Murata Electronics"
 			(at 119.38 35.56 0)
 			(effects
 				(font
@@ -6936,73 +7845,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:C")
-		(at 148.59 30.48 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "cb2c0b70-3de8-4fc5-8d5d-7555357470f9")
-		(property "Reference" "C69"
-			(at 151.13 27.94 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "10u/35V"
-			(at 153.162 32.512 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
-			(at 147.6248 26.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 148.59 30.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 148.59 30.48 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "3f31d7b4-8e70-4100-bc4b-92a6c6b62cda")
-		)
-		(pin "2"
-			(uuid "ea822a32-92d3-4b10-8a53-c14e44fa9549")
-		)
-		(instances
-			(project "labathome_pcb15"
-				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
-					(reference "C69")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:+3V3")
 		(at 123.19 40.64 90)
 		(unit 1)
@@ -7064,6 +7906,91 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
 					(reference "#PWR0262")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 139.7 120.65 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "cdd1ff92-f272-4eb2-a37b-67964f2a9093")
+		(property "Reference" "C104"
+			(at 142.24 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "22u/35V"
+			(at 144.272 122.682 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 138.7348 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 139.7 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 139.7 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CGA0805X5R106K350MT"
+			(at 139.7 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "HRE"
+			(at 139.7 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "2e323f93-fc69-4bd4-a41c-36819d8a651b")
+		)
+		(pin "2"
+			(uuid "04f3fca3-fb94-45e6-8efb-0d3c1e346984")
+		)
+		(instances
+			(project "labathome_pcb"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
+					(reference "C104")
 					(unit 1)
 				)
 			)
@@ -7189,6 +8116,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "CL05A225MQ5NSNC"
+			(at 242.57 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 242.57 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "74a81e6e-7004-4cca-acce-41ec8c902a8a")
 		)
@@ -7250,6 +8195,24 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 269.24 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CC0603KRX7R9BB104"
+			(at 269.24 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "YAGEO"
 			(at 269.24 30.48 0)
 			(effects
 				(font
@@ -7366,7 +8329,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_2010_5025Metric"
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
 			(at 162.052 85.09 90)
 			(effects
 				(font
@@ -7385,6 +8348,24 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 163.83 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "201007F100LT4E"
+			(at 163.83 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
 			(at 163.83 85.09 0)
 			(effects
 				(font
@@ -7425,7 +8406,7 @@
 				)
 			)
 		)
-		(property "Value" "10u/35V"
+		(property "Value" "22u/35V"
 			(at 65.532 31.242 0)
 			(effects
 				(font
@@ -7452,6 +8433,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 60.96 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CGA0805X5R106K350MT"
+			(at 60.96 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "HRE"
 			(at 60.96 29.21 0)
 			(effects
 				(font
@@ -7569,7 +8568,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_2010_5025Metric"
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
 			(at 242.062 85.09 90)
 			(effects
 				(font
@@ -7588,6 +8587,24 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 243.84 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "201007F100LT4E"
+			(at 243.84 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
 			(at 243.84 85.09 0)
 			(effects
 				(font
@@ -7798,6 +8815,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "GRM033R61A104KE15D"
+			(at 207.01 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Murata Electronics"
+			(at 207.01 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "e5e1b815-b8c6-4fdb-ae4b-932647005c4e")
 		)
@@ -7808,6 +8843,91 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
 					(reference "C90")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 237.49 30.48 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "e530ca54-ca7b-46c4-ae61-c6eab94d3de5")
+		(property "Reference" "C93"
+			(at 240.03 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "22u/35V"
+			(at 242.062 32.512 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 236.5248 26.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 237.49 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 237.49 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CGA0805X5R106K350MT"
+			(at 237.49 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "HRE"
+			(at 237.49 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "980bc30c-3e05-41f9-ab3e-6ef2e96fbd3e")
+		)
+		(pin "2"
+			(uuid "bc4dbec2-c82b-45be-983c-20a1edc64a57")
+		)
+		(instances
+			(project "labathome_pcb"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
+					(reference "C93")
 					(unit 1)
 				)
 			)
@@ -8009,6 +9129,91 @@
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
 					(reference "#PWR0240")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 81.28 29.21 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "f918845b-d7e7-4e35-baea-3269fba54b1c")
+		(property "Reference" "C72"
+			(at 83.82 26.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "22u/35V"
+			(at 85.852 31.242 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 80.3148 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 81.28 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 81.28 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "CGA0805X5R106K350MT"
+			(at 81.28 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "HRE"
+			(at 81.28 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "3f4e6c46-973d-4580-98f3-dc85279bba1e")
+		)
+		(pin "2"
+			(uuid "6d6c1266-6e49-49c4-a0a8-0e17a28a567e")
+		)
+		(instances
+			(project "labathome_pcb"
+				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
+					(reference "C72")
 					(unit 1)
 				)
 			)

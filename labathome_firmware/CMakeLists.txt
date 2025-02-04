@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.16.0)
 set(PROJECT_VER "0.0.0.4")
+set(GENERATED_DIR "C:/repos/generated/")
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 set(EXTRA_COMPONENT_DIRS "../../espidf-components" "../../espidf-component-webmanager" "../../espidf-components-lcd")
 project(labathome_firmware)

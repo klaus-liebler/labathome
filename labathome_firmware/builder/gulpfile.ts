@@ -11,11 +11,11 @@ import { flatbuffers_generate_c, flatbuffers_generate_ts } from "@klaus-liebler/
 import { createApiKey } from "@klaus-liebler/espidf-vite/google_cloud";
 import {Context, ContextConfig} from "@klaus-liebler/espidf-vite/context"
 import { prepare_labathome_files } from "@klaus-liebler/espidf-vite/labathome";
-import * as usersettings from "@klaus-liebler/espidf-vite/usersettings"
+import * as usersettings from "@klaus-liebler/espidf-vite/usersettings_builder"
 import {mac_12char, mac_6char, writeFileCreateDirLazy } from "@klaus-liebler/espidf-vite/utils";
 import * as vite_helper from "@klaus-liebler/espidf-vite/vite_helper";
 import { strInterpolator } from "@klaus-liebler/commons";
-import * as usersettings_rt from "usersettings";
+import * as usersettings_def from "./symlink_usersettings";
 
 //Default Board Type
 
@@ -97,7 +97,7 @@ async function createRandomFlashEncryptionKeyLazily(cb: gulp.TaskFunctionCallbac
 
 async function generateUsersettings(cb: gulp.TaskFunctionCallback) {
   const c=await Context.get(contextConfig)
-  await usersettings.generate_usersettings(c, usersettings_rt.Build());
+  await usersettings.generate_usersettings(c, usersettings_def.Build());
   cb();
 }
 

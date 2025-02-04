@@ -3824,6 +3824,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "2.54-1*4P"
+			(at 210.82 19.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "BOOMELE(Boom Precision Elec)"
+			(at 210.82 19.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "3cc273fa-2673-476a-8afd-16106c16ceec")
 		)
@@ -3965,6 +3983,24 @@
 			)
 		)
 		(property "Option" "MS4525DO"
+			(at 138.43 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "GRM033R61A104KE15D"
+			(at 138.43 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Murata Electronics"
 			(at 138.43 59.69 0)
 			(effects
 				(font
@@ -4605,6 +4641,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "GRM033R61A104KE15D"
+			(at 107.95 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Murata Electronics"
+			(at 107.95 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "1d53800a-8202-445e-9926-11ebd333ec95")
 		)
@@ -4891,6 +4945,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "GRM033R61A104KE15D"
+			(at 80.01 49.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Murata Electronics"
+			(at 80.01 49.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "cb64866d-3607-44cf-a7b2-5fb37788a905")
 		)
@@ -5169,6 +5241,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "2.54-1*6P"
+			(at 185.42 21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "BOOMELE(Boom Precision Elec)"
+			(at 185.42 21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "c8fac43d-f02e-45b3-85a5-0b4ec110fbb1")
 		)
@@ -5256,6 +5346,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "2.54-1*6P"
+			(at 270.51 21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "BOOMELE(Boom Precision Elec)"
+			(at 270.51 21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "73ca0cb1-27ef-41c4-be0a-7f12ddef1be0")
 		)
@@ -5330,6 +5438,24 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 92.71 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "0402WGF2200TCE"
+			(at 92.71 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
 			(at 92.71 54.61 0)
 			(effects
 				(font
@@ -5473,6 +5599,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "2.54-1*8P"
+			(at 160.02 24.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "BOOMELE(Boom Precision Elec)"
+			(at 160.02 24.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "fba3e993-be09-4d6d-a7c7-66fce28a8880")
 		)
@@ -5551,6 +5695,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 148.59 53.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "BS612"
+			(at 148.59 53.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Senba Sensing Tech"
 			(at 148.59 53.34 0)
 			(effects
 				(font
@@ -5712,6 +5874,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "SM04B-SRSS-TB(LF)(SN)"
+			(at 228.6 48.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "JST"
+			(at 228.6 48.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "f0ff1a4d-2736-4df3-adca-7a2418be3614")
 		)
@@ -5860,6 +6040,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "CL10A226MP8NUNE"
+			(at 102.87 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 102.87 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "cd72630d-5a73-4566-a163-20ec05a84438")
 		)
@@ -5920,6 +6118,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 107.95 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "AHT20"
+			(at 107.95 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Aosong (Guangzhou) Elec"
 			(at 107.95 58.42 0)
 			(effects
 				(font
@@ -6080,6 +6296,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "2.54-1*8P"
+			(at 241.3 24.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "BOOMELE(Boom Precision Elec)"
+			(at 241.3 24.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "1066a018-51c3-4948-9230-05c7ad673eaf")
 		)
@@ -6169,6 +6403,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "GL5516"
+			(at 273.05 49.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Senba Sensing Tech"
+			(at 273.05 49.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "ad28c2c3-6275-47cd-b8a6-6d7483a65367")
 		)
@@ -6234,6 +6486,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 162.56 53.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "0201WMF1003TEE"
+			(at 162.56 53.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
 			(at 162.56 53.34 0)
 			(effects
 				(font
@@ -6848,6 +7118,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "0201WMF1002TEE"
+			(at 273.05 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
+			(at 273.05 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "3ca763a7-4fa7-4b86-8621-da3361adac6b")
 		)
@@ -7315,6 +7603,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "DS18B20"
+			(at 55.88 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "MSKSEMI"
+			(at 55.88 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "1bb54315-6d54-441b-9268-e0d5654ccc8f")
 		)
@@ -7603,6 +7909,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "GRM033R61A104KE15D"
+			(at 69.85 49.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Murata Electronics"
+			(at 69.85 49.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "346340e3-088b-4f7b-a9fd-be7c338960ee")
 		)
@@ -7664,6 +7988,24 @@
 			)
 		)
 		(property "Description" "Programmable Resolution 1-Wire Digital Thermometer TO-92"
+			(at 25.4 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "DS18B20"
+			(at 25.4 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "MSKSEMI"
 			(at 25.4 27.94 0)
 			(effects
 				(font
@@ -7881,6 +8223,24 @@
 				(hide yes)
 			)
 		)
+		(property "MPN" "2.54-1*6P"
+			(at 135.89 21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "BOOMELE(Boom Precision Elec)"
+			(at 135.89 21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "168ec485-43ca-45c9-83f6-174a8b9ae7cc")
 		)
@@ -7956,6 +8316,24 @@
 			)
 		)
 		(property "Description" "I2C/SPI, iNEMO inertial module: always-on 3D accelerometer and 3D gyroscope"
+			(at 45.72 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "LSM6DS3TR-C"
+			(at 45.72 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "STMicroelectronics"
 			(at 45.72 60.96 0)
 			(effects
 				(font

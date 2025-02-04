@@ -1,4 +1,4 @@
-25237444292002608
+25240959973471093
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -100211,6 +100211,13 @@ miniusb_vert
 0
 7
 5
+liebler_CONN
+ÖLFLEX 4x1mm2
+
+
+0
+4
+4
 liebler_DRAWINGS
 LOGO_FHOS_30mm
 
@@ -101720,6 +101727,13 @@ liebler_SEMICONDUCTORS
 TSOC6
 
 
+0
+6
+6
+liebler_SEMICONDUCTORS
+TSOT-23-6_handsolder
+TSOT, 6 Pin (https://www.jedec.org/sites/default/files/docs/MO-193D.pdf variant AA), generated with kicad-footprint-generator ipc_gullwing_generator.py
+TSOT TO_SOT_SMD
 0
 6
 6
