@@ -1,28 +1,31 @@
-#include <stdio.h>
-#include "common_in_project.hh"
-#include <sdkconfig.h>
+//c++ lib incudes
+#include <cstdio>
+#include <cstring>
+#include <vector>
+//FreeRTOS & Lwip includes
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <freertos/semphr.h>
 #include <freertos/queue.h>
+
+//esp idf includes
 #include <driver/gpio.h>
 #include <esp_system.h>
+#include "esp_log.h"
+#include "spiffs.hh"
 #include <spi_flash_mmap.h>
 #include <driver/gpio.h>
 #include <esp_event.h>
-#include <sys/param.h>
 #include <nvs_flash.h>
 #include <esp_netif.h>
 
-#include <__build_config.hh>
+
 
 constexpr TickType_t xFrequency {pdMS_TO_TICKS(50)};
 
 #ifndef CONFIG_ESP_HTTPS_SERVER_ENABLE
 #error "Enable HTTPS_SERVER in menuconfig!"
 #endif
-#include <esp_https_server.h>
-#include <esp_tls.h>
 #include <webmanager.hh> //include esp_https_server before!!!
 
 
@@ -40,10 +43,7 @@ static iHAL * hal = new HAL_Impl();
 #error Unknown __BOARD_VERSION__ ##__BOARD_VERSION
 #endif
 
-#include "functionblocks.hh"
-#include "rgbled.hh"
-#include "esp_log.h"
-#include "spiffs.hh"
+
 
 #include "webmanager_plugins/heaterexperiment_plugin.hh"
 #include "webmanager_plugins/functionblock_plugin.hh"
@@ -65,16 +65,17 @@ extern "C" void app_main()
     // Configure Logging
     //esp_log_level_set(TAG, ESP_LOG_INFO);
     //esp_log_level_set("esp_https_server", ESP_LOG_WARN);
-    
+    ESP_LOGI(TAG, "\n%s", cfg::BANNER);
+    ESP_LOGI(TAG, "%s is booting up. Firmware build at %s on Git %s", cfg::NODE_ID, cfg::CREATION_DT_STR, cfg::GIT_SHORT_HASH);
 
     // Configure NVS and SPIFFS
-    esp_err_t ret = nvs_flash_init_partition(NVS_PARTITION_NAME);
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
-    {
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        ESP_ERROR_CHECK(nvs_flash_init_partition(NVS_PARTITION_NAME));
-    }
-    ESP_ERROR_CHECK(SpiffsManager::Init());
+    ESP_ERROR_CHECK(nvs_flash_init_and_erase_lazily());
+
+    size_t total = 0, used = 0;
+    esp_vfs_littlefs_conf_t conf = {"/spiffs", "storage", true, false};
+    ESP_ERROR_CHECK(esp_vfs_littlefs_register(&conf));
+    ESP_ERROR_CHECK(esp_littlefs_info(conf.partition_label, &total, &used));
+    ESP_LOGI(TAG, "LittleFS Partition successfully mounted: total: %dbyte, used: %dbyte", total, used);
 
     //Generating deviceManager
     devicemanager = new DeviceManager(hal);
@@ -89,7 +90,6 @@ extern "C" void app_main()
     
     wm->Begin("labathome_%02x%02x%02x", "labathome", "labathome_%02x%02x%02x", false, &plugins, true);
 
-    
     const char *hostname = wm->GetHostname();
     httpd_ssl_config_t httpd_conf = HTTPD_SSL_CONFIG_DEFAULT();
     httpd_conf.servercert = esp32_pem_crt_start;

@@ -13424,7 +13424,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_2010_5025Metric"
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
 			(at 249.682 58.42 90)
 			(effects
 				(font
@@ -13451,7 +13451,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "201007F100LT4E"
+		(property "MPN" "FRM121WFR100TM"
 			(at 251.46 58.42 0)
 			(effects
 				(font
@@ -13460,7 +13460,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
+		(property "Manufacturer" " FOJAN"
 			(at 251.46 58.42 0)
 			(effects
 				(font

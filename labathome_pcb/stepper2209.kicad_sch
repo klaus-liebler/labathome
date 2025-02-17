@@ -842,6 +842,24 @@
 						)
 					)
 				)
+				(pin passive line
+					(at 0 -27.94 90)
+					(length 2.54) hide
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "25"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
 				(pin no_connect line
 					(at 12.7 0 180)
 					(length 2.54) hide
@@ -2867,7 +2885,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "CGA0805X5R106K350MT"
+		(property "MPN" "CGA0805X5R226M350MT"
 			(at 71.12 29.21 0)
 			(effects
 				(font
@@ -3055,6 +3073,7 @@
 		)
 	)
 	(symbol
+		(lib_name "liebler_SEMICONDUCTORS:TMC2209")
 		(lib_id "liebler_SEMICONDUCTORS:TMC2209")
 		(at 226.06 60.96 0)
 		(unit 1)
@@ -3214,6 +3233,9 @@
 		(pin "26"
 			(uuid "04f67d31-b7cc-46f0-8595-43eef54e22b8")
 		)
+		(pin "25"
+			(uuid "131ce5cd-68bb-47f4-bc19-4cb90b677090")
+		)
 		(instances
 			(project "labathome_pcb15"
 				(path "/e4d6926a-1a8b-424d-97c4-66b6ad87e4ac/17ae4001-8623-479a-8825-80beba02b053"
@@ -3289,6 +3311,7 @@
 		)
 	)
 	(symbol
+		(lib_name "liebler_SEMICONDUCTORS:TMC2209")
 		(lib_id "liebler_SEMICONDUCTORS:TMC2209")
 		(at 50.8 59.69 0)
 		(unit 1)
@@ -3447,6 +3470,9 @@
 		)
 		(pin "26"
 			(uuid "bce878f0-7c38-435d-a2af-512a0595b961")
+		)
+		(pin "25"
+			(uuid "bd7b3a71-3e97-4430-82ec-61e673946a22")
 		)
 		(instances
 			(project ""
@@ -4111,7 +4137,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "201007F100LT4E"
+		(property "MPN" "FRM121WFR100TM"
 			(at 251.46 85.09 0)
 			(effects
 				(font
@@ -4120,7 +4146,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
+		(property "Manufacturer" " FOJAN"
 			(at 251.46 85.09 0)
 			(effects
 				(font
@@ -4556,7 +4582,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "CGA0805X5R106K350MT"
+		(property "MPN" "CGA0805X5R226M350MT"
 			(at 158.75 30.48 0)
 			(effects
 				(font
@@ -5045,7 +5071,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "201007F100LT4E"
+		(property "MPN" "FRM121WFR100TM"
 			(at 76.2 83.82 0)
 			(effects
 				(font
@@ -5054,7 +5080,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
+		(property "Manufacturer" " FOJAN"
 			(at 76.2 83.82 0)
 			(effects
 				(font
@@ -5196,7 +5222,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "CGA0805X5R106K350MT"
+		(property "MPN" "CGA0805X5R226M350MT"
 			(at 257.81 30.48 0)
 			(effects
 				(font
@@ -5652,7 +5678,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "CGA0805X5R106K350MT"
+		(property "MPN" "CGA0805X5R226M350MT"
 			(at 148.59 30.48 0)
 			(effects
 				(font
@@ -6068,7 +6094,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "CGA0805X5R106K350MT"
+		(property "MPN" "CGA0805X5R226M350MT"
 			(at 129.54 120.65 0)
 			(effects
 				(font
@@ -6374,7 +6400,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "CGA0805X5R106K350MT"
+		(property "MPN" "CGA0805X5R226M350MT"
 			(at 119.38 120.65 0)
 			(effects
 				(font
@@ -6525,7 +6551,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "CGA0805X5R106K350MT"
+		(property "MPN" "CGA0805X5R226M350MT"
 			(at 168.91 30.48 0)
 			(effects
 				(font
@@ -6613,7 +6639,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "201007F100LT4E"
+		(property "MPN" "FRM121WFR100TM"
 			(at 68.58 83.82 0)
 			(effects
 				(font
@@ -6622,7 +6648,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
+		(property "Manufacturer" " FOJAN"
 			(at 68.58 83.82 0)
 			(effects
 				(font
@@ -6647,6 +6673,7 @@
 		)
 	)
 	(symbol
+		(lib_name "liebler_SEMICONDUCTORS:TMC2209")
 		(lib_id "liebler_SEMICONDUCTORS:TMC2209")
 		(at 138.43 60.96 0)
 		(unit 1)
@@ -6805,6 +6832,9 @@
 		)
 		(pin "26"
 			(uuid "5c85d1c1-b4a7-487c-a28e-0081b6a18dda")
+		)
+		(pin "25"
+			(uuid "1167f394-494b-42a7-9521-b153999e3b0c")
 		)
 		(instances
 			(project "labathome_pcb15"
@@ -7483,7 +7513,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "CGA0805X5R106K350MT"
+		(property "MPN" "CGA0805X5R226M350MT"
 			(at 247.65 30.48 0)
 			(effects
 				(font
@@ -7658,7 +7688,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "201007F100LT4E"
+		(property "MPN" "FRM121WFR100TM"
 			(at 156.21 85.09 0)
 			(effects
 				(font
@@ -7667,7 +7697,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
+		(property "Manufacturer" " FOJAN"
 			(at 156.21 85.09 0)
 			(effects
 				(font
@@ -7963,7 +7993,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "CGA0805X5R106K350MT"
+		(property "MPN" "CGA0805X5R226M350MT"
 			(at 139.7 120.65 0)
 			(effects
 				(font
@@ -8356,7 +8386,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "201007F100LT4E"
+		(property "MPN" "FRM121WFR100TM"
 			(at 163.83 85.09 0)
 			(effects
 				(font
@@ -8365,7 +8395,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
+		(property "Manufacturer" " FOJAN"
 			(at 163.83 85.09 0)
 			(effects
 				(font
@@ -8441,7 +8471,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "CGA0805X5R106K350MT"
+		(property "MPN" "CGA0805X5R226M350MT"
 			(at 60.96 29.21 0)
 			(effects
 				(font
@@ -8595,7 +8625,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "201007F100LT4E"
+		(property "MPN" "FRM121WFR100TM"
 			(at 243.84 85.09 0)
 			(effects
 				(font
@@ -8604,7 +8634,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer" "UNI-ROYAL(Uniroyal Elec)"
+		(property "Manufacturer" " FOJAN"
 			(at 243.84 85.09 0)
 			(effects
 				(font
@@ -8900,7 +8930,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "CGA0805X5R106K350MT"
+		(property "MPN" "CGA0805X5R226M350MT"
 			(at 237.49 30.48 0)
 			(effects
 				(font
@@ -9186,7 +9216,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "CGA0805X5R106K350MT"
+		(property "MPN" "CGA0805X5R226M350MT"
 			(at 81.28 29.21 0)
 			(effects
 				(font
