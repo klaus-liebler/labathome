@@ -13,10 +13,10 @@
 			"path": "../../npm-packages/@klaus-liebler/commons"
 		},
 		{
-			"path": "../../npm-packages/@klaus-liebler/espidf-vite"
+			"path": "../../generated/flatbuffers_ts"
 		},
 		{
-			"path": "../../generated/flatbuffers_ts"
+			"path": "../../npm-packages/@klaus-liebler/espidf-vite-secure-build-tools"
 		}
 	],
 	"settings": {

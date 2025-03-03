@@ -8,14 +8,12 @@ import { StringItem, ConfigGroup, IntegerItem, BooleanItem, EnumItem } from './u
 //Hier legt der Nutzer die Einstellungen fest für das aktuelle Projekt
 
 
-export function Build(): ConfigGroup[] {
-    let i1: StringItem;
-    let i2: StringItem;
+export function Build(boardName:string, boardVersion:number, boardRoles:Array<string>): ConfigGroup[] {
     return [
         new ConfigGroup("Group1",
             [
-                i1 = new StringItem("Name G1I1 String", "foo", /.*/, "G1_1_S"),
-                i2 = new StringItem("Name G1I2 String", "BAR", /.*/, "G1_2_S"),
+                new StringItem("Name G1I1 String", "foo", /.*/, "G1_1_S"),
+                new StringItem("Name G1I2 String", "BAR", /.*/, "G1_2_S"),
             ]),
         new ConfigGroup("Group2",
             [

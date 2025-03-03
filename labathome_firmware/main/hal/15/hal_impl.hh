@@ -1,7 +1,7 @@
 #pragma once
 #define LCD_DISPLAY 0
 #define AUDIO 1
-#include <__build_config.hh>
+#include <runtimeconfig_cpp/runtimeconfig_defines.hh>
 
 #include "iHAL.hh"
 

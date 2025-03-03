@@ -21,6 +21,6 @@
       "types": ["vite/client"]
 
     },
-    "include": ["typescript"]
+    "include": ["."]
   }
   
