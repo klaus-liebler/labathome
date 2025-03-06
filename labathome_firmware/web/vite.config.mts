@@ -1,4 +1,4 @@
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig} from 'vite'
 import { viteSingleFile } from "@klaus-liebler/vite-single-file"
 import fs from "node:fs"
 
@@ -17,9 +17,21 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
     },
     server: {
       open: "https://protzklotz:5173",
+      cors:true,
       https: {
         key: fs.readFileSync(process.env.USERPROFILE+"/netcase/certificates/testserver.pem.key"),
         cert: fs.readFileSync(process.env.USERPROFILE+"/netcase/certificates/testserver.pem.crt"),
+
+      },
+
+      proxy_not_working_idea: {
+        "/webmanager_ws": {
+          target: "wss://labathome_6550c0",
+          ws: true,
+        },
+        "/files/*": {
+          target: "https://labathome_6550c0",
+        }
       },
 
       proxy: {

@@ -87,7 +87,7 @@ async function buildAndEncryptFirmware(cb: gulp.TaskFunctionCallback) {
 } 
 
 async function flashEncryptedFirmware(cb: gulp.TaskFunctionCallback){
-  return idf.flashEncryptedFirmware(await Context.get(contextConfig), false, false);
+  return idf.flashEncryptedFirmware(await Context.get(contextConfig), false, false, true);
 }
 
 export async function createRootCA(cb: gulp.TaskFunctionCallback) {

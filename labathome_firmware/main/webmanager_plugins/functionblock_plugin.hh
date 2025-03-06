@@ -3,6 +3,7 @@
 #include "webmanager_interfaces.hh"
 #include "flatbuffers/flatbuffers.h"
 #include "../generated/flatbuffers_cpp/functionblock_generated.h"
+#define TAG "FNCTN_PLUGIN"
 using namespace webmanager;
 class FunctionblockPlugin : public webmanager::iWebmanagerPlugin
 {
@@ -28,6 +29,7 @@ class FunctionblockPlugin : public webmanager::iWebmanagerPlugin
         
         switch (reqType){
         case functionblock::Requests::Requests_RequestDebugData:{
+            ESP_LOGI(TAG, "Got Requests_RequestDebugData");
             size_t debugInfoSize{0};
             devicemanager->GetDebugInfoSize(&debugInfoSize);
             flatbuffers::FlatBufferBuilder b(32+debugInfoSize);
@@ -38,7 +40,8 @@ class FunctionblockPlugin : public webmanager::iWebmanagerPlugin
         
         case functionblock::Requests::Requests_RequestFbdRun:
         {
-            devicemanager->ParseNewExecutableAndEnqueue(TEMP_FBD_FILEPATH);
+            ESP_LOGI(TAG, "Got Requests_RequestFbdRun");
+            devicemanager->ParseNewExecutableAndEnqueue(TEMP_FBD_BIN_FILEPATH);
             flatbuffers::FlatBufferBuilder b(256);
             b.Finish(
                 functionblock::CreateResponseWrapper(
@@ -51,9 +54,11 @@ class FunctionblockPlugin : public webmanager::iWebmanagerPlugin
             return webmanager::eMessageReceiverResult::OK;
         }
         default:
+            ESP_LOGW(TAG, "Got Unknown Request");
             break;
 
         }
-        return webmanager::eMessageReceiverResult::OK;
+        return webmanager::eMessageReceiverResult::FOR_ME_BUT_FAILED;
     }
 };
+#undef TAG

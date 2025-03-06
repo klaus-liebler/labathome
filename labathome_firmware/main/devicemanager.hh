@@ -16,8 +16,8 @@
 
 //see Flowchart.ts -values must be the same
 constexpr const char *FBDSTORE_BASE_DIRECTORY = "/spiffs/fbdstore/";    
-constexpr const char *DEFAULT_FBD_FILEPATH =  "/spiffs/default.fbd";
-constexpr const char *TEMP_FBD_FILEPATH = "/spiffs/temp.fbd";
+constexpr const char *DEFAULTFBD_FBD_FILEPATH =  "/spiffs/defaultfbd.fbd";
+constexpr const char *TEMPFBD_FBD_FILEPATH = "/spiffs/tempfbd.fbd";
 
 class FunctionBlock;
 class Executable

@@ -164,8 +164,8 @@ void DeviceManager::EternalLoop(){
     
     // Initialise the xLastWakeTime variable with the current time.
     xLastWakeTime = xTaskGetTickCount();
-    if(this->ParseNewExecutableAndEnqueue(DEFAULT_FBD_FILEPATH)!=ErrorCode::OK){
-        ESP_LOGW(TAG, "No default.fbd found. Continuing with factory dummy fbd");
+    if(this->ParseNewExecutableAndEnqueue(DEFAULTFBD_FBD_FILEPATH)!=ErrorCode::OK){
+        ESP_LOGW(TAG, "No defaultfbd.fbd found. Continuing with factory dummy fbd");
     }
     hal->GreetUserOnStartup();
 
@@ -242,21 +242,21 @@ ErrorCode DeviceManager::ParseNewExecutableAndEnqueue(const char* path)
         ESP_LOGE(TAG, "Failed to read existing file : %s", path);
         return ErrorCode::FILE_SYSTEM_ERROR;
     }
-    ESP_LOGI(TAG, "Opening FBD %s was successful", path);
+    ESP_LOGI(TAG, "Opening FBD %s was successful. File Size is %ldbyte", path, file_stat.st_size);
     size_t sizeOfBinaryData{0};
     size_t size_read = fread(&sizeOfBinaryData, 4, 1, fd);
-    if(size_read!=4){
+    if(size_read!=1){//Number of elements, not number of bytes!
         ESP_LOGE(TAG, "Unable to read sizeOfBinaryData : %s", path);
         return ErrorCode::FILE_SYSTEM_ERROR;
     }
     ESP_LOGI(TAG, "sizeOfBinaryData in FBD %s is %u", path, sizeOfBinaryData);
     uint8_t buffer[sizeOfBinaryData];
     size_read = fread(&buffer, 1, sizeOfBinaryData, fd);
-    if(size_read!=file_stat.st_size){
+    if(size_read!=sizeOfBinaryData){
         ESP_LOGE(TAG, "Unable to read file completely : %s", path);
         return ErrorCode::FILE_SYSTEM_ERROR;
     }
-    ESP_LOGI(TAG, "Successfully read flatbufferArea of %s", path);
+    ESP_LOGI(TAG, "Successfully read binary data of %s. Now starting to parse it", path);
 
     
     ParseContext *ctx = new ParseContext();
@@ -389,7 +389,7 @@ ErrorCode DeviceManager::ParseNewExecutableAndEnqueue(const char* path)
     size_t debugSizeBytes = 4 /*Hashcode!*/ +4*(booleansCount+1+integersCount+1+floatsCount+1+colorsCount+1);//jeweils noch ein size_t für die Länge
     
     this->nextExecutable = new Executable(hash, debugSizeBytes, functionBlocks, binaries, integers, floats, colors);
-    ESP_LOGI(TAG, "Created new executable and enqueued it");
+    ESP_LOGI(TAG, "Created new executable with hash %lu and enqueued it", hash);
     return ErrorCode::OK;
 }
 
@@ -454,7 +454,7 @@ ErrorCode DeviceManager::CheckForNewExecutable()
         //no new executable available
         return ErrorCode::OK;
     }
-    ESP_LOGI(TAG, "New executable available");
+    ESP_LOGI(TAG, "New executable %lu available", this->nextExecutable->hash);
     //new Executable available --> delete all elements of old Executable
     for (const auto &i : this->currentExecutable->functionBlocks)
     {
@@ -468,17 +468,17 @@ ErrorCode DeviceManager::CheckForNewExecutable()
     {
         i->initPhase1(this);
     }
-    ESP_LOGI(TAG, "New executable Init Phase 1");
+    ESP_LOGI(TAG, "New executable %lu Init Phase 1", this->currentExecutable->hash);
     for (const auto &i : this->currentExecutable->functionBlocks)
     {
         i->initPhase2(this);
     }
-    ESP_LOGI(TAG, "New executable Init Phase 2");
+    ESP_LOGI(TAG, "New executable %lu Init Phase 2", this->currentExecutable->hash);
     for (const auto &i : this->currentExecutable->functionBlocks)
     {
         i->initPhase3(this);
     }
-    ESP_LOGI(TAG, "New executable Init Phase 3");
+    ESP_LOGI(TAG, "New executable %lu Init Phase 3", this->currentExecutable->hash);
     return ErrorCode::OK;
 }
 
