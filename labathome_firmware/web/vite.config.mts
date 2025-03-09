@@ -24,17 +24,17 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
 
       },
 
-      proxy_not_working_idea: {
+      proxy: {
         "/webmanager_ws": {
-          target: "wss://labathome_6550c0",
+          target: "ws://labathome_2c31d0.local",
           ws: true,
         },
-        "/files/*": {
-          target: "https://labathome_6550c0",
+        "/files": {
+          target: "http://labathome_2c31d0.local",
         }
       },
 
-      proxy: {
+      proxy_local: {
         "/webmanager_ws": {
           target: "ws://localhost:3000",
           ws: true,

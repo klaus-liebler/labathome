@@ -7,7 +7,8 @@
   "private": true,
   "scripts": {
     "start": "node --trace-warnings --import tsx node_modules/gulp/bin/gulp",
-    "c": "node --trace-warnings --import tsx node_modules/gulp/bin/gulp buildForCurrent"
+    "c": "node --trace-warnings --import tsx node_modules/gulp/bin/gulp buildForCurrent",
+    "u": "node --trace-warnings --import tsx node_modules/gulp/bin/gulp addOrUpdateConnectedBoard"
   },
   "author": "",
   "license": "ISC",

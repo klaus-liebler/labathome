@@ -28,6 +28,7 @@ export const IDF_PATH=globalThis.process.env.IDF_PATH as string;
 export const USERPROFILE =globalThis.process.env.USERPROFILE as string;
 
 //Config
+export const FLASH_ENCYRPTION_STRENGTH=idf.EncryptionStrength.AES128
 const IDF_PROJECT_ROOT = "C:\\repos\\labathome\\labathome_firmware";
 const IDF_COMPONENT_WEBMANAGER_ROOT = "C:/repos/espidf-component-webmanager";
 const GENERATED_ROOT = "c:\\repos\\generated";
@@ -87,7 +88,9 @@ async function buildAndEncryptFirmware(cb: gulp.TaskFunctionCallback) {
 } 
 
 async function flashEncryptedFirmware(cb: gulp.TaskFunctionCallback){
-  return idf.flashEncryptedFirmware(await Context.get(contextConfig), false, false, true);
+  const c = await Context.get(contextConfig)
+  await idf.burnFlashEncryptionKeyAndActivateEncryptedFlash(c, FLASH_ENCYRPTION_STRENGTH)
+  return idf.flashEncryptedFirmware(c, false, false, true);
 }
 
 export async function createRootCA(cb: gulp.TaskFunctionCallback) {
@@ -138,7 +141,7 @@ export async function createFiles(cb: gulp.TaskFunctionCallback) {
     }
 
   //Flash Encryption Key
-  idf.createRandomFlashEncryptionKeyLazily(await Context.get(contextConfig));
+  idf.createRandomFlashEncryptionKeyLazily(await Context.get(contextConfig), FLASH_ENCYRPTION_STRENGTH);
   
   //User Settings
   await usersettings.generate_usersettings(c, usersettings_def.Build(c.b.board_name, c.b.board_version, []));

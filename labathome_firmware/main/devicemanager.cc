@@ -249,13 +249,20 @@ ErrorCode DeviceManager::ParseNewExecutableAndEnqueue(const char* path)
         ESP_LOGE(TAG, "Unable to read sizeOfBinaryData : %s", path);
         return ErrorCode::FILE_SYSTEM_ERROR;
     }
+    if(sizeOfBinaryData>1024){
+        ESP_LOGW(TAG, "sizeOfBinaryData in FBD %s is %u. That is too large!.", path, sizeOfBinaryData);
+        fclose(fd);
+        return ErrorCode::PAYLOAD_TOO_LARGE;
+    }
     ESP_LOGI(TAG, "sizeOfBinaryData in FBD %s is %u", path, sizeOfBinaryData);
     uint8_t buffer[sizeOfBinaryData];
     size_read = fread(&buffer, 1, sizeOfBinaryData, fd);
     if(size_read!=sizeOfBinaryData){
         ESP_LOGE(TAG, "Unable to read file completely : %s", path);
+        fclose(fd);
         return ErrorCode::FILE_SYSTEM_ERROR;
     }
+    fclose(fd);
     ESP_LOGI(TAG, "Successfully read binary data of %s. Now starting to parse it", path);
 
     
@@ -267,6 +274,7 @@ ErrorCode DeviceManager::ParseNewExecutableAndEnqueue(const char* path)
     const uint32_t dataStructureVersion = ctx->ReadU32();
     if(dataStructureVersion!=0xAFFECAFE){
         ESP_LOGE(TAG, "dataStructureVersion!=0xAFFECAFE");
+        
         return ErrorCode::INCOMPATIBLE_VERSION;
     }
     uint32_t hash= ctx->ReadU32();

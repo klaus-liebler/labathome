@@ -1,3 +1,6 @@
+//#define HTTP
+#define HTTPS
+
 //c++ lib incudes
 #include <cstdio>
 #include <cstring>
@@ -17,6 +20,15 @@
 #include <esp_log.h>
 #include <nvs.h>
 #include <nvs_flash.h>
+#ifdef HTTPS
+#include <esp_https_server.h>
+#ifndef CONFIG_ESP_HTTPS_SERVER_ENABLE
+#error "Enable HTTPS_SERVER in menuconfig!"
+#endif
+#endif
+#ifdef HTTP
+#include <esp_http_server.h>
+#endif
 
 //klaus-liebler component components
 #include <common-esp32.hh>
@@ -25,19 +37,9 @@
 
 constexpr TickType_t xFrequency {pdMS_TO_TICKS(50)};
 
-#ifndef CONFIG_ESP_HTTPS_SERVER_ENABLE
-#error "Enable HTTPS_SERVER in menuconfig!"
-#endif
-
-
-
-
-
-
 //board specific includes
 #include "hal_impl.hh"
 static iHAL * hal = new HAL_Impl();
-
 
 static const char *TAG = "main";
 #include "devicemanager.hh"
@@ -94,6 +96,7 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(wm->Begin("labathome_%02x%02x%02x", "labathome", "labathome_%02x%02x%02x", false, &plugins, true));
 
     const char *hostname = wm->GetHostname();
+#ifdef HTTPS
     httpd_ssl_config_t httpd_conf = HTTPD_SSL_CONFIG_DEFAULT();
     httpd_conf.servercert = esp32_pem_crt_start;
     httpd_conf.servercert_len = esp32_pem_crt_end-esp32_pem_crt_start;
@@ -103,6 +106,15 @@ extern "C" void app_main()
     httpd_conf.httpd.max_uri_handlers = 15;
     ESP_ERROR_CHECK(httpd_ssl_start(&http_server, &httpd_conf));
     ESP_LOGI(TAG, "HTTPS Server listening on https://%s:%d", hostname, httpd_conf.port_secure);
+#elif defined(HTTP)
+    httpd_config_t httpd_conf = HTTPD_DEFAULT_CONFIG();
+    httpd_conf.uri_match_fn = httpd_uri_match_wildcard;
+    httpd_conf.max_uri_handlers = 15;
+    ESP_ERROR_CHECK(httpd_start(&http_server, &httpd_conf));
+    ESP_LOGI(TAG, "HTTP Server (not secure!) listening on http://%s:%d", hostname, httpd_conf.server_port);
+#else
+    #error "Either define HTTP or HTTPS
+#endif
 
     // Start all managers
     
@@ -132,7 +144,7 @@ extern "C" void app_main()
     wm->RegisterHTTPDHandlers(http_server);
 
     wm->CallMeAfterInitializationToMarkCurrentPartitionAsValid();
- 
+
 
     // Start eternal supervisor loop
     TickType_t xLastWakeTime = xTaskGetTickCount();

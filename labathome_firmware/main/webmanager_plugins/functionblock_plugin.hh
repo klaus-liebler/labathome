@@ -41,7 +41,7 @@ class FunctionblockPlugin : public webmanager::iWebmanagerPlugin
         case functionblock::Requests::Requests_RequestFbdRun:
         {
             ESP_LOGI(TAG, "Got Requests_RequestFbdRun");
-            devicemanager->ParseNewExecutableAndEnqueue(TEMP_FBD_BIN_FILEPATH);
+            devicemanager->ParseNewExecutableAndEnqueue(TEMPFBD_FBD_FILEPATH);
             flatbuffers::FlatBufferBuilder b(256);
             b.Finish(
                 functionblock::CreateResponseWrapper(
