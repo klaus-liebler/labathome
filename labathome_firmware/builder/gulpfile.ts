@@ -28,7 +28,7 @@ export const IDF_PATH=globalThis.process.env.IDF_PATH as string;
 export const USERPROFILE =globalThis.process.env.USERPROFILE as string;
 
 //Config
-export const FLASH_ENCYRPTION_STRENGTH=idf.EncryptionStrength.AES128
+const FLASH_ENCYRPTION_STRENGTH=idf.EncryptionStrength.AES128
 const IDF_PROJECT_ROOT = "C:\\repos\\labathome\\labathome_firmware";
 const IDF_COMPONENT_WEBMANAGER_ROOT = "C:/repos/espidf-component-webmanager";
 const GENERATED_ROOT = "c:\\repos\\generated";
@@ -84,7 +84,7 @@ export async function addOrUpdateConnectedBoard(cb: gulp.TaskFunctionCallback){
 async function buildAndEncryptFirmware(cb: gulp.TaskFunctionCallback) {
   const c=await Context.get(contextConfig)
   await idf.buildFirmware(c);
-  return idf.encryptPartitions_Bootloader_App_PartitionTable_OtaData(await Context.get(contextConfig));
+  return idf.encryptPartitions_Bootloader_App_PartitionTable_OtaData(c);
 } 
 
 async function flashEncryptedFirmware(cb: gulp.TaskFunctionCallback){

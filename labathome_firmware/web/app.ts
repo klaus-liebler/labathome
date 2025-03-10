@@ -9,7 +9,7 @@ import * as CONST from "@klaus-liebler/web-components/typescript/utils/constants
 
 let app: c.AppController;
 document.addEventListener("DOMContentLoaded", (e) => {
-  app = new c.AppController("SensAct WebUI", CONST.WS_URL, true, true, `:: Board ${CFG.BOARD_NAME} created at  ${CFG.CREATION_DT_STR} `);
+  app = new c.AppController("Lab@Home WebUI", CONST.WS_URL, true, true, `:: Board ${CFG.BOARD_NAME} created at  ${CFG.CREATION_DT_STR} `);
   app.AddScreenController("dashboard", new RegExp("^/$"), html`<span>&#127760;</span><span>Home</span>`, new c.DefaultScreenController(app))
   app.AddScreenController("fbd", new RegExp("^/fbd$"), html`<span>🥽</span><span>Function Block</span>`, new c.DevelopCFCController(app))
   app.AddScreenController("heater", new RegExp("^/heater$"), html`<span>🥽</span><span>Control Heater</span>`, new c.HeaterExperimentController(app))
