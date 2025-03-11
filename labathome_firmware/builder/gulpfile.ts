@@ -28,7 +28,7 @@ export const IDF_PATH=globalThis.process.env.IDF_PATH as string;
 export const USERPROFILE =globalThis.process.env.USERPROFILE as string;
 
 //Config
-const FLASH_ENCYRPTION_STRENGTH=idf.EncryptionStrength.AES128
+const FLASH_ENCYRPTION_STRENGTH=idf.EncryptionStrength.AES256
 const IDF_PROJECT_ROOT = "C:\\repos\\labathome\\labathome_firmware";
 const IDF_COMPONENT_WEBMANAGER_ROOT = "C:/repos/espidf-component-webmanager";
 const GENERATED_ROOT = "c:\\repos\\generated";
