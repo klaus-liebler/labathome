@@ -6,7 +6,8 @@
 #include "devicemanager.hh"
 #include "common.hh"
 #include "common-esp32.hh"
-#include "../generated/flatbuffers_cpp/functionblock_generated.h"
+#include "../generated/flatbuffers_cpp/ns03functionblock_generated.h"
+#include "../generated/flatbuffers_cpp/ns04heaterexperiment_generated.h"
 #include "esp_vfs.h"
 
 constexpr uint32_t TRIGGER_FALLBACK_TIME_MS{10000};
@@ -612,25 +613,30 @@ ErrorCode DeviceManager::Loop()
 }
 
 ErrorCode DeviceManager::TriggerHeaterExperiment(const heaterexperiment::RequestHeater* r, flatbuffers::FlatBufferBuilder &b){
-    if(r->mode()==heaterexperiment::Mode::Mode_FunctionBlock) return ErrorCode::GENERIC_ERROR;
-    this->lastExperimentTrigger=hal->GetMillis();
-    this->heaterReset=r->regulator_reset();
-    this->experimentMode=r->mode()==heaterexperiment::Mode::Mode_ClosedLoop?ExperimentMode::closedloop_heater:ExperimentMode::openloop_heater;
-    
-    //New Setpoints
-    this->setpointTemperature=r->setpoint_temperature_degrees();
-    this->setpointFan=r->fan_speed_percent();
-    this->heaterKP=r->kp();
-    this->heaterTN_secs=r->tn();
-    this->heaterTV_secs=r->tv();
-    this->heaterWorkingPointOffset=r->heater_power_working_point_percent();
+    if(r->mode()!=heaterexperiment::Mode::Mode_FunctionBlock){
+        //Settings only if we are in the correct mode; otherwise, read out only!
+        this->lastExperimentTrigger=hal->GetMillis();
+        this->heaterReset=r->regulator_reset();
+        this->experimentMode=r->mode()==heaterexperiment::Mode::Mode_ClosedLoop?ExperimentMode::closedloop_heater:ExperimentMode::openloop_heater;
+        
+        //New Setpoints
+        this->setpointTemperature=r->setpoint_temperature_degrees();
+        this->setpointFan=r->fan_speed_percent();
+        this->heaterKP=r->kp();
+        this->heaterTN_secs=r->tn();
+        this->heaterTV_secs=r->tv();
+        this->heaterWorkingPointOffset=r->heater_power_working_point_percent();
+    }
     float heaterTemp{0.0};
     float fanDuty{0.0};
     hal->GetFanDuty(0, &fanDuty);
     hal->GetHeaterTemperature(&heaterTemp);
     b.Finish(
-        //There is only one message type for Request and one for Response. So there is no Wrapper necessary
-        heaterexperiment::CreateResponseHeater(b, setpointTemperature, heaterTemp, hal->GetHeaterState(), fanDuty)
+        heaterexperiment::CreateResponseWrapper(
+            b, 
+            heaterexperiment::Responses::Responses_ResponseHeater, 
+            heaterexperiment::CreateResponseHeater(b, this->setpointTemperature, heaterTemp, hal->GetHeaterState(), fanDuty).Union()
+        )
     );
     return ErrorCode::OK;
 }

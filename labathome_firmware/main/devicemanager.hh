@@ -12,7 +12,7 @@
 #include <pidcontroller.hh>
 
 #include "flatbuffers/flatbuffers.h"
-#include <flatbuffers_cpp/heaterexperiment_generated.h>
+#include <flatbuffers_cpp/ns04heaterexperiment_generated.h>
 
 //see Flowchart.ts -values must be the same
 constexpr const char *FBDSTORE_BASE_DIRECTORY = "/spiffs/fbdstore/";    

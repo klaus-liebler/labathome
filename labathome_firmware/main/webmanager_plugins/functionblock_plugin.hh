@@ -2,7 +2,7 @@
 
 #include "webmanager_interfaces.hh"
 #include "flatbuffers/flatbuffers.h"
-#include "../generated/flatbuffers_cpp/functionblock_generated.h"
+#include "../generated/flatbuffers_cpp/ns03functionblock_generated.h"
 #define TAG "FNCTN_PLUGIN"
 using namespace webmanager;
 class FunctionblockPlugin : public webmanager::iWebmanagerPlugin
