@@ -90,7 +90,7 @@ async function buildAndEncryptFirmware(cb: gulp.TaskFunctionCallback) {
 async function flashEncryptedFirmware(cb: gulp.TaskFunctionCallback){
   const c = await Context.get(contextConfig)
   await idf.burnFlashEncryptionKeyAndActivateEncryptedFlash(c, FLASH_ENCYRPTION_STRENGTH)
-  return idf.flashEncryptedFirmware(c, false, false, true);
+  return idf.flashEncryptedFirmware(c, true, false, true);
 }
 
 export async function createRootCA(cb: gulp.TaskFunctionCallback) {
@@ -105,11 +105,11 @@ export async function createRootCA(cb: gulp.TaskFunctionCallback) {
 export async function createVariousTestCertificates(cb: gulp.TaskFunctionCallback) {
   const p = new P.Paths(await Context.get(contextConfig));
   const this_pc_name = os.hostname();
-  let testserverCert = cert.CreateAndSignCert("Testserver", [this_pc_name], P.ROOT_CA_PEM_CRT_FILE, P.ROOT_CA_PEM_PRVTKEY_FILE);
+  let testserverCert = cert.CreateAndSignCert("Testserver", "127.0.0.1", ["localhost", this_pc_name], P.ROOT_CA_PEM_CRT_FILE, P.ROOT_CA_PEM_PRVTKEY_FILE);
   writeFileCreateDirLazy(path.join(CERTIFICATES, P.TESTSERVER_CERT_PEM_CRT_FILE), testserverCert.certificate);
   writeFileCreateDirLazy(path.join(CERTIFICATES, P.TESTSERVER_CERT_PEM_PRVTKEY_FILE), testserverCert.privateKey);
 
-  let publicServerCert = cert.CreateAndSignCert("Klaus Lieber Personal Server", [PUBLIC_SERVER_FQDN], P.ROOT_CA_PEM_CRT_FILE, P.ROOT_CA_PEM_PRVTKEY_FILE);
+  let publicServerCert = cert.CreateAndSignCert("Klaus Lieber Personal Server", "127.0.0.1", [PUBLIC_SERVER_FQDN], P.ROOT_CA_PEM_CRT_FILE, P.ROOT_CA_PEM_PRVTKEY_FILE);
   writeFileCreateDirLazy(path.join(CERTIFICATES, P.PUBLICSERVER_CERT_PEM_CRT_FILE), publicServerCert.certificate);
   writeFileCreateDirLazy(path.join(CERTIFICATES, P.PUBLICSERVER_CERT_PEM_PRVTKEY_FILE), publicServerCert.privateKey);
 
@@ -135,7 +135,7 @@ export async function createFiles(cb: gulp.TaskFunctionCallback) {
   if (!c.p.existsBoardSpecificPath(P.CERTIFICATES_SUBDIR, P.ESP32_CERT_PEM_PRVTKEY_FILE)
     || !c.p.existsBoardSpecificPath(P.CERTIFICATES_SUBDIR, P.ESP32_CERT_PEM_CRT_FILE)) {
     const hostname = strInterpolator(HOSTNAME_TEMPLATE, {mac_6char:mac_6char(c.b.mac), mac_12char:mac_12char(c.b.mac)});
-    let esp32Cert = cert.CreateAndSignCert(hostname, [hostname, hostname+".local", hostname+".fritz.box"], path.join(CERTIFICATES, P.ROOT_CA_PEM_CRT_FILE), path.join(CERTIFICATES, P.ROOT_CA_PEM_PRVTKEY_FILE));
+    let esp32Cert = cert.CreateAndSignCert(hostname, "192.168.4.1", [hostname, hostname+".local", hostname+".fritz.box"], path.join(CERTIFICATES, P.ROOT_CA_PEM_CRT_FILE), path.join(CERTIFICATES, P.ROOT_CA_PEM_PRVTKEY_FILE));
     c.p.writeBoardSpecificFileCreateDirLazy(P.CERTIFICATES_SUBDIR, P.ESP32_CERT_PEM_PRVTKEY_FILE, esp32Cert.privateKey);
     c.p.writeBoardSpecificFileCreateDirLazy(P.CERTIFICATES_SUBDIR, P.ESP32_CERT_PEM_CRT_FILE, esp32Cert.certificate);
     }
@@ -186,5 +186,6 @@ async function createObjectWithDefines(c:Context) {
 
 export async function buildAndCompressWebProject(cb: gulp.TaskFunctionCallback) {
   const c = await Context.get(contextConfig);
-  return vite_helper.buildAndCompressWebProject(path.join(c.c.idfProjectDirectory, "web"), c.p.GENERATED_WEB);
+  await vite_helper.buildAndCompressWebProject(path.join(c.c.idfProjectDirectory, "web"), c.p.GENERATED_WEB);
+  cb();
 }

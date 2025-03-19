@@ -1,5 +1,5 @@
 #pragma once
-#define LCD_DISPLAY 0
+#define LCD_DISPLAY 1
 #define AUDIO 1
 #include <runtimeconfig_cpp/runtimeconfig_defines.hh>
 
