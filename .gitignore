@@ -10,3 +10,4 @@ doc/labathome.mp4
 /espidf-component-labathome/boards
 espidf-component-labathome/builder/builder.db
 labathome_firmware/.vscode/settings.json
+labathome_firmware/board_info.json
