@@ -1,3 +1,7 @@
+/*
+flatc auf path-Variable
+esp-idf installieren
+*/
 import * as gulp from "gulp";
 import fs from "node:fs";
 import os from "node:os";
@@ -99,11 +103,11 @@ export async function createRootCA(cb: gulp.TaskFunctionCallback) {
     return cb(new Error("rootCA Certificate and Key have already been created. Delete them manually to be able to recreate them"));
   }
   writeFileCreateDirLazy(path.join(CERTIFICATES, P.ROOT_CA_PEM_CRT_FILE), CA.certificate);
-  writeFileCreateDirLazy(path.join(CERTIFICATES, P.ROOT_CA_PEM_PRVTKEY_FILE), CA.privateKey, cb);
+  writeFileCreateDirLazy(path.join(CERTIFICATES, P.ROOT_CA_PEM_PRVTKEY_FILE), CA.privateKey);
+  cb();
 }
 
 export async function createVariousTestCertificates(cb: gulp.TaskFunctionCallback) {
-  const p = new P.Paths(await Context.get(contextConfig));
   const this_pc_name = os.hostname();
   let testserverCert = cert.CreateAndSignCert("Testserver", "127.0.0.1", ["localhost", this_pc_name], P.ROOT_CA_PEM_CRT_FILE, P.ROOT_CA_PEM_PRVTKEY_FILE);
   writeFileCreateDirLazy(path.join(CERTIFICATES, P.TESTSERVER_CERT_PEM_CRT_FILE), testserverCert.certificate);
@@ -115,7 +119,8 @@ export async function createVariousTestCertificates(cb: gulp.TaskFunctionCallbac
 
   let clientCert = cert.CreateAndSignClientCert("labathome_123456", P.ROOT_CA_PEM_CRT_FILE, P.ROOT_CA_PEM_PRVTKEY_FILE);
   writeFileCreateDirLazy(path.join(CERTIFICATES, P.CLIENT_CERT_PEM_CRT_FILE), clientCert.certificate);
-  writeFileCreateDirLazy(path.join(CERTIFICATES, P.CLIENT_CERT_PEM_PRVTKEY_FILE), clientCert.privateKey, cb);
+  writeFileCreateDirLazy(path.join(CERTIFICATES, P.CLIENT_CERT_PEM_PRVTKEY_FILE), clientCert.privateKey);
+  cb();
 }
 
 export async function createGoogleApiKey(cb: gulp.TaskFunctionCallback) {
