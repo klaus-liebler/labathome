@@ -113,7 +113,7 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(httpd_start(&http_server, &httpd_conf));
     ESP_LOGI(TAG, "HTTP Server (not secure!) listening on http://%s:%d", hostname, httpd_conf.server_port);
 #else
-    #error "Either define HTTP or HTTPS
+    #error "Either define HTTP or HTTPS"
 #endif
 
     // Start all managers

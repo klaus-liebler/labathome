@@ -346,7 +346,7 @@ private:
         lineRenderer->printfl(2, Color::WHITE, Color::BLACK, wm->GetHostname());
         display.Draw(lineRenderer);
 
-        if (wm->GetStaState() == webmanager::WifiStationState::CONNECTED)
+        if (wm->GetStaState())
         {
             lineRenderer->printfl(3, Color::WHITE, Color::GREEN, "WIFI Connected!");
             display.Draw(lineRenderer);
