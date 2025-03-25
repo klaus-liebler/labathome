@@ -265,8 +265,8 @@ private:
     {
         if (i2c_master_probe(i2c_master_handle, I2C_SETUP::STM32_I2C_ADDRESS, 1000) != ESP_OK)
         {
-
-            ESP_LOGW(TAG, "STM32 I2C not responding");
+            ESP_LOGW(TAG, "STM32 I2C not responding. Deactivating it.");
+            return;
         }
 
         i2c_device_config_t dev_cfg = {
@@ -320,7 +320,9 @@ private:
 #if(__BOARD_VERSION__ >=150201)
             ip5306dev->Loop(GetMillis64_1024());
 #endif
-            Stm32Loop(); // see above Init;
+            if(stm32_handle!=nullptr){
+                Stm32Loop(); // see above Init;
+            }
         }
     }
 #if(AUDIO>0)
