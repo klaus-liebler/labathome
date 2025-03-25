@@ -302,7 +302,10 @@ private:
 #endif
 
         oneWireBus = new OneWire::OneWireBus<PIN_ONEWIRE>();
-        oneWireBus->Init();
+        if(oneWireBus->Init()!=ErrorCode::OK){
+            delete oneWireBus;
+            oneWireBus=nullptr;
+        }
         Stm32Init(); // see below loop
 
         TickType_t lastWakeTime;
@@ -312,7 +315,7 @@ private:
             if(!xTaskDelayUntil( &lastWakeTime, FREQUENCY) && lastWakeTime>pdMS_TO_TICKS(10000)){
                 ESP_LOGW(TAG, "HAL Loop took too long");
             }
-            oneWireBus->Loop(GetMillis64_1024());
+            if(oneWireBus)oneWireBus->Loop(GetMillis64_1024());
             //bh1750dev->Loop(GetMillis64_1024());
             //ccs811dev->Loop(GetMillis64_1024());
             aht21dev->Loop(GetMillis64_1024());
@@ -320,9 +323,7 @@ private:
 #if(__BOARD_VERSION__ >=150201)
             ip5306dev->Loop(GetMillis64_1024());
 #endif
-            if(stm32_handle!=nullptr){
-                Stm32Loop(); // see above Init;
-            }
+            if (stm32_handle) Stm32Loop();
         }
     }
 #if(AUDIO>0)
@@ -501,7 +502,7 @@ public:
         auto maxLen = maxLenInput_usedLen_Output;
         size_t used=0;
         used += snprintf(buffer+used, maxLen-used, "{\"ds18b20\":");
-        used += this->oneWireBus->FormatJSON(buffer+used, maxLen-used);
+        if(oneWireBus) used += this->oneWireBus->FormatJSON(buffer+used, maxLen-used);
 #if(__BOARD_VERSION__ >=150201)        
         used+=snprintf(buffer+used, maxLen-used, ", \"ip5306\":");
         used+=this->ip5306dev->FormatJSON(buffer+used, maxLen-used);
@@ -841,6 +842,10 @@ public:
 
     ErrorCode GetAirTemperatureDS18B20(float *degreesCelcius)
     {
+        if (!this->oneWireBus)
+        {
+            return ErrorCode::GENERIC_ERROR;
+        }
         *degreesCelcius = this->oneWireBus->GetMinTemp();
         return ErrorCode::OK;
     }

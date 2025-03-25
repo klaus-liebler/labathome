@@ -12,7 +12,7 @@ sdkconfig.old
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
-
+web/secrets.ts
 **/*secret*.*
 config/
 

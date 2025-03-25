@@ -86,8 +86,10 @@ export async function addOrUpdateConnectedBoard(cb: gulp.TaskFunctionCallback){
 }
 
 async function buildAndEncryptFirmware(cb: gulp.TaskFunctionCallback) {
-  const c=await Context.get(contextConfig)
+  var c=await Context.get(contextConfig)
   await idf.buildFirmware(c);
+  //we need to update context, as the the build produces new files...
+  c=await Context.get(contextConfig);
   return idf.encryptPartitions_Bootloader_App_PartitionTable_OtaData(c);
 } 
 
