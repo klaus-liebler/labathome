@@ -109,15 +109,15 @@ export async function createRootCA(cb: gulp.TaskFunctionCallback) {
 
 export async function createVariousTestCertificates(cb: gulp.TaskFunctionCallback) {
   const this_pc_name = os.hostname();
-  let testserverCert = cert.CreateAndSignCert("Testserver", "127.0.0.1", ["localhost", this_pc_name], P.ROOT_CA_PEM_CRT_FILE, P.ROOT_CA_PEM_PRVTKEY_FILE);
+  let testserverCert = cert.CreateAndSignCert("Testserver", "127.0.0.1", ["localhost", this_pc_name], path.join(CERTIFICATES, P.ROOT_CA_PEM_CRT_FILE), path.join(CERTIFICATES, P.ROOT_CA_PEM_PRVTKEY_FILE));
   writeFileCreateDirLazy(path.join(CERTIFICATES, P.TESTSERVER_CERT_PEM_CRT_FILE), testserverCert.certificate);
   writeFileCreateDirLazy(path.join(CERTIFICATES, P.TESTSERVER_CERT_PEM_PRVTKEY_FILE), testserverCert.privateKey);
 
-  let publicServerCert = cert.CreateAndSignCert("Klaus Lieber Personal Server", "127.0.0.1", [PUBLIC_SERVER_FQDN], P.ROOT_CA_PEM_CRT_FILE, P.ROOT_CA_PEM_PRVTKEY_FILE);
+  let publicServerCert = cert.CreateAndSignCert("Klaus Lieber Personal Server", "127.0.0.1", [PUBLIC_SERVER_FQDN], path.join(CERTIFICATES, P.ROOT_CA_PEM_CRT_FILE), path.join(CERTIFICATES, P.ROOT_CA_PEM_PRVTKEY_FILE));
   writeFileCreateDirLazy(path.join(CERTIFICATES, P.PUBLICSERVER_CERT_PEM_CRT_FILE), publicServerCert.certificate);
   writeFileCreateDirLazy(path.join(CERTIFICATES, P.PUBLICSERVER_CERT_PEM_PRVTKEY_FILE), publicServerCert.privateKey);
 
-  let clientCert = cert.CreateAndSignClientCert("labathome_123456", P.ROOT_CA_PEM_CRT_FILE, P.ROOT_CA_PEM_PRVTKEY_FILE);
+  let clientCert = cert.CreateAndSignClientCert("labathome_123456", path.join(CERTIFICATES, P.ROOT_CA_PEM_CRT_FILE), path.join(CERTIFICATES, P.ROOT_CA_PEM_PRVTKEY_FILE));
   writeFileCreateDirLazy(path.join(CERTIFICATES, P.CLIENT_CERT_PEM_CRT_FILE), clientCert.certificate);
   writeFileCreateDirLazy(path.join(CERTIFICATES, P.CLIENT_CERT_PEM_PRVTKEY_FILE), clientCert.privateKey);
   cb();
