@@ -93,7 +93,7 @@ extern "C" void app_main()
     
     //Configure Network
     webmanager::M* wm = webmanager::M::GetSingleton();
-    ESP_ERROR_CHECK(wm->Begin("labathome_%02x%02x%02x", "labathome", "labathome_%02x%02x%02x", false, &plugins, true));
+    ESP_ERROR_CHECK(wm->Begin(cfg::HOSTNAME, "labathome", cfg::HOSTNAME, false, &plugins, true));
 
     const char *hostname = wm->GetHostname();
 #ifdef HTTPS
