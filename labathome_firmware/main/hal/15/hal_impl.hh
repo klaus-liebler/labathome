@@ -642,7 +642,9 @@ public:
 
         ESP_ERROR_CHECK(i2c_new_master_bus(&i2c_mst_config, &i2c_master_handle));
 
-        ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, I2C_SETUP::STM32_I2C_ADDRESS, 1000));
+        if(i2c_master_probe(i2c_master_handle, I2C_SETUP::STM32_I2C_ADDRESS, 1000)!=ESP_OK){
+            ESP_LOGE(TAG, "STM32 is not there...");
+        }
         ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, (uint8_t)AHT::ADDRESS::DEFAULT_ADDRESS, 1000));
         ESP_ERROR_CHECK(i2c_master_probe(i2c_master_handle, lsm6ds3::ADDRESS, 1000));
 #if __BOARD_VERSION__>=150201
