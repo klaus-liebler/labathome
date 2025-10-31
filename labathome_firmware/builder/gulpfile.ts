@@ -22,10 +22,16 @@ import { eEncryptionMode, MyFavouriteDateTimeFormat, strInterpolator } from "@kl
 import * as usersettings_def from "./symlink_usersettings";
 import * as cfg from "@klaus-liebler/espidf-vite-secure-build-tools/key_value_file_helper"
 
+//Reset
+const OVERWRITE_NVS_TO_DELETE_WIFI_SETTINGS_AND_ALL_OTHER_SETTINGS=false;
 
 //Default Board Type
 export const DEFAULT_BOARD_NAME="LABATHOME"
 export const DEFAULT_BOARD_VERSION=150300
+
+//Labathome specific config
+const APPLICATION_NAME = "labathome"
+const APPLICATION_VERSION = "1.0"
 
 //Security
 export const DEFAULT_ENCRYPTION_MODE = eEncryptionMode.NON_ENCRYPTED as eEncryptionMode;
@@ -48,9 +54,7 @@ const ROOT_CA_COMMON_NAME ="AAA Klaus Liebler personal Root CA"
 const PUBLIC_SERVER_FQDN = "liebler.iui.hs-osnabrueck.de"
 const HOSTNAME_TEMPLATE = "labathome_${mac_6char}"
 
-//According to your needs
-const APPLICATION_NAME = "labathome"
-const APPLICATION_VERSION = "1.0"
+
 
 const BOARD_SPECIFIC_SOUNDS:Array<tts.FilenameAndSsml> = [
   new tts.FilenameAndSsml("ready", "<speak>Willkommen! <lang xml:lang='en-US'>Lab@Home</lang><say-as interpret-as='characters'>${mac_6char}</say-as> ist bereit</speak>"),
@@ -98,6 +102,7 @@ async function buildFirmware(cb: gulp.TaskFunctionCallback) {
   const c=await Context.get(contextConfig)
   return idf.buildFirmware(c);
 }
+
 async function encryptFirmwareIfNecessary(cb: gulp.TaskFunctionCallback) {
   const c=await Context.get(contextConfig);
   if(c.b.flash_encryption_key_burned_and_activated || c.c.defaultEncryptionMode===eEncryptionMode.ENCRYPTED) {
@@ -111,9 +116,9 @@ async function flashFirmware(cb: gulp.TaskFunctionCallback){
   const c = await Context.get(contextConfig)
   if(c.b.flash_encryption_key_burned_and_activated || c.c.defaultEncryptionMode===eEncryptionMode.ENCRYPTED){
     await idf.burnFlashEncryptionKeyAndActivateEncryptedFlash(c, FLASH_ENCYRPTION_STRENGTH)
-    return idf.flashEncryptedFirmware(c, true, true, false);
+    return idf.flashEncryptedFirmware(c, OVERWRITE_NVS_TO_DELETE_WIFI_SETTINGS_AND_ALL_OTHER_SETTINGS, true, false);
   }else{
-    return idf.flashFirmware(c, true, false);
+    return idf.flashFirmware(c, OVERWRITE_NVS_TO_DELETE_WIFI_SETTINGS_AND_ALL_OTHER_SETTINGS, true);
   }
 }
 

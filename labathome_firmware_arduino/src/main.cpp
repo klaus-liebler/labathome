@@ -28,6 +28,7 @@ void setup() {
     Serial.printf("E2S_t Größe: %d Bytes\n", E2S_s);
 }
 
+uint32_t lastDebugTime = 0;
 void loop() {
     // Hauptkommunikationszyklus
     if (communicateWithSTM32()) {
@@ -36,8 +37,9 @@ void loop() {
         updateSendData();
         
         // Optional: Debug-Ausgabe
-        if (millis() % 2000 == 0) {
+        if (millis() - lastDebugTime > 2000) {
             printDebugInfo();
+            lastDebugTime = millis();
         }
     } else {
         // Fehlerbehandlung
