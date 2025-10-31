@@ -1,10 +1,12 @@
 #include <Arduino.h>
 #include <Wire.h>
 // I2C Konfiguration
-const uint8_t STM32_I2C_ADDRESS = 0x7E;
-const int I2C_SDA_PIN = 5;
-const int I2C_SCL_PIN = 6;
-const uint32_t I2C_FREQUENCY = 100000; // 100 kHz
+constexpr uint8_t STM32_I2C_ADDRESS = 0x7E;
+constexpr int I2C_SDA_PIN = 5;
+constexpr int I2C_SCL_PIN = 6;
+constexpr uint32_t I2C_FREQUENCY = 100000; // 100 kHz
+
+// Pin Definitionen
 constexpr gpio_num_t PIN_BTN_GREEN = (gpio_num_t)0;
 
 constexpr gpio_num_t PIN_CANRX = (gpio_num_t)1;
@@ -127,6 +129,6 @@ void updateSendData() {
     // }
     
     // Beispiel: LED-Helligkeit vom Rotary Encoder übernehmen
-    // sendData.LedPower = receivedData.Rotenc >> 8; // MSB des Encoders
+    //sendData.LedPower = receivedData.Rotenc >> 8; // MSB des Encoders
 }
 
