@@ -5,6 +5,52 @@ const uint8_t STM32_I2C_ADDRESS = 0x7E;
 const int I2C_SDA_PIN = 5;
 const int I2C_SCL_PIN = 6;
 const uint32_t I2C_FREQUENCY = 100000; // 100 kHz
+constexpr gpio_num_t PIN_BTN_GREEN = (gpio_num_t)0;
+
+constexpr gpio_num_t PIN_CANRX = (gpio_num_t)1;
+constexpr gpio_num_t PIN_CANTX = (gpio_num_t)2;
+constexpr gpio_num_t PIN_EXT_CS = (gpio_num_t)3;
+constexpr gpio_num_t PIN_I2C_IRQ = (gpio_num_t)4;
+constexpr gpio_num_t PIN_I2C_SDA = (gpio_num_t)5;
+constexpr gpio_num_t PIN_I2C_SCL = (gpio_num_t)6;
+
+constexpr gpio_num_t PIN_uSD_CMD = (gpio_num_t)7;
+constexpr gpio_num_t PIN_LCD_CLK = (gpio_num_t)8;
+
+constexpr gpio_num_t PIN_EXT_MISO = (gpio_num_t)9;
+constexpr gpio_num_t PIN_EXT_CLK = (gpio_num_t)10;
+constexpr gpio_num_t PIN_EXT_IO1 = (gpio_num_t)11;
+constexpr gpio_num_t PIN_EXT_IO2 = (gpio_num_t)12;
+
+constexpr gpio_num_t PIN_LED_WS2812 = (gpio_num_t)13;
+
+constexpr gpio_num_t PIN_I2S_MCLK = (gpio_num_t)14;
+
+constexpr gpio_num_t PIN_uSD_CLK = (gpio_num_t)15;
+constexpr gpio_num_t PIN_uSD_D0 = (gpio_num_t)16;
+
+constexpr gpio_num_t PIN_LCD_BL = (gpio_num_t)17;
+constexpr gpio_num_t PIN_LCD_DC = (gpio_num_t)18;
+
+constexpr gpio_num_t PIN_TXD0 = (gpio_num_t)43;
+constexpr gpio_num_t PIN_RXD0 = (gpio_num_t)44;
+
+constexpr gpio_num_t PIN_RS485_DI = (gpio_num_t)40;
+constexpr gpio_num_t PIN_RS485_DE = (gpio_num_t)41;
+constexpr gpio_num_t PIN_RS485_RO = (gpio_num_t)42;
+
+
+constexpr gpio_num_t PIN_I2S_FS = (gpio_num_t)21;
+constexpr gpio_num_t PIN_I2S_DAC = (gpio_num_t)45;
+constexpr gpio_num_t PIN_EXT_MOSI = (gpio_num_t)46;
+constexpr gpio_num_t PIN_I2S_ADC = (gpio_num_t)47;
+constexpr gpio_num_t PIN_I2S_BCLK = (gpio_num_t)48;
+
+constexpr gpio_num_t PIN_LCD_DAT = (gpio_num_t)38;
+constexpr gpio_num_t PIN_LCD_RESET = (gpio_num_t)35;
+
+
+constexpr gpio_num_t PIN_ONEWIRE = (gpio_num_t)39;
 #include "communication.h"
 
 
