@@ -714,8 +714,8 @@ public:
 
 #if(AUDIO>0)
         nau88c22::M *codec = new nau88c22::M(i2c_master_handle, PIN_I2S_MCLK, PIN_I2S_BCLK, PIN_I2S_FS, PIN_I2S_DAC);
+        ERRORCODE_CHECK(codec->Init());
         mp3player = new AudioPlayer::Player(codec);
-        ERRORCODE_CHECK(mp3player->Init());
         ESP_LOGI(TAG, "Audio Codec Successfully initialized");
 #endif
         // LED Strip
