@@ -1,6 +1,7 @@
 import { defineConfig} from 'vite'
 import { viteSingleFile } from "@klaus-liebler/vite-single-file"
 import fs from "node:fs"
+import path from "node:path"
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
@@ -19,8 +20,8 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
       open: "https://protzklotz:5173",
       cors:true,
       https: {
-        key: fs.readFileSync(process.env.USERPROFILE+"/netcase/certificates/testserver.pem.key"),
-        cert: fs.readFileSync(process.env.USERPROFILE+"/netcase/certificates/testserver.pem.crt"),
+        key: fs.readFileSync(path.join(process.env.USERPROFILE, "OneDrive - HSOS", "certificates", "testserver.pem.key")),
+        cert: fs.readFileSync(path.join(process.env.USERPROFILE, "OneDrive - HSOS", "certificates", "testserver.pem.crt")),
 
       },
 
