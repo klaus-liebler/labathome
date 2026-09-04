@@ -27,7 +27,7 @@
 
 #include "../i2c_discover.hh"
 #include <errorcodes.hh>
-#include <rgbled.hh>
+#include <rgb_strip.hh>
 #include <bme280.hh>
 #include <bh1750.hh>
 #include <ccs811.hh>
@@ -283,7 +283,7 @@ private:
     OneWire::OneWireBus<PIN_ONEWIRE> *oneWireBus{nullptr};
     i2c_master_dev_handle_t stm32_handle{nullptr};
 
-    RGBLED::M<LED_NUMBER, RGBLED::DeviceType::WS2812> *strip{nullptr};
+    led::RgbStrip<LED_NUMBER, led::DeviceType::WS2812> *strip{nullptr};
 
 #if(AUDIO>0)
     AudioPlayer::Player *mp3player{nullptr};
@@ -719,7 +719,7 @@ public:
         ESP_LOGI(TAG, "Audio Codec Successfully initialized");
 #endif
         // LED Strip
-        strip = new RGBLED::M<LED_NUMBER, RGBLED::DeviceType::WS2812>();
+        strip = new led::RgbStrip<LED_NUMBER, led::DeviceType::WS2812>();
         ERRORCODE_CHECK(strip->Begin(SPI3_HOST, PIN_LED_WS2812));
         ERRORCODE_CHECK(strip->Clear(100));
 

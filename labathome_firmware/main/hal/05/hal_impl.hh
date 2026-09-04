@@ -19,7 +19,7 @@
 #include <ds18b20.hh>
 
 #include <errorcodes.hh>
-#include <rgbled.hh>
+#include <rgb_strip.hh>
 #include <bh1750.hh>
 #include <bme280.hh>
 #include <ads1115.hh>
@@ -169,7 +169,7 @@ private:
     adc_cali_handle_t adc1_cali_handle{nullptr};
 
     // management objects
-    RGBLED::M<LED_NUMBER, RGBLED::DeviceType::WS2812> *strip{nullptr};
+    led::RgbStrip<LED_NUMBER, led::DeviceType::WS2812> *strip{nullptr};
     cRotaryEncoder *rotenc{nullptr};
     CCS811::M *ccs811dev{nullptr};
     AudioPlayer::Player *mp3player;
@@ -626,7 +626,7 @@ public:
         ESP_ERROR_CHECK(I2C::Init(I2C_PORT, PIN_I2C_SCL, PIN_I2C_SDA));
 
         //LED Strip
-        strip = new RGBLED::M<LED_NUMBER, RGBLED::DeviceType::WS2812>();
+        strip = new led::RgbStrip<LED_NUMBER, led::DeviceType::WS2812>();
         ESP_ERROR_CHECK(strip->Init(VSPI_HOST, PIN_LED_WS2812, 2 ));
         ESP_ERROR_CHECK(strip->Clear(100));
 
