@@ -8,6 +8,7 @@
     "dev": "vite --host",
     "wss": "ts-node ../testserver/index.ts",
     "build": "tsc && vite build",
+    "build:analyze": "tsc && vite build --mode analyze",
     "preview": "vite preview",
     "it": "concurrently \"npm run wss\" \"npm run dev\""
   },
@@ -18,13 +19,15 @@
     "@generated/runtimeconfig_ts": "file:../../../generated/runtimeconfig_ts",
     "@generated/usersettings": "file:../../../generated/usersettings_ts",
     "@google/generative-ai": "^0.21.0",
-    "@klaus-liebler/vite-single-file": "file:../../../npm-packages/@klaus-liebler/vite-single-file",
     "@klaus-liebler/web-components": "file:../../../npm-packages/@klaus-liebler/web-components",
     "@types/node": "^22.10.9",
-    "esbuild-minify-templates": "^0.11.0",
     "flatbuffers": "25.1.21",
     "lit-html": "^3.2.1",
-    "vite": "^6.0.11",
-    "vite-plugin-svgo": "^1.6.2"
+    "vite": "^6.0.11"
+  },
+  "devDependencies": {
+    "@klaus-liebler/vite-firmware-single-file": "file:../../../npm-packages/@klaus-liebler/vite-firmware-single-file",
+    "rollup-plugin-visualizer": "^7.0.0",
+    "typescript": "^5.7.0"
   }
 }

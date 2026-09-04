@@ -1,12 +1,28 @@
 import { defineConfig} from 'vite'
-import { viteSingleFile } from "@klaus-liebler/vite-single-file"
+// Geteiltes Plugin (s. npm-packages/@klaus-liebler/vite-firmware-single-file, gemeinsam mit
+// factory_in_a_box/sensact) inlined JS+CSS in eine einzige dist/index.html, entfernt zusaetzliche
+// Leerzeichen (inkl. Lit-Templates) und schreibt das Ergebnis direkt Brotli-komprimiert als
+// "index.compressed.br" in den von builder/gulpfile.ts (buildAndCompressWebProject) uebergebenen
+// outDir -- ersetzt damit sowohl das bisherige @klaus-liebler/vite-single-file (reines Inlining
+// ohne Minify/Kompression) als auch den externen Zweit-Build in
+// vite_helper.buildAndCompressWebProject.
+import { singleFileFirmwareAssetPlugin } from "@klaus-liebler/vite-firmware-single-file"
 import fs from "node:fs"
 import path from "node:path"
-
-// https://vitejs.dev/config/
+import { visualizer } from 'rollup-plugin-visualizer'
 export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
+  const isAnalyze = mode === 'analyze';
   return {
-    plugins: [viteSingleFile(),],//removeViteModuleLoader=true for viteSingleFile had no effect on bundle size
+    plugins: [
+      isAnalyze && visualizer({
+        filename: './dist/stats.html',
+        open: true,
+        gzipSize: true,
+        brotliSize: true,
+        template: 'treemap',
+      }),
+      !isAnalyze && singleFileFirmwareAssetPlugin("index.compressed.br"),
+    ].filter(Boolean),
     build: {
       //minify: false,
       cssCodeSplit: false,

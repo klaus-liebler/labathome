@@ -6,6 +6,7 @@ import * as gulp from "gulp";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import * as vite from "vite";
 import * as cert from "@klaus-liebler/espidf-vite-secure-build-tools/certificates";
 import * as P from "@klaus-liebler/espidf-vite-secure-build-tools/paths";
 import * as tts from "@klaus-liebler/espidf-vite-secure-build-tools/text_to_speech";
@@ -17,7 +18,6 @@ import { createApiKey } from "@klaus-liebler/espidf-vite-secure-build-tools/goog
 import {Context, ContextConfig} from "@klaus-liebler/espidf-vite-secure-build-tools/context"
 import * as usersettings from "@klaus-liebler/espidf-vite-secure-build-tools/usersettings_builder"
 import {cleanNpmExcept_PackageJson_node_modules, mac_12char, mac_6char, writeFileCreateDirLazy } from "@klaus-liebler/espidf-vite-secure-build-tools/utils";
-import * as vite_helper from "@klaus-liebler/espidf-vite-secure-build-tools/vite_helper";
 import { eEncryptionMode, MyFavouriteDateTimeFormat, strInterpolator } from "@klaus-liebler/commons";
 import * as usersettings_def from "./symlink_usersettings";
 import * as cfg from "@klaus-liebler/espidf-vite-secure-build-tools/key_value_file_helper"
@@ -215,8 +215,21 @@ async function createObjectWithDefines(c:Context) {
   return defines;
 }
 
+// Ruft "vite build" direkt auf (statt des bisherigen externen Zweit-Builds in
+// vite_helper.buildAndCompressWebProject, der nach dem eigentlichen Vite-Build nochmal Brotli
+// ueber index.html laufen liess, aber OHNE die Whitespace-/Lit-Template-Minifizierung, die
+// web/build-tools/singlefile-minify.ts leistet): web/vite.config.mts registriert
+// singleFileFirmwareAssetPlugin(), das Inlining, Minify UND Brotli-Kompression bereits in
+// generateBundle() erledigt -- ein einziger Build-Aufruf genuegt, kein Nachbearbeitungsschritt mehr.
 export async function buildAndCompressWebProject(cb: gulp.TaskFunctionCallback) {
   const c = await Context.get(contextConfig);
-  await vite_helper.buildAndCompressWebProject(path.join(c.c.idfProjectDirectory, "web"), c.p.GENERATED_WEB);
+  await vite.build({
+    root: path.join(c.c.idfProjectDirectory, "web"),
+    build: {
+      outDir: c.p.GENERATED_WEB,
+      emptyOutDir: true,
+      sourcemap: true,
+    },
+  });
   cb();
 }

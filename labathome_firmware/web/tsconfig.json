@@ -1,7 +1,14 @@
 {
     "compilerOptions": {
       "target": "ES2020",
-      "useDefineForClassFields": true,
+      // Erforderlich fuer Lit-Decorators (@state/@property) OHNE "accessor"-Keyword: mit
+      // useDefineForClassFields=true legt jede Klassenfeld-Initialisierung (z.B.
+      // "private statusMessage = ...") eine eigene Instanz-Property an, die den von Lits Decorator
+      // auf dem Prototyp definierten Getter/Setter ueberschattet -- Zuweisungen loesen dann NIE ein
+      // Re-Render aus, obwohl this.statusMessage korrekt den neuen Wert zeigt (klassischer, schwer
+      // zu findender Bug). Uebernommen aus factory_in_a_box/web/tsconfig.json, wo dieser Bug bereits
+      // aufgetreten war.
+      "useDefineForClassFields": false,
       "module": "ESNext",
       "lib": ["ES2020", "DOM", "DOM.Iterable"],
       "skipLibCheck": true,
