@@ -586,7 +586,7 @@ public:
         this->sound = soundNumber;
         ESP_LOGI(TAG, "Set Sound to %ld", soundNumber);
 
-        mp3player->PlayMP3(SOUNDS[soundNumber], SONGS_LEN[soundNumber], 255, true);
+        ERRORCODE_CHECK(mp3player->PlayMP3({SOUNDS[soundNumber], SONGS_LEN[soundNumber]}, 255, true));
 #endif
         return ErrorCode::OK;
     }
@@ -878,7 +878,7 @@ public:
             vTaskDelay(pdMS_TO_TICKS(150));
         }
 #if(AUDIO>0)
-        mp3player->PlayMP3(ready_mp3_start, ready_mp3_size, 200, true);
+        ERRORCODE_CHECK(mp3player->PlayMP3({ready_mp3_start, ready_mp3_size}, 200, true));
 #endif
         UnColorizeAllLed();
         return ErrorCode::OK;

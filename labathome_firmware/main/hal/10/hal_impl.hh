@@ -411,7 +411,7 @@ public:
             soundNumber = 0;
         }
         this->sound = soundNumber;
-        mp3player->PlayMP3(SOUNDS[soundNumber], SONGS_LEN[soundNumber], 255, true);
+        ERRORCODE_CHECK(mp3player->PlayMP3({SOUNDS[soundNumber], SONGS_LEN[soundNumber]}, 255, true));
         ESP_LOGI(TAG, "Set Sound to %ld", soundNumber);
         return ErrorCode::OK;
     }
