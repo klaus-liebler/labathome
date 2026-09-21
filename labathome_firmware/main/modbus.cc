@@ -79,8 +79,14 @@ Input Registers:
 #include <array>
 #include <nvs_flash.h>
 
-#include "tinyusb.h"
-#include "tusb_cdc_acm.h"
+#include <soc/soc_caps.h>
+#include "iHAL.hh"
+
+// Modbus laeuft ueber die zweite USB-CDC-Schnittstelle (TinyUSB) und gibt es daher nur auf Chips mit
+// USB-OTG (ESP32-S2/S3/P4). Auf dem klassischen ESP32 (Labathome Rev. 5.x) sind ModbusSetup/ModbusLoop
+// leere Platzhalter; Modbus ueber die RS485-Pins ist dort (noch) nicht umgesetzt.
+#if SOC_USB_OTG_SUPPORTED
+#include "tinyusb.h"#include "tusb_cdc_acm.h"
 
 static const char *TAG = "main";
 
@@ -340,3 +346,19 @@ namespace modbus
         return true; // data processed
     }
 }
+#else
+static const char *TAG = "modbus";
+
+namespace modbus
+{
+    void ModbusSetup(iHAL *)
+    {
+        ESP_LOGI(TAG, "Modbus over USB not available on this chip");
+    }
+
+    bool ModbusLoop()
+    {
+        return false;
+    }
+}
+#endif

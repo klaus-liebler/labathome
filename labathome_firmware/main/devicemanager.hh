@@ -11,8 +11,7 @@
 #include <pid_t1_controller.hh>
 #include <pidcontroller.hh>
 
-#include "flatbuffers/flatbuffers.h"
-#include <flatbuffers_cpp/ns04heaterexperiment_generated.h>
+#include <wsprotocol_cpp/ws_protocol.hh>
 
 //see Flowchart.ts -values must be the same
 constexpr const char *FBDSTORE_BASE_DIRECTORY = "/spiffs/fbdstore/";    
@@ -179,8 +178,9 @@ class DeviceManager:public FBContext
         
         DeviceManager(iHAL *hal);
         ErrorCode InitAndRun();
-        ErrorCode TriggerHeaterExperiment(const heaterexperiment::RequestHeater *r, flatbuffers::FlatBufferBuilder &b);
-        ErrorCode GetDebugInfoSize(size_t *sizeInBytes);
-        ErrorCode GetDebugInfo(flatbuffers::FlatBufferBuilder& b); 
+        // Verarbeitet einen RequestHeater und schreibt die kodierte ResponseHeater-Nachricht (inkl. 4-Byte-Kopf) nach buf.
+        ErrorCode TriggerHeaterExperiment(const WsProtocol::heaterexperiment::RequestHeater::Payload &r, uint8_t *buf, size_t bufSize, size_t *outLen);
+        // Schreibt die kodierte ResponseDebugData-Nachricht (inkl. 4-Byte-Kopf) nach buf.
+        ErrorCode GetDebugInfo(uint16_t requestId, uint8_t *buf, size_t bufSize, size_t *outLen); 
 };
 

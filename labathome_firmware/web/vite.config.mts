@@ -9,10 +9,22 @@ import { defineConfig} from 'vite'
 import { singleFileFirmwareAssetPlugin } from "@klaus-liebler/vite-firmware-single-file"
 import fs from "node:fs"
 import path from "node:path"
+import { fileURLToPath } from "node:url"
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 import { visualizer } from 'rollup-plugin-visualizer'
 export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
   const isAnalyze = mode === 'analyze';
   return {
+    resolve: {
+      // Das geteilte Paket @klaus-liebler/web-components haengt per file:-Abhaengigkeit an einem ANDEREN
+      // generated-Verzeichnis (sensact). Damit Client und Firmware dasselbe, hier generierte Protokoll
+      // (gleiche Nachrichten-IDs) nutzen, alle Importe auf das projektlokale generated/ umbiegen.
+      alias: {
+        "@generated/wsprotocol_ts": path.resolve(__dirname, "..", "generated", "wsprotocol_ts"),
+        "@generated/runtimeconfig_ts": path.resolve(__dirname, "..", "generated", "runtimeconfig_ts"),
+      },
+      dedupe: ["lit-html", "chart.js"],
+    },
     plugins: [
       isAnalyze && visualizer({
         filename: './dist/stats.html',

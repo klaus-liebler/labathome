@@ -2,12 +2,11 @@
 #include "esp_log.h"
 #include "errorcodes.hh"
 #include <vector>
+#include <algorithm>
 #include <math.h>
 #include "devicemanager.hh"
 #include "common.hh"
 #include "common-esp32.hh"
-#include "../generated/flatbuffers_cpp/ns03functionblock_generated.h"
-#include "../generated/flatbuffers_cpp/ns04heaterexperiment_generated.h"
 #include "esp_vfs.h"
 #include "modbus.hh"
 
@@ -427,36 +426,37 @@ Executable* DeviceManager::createDummyInitialExecutableAndEnqueue()
     return new Executable(hash, debugSizeBytes, functionBlocks, binaries, integers, floats, colors);
 }
 
-ErrorCode DeviceManager::GetDebugInfoSize(size_t *sizeInBytes){
-    *sizeInBytes=this->currentExecutable->debugSizeBytes;
-    return ErrorCode::OK;
-}
+ErrorCode DeviceManager::GetDebugInfo(uint16_t requestId, uint8_t *buf, size_t bufSize, size_t *outLen){
+    // Das Schema begrenzt jedes Array auf 64 Elemente ([BinaryMaxItemCount(64)] in functionblock.cs)
+    constexpr size_t MAX_ITEMS{64};
+    const Executable *e = this->currentExecutable;
+    uint8_t bools[MAX_ITEMS];
+    int32_t integers[MAX_ITEMS];
+    float floats[MAX_ITEMS];
+    uint32_t colors[MAX_ITEMS];
+    const size_t nBools = std::min(e->binaries.size(), MAX_ITEMS);
+    const size_t nIntegers = std::min(e->integers.size(), MAX_ITEMS);
+    const size_t nFloats = std::min(e->floats.size(), MAX_ITEMS);
+    const size_t nColors = std::min(e->colors.size(), MAX_ITEMS);
+    for (size_t i = 0; i < nBools; i++) bools[i] = e->binaries[i] ? 1 : 0;
+    for (size_t i = 0; i < nIntegers; i++) integers[i] = e->integers[i];
+    for (size_t i = 0; i < nFloats; i++) floats[i] = e->floats[i];
+    for (size_t i = 0; i < nColors; i++) colors[i] = e->colors[i];
 
-ErrorCode DeviceManager::GetDebugInfo(flatbuffers::FlatBufferBuilder& b){
-    std::vector<uint8_t>bools;
-    for (size_t vecPos = 0; vecPos < this->currentExecutable->binaries.size(); vecPos++) {
-        bools.push_back(this->currentExecutable->binaries[vecPos]?1:0);
-    }
-    std::vector<int32_t> integers;
-    for (size_t vecPos = 0; vecPos < this->currentExecutable->integers.size(); vecPos++) {
-        integers.push_back(this->currentExecutable->integers[vecPos]);
-    }
-    std::vector<float> floats;
-    for (size_t vecPos = 0; vecPos < this->currentExecutable->floats.size(); vecPos++) {
-        floats.push_back(this->currentExecutable->floats[vecPos]);
-    }
-   std::vector<uint32_t> colors;
-    for (size_t vecPos = 0; vecPos < this->currentExecutable->colors.size(); vecPos++) {
-        colors.push_back(this->currentExecutable->colors[vecPos]);
-    }
-    b.Finish(
-        functionblock::CreateResponseWrapper(
-            b,
-            functionblock::Responses::Responses_ResponseDebugData,
-            functionblock::CreateResponseDebugDataDirect(b, this->currentExecutable->hash, &bools, &integers, &floats, &colors ).Union()
-        )
-    );
-    return ErrorCode::OK;
+    // Die Array-Elemente sind im Protokoll little-endian kodiert wie im ESP32-Speicher, also direkt kopierbar.
+    WsProtocol::functionblock::ResponseDebugData::Payload resp{};
+    resp.requestId = requestId;
+    resp.debugInfoHash = e->hash;
+    resp.boolsData = bools;
+    resp.boolsCount = nBools;
+    resp.integersData = reinterpret_cast<const uint8_t *>(integers);
+    resp.integersCount = nIntegers;
+    resp.floatsData = reinterpret_cast<const uint8_t *>(floats);
+    resp.floatsCount = nFloats;
+    resp.colorsData = reinterpret_cast<const uint8_t *>(colors);
+    resp.colorsCount = nColors;
+    *outLen = WsProtocol::functionblock::ResponseDebugData::Encode(resp, buf, bufSize);
+    return *outLen > 0 ? ErrorCode::OK : ErrorCode::GENERIC_ERROR;
 }
 
 ErrorCode DeviceManager::CheckForNewExecutable()
@@ -619,35 +619,36 @@ ErrorCode DeviceManager::Loop()
 }
 
 
-ErrorCode DeviceManager::TriggerHeaterExperiment(const heaterexperiment::RequestHeater* r, flatbuffers::FlatBufferBuilder &b){
-    if(r->mode()!=heaterexperiment::Mode::Mode_FunctionBlock){
+ErrorCode DeviceManager::TriggerHeaterExperiment(const WsProtocol::heaterexperiment::RequestHeater::Payload &r, uint8_t *buf, size_t bufSize, size_t *outLen){
+    using WsProtocol::heaterexperiment::Mode;
+    if(r.mode!=Mode::FUNCTION_BLOCK){
         //Settings only if we are in the correct mode; otherwise, read out only!
         this->lastExperimentTrigger=hal->GetMillis();
-        this->heaterReset=r->regulator_reset();
-        this->experimentMode=r->mode()==heaterexperiment::Mode::Mode_ClosedLoop?ExperimentMode::closedloop_heater:ExperimentMode::openloop_heater;
+        this->heaterReset=r.regulatorReset;
+        this->experimentMode=r.mode==Mode::CLOSED_LOOP?ExperimentMode::closedloop_heater:ExperimentMode::openloop_heater;
         
         //New Setpoints
-        this->setpointTemperature=r->setpoint_temperature_degrees();
-        this->setpointFan=r->fan_speed_percent();
-        this->heaterKP=r->kp();
-        this->heaterTN_secs=r->tn();
-        this->heaterTV_secs=r->tv();
-        this->heaterWorkingPointOffset=r->heater_power_working_point_percent();
-        if(r->mode()==heaterexperiment::Mode::Mode_OpenLoop){
-            this->setpointHeater=r->heater_power_percent();
+        this->setpointTemperature=r.setpointTemperatureDegrees;
+        this->setpointFan=r.fanSpeedPercent;
+        this->heaterKP=r.kp;
+        this->heaterTN_secs=r.tn;
+        this->heaterTV_secs=r.tv;
+        this->heaterWorkingPointOffset=r.heaterPowerWorkingPointPercent;
+        if(r.mode==Mode::OPEN_LOOP){
+            this->setpointHeater=r.heaterPowerPercent;
         }
     }
     float heaterTemp{0.0};
     float fanDuty{0.0};
     hal->GetFanDuty(0, &fanDuty);
     hal->GetHeaterTemperature(&heaterTemp);
-    b.Finish(
-        heaterexperiment::CreateResponseWrapper(
-            b, 
-            heaterexperiment::Responses::Responses_ResponseHeater, 
-            heaterexperiment::CreateResponseHeater(b, this->setpointTemperature, heaterTemp, hal->GetHeaterState(), fanDuty).Union()
-        )
-    );
-    return ErrorCode::OK;
+    WsProtocol::heaterexperiment::ResponseHeater::Payload resp{};
+    resp.requestId = r.requestId;
+    resp.setpointTemperatureDegrees = this->setpointTemperature;
+    resp.actualTemperatureDegrees = heaterTemp;
+    resp.heaterPowerPercent = hal->GetHeaterState();
+    resp.fanSpeedPercent = fanDuty;
+    *outLen = WsProtocol::heaterexperiment::ResponseHeater::Encode(resp, buf, bufSize);
+    return *outLen > 0 ? ErrorCode::OK : ErrorCode::GENERIC_ERROR;
 }
 

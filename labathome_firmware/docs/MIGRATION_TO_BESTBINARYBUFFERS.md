@@ -1,6 +1,8 @@
 # Migration auf BestBinaryBuffers + C#-Build-System
 
-**Status: noch nicht begonnen.** Dieses Dokument beschreibt, was in `sensact_firmware`
+**Status: umgesetzt (September 2026)** -- Plugins, devicemanager, Web-UI (lokale Kopien von Flowchart/Heater-Experiment) und der C#-Builder (`builder/`) sind migriert; generierte Dateien liegen in `generated/`. Der folgende Text beschreibt den urspruenglichen Plan.
+
+(Alter Status: noch nicht begonnen.) Dieses Dokument beschreibt, was in `sensact_firmware`
 bereits passiert ist, warum das hier relevant ist, und was konkret zu tun ist, um
 `labathome_firmware` auf denselben Stand zu bringen.
 

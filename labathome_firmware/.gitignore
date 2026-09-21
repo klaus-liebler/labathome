@@ -22,3 +22,14 @@ builder/secrets.ts
 **/generated/
 **/dist/
 **/package-lock.json
+# C#-Builder
+/builder/appsettings.json
+/builder/bin/
+/builder/obj/
+
+# Build-Verzeichnis/sdkconfig fuer Nicht-S3-Targets (s. builder/LabathomeBuildContext.cs)
+build_*/
+sdkconfig.esp32
+sdkconfig.esp32.old
+/builder/google_tts_service_account.json
+/builder/secrets.ts

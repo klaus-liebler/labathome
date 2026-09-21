@@ -16,12 +16,12 @@
   "author": "Klaus Liebler, HS Osnabrück",
   "license": "ISC",
   "dependencies": {
-    "@generated/runtimeconfig_ts": "file:../../../generated/runtimeconfig_ts",
-    "@generated/usersettings": "file:../../../generated/usersettings_ts",
-    "@google/generative-ai": "^0.21.0",
+    "@generated/runtimeconfig_ts": "file:../generated/runtimeconfig_ts",
+    "@generated/wsprotocol_ts": "file:../generated/wsprotocol_ts",
+    "@klaus-liebler/commons": "file:../../../npm-packages/@klaus-liebler/commons",
     "@klaus-liebler/web-components": "file:../../../npm-packages/@klaus-liebler/web-components",
     "@types/node": "^22.10.9",
-    "flatbuffers": "25.1.21",
+    "chart.js": "^4.4.7",
     "lit-html": "^3.2.1",
     "vite": "^6.0.11"
   },

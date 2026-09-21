@@ -1,0 +1,26 @@
+{
+  "BoardStorage": {
+    "BoardsDir": "C:\\Users\\<user>\\OneDrive - HSOS\\esp32_boards"
+  },
+  "Certificates": {
+    "CertsDir": "C:\\Users\\<user>\\OneDrive - HSOS\\certificates",
+    "SubjectPrefix": "/C=DE/ST=NRW/L=Greven/O=Klaus Liebler personal",
+    "CertDays": "3000",
+    "KeyAlgorithm": "RSA_2048",
+    "IncludeServerAuthEku": true,
+    "IncludeClientAuthEku": true,
+    "IncludeSubjectKeyIdentifier": false,
+    "IncludeAuthorityKeyIdentifier": true,
+    "NotBeforeBackdateDays": 1,
+    "SanIpAddress": "192.168.4.1",
+    "SanDnsEntries": [
+      "{hostname}",
+      "{hostname}.local",
+      "{hostname}.fritz.box"
+    ],
+    "RootCaCommonName": "AAA Klaus Liebler personal Root CA"
+  },
+  "NpmPackagesDir": "C:\\repos\\npm-packages",
+  "WebmanagerBestBinaryBuffersSchemaDir": "C:\\repos\\espidf-component-webmanager\\best_binary_buffers_schema",
+  "GoogleTtsCredentialsFile": "google_tts_service_account.json"
+}

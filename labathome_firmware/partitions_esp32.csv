@@ -1,0 +1,6 @@
+# ESP-IDF Partition Table fuer den klassischen ESP32 mit 4 MB Flash (Labathome Rev. 5.x).
+# Nur factory-App + storage, keine OTA-Partitionen (kein otadata).
+# Name, Type, SubType, Offset, Size, Flags
+nvs,data,nvs,0x009000,0x005000,,
+factory,app,factory,0x010000,0x200000,
+storage,data,spiffs,0x210000,0x1F0000,

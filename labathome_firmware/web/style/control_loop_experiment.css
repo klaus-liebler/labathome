@@ -114,6 +114,7 @@ output.bubble {
     color: white;
     padding: 4px 12px;
     position: absolute;
+    top: calc(100% + 6px); /* Wert unterhalb des Handles, ueberdeckt es nicht */
     border-radius: 4px;
     left: 50%;
     transform: translateX(-50%);
@@ -122,9 +123,10 @@ output.bubble {
 .bubble::after {
     content: "";
     position: absolute;
-    width: 2px;
-    height: 2px;
+    width: 8px;
+    height: 8px;
     background: red;
-    top: -1px;
-    left: 50%;
+    top: -4px;
+    left: calc(50% - 4px);
+    transform: rotate(45deg);
 }

@@ -1,4 +1,8 @@
 dependencies:
   idf: '>=5.4'
   joltwallet/littlefs: ~=1.16.4
-  espressif/esp_tinyusb: ^1.7.6~1
+  # USB-OTG (TinyUSB) gibt es nur auf S2/S3/P4 -- auf dem klassischen ESP32 nicht einbinden.
+  espressif/esp_tinyusb:
+    version: ^1.7.6~1
+    rules:
+      - if: "target in [esp32s2, esp32s3, esp32p4]"

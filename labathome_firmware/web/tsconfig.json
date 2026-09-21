@@ -15,6 +15,12 @@
   
       /* Bundler mode */
       "moduleResolution": "bundler",
+      "baseUrl": ".",
+      "paths": {
+        "@generated/wsprotocol_ts": ["../generated/wsprotocol_ts"],
+        "@generated/wsprotocol_ts/*": ["../generated/wsprotocol_ts/*"],
+        "@generated/runtimeconfig_ts": ["../generated/runtimeconfig_ts"]
+      },
       "allowImportingTsExtensions": true,
       "resolveJsonModule": true,
       "isolatedModules": true,

@@ -1,57 +1,51 @@
 #pragma once
 
 #include "webmanager_interfaces.hh"
-#include "flatbuffers/flatbuffers.h"
-#include "../generated/flatbuffers_cpp/ns03functionblock_generated.h"
+#include <wsprotocol_cpp/ws_protocol.hh>
 #define TAG "FNCTN_PLUGIN"
 using namespace webmanager;
 class FunctionblockPlugin : public webmanager::iWebmanagerPlugin
 {
     private:
     DeviceManager* devicemanager;
-    
+
     public:
     FunctionblockPlugin(DeviceManager* devicemanager):devicemanager(devicemanager){
 
     }
-    
+
     void OnBegin(webmanager::iWebmanagerCallback *callback) override {
-        
+
     }
     void OnWifiConnect(webmanager::iWebmanagerCallback *callback) override { (void)(callback); }
     void OnWifiDisconnect(webmanager::iWebmanagerCallback *callback) override { (void)(callback); }
     void OnTimeUpdate(webmanager::iWebmanagerCallback *callback) override { (void)(callback); }
-    webmanager::eMessageReceiverResult ProvideWebsocketMessage(webmanager::iWebmanagerCallback *callback, httpd_req_t *req, httpd_ws_frame_t *ws_pkt, uint32_t ns, uint8_t *buf) override
+    webmanager::eMessageReceiverResult ProvideWebsocketMessage(webmanager::iWebmanagerCallback *callback, httpd_req_t *req, httpd_ws_frame_t *ws_pkt, uint16_t namespaceId, uint16_t messageTypeId, const uint8_t *frame, size_t frameLen) override
     {
-        if(ns!=functionblock::Namespace::Namespace_Value) return eMessageReceiverResult::NOT_FOR_ME;
-        auto rw = flatbuffers::GetRoot<functionblock::RequestWrapper>(buf);
-        auto reqType=rw->request_type();
-        
-        switch (reqType){
-        case functionblock::Requests::Requests_RequestDebugData:{
-            ESP_LOGI(TAG, "Got Requests_RequestDebugData");
-            size_t debugInfoSize{0};
-            devicemanager->GetDebugInfoSize(&debugInfoSize);
-            flatbuffers::FlatBufferBuilder b(32+debugInfoSize);
-            devicemanager->GetDebugInfo(b);
-            callback->WrapAndSendAsync(functionblock::Namespace::Namespace_Value, b);
-            return webmanager::eMessageReceiverResult::OK;
+        if(namespaceId!=WsProtocol::functionblock::NAMESPACE_ID) return eMessageReceiverResult::NOT_FOR_ME;
+
+        switch (messageTypeId){
+        case WsProtocol::functionblock::RequestDebugData::TYPE_ID:{
+            WsProtocol::functionblock::RequestDebugData::Payload r{};
+            if(!WsProtocol::functionblock::RequestDebugData::Decode(frame, frameLen, r)) return eMessageReceiverResult::FOR_ME_BUT_FAILED;
+            ESP_LOGI(TAG, "Got RequestDebugData");
+            static uint8_t buf[WsProtocol::functionblock::ResponseDebugData::ResponseDebugData_MAX_SIZE];
+            size_t len{0};
+            if(devicemanager->GetDebugInfo(r.requestId, buf, sizeof(buf), &len)!=ErrorCode::OK) return eMessageReceiverResult::FOR_ME_BUT_FAILED;
+            return callback->SendRawAsync(buf, len)==ESP_OK ? eMessageReceiverResult::OK : eMessageReceiverResult::FOR_ME_BUT_FAILED;
         }
-        
-        case functionblock::Requests::Requests_RequestFbdRun:
+
+        case WsProtocol::functionblock::RequestFbdRun::TYPE_ID:
         {
-            ESP_LOGI(TAG, "Got Requests_RequestFbdRun");
+            WsProtocol::functionblock::RequestFbdRun::Payload r{};
+            if(!WsProtocol::functionblock::RequestFbdRun::Decode(frame, frameLen, r)) return eMessageReceiverResult::FOR_ME_BUT_FAILED;
+            ESP_LOGI(TAG, "Got RequestFbdRun");
             devicemanager->ParseNewExecutableAndEnqueue(TEMPFBD_FBD_FILEPATH);
-            flatbuffers::FlatBufferBuilder b(256);
-            b.Finish(
-                functionblock::CreateResponseWrapper(
-                    b,
-                    functionblock::Responses::Responses_ResponseFbdRun,
-                    functionblock::CreateResponseFbdRun(b).Union()
-                )
-            );
-            callback->WrapAndSendAsync(functionblock::Namespace::Namespace_Value, b);
-            return webmanager::eMessageReceiverResult::OK;
+            WsProtocol::functionblock::ResponseFbdRun::Payload resp{};
+            resp.requestId = r.requestId;
+            uint8_t buf[16];
+            size_t len = WsProtocol::functionblock::ResponseFbdRun::Encode(resp, buf, sizeof(buf));
+            return (len>0 && callback->SendRawAsync(buf, len)==ESP_OK) ? eMessageReceiverResult::OK : eMessageReceiverResult::FOR_ME_BUT_FAILED;
         }
         default:
             ESP_LOGW(TAG, "Got Unknown Request");

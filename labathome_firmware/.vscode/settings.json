@@ -77,5 +77,6 @@
     "typeinfo": "cpp",
     "variant": "cpp",
     "cdc.h": "c"
-  }
+  },
+  "idf.currentSetup": "C:\\esp\\v6.0\\esp-idf"
 }

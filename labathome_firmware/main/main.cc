@@ -13,9 +13,13 @@
 #include <freertos/queue.h>
 
 //esp idf includes
+#include <soc/soc_caps.h>
+#if SOC_USB_OTG_SUPPORTED
+// USB-OTG (TinyUSB-CDC: Console + Modbus) gibt es nur auf ESP32-S2/S3/P4, nicht auf dem klassischen ESP32
 #include <tusb_cdc_acm.h>
 #include <tinyusb.h>
 #include "tusb_console.h"
+#endif
 #include <esp_system.h>
 #include <esp_log.h>
 #include <esp_littlefs.h>
@@ -49,7 +53,6 @@ static const char *TAG = "main";
 #include "webmanager_plugins/heaterexperiment_plugin.hh"
 #include "webmanager_plugins/functionblock_plugin.hh"
 #include "webmanager_plugins/systeminfo_plugin.hh"
-#include "webmanager_plugins/usersettings_plugin.hh"
 
 DeviceManager *devicemanager{nullptr};
 httpd_handle_t http_server{nullptr};
@@ -67,6 +70,7 @@ extern "C" void app_main()
     //esp_log_level_set(TAG, ESP_LOG_INFO);
     //esp_log_level_set("esp_https_server", ESP_LOG_WARN);
 
+#if SOC_USB_OTG_SUPPORTED
     // TinyUSB initialisieren
     tinyusb_config_t tusb_cfg = {
         .device_descriptor = nullptr,
@@ -94,7 +98,7 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(tusb_cdc_acm_init(&acm_cfg));
 
     ESP_LOGI(TAG, "USB initialisiert: Console auf CDC0, Modbus auf CDC1");
-
+#endif
 
     ESP_LOGI(TAG, "\n%s", cfg::BANNER);
     ESP_LOGI(TAG, "%s is booting up. Firmware build at %s on Git %s", cfg::BOARD_NAME, cfg::CREATION_DT_STR, cfg::GIT_SHORT_HASH);
@@ -109,10 +113,12 @@ extern "C" void app_main()
 
     //Install Temperature sensor
     //Temperature Sensor is used in generic hal for generic use and is used in the SystemPlugin
-    temperature_sensor_handle_t tempHandle;
+    temperature_sensor_handle_t tempHandle{nullptr};
+#if SOC_TEMP_SENSOR_SUPPORTED
     temperature_sensor_config_t temp_sensor_config = {-10, 80, TEMPERATURE_SENSOR_CLK_SRC_DEFAULT, {0}};
     ESP_ERROR_CHECK(temperature_sensor_install(&temp_sensor_config, &tempHandle));
     ESP_ERROR_CHECK(temperature_sensor_enable(tempHandle));
+#endif
 
     //Generating deviceManager
     devicemanager = new DeviceManager(hal);
@@ -121,12 +127,13 @@ extern "C" void app_main()
     plugins.push_back(new HeaterExperimentPlugin(devicemanager));
     plugins.push_back(new FunctionblockPlugin(devicemanager));
     plugins.push_back(new SystemInfoPlugin(tempHandle));
-    plugins.push_back(new UsersettingsPlugin("nvs"));
     
     
     //Configure Network
     webmanager::M* wm = webmanager::M::GetSingleton();
-    ESP_ERROR_CHECK(wm->Begin(cfg::HOSTNAME, "labathome", cfg::HOSTNAME, false, &plugins, true));
+    ESP_ERROR_CHECK(wm->Begin(cfg::HOSTNAME, "labathome", cfg::HOSTNAME, false, &plugins, true, true, ESP_LOG_WARN,
+        cfg::WEBMANAGER_AUTH_USERNAME, cfg::WEBMANAGER_AUTH_PASSWORD,
+        webmanager::FAR_FUTURE, /*disable_authentication=*/true)); // Labathome: kein Login (Geraet im Labornetz/eigenen AP)
 
     const char *hostname = wm->GetHostname();
 #ifdef HTTPS
