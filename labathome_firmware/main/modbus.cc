@@ -86,7 +86,8 @@ Input Registers:
 // USB-OTG (ESP32-S2/S3/P4). Auf dem klassischen ESP32 (Labathome Rev. 5.x) sind ModbusSetup/ModbusLoop
 // leere Platzhalter; Modbus ueber die RS485-Pins ist dort (noch) nicht umgesetzt.
 #if SOC_USB_OTG_SUPPORTED
-#include "tinyusb.h"#include "tusb_cdc_acm.h"
+#include "tinyusb.h"
+#include "tusb_cdc_acm.h"
 
 static const char *TAG = "main";
 

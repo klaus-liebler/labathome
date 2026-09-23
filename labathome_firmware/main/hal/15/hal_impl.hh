@@ -261,7 +261,9 @@ constexpr size_t ANALOG_INPUTS_LEN{2};
 constexpr size_t LED_NUMBER{4};
 
 constexpr i2c_port_t I2C_PORT{I2C_NUM_0};
-constexpr i2s_port_t I2S_PORT{I2S_NUM_0}; // must be I2S_NUM_0, as only this hat access to internal DAC
+// I2S_PORT (legacy i2s_port_t) entfernt: nau88c22.hh nutzt bereits die neue i2s_std-Treiber-API
+// (i2s_chan_handle_t) und braucht diese Portnummer nicht mehr; i2s_port_t existiert in ESP-IDF 6.0
+// nicht mehr (I2S_NUM_0 ist dort nur noch ein #define, kein eigener Typ).
 
 constexpr const char *MOUNT_POINT = "/sdcard";
 #define TAG "HAL"

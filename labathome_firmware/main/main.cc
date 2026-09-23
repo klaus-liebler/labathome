@@ -105,7 +105,19 @@ extern "C" void app_main()
 
     // Configure NVS and SPIFFS
     size_t total = 0, used = 0;
-    esp_vfs_littlefs_conf_t conf = {"/spiffs", "storage", nullptr, 1,0,0,0};//Format if mount failed, read AND write access, really mount it, do not grow on mount
+    // Designated statt positioneller Initialisierung: esp_vfs_littlefs_conf_t hat je nach IDF-Version/Target
+    // zusaetzliche optionale Felder zwischen "partition" und den Bitfeldern (z.B. "blockdev" ab
+    // joltwallet/littlefs 1.17+ auf IDF-Versionen mit ESP_LITTLEFS_HAS_BLOCKDEV) -- eine positionelle Liste
+    // wuerde dann unbemerkt in ein falsches Feld rutschen.
+    esp_vfs_littlefs_conf_t conf = {
+        .base_path = "/spiffs",
+        .partition_label = "storage",
+        .partition = nullptr,
+        .format_if_mount_failed = 1, // Format if mount failed
+        .read_only = 0,              // read AND write access
+        .dont_mount = 0,              // really mount it
+        .grow_on_mount = 0,           // do not grow on mount
+    };
     ESP_ERROR_CHECK(esp_vfs_littlefs_register(&conf));
     ESP_ERROR_CHECK(esp_littlefs_info(conf.partition_label, &total, &used));
     ESP_LOGI(TAG, "LittleFS Partition successfully mounted: total: %dbyte, used: %dbyte", total, used);
