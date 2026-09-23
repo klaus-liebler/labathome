@@ -41,6 +41,19 @@ class FB_ConstFLOAT: public FunctionBlock{
         ~FB_ConstFLOAT(){}
 };
 
+class FB_ConstINTEGER: public FunctionBlock{
+    size_t output;
+    int32_t constant;
+    public:
+        ErrorCode execute(FBContext *ctx)
+        {
+            ctx->SetInteger(this->output, this->constant);
+            return ErrorCode::OK;
+        }
+        FB_ConstINTEGER(uint32_t IdOnWebApp, size_t output, int32_t constant):FunctionBlock(IdOnWebApp), output(output), constant(constant){}
+        ~FB_ConstINTEGER(){}
+};
+
 //Button/Knobs
 class FB_GreenButton: public FunctionBlock{
     size_t output;

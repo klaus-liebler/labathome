@@ -4,12 +4,19 @@
 #include "sdkconfig.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
-#include "HAL.hh"
+#include "iHAL.hh"
 #include "errorcodes.hh"
 #include <vector>
 #include <cstring>
 #include <pid_t1_controller.hh>
+#include <pidcontroller.hh>
 
+#include <wsprotocol_cpp/ws_protocol.hh>
+
+//see Flowchart.ts -values must be the same
+constexpr const char *FBDSTORE_BASE_DIRECTORY = "/spiffs/fbdstore/";    
+constexpr const char *DEFAULTFBD_FBD_FILEPATH =  "/spiffs/defaultfbd.fbd";
+constexpr const char *TEMPFBD_FBD_FILEPATH = "/spiffs/tempfbd.fbd";
 
 class FunctionBlock;
 class Executable
@@ -68,7 +75,7 @@ class FBContext{
         
 
         virtual int64_t GetMicroseconds()=0;
-        virtual HAL *GetHAL()=0;
+        virtual iHAL *GetHAL()=0;
 };
 
 class FunctionBlock {
@@ -112,42 +119,33 @@ enum class ExperimentMode
     openloop_ptn,
     closedloop_ptn,
     closedloop_airspeed,
+    modbus,
     boris_udp,
 };
 
 class DeviceManager:public FBContext
 {
  private:
-        HAL *hal;
-        PID_T1::Controller<float> *heaterPIDController;
-        PID_T1::Controller<float> *airspeedPIDController;
-        PID_T1::Controller<float> *ptnPIDController;
+        iHAL *hal;
+        PID::Controller<float> *heaterPIDController;
         Executable *currentExecutable;
         Executable *nextExecutable;
-        Executable* createInitialExecutable();
+        Executable* createDummyInitialExecutableAndEnqueue();
         uint32_t lastExperimentTrigger=0;
         ExperimentMode experimentMode;
         float heaterKP=0, heaterTN_secs=0, heaterTV_secs=0; bool heaterReset=true;
-        float airspeedKP=0, airspeedTN_secs=0, airspeedTV_secs=0;; bool airspeedReset=true;
-        float ptnKP=0, ptnTN_secs=0, ptnTV_secs=0; ; bool ptnReset=true;
         float actualTemperature=0;
         float setpointTemperature=0;
-        float actualAirspeed=0;
-        float setpointAirspeed=0;
-        float actualPtn=0;
-        float setpointPtn=0;
+        float heaterWorkingPointOffset{0};
 
 
-        float setpointFan1=0;
-        float setpointFan2=0;
+
+        float setpointFan=0;
         float setpointServo1=0;
         float setpointHeater=0;
         float setpointVoltageOut=0;
 
-        static void plcTask(void *pvParameters);
-
         void EternalLoop();
-        ErrorCode FindInitialExecutable();
         ErrorCode CheckForNewExecutable();
         ErrorCode Loop();
         
@@ -175,25 +173,14 @@ class DeviceManager:public FBContext
         
        
         int64_t GetMicroseconds();
-        ErrorCode ParseNewExecutableAndEnqueue(const uint8_t  *buffer, size_t length);
-        HAL *GetHAL();
+        ErrorCode ParseNewExecutableAndEnqueue(const char* path);
+        iHAL *GetHAL();
         
-        DeviceManager(HAL *hal);
+        DeviceManager(iHAL *hal);
         ErrorCode InitAndRun();
-
-        ErrorCode TriggerAirspeedExperimentClosedLoop(float setpointAirspeed, float setpointServo1, float KP, float TN, float TV, bool reset, AirspeedExperimentData *data);
-        ErrorCode TriggerAirspeedExperimentOpenLoop(float setpointFan2, float setpointServo1, AirspeedExperimentData *data);
-        ErrorCode TriggerAirspeedExperimentFunctionblock(AirspeedExperimentData *data);
-        ErrorCode TriggerHeaterExperimentClosedLoop(float setpointTemperature, float setpointFan, float KP, float TN, float TV, bool reset, HeaterExperimentData *data);
-        ErrorCode TriggerHeaterExperimentOpenLoop(float setpointHeater, float setpointFan, HeaterExperimentData *data);
-        ErrorCode TriggerHeaterExperimentFunctionblock(HeaterExperimentData *data);
-
-        ErrorCode TriggerPtnExperimentClosedLoop(float setpoint, float KP, float TN, float TV, bool reset, float **data);
-        ErrorCode TriggerPtnExperimentOpenLoop(float setpoint, float **data);
-        ErrorCode TriggerPtnExperimentFunctionblock(float **data);       
-        
-        ErrorCode TriggerBorisUDP(uint8_t *data, size_t dataLen, uint8_t* responseBufferU8, size_t& responseLen);
-        ErrorCode GetDebugInfoSize(size_t *sizeInBytes);
-        ErrorCode GetDebugInfo(uint8_t *buffer, size_t maxSizeInByte);      
+        // Verarbeitet einen RequestHeater und schreibt die kodierte ResponseHeater-Nachricht (inkl. 4-Byte-Kopf) nach buf.
+        ErrorCode TriggerHeaterExperiment(const WsProtocol::heaterexperiment::RequestHeater::Payload &r, uint8_t *buf, size_t bufSize, size_t *outLen);
+        // Schreibt die kodierte ResponseDebugData-Nachricht (inkl. 4-Byte-Kopf) nach buf.
+        ErrorCode GetDebugInfo(uint16_t requestId, uint8_t *buf, size_t bufSize, size_t *outLen); 
 };
 

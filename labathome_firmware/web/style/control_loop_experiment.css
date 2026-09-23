@@ -1,0 +1,132 @@
+.mode_toggler {
+    input[type="radio"] {
+        display: none;
+
+        &:checked {
+            +.box {
+                background-color: green;
+
+                span {
+                    color: white;
+                    transform: translateY(20px);
+
+                    &:before {
+                        transform: translateY(0px);
+                        opacity: 1;
+                    }
+                }
+            }
+        }
+    }
+
+    .box {
+        width: 150px;
+        height: 75px;
+        background-color: white;
+        transition: all 250ms ease;
+        will-change: transition;
+        display: inline-block;
+        text-align: center;
+        cursor: pointer;
+        position: relative;
+      
+        &:active {
+          transform: translateY(20px);
+        }
+      
+        span {
+          position: absolute;
+          transform: translate(0, 0px);
+          left: 0;
+          right: 0;
+          transition: all 300ms ease;
+          user-select: none;
+          color: green;
+      
+          &:before {
+            display: block;
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: all 300ms ease-in-out;
+            font-weight: normal;
+            color: white;
+          }
+        }
+      }
+
+    .functionblock {
+        span {
+            &:before {
+                content: '🚀';
+            }
+        }
+    }
+
+    .openloop {
+        span {
+            &:before {
+                content: '💪';
+            }
+        }
+    }
+
+
+
+    .closedloop {
+        span {
+            &:before {
+                content: '☕';
+            }
+        }
+    }
+}
+
+
+
+
+form {
+    display: grid;
+    row-gap: 10px;
+    ;
+    grid-template-columns: 200px 1fr;
+    background-color: whitesmoke;
+}
+
+.range-wrap {
+    position: relative;
+    margin: 0 auto 3rem;
+    width: 90%;
+}
+
+button.large{
+    height: 75px;
+    width: 100px;
+    vertical-align: top;
+    font-size: 30px;
+}
+
+input[type="range"] {
+    width: 100%;
+}
+
+output.bubble {
+    background: red;
+    color: white;
+    padding: 4px 12px;
+    position: absolute;
+    top: calc(100% + 6px); /* Wert unterhalb des Handles, ueberdeckt es nicht */
+    border-radius: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.bubble::after {
+    content: "";
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: red;
+    top: -4px;
+    left: calc(50% - 4px);
+    transform: rotate(45deg);
+}

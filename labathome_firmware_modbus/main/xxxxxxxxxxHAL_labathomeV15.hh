@@ -22,7 +22,7 @@
 
 
 #include <errorcodes.hh>
-#include <rgbled.hh>
+#include <rgb_strip.hh>
 #include <bme280.hh>
 #include <bh1750.hh>
 #include <ccs811.hh>
@@ -121,7 +121,7 @@ private:
     OneWire::OneWireBus<PIN_ONEWIRE>* oneWireBus{nullptr};
     i2c_master_dev_handle_t stm32_handle{nullptr};
 
-    RGBLED::M<LED_NUMBER, RGBLED::DeviceType::WS2812> *strip{nullptr};
+    led::RgbStrip<LED_NUMBER, led::DeviceType::WS2812> *strip{nullptr};
     AudioPlayer::Player *mp3player{nullptr};
     spilcd16::M<SPI2_HOST, PIN_LCD_DAT, PIN_LCD_CLK, GPIO_NUM_NC, PIN_LCD_DC, PIN_EXT_IO1, GPIO_NUM_NC, LCD240x240_0, (size_t)8*240, 4096, 0> display;
     spilcd16::FullTextlineRenderer<32, 240, 5,5, 24>* lineRenderer{nullptr};
@@ -445,7 +445,7 @@ public:
         xTaskCreate(mp3Task, "mp3task", 32768 * 4, this, 16, nullptr); //Stack Size = 4096 --> Stack overflow!!
 
         //LED Strip
-        strip = new RGBLED::M<LED_NUMBER, RGBLED::DeviceType::WS2812>();
+        strip = new led::RgbStrip<LED_NUMBER, led::DeviceType::WS2812>();
         ERRORCODE_CHECK(strip->Begin(SPI3_HOST, PIN_LED_WS2812));
         ERRORCODE_CHECK(strip->Clear(100));
 

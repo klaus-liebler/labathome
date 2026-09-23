@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    C#-Build-Orchestrator fuer labathome_firmware, Nachfolger des Node/TypeScript-Orchestrators
+    (gulpfile.ts, geloescht). Architektur/Dateizuschnitt orientiert sich am Referenzprojekt
+    C:\repos\sensact\firmware\sensact_firmware\builder; die gemeinsame Logik liegt in
+    C:\repos\dotnet_libs\firmware_builder_common.
+  -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Builder</RootNamespace>
+    <AssemblyName>builder</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="C:\repos\dotnet_libs\firmware_builder_common\src\FirmwareBuilder.Common\FirmwareBuilder.Common.csproj" />
+  </ItemGroup>
+
+  <!--
+    appsettings.json enthaelt persoenliche Maschinenpfade und ist gitignored: getrackt ist nur
+    appsettings.json.template. Wird bei Bedarf automatisch aus dem Template angelegt (wie im Referenzprojekt).
+  -->
+  <ItemGroup>
+    <None Remove="appsettings.json" />
+    <Compile Remove="secrets.ts" />
+  </ItemGroup>
+
+  <Target Name="EnsureAppSettings" BeforeTargets="BeforeBuild">
+    <Copy
+      Condition="!Exists('$(MSBuildProjectDirectory)\appsettings.json')"
+      SourceFiles="$(MSBuildProjectDirectory)\appsettings.json.template"
+      DestinationFiles="$(MSBuildProjectDirectory)\appsettings.json" />
+    <ItemGroup>
+      <None Include="$(MSBuildProjectDirectory)\appsettings.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+  </Target>
+
+</Project>

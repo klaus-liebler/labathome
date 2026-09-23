@@ -1,3 +1,12 @@
 dependencies:
-  idf: ">=5.3.0"
-  espressif/mdns: ">=1.2.1"
+  idf: '>=5.4'
+  # ~=1.16.4 pinnte littlefs-python==0.11.0 (kein Wheel fuer Python 3.13/3.14 -- Build bricht ab,
+  # s. docs/BOARD_SETUP_UND_FLASHEN.md). Ab v1.17.0 pinnt esp_littlefs littlefs-python>=0.15.0,
+  # das ein natives cp313/cp314-Wheel hat. esp_vfs_littlefs_conf_t ist zwischen 1.16.4 und 1.22.3
+  # unveraendert (gleiche Feldreihenfolge fuer die hier genutzten Felder), main.cc bleibt unveraendert.
+  joltwallet/littlefs: ~=1.22.3
+  # USB-OTG (TinyUSB) gibt es nur auf S2/S3/P4 -- auf dem klassischen ESP32 nicht einbinden.
+  espressif/esp_tinyusb:
+    version: ^1.7.6~1
+    rules:
+      - if: "target in [esp32s2, esp32s3, esp32p4]"

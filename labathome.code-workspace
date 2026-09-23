@@ -4,9 +4,6 @@
 			"path": "labathome_firmware"
 		},
 		{
-			"path": "espidf-component-labathome"
-		},
-		{
 			"path": "../espidf-components-lcd"
 		}
 	],

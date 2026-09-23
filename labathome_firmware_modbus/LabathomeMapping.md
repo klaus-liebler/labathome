@@ -29,13 +29,13 @@ Addresses are **0-Based**.
 
 ### Discrete Output Coils (FC5 / FC15)
 
-| Register (0-Based) [Offset] | Function |
+| Register (0-Based) [Offset]| Function|
 |:---:|:---:|
 | 0 | Relay K3 |
 
 ### Discrete Input Contacts (FC2)
 
-| Register (0-Based) [Offset] | Function |
+| Register (0-Based) [Offset]| Function|
 |:---:|:---:|
 | 0 | Green Button |
 | 1 | Red Button |
@@ -45,6 +45,7 @@ Addresses are **0-Based**.
 ### Holding Registers (FC3 / FC6)
 
 | Register (0-Based) [Offset] | Function |
+
 |:---:|:---:|
 | 0 | Not connected |
 | 1 | Servo 0, Position in Degrees 0...180 |

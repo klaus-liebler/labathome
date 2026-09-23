@@ -1,0 +1,4 @@
+build
+sdkconfig
+dist
+web/secrets.ts

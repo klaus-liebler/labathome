@@ -1,0 +1,41 @@
+#include "tusb_cdc_acm.h"
+#include "tinyusb.h"
+
+// Konfiguration für zwei CDC-ACM-Instanzen
+static tusb_desc_device_t desc_dev = {
+    .bLength = sizeof(tusb_desc_device_t),
+    .bDescriptorType = TUSB_DESC_DEVICE,
+    .bcdUSB = 0x0200,
+    .bDeviceClass = TUSB_CLASS_MISC,
+    .bDeviceSubClass = MISC_SUBCLASS_COMMON,
+    .bDeviceProtocol = MISC_PROTOCOL_IAD,
+    .bMaxPacketSize0 = CFG_TUD_ENDPOINT0_SIZE,
+    .idVendor = 0x303A, // Espressif VID
+    .idProduct = 0x4002,
+    .bcdDevice = 0x0100,
+    .iManufacturer = 0x01,
+    .iProduct = 0x02,
+    .iSerialNumber = 0x03,
+    .bNumConfigurations = 0x01
+};
+
+uint8_t const *tud_descriptor_device_cb(void) {
+    return (uint8_t const *) &desc_dev;
+}
+
+// Konfigurationsdeskriptor mit zwei CDC-ACM-Interfaces
+uint8_t desc_cfg[101] = {
+    // Config Descriptor
+    TUD_CONFIG_DESCRIPTOR(1, 4, 0, 101, TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 500),
+
+    // 1. CDC-ACM: Console
+    TUD_CDC_DESCRIPTOR(0, 4, 0x81, 8, 0x02, 0x82, 64),
+
+    // 2. CDC-ACM: Modbus
+    TUD_CDC_DESCRIPTOR(2, 4, 0x83, 8, 0x04, 0x84, 64)
+};
+
+uint8_t const *tud_descriptor_configuration_cb(uint8_t index) {
+    (void)index;
+    return desc_cfg;
+}

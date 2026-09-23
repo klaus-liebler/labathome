@@ -1,200 +1,207 @@
-#include <stdio.h>
-#include "common_in_project.hh"
-#include <sdkconfig.h>
+//#define HTTP
+#define HTTPS
+
+//c++ lib incudes
+#include <cstdio>
+#include <cstring>
+#include <vector>
+
+//FreeRTOS & Lwip includes
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <freertos/semphr.h>
 #include <freertos/queue.h>
-#include <driver/gpio.h>
+
+//esp idf includes
+#include <soc/soc_caps.h>
+#if SOC_USB_OTG_SUPPORTED
+// USB-OTG (TinyUSB-CDC: Console + Modbus) gibt es nur auf ESP32-S2/S3/P4, nicht auf dem klassischen ESP32
+#include <tusb_cdc_acm.h>
+#include <tinyusb.h>
+#include "tusb_console.h"
+#endif
 #include <esp_system.h>
+#include <esp_log.h>
+#include <esp_littlefs.h>
 #include <spi_flash_mmap.h>
-#include <esp_wifi.h>
-#include <driver/gpio.h>
-#include <esp_event.h>
-#include <sys/param.h>
+#include <esp_log.h>
+#include <nvs.h>
 #include <nvs_flash.h>
-#include <esp_netif.h>
-
-constexpr TickType_t xFrequency {pdMS_TO_TICKS(50)};
-
+#ifdef HTTPS
+#include <esp_https_server.h>
 #ifndef CONFIG_ESP_HTTPS_SERVER_ENABLE
 #error "Enable HTTPS_SERVER in menuconfig!"
 #endif
-#include <esp_https_server.h>
-#include <esp_tls.h>
-// #include <webmanager.hh> //include esp_https_server before!!!
-#include <wifi_sta.hh>
-
-#include "http_handlers.hh"
-static const char *TAG = "main";
-#include "HAL.hh"
-
-#if (CONFIG_IDF_TARGET_ESP32)
-#include "HAL_labathomeV10.hh"
-static HAL * hal = new HAL_Impl(MODE_MOVEMENT_OR_FAN1SENSE::MOVEMENT_SENSOR);
-#elif(CONFIG_IDF_TARGET_ESP32S3)
-#include "HAL_labathomeV15.hh"
-static HAL * hal = new HAL_Impl();
+#endif
+#ifdef HTTP
+#include <esp_http_server.h>
 #endif
 
-#include "functionblocks.hh"
-#include "rgbled.hh"
-#include "esp_log.h"
-#include "spiffs.hh"
+//klaus-liebler component components
+#include <common-esp32.hh>
+#include <webmanager.hh>
+#include <runtimeconfig_cpp/runtimeconfig.hh>
+
+constexpr TickType_t xFrequency {pdMS_TO_TICKS(50)};
+
+//board specific includes
+#include "hal_impl.hh"
+static iHAL * hal = new HAL_Impl();
+
+static const char *TAG = "main";
+#include "devicemanager.hh"
+#include "webmanager_plugins/heaterexperiment_plugin.hh"
+#include "webmanager_plugins/functionblock_plugin.hh"
+#include "webmanager_plugins/systeminfo_plugin.hh"
 
 DeviceManager *devicemanager{nullptr};
 httpd_handle_t http_server{nullptr};
 
-#ifndef CONFIG_SMOPLA_HTTP_SCRATCHPAD_SIZE
-#define CONFIG_SMOPLA_HTTP_SCRATCHPAD_SIZE 2048
-#endif
-#define NVS_PARTITION_NAME NVS_DEFAULT_PART_NAME
-extern const unsigned char rootCAcert_start[] asm("_binary_rootCA_pem_crt_start");
-extern const unsigned char rootCAcert_end[] asm("_binary_rootCA_pem_crt_end");
-extern const unsigned char cert_start[] asm("_binary_esp32_pem_crt_start");
-extern const unsigned char cert_end[] asm("_binary_esp32_pem_crt_end");
-extern const unsigned char privkey_start[] asm("_binary_esp32_pem_key_start");
-extern const unsigned char privkey_end[] asm("_binary_esp32_pem_key_end");
 
-uint8_t http_scatchpad[CONFIG_SMOPLA_HTTP_SCRATCHPAD_SIZE] ALL4;
+constexpr const char* NVS_PARTITION_NAME{NVS_DEFAULT_PART_NAME};
 
-extern "C" void app_main();
+FLASH_FILE(esp32_pem_crt);
+FLASH_FILE(esp32_pem_key);
 
-constexpr httpd_uri_t getroot = {
-    .uri = "/",
-    .method = HTTP_GET,
-    .handler = handle_get_root,
-    .user_ctx = &devicemanager,
-};
 
-constexpr httpd_uri_t putfbd = {
-    .uri = "/fbd",
-    .method = HTTP_PUT,
-    .handler = handle_put_fbd,
-    .user_ctx = &devicemanager,
-};
-
-constexpr httpd_uri_t getfbd = {
-    .uri = "/fbd",
-    .method = HTTP_GET,
-    .handler = handle_get_fbd,
-    .user_ctx = &devicemanager,
-};
-
-constexpr httpd_uri_t getfbdstorejson = {
-    .uri = "/fbdstorejson/*",
-    .method = HTTP_GET,
-    .handler = handle_get_fbdstorejson,
-    .user_ctx = &devicemanager,
-};
-
-constexpr httpd_uri_t postfbdstorejson = {
-    .uri = "/fbdstorejson/*",
-    .method = HTTP_POST,
-    .handler = handle_post_fbdstorejson,
-    .user_ctx = &devicemanager,
-};
-
-constexpr httpd_uri_t deletefbdstorejson = {
-    .uri = "/fbdstorejson/*",
-    .method = HTTP_DELETE,
-    .handler = handle_delete_fbdstorejson,
-    .user_ctx = &devicemanager,
-};
-
-constexpr httpd_uri_t postfbddefaultbin = {
-    .uri = "/fbddefaultbin",
-    .method = HTTP_POST,
-    .handler = handle_post_fbddefaultbin,
-    .user_ctx = &devicemanager,
-};
-
-constexpr httpd_uri_t postfbddefaultjson = {
-    .uri = "/fbddefaultjson",
-    .method = HTTP_POST,
-    .handler = handle_post_fbddefaultjson,
-    .user_ctx = &devicemanager,
-};
-
-constexpr httpd_uri_t putheaterexperiment = {
-    .uri = "/heaterexperiment",
-    .method = HTTP_PUT,
-    .handler = handle_put_heaterexperiment,
-    .user_ctx = &devicemanager,
-};
-
-constexpr httpd_uri_t putairspeedexperiment = {
-    .uri = "/airspeedexperiment",
-    .method = HTTP_PUT,
-    .handler = handle_put_airspeedexperiment,
-    .user_ctx = &devicemanager,
-};
-/*
-constexpr httpd_uri_t putfftexperiment = {
-    .uri = "/fftexperiment",
-    .method = HTTP_PUT,
-    .handler = handle_put_fftexperiment,
-    .user_ctx = &devicemanager,
-};
-*/
-
-constexpr httpd_uri_t putptnexperiment = {
-    .uri = "/ptnexperiment",
-    .method = HTTP_PUT,
-    .handler = handle_put_ptnexperiment,
-    .user_ctx = &devicemanager,
-};
-
-void app_main(void)
+extern "C" void app_main()
 {
     // Configure Logging
     //esp_log_level_set(TAG, ESP_LOG_INFO);
     //esp_log_level_set("esp_https_server", ESP_LOG_WARN);
 
-    // Configure NVS and SPIFFS
-    esp_err_t ret = nvs_flash_init_partition(NVS_PARTITION_NAME);
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
-    {
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        ESP_ERROR_CHECK(nvs_flash_init_partition(NVS_PARTITION_NAME));
-    }
-    ESP_ERROR_CHECK(SpiffsManager::Init());
+#if SOC_USB_OTG_SUPPORTED
+    // TinyUSB initialisieren
+    tinyusb_config_t tusb_cfg = {
+        .device_descriptor = nullptr,
+        .string_descriptor = nullptr,
+        .string_descriptor_count = 0,
+        .external_phy = false,
+        .configuration_descriptor = nullptr,
+        .self_powered = false,
+        .vbus_monitor_io = -1, // ignoriert, da self_powered=false
+    };
+    ESP_ERROR_CHECK(tinyusb_driver_install(&tusb_cfg));
 
+    // Console (erste CDC-Instanz) für printf/esp_log
+    // Erste CDC-Instanz für Modbus
+    tinyusb_config_cdcacm_t acm_cfg = {
+        .usb_dev = TINYUSB_USBDEV_0,
+        .cdc_port = TINYUSB_CDC_ACM_0,
+        .rx_unread_buf_sz = 0,
+        .callback_rx = nullptr, 
+        .callback_rx_wanted_char = nullptr,
+        .callback_line_state_changed = nullptr,
+        .callback_line_coding_changed = nullptr
+    };
+    ESP_ERROR_CHECK(tusb_cdc_acm_init(&acm_cfg));
+    esp_tusb_init_console(TINYUSB_CDC_ACM_0);
+
+    // Zweite CDC-Instanz für Modbus
+    acm_cfg.cdc_port =  TINYUSB_CDC_ACM_1;
+    ESP_ERROR_CHECK(tusb_cdc_acm_init(&acm_cfg));
+
+    ESP_LOGI(TAG, "USB initialisiert: Console auf CDC0, Modbus auf CDC1");
+#endif
+
+    ESP_LOGI(TAG, "\n%s", cfg::BANNER);
+    ESP_LOGI(TAG, "%s is booting up. Firmware build at %s on Git %s", cfg::BOARD_NAME, cfg::CREATION_DT_STR, cfg::GIT_SHORT_HASH);
+
+    // Configure NVS and SPIFFS
+    size_t total = 0, used = 0;
+    // Designated statt positioneller Initialisierung: esp_vfs_littlefs_conf_t hat je nach IDF-Version/Target
+    // zusaetzliche optionale Felder zwischen "partition" und den Bitfeldern (z.B. "blockdev" ab
+    // joltwallet/littlefs 1.17+ auf IDF-Versionen mit ESP_LITTLEFS_HAS_BLOCKDEV) -- eine positionelle Liste
+    // wuerde dann unbemerkt in ein falsches Feld rutschen.
+    esp_vfs_littlefs_conf_t conf = {
+        .base_path = "/spiffs",
+        .partition_label = "storage",
+        .partition = nullptr,
+        .blockdev = nullptr,          // ESP_LITTLEFS_HAS_BLOCKDEV haengt nur an ESP_IDF_VERSION>=6.0, nicht am Chip
+        .format_if_mount_failed = 1, // Format if mount failed
+        .read_only = 0,              // read AND write access
+        .dont_mount = 0,              // really mount it
+        .grow_on_mount = 0,           // do not grow on mount
+    };
+    ESP_ERROR_CHECK(esp_vfs_littlefs_register(&conf));
+    ESP_ERROR_CHECK(esp_littlefs_info(conf.partition_label, &total, &used));
+    ESP_LOGI(TAG, "LittleFS Partition successfully mounted: total: %dbyte, used: %dbyte", total, used);
+    ESP_ERROR_CHECK(nvs_flash_init_and_erase_lazily(NVS_PARTITION_NAME));
+
+    //Install Temperature sensor
+    //Temperature Sensor is used in generic hal for generic use and is used in the SystemPlugin
+    temperature_sensor_handle_t tempHandle{nullptr};
+#if SOC_TEMP_SENSOR_SUPPORTED
+    temperature_sensor_config_t temp_sensor_config = {-10, 80, TEMPERATURE_SENSOR_CLK_SRC_DEFAULT, {0}};
+    ESP_ERROR_CHECK(temperature_sensor_install(&temp_sensor_config, &tempHandle));
+    ESP_ERROR_CHECK(temperature_sensor_enable(tempHandle));
+#endif
+
+    //Generating deviceManager
+    devicemanager = new DeviceManager(hal);
+    
+    std::vector<webmanager::iWebmanagerPlugin*> plugins;
+    plugins.push_back(new HeaterExperimentPlugin(devicemanager));
+    plugins.push_back(new FunctionblockPlugin(devicemanager));
+    plugins.push_back(new SystemInfoPlugin(tempHandle));
+    
+    
     //Configure Network
-    #include "secrets.hh"
-    WIFISTA::InitAndRun(WIFI_SSID, WIFI_PASS, "labathome_%02x%02x%02x");
-    const char *hostname = WIFISTA::GetHostname();
+    webmanager::M* wm = webmanager::M::GetSingleton();
+    ESP_ERROR_CHECK(wm->Begin(cfg::HOSTNAME, "labathome", cfg::HOSTNAME, false, &plugins, true, true, ESP_LOG_WARN,
+        cfg::WEBMANAGER_AUTH_USERNAME, cfg::WEBMANAGER_AUTH_PASSWORD,
+        webmanager::FAR_FUTURE, /*disable_authentication=*/true)); // Labathome: kein Login (Geraet im Labornetz/eigenen AP)
+
+    const char *hostname = wm->GetHostname();
+#ifdef HTTPS
     httpd_ssl_config_t httpd_conf = HTTPD_SSL_CONFIG_DEFAULT();
-    httpd_conf.servercert = cert_start;
-    httpd_conf.servercert_len = cert_end - cert_start;
-    httpd_conf.prvtkey_pem = privkey_start;
-    httpd_conf.prvtkey_len = privkey_end - privkey_start;
+    httpd_conf.servercert = esp32_pem_crt_start;
+    httpd_conf.servercert_len = esp32_pem_crt_end-esp32_pem_crt_start;
+    httpd_conf.prvtkey_pem = esp32_pem_key_start;
+    httpd_conf.prvtkey_len = esp32_pem_key_end-esp32_pem_key_start;
     httpd_conf.httpd.uri_match_fn = httpd_uri_match_wildcard;
     httpd_conf.httpd.max_uri_handlers = 15;
-    httpd_conf.httpd.global_user_ctx = http_scatchpad;
     ESP_ERROR_CHECK(httpd_ssl_start(&http_server, &httpd_conf));
     ESP_LOGI(TAG, "HTTPS Server listening on https://%s:%d", hostname, httpd_conf.port_secure);
+#elif defined(HTTP)
+    httpd_config_t httpd_conf = HTTPD_DEFAULT_CONFIG();
+    httpd_conf.uri_match_fn = httpd_uri_match_wildcard;
+    httpd_conf.max_uri_handlers = 15;
+    ESP_ERROR_CHECK(httpd_start(&http_server, &httpd_conf));
+    ESP_LOGI(TAG, "HTTP Server (not secure!) listening on http://%s:%d", hostname, httpd_conf.server_port);
+#else
+    #error "Either define HTTP or HTTPS"
+#endif
 
     // Start all managers
-    devicemanager = new DeviceManager(hal);
+    
     hal->InitAndRun();
     devicemanager->InitAndRun();
     ESP_LOGI(TAG, "RED %d YEL %d GRN %d", hal->GetButtonRedIsPressed(), hal->GetButtonEncoderIsPressed(), hal->GetButtonGreenIsPressed());
 
     // Allow Browser Access
-    // TODO: Das alles in den Device-Manager packen (siehe Muster im WebManager)
-    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &getroot));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putfbd));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &getfbd));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putheaterexperiment));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putairspeedexperiment));
-    //ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putfftexperiment));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &getfbdstorejson));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &deletefbdstorejson));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &postfbdstorejson));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &postfbddefaultbin));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &postfbddefaultjson));
-    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &putptnexperiment));
+    //the "sensor" endpoint is used to get the sensor data as JSON
+    //register this before the webmanager, because the webmanager has a wildcard handler
+    httpd_uri_t sensors_get = {
+        "/sensors", 
+        HTTP_GET, 
+        [](httpd_req_t *req){
+            size_t l=2048;
+            char *buf= new char[l];
+            devicemanager->GetHAL()->GetSensorsAsJSON(buf, l);
+            httpd_resp_set_type(req, "application/json");
+            httpd_resp_send(req, buf, l);
+            delete[] buf;
+            return ESP_OK;
+        }, 
+        nullptr, false, false, nullptr
+    };
+    ESP_ERROR_CHECK(httpd_register_uri_handler(http_server, &sensors_get));
+
+    wm->RegisterHTTPDHandlers(http_server);
+
+    wm->CallMeAfterInitializationToMarkCurrentPartitionAsValid();
+
 
     // Start eternal supervisor loop
     TickType_t xLastWakeTime = xTaskGetTickCount();

@@ -1,0 +1,33 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "wss": "ts-node ../testserver/index.ts",
+    "build": "tsc && vite build",
+    "build:analyze": "tsc && vite build --mode analyze",
+    "preview": "vite preview",
+    "it": "concurrently \"npm run wss\" \"npm run dev\""
+  },
+  "keywords": [],
+  "author": "Klaus Liebler, HS Osnabrück",
+  "license": "ISC",
+  "dependencies": {
+    "@generated/runtimeconfig_ts": "file:../generated/runtimeconfig_ts",
+    "@generated/wsprotocol_ts": "file:../generated/wsprotocol_ts",
+    "@klaus-liebler/commons": "file:../../../npm-packages/@klaus-liebler/commons",
+    "@klaus-liebler/web-components": "file:../../../npm-packages/@klaus-liebler/web-components",
+    "@types/node": "^22.10.9",
+    "chart.js": "^4.4.7",
+    "lit-html": "^3.2.1",
+    "vite": "^6.0.11"
+  },
+  "devDependencies": {
+    "@klaus-liebler/vite-firmware-single-file": "file:../../../npm-packages/@klaus-liebler/vite-firmware-single-file",
+    "rollup-plugin-visualizer": "^7.0.0",
+    "typescript": "^5.7.0"
+  }
+}
