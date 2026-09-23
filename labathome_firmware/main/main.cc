@@ -75,7 +75,11 @@ extern "C" void app_main()
     tinyusb_config_t tusb_cfg = {
         .device_descriptor = nullptr,
         .string_descriptor = nullptr,
+        .string_descriptor_count = 0,
         .external_phy = false,
+        .configuration_descriptor = nullptr,
+        .self_powered = false,
+        .vbus_monitor_io = -1, // ignoriert, da self_powered=false
     };
     ESP_ERROR_CHECK(tinyusb_driver_install(&tusb_cfg));
 
@@ -113,6 +117,7 @@ extern "C" void app_main()
         .base_path = "/spiffs",
         .partition_label = "storage",
         .partition = nullptr,
+        .blockdev = nullptr,          // ESP_LITTLEFS_HAS_BLOCKDEV haengt nur an ESP_IDF_VERSION>=6.0, nicht am Chip
         .format_if_mount_failed = 1, // Format if mount failed
         .read_only = 0,              // read AND write access
         .dont_mount = 0,              // really mount it

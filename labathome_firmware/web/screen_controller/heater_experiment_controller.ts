@@ -113,12 +113,12 @@ export class HeaterExperimentController extends ScreenController {
               value="0" step="0.1" />
 
             <label class="heaterexperiment_closedloopctrl">T<sub>N</sub></label>
-            <input class="heaterexperiment_closedloopctrl" type="number" ${ref(this.inputTN)} min="0" max="1"
-              value="0" step="0.01" />
+            <input class="heaterexperiment_closedloopctrl" type="number" ${ref(this.inputTN)} min="0"
+              value="0" />
 
             <label class="heaterexperiment_closedloopctrl">T<sub>V</sub></label>
-            <input class="heaterexperiment_closedloopctrl" type="number" ${ref(this.inputTV)} min="0" max="100"
-              value="0" step="0.25" />
+            <input class="heaterexperiment_closedloopctrl" type="number" ${ref(this.inputTV)} min="0"
+              value="0" />
             <label class="heaterexperiment_closedloopctrl">Reset</label>
             <input class="heaterexperiment_closedloopctrl" type="checkbox" ${ref(this.inputReset)} checked />
             <label class="heaterexperiment_closedloopctrl">Working Point Offset</label>
@@ -307,7 +307,12 @@ public OnFirstStart(): void {
     }
     
     private onModeChange(newMode: Mode) {
-        if(newMode==this.mode) return;
+        // Kein frueher return bei newMode==this.mode: OnFirstStart() ruft dies beim Start mit dem
+        // bereits per Default gesetzten Modus (FUNCTION_BLOCK) auf, damit die Steuerelemente initial
+        // korrekt aus-/eingeblendet werden -- mit dem Guard blieb das beim allerersten Aufruf aus
+        // (this.mode war schon FUNCTION_BLOCK), und alle Steuerelemente waren sichtbar, bis man den
+        // Modus einmal weg- und wieder zurueckgeschaltet hat. Die switch-Anweisung ist idempotent,
+        // ein erneutes Setzen derselben Sichtbarkeit ist harmlos.
         switch (newMode) {
             case 0:
                 document.querySelectorAll('.heaterexperiment_closedloopctrl').forEach((v, _k) => {

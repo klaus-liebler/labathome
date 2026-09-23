@@ -694,6 +694,7 @@ public:
             .trans_queue_depth = 0,
             .flags = {
                 .enable_internal_pullup = 1,
+                .allow_pd = 0,
             }};
 
         ESP_ERROR_CHECK(i2c_new_master_bus(&i2c_mst_config, &i2c_master_handle));
