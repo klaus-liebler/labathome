@@ -19,6 +19,7 @@
     "@generated/runtimeconfig_ts": "file:../generated/runtimeconfig_ts",
     "@generated/wsprotocol_ts": "file:../generated/wsprotocol_ts",
     "@klaus-liebler/commons": "file:../../../npm-packages/@klaus-liebler/commons",
+    "@klaus-liebler/flowchart": "file:../../../npm-packages/@klaus-liebler/flowchart",
     "@klaus-liebler/web-components": "file:../../../npm-packages/@klaus-liebler/web-components",
     "@types/node": "^22.10.9",
     "chart.js": "^4.4.7",

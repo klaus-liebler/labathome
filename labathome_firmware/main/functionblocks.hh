@@ -443,7 +443,7 @@ class FB_Int2BoolConverter: public FunctionBlock{
             ctx->SetBinary(this->output, ctx->GetInteger(input)>=limitfor1);
             return ErrorCode::OK;;
         }
-        FB_Int2BoolConverter(uint32_t IdOnWebApp, size_t input, size_t output, int32_t limitfor1=1.0):
+        FB_Int2BoolConverter(uint32_t IdOnWebApp, size_t input, size_t output, int32_t limitfor1=1):
             FunctionBlock(IdOnWebApp), input(input), output(output), limitfor1(limitfor1){}
         ~FB_Int2BoolConverter(){}
 };
@@ -501,7 +501,7 @@ class FB_AND2: public FunctionBlock{
     public:
         ErrorCode execute(FBContext *ctx)
         {
-            ctx->SetBinary(this->output, ctx->GetBinary(inputA) & ctx->GetBinary(inputB));
+            ctx->SetBinary(this->output, ctx->GetBinary(inputA) && ctx->GetBinary(inputB));
             return ErrorCode::OK;;
         }
         FB_AND2(uint32_t IdOnWebApp, size_t inputA, size_t inputB, size_t output):FunctionBlock(IdOnWebApp), inputA(inputA), inputB(inputB), output(output){}
@@ -516,7 +516,7 @@ class FB_OR2: public FunctionBlock{
     public:
         ErrorCode execute(FBContext *ctx)
         {
-            ctx->SetBinary(this->output, ctx->GetBinary(inputA) | ctx->GetBinary(inputB));
+            ctx->SetBinary(this->output, ctx->GetBinary(inputA) || ctx->GetBinary(inputB));
             return ErrorCode::OK;;
         }
         FB_OR2(uint32_t IdOnWebApp, size_t inputA, size_t inputB, size_t output):FunctionBlock(IdOnWebApp), inputA(inputA), inputB(inputB), output(output){}
@@ -704,9 +704,9 @@ class FB_Limit: public FunctionBlock{
     public:
         ErrorCode execute(FBContext *ctx)
         {
-            int i = ctx->GetFloat(this->input);
-            int min = ctx->GetFloat(this->inputMinimum);
-            int max = ctx->GetFloat(this->inputMaximum);
+            float i = ctx->GetFloat(this->input);
+            float min = ctx->GetFloat(this->inputMinimum);
+            float max = ctx->GetFloat(this->inputMaximum);
             ctx->SetFloat(this->output, i>max?max:i<min?min:i);
             return ErrorCode::OK;;
         }
@@ -725,10 +725,10 @@ class FB_LimitMonitor: public FunctionBlock{
     public:
         ErrorCode execute(FBContext *ctx)
         {
-            int i = ctx->GetFloat(this->input);
-            int min = ctx->GetFloat(this->inputMinimum);
-            int max = ctx->GetFloat(this->inputMaximum);
-            int h = ctx->GetFloat(this->inputHysteresis);
+            float i = ctx->GetFloat(this->input);
+            float min = ctx->GetFloat(this->inputMinimum);
+            float max = ctx->GetFloat(this->inputMaximum);
+            float h = ctx->GetFloat(this->inputHysteresis);
             if(i>max){
                 ctx->SetBinary(this->outputULE, true);
             }else if(i<=max-h){
@@ -760,12 +760,13 @@ class FB_CNT: public FunctionBlock{
         ErrorCode execute(FBContext *ctx)
         {
             bool iv = ctx->GetBinary(this->inputTrigger);
-            bool PV = ctx->GetBinary(this->inputPreset);
+            int32_t PV = ctx->GetInteger(this->inputPreset);
             if(ctx->GetBinary(this->inputReset)){
                 this->_CurrentValue=0;
             }else if (this->lastInputValue==false && iv==true && this->_CurrentValue<PV){
                 this->_CurrentValue++;
             }
+            this->lastInputValue=iv;
             ctx->SetBinary(this->output, this->_CurrentValue>=PV);
             ctx->SetInteger(this->outputCurrentValue, this->_CurrentValue);
             return ErrorCode::OK;
@@ -795,6 +796,7 @@ class FB_Timekeeper: public FunctionBlock{
                 this->lastCallTimeUS=0;
                 this->lastInput=false;
                 ctx->SetBinary(this->output, false);
+                ctx->SetInteger(this->outputCurrentValue_msecs, 0);
                 return ErrorCode::OK;
             }
             bool currentInput = ctx->GetBinary(this->inputCountUp);
@@ -823,26 +825,23 @@ class FB_TON: public FunctionBlock{
     size_t outputElapsedTime_msecs;
     
 
-    int64_t inputPositiveEdge = INT64_MAX;
-    bool lastInputValue;
-    
+    int64_t inputPositiveEdge{0};
+    bool lastInputValue{false};
+
     public:
+        //IEC 61131-3 TON: OUT wird PT nach der steigenden Flanke TRUE, ET laeuft von 0 bis PT, bei IN=FALSE ist ET=0
         ErrorCode execute(FBContext *ctx)
         {
             bool currentInputValue = ctx->GetBinary(this->inputTrigger);
-            int presetTime_msecs = ctx->GetInteger(this->inputPresetTime_msecs);
+            int64_t presetTime_msecs = ctx->GetInteger(this->inputPresetTime_msecs);
             auto now = ctx->GetMicroseconds();
             if(lastInputValue==false && currentInputValue==true)
             {
                 inputPositiveEdge=now;
             }
-            else if(currentInputValue==false)
-            {
-                inputPositiveEdge=INT64_MAX;
-            }
             lastInputValue=currentInputValue;
-            auto elapsed = (now-inputPositiveEdge)/1000;
-            ctx->SetBinary(output, elapsed>=presetTime_msecs);
+            int64_t elapsed = currentInputValue ? std::min((now-inputPositiveEdge)/1000, presetTime_msecs) : 0;
+            ctx->SetBinary(output, currentInputValue && elapsed>=presetTime_msecs);
             ctx->SetInteger(outputElapsedTime_msecs, elapsed);
             return ErrorCode::OK;
         }
@@ -857,27 +856,38 @@ class FB_TOF: public FunctionBlock{
     size_t outputElapsedTime_msecs;
     
 
-    int64_t inputNegativeEdge = INT64_MIN;
-    bool lastInputValue;
-    
+    int64_t inputNegativeEdge{0};
+    int64_t elapsed{0};
+    bool lastInputValue{false};
+    bool running{false};
+
     public:
+        //IEC 61131-3 TOF: OUT folgt IN sofort auf TRUE und faellt PT nach der fallenden Flanke ab, ET laeuft dabei von 0 bis PT
         ErrorCode execute(FBContext *ctx)
         {
             bool currentInputValue = ctx->GetBinary(this->inputTrigger);
-            int presetTime_msecs = ctx->GetInteger(this->inputPresetTime_msecs);
+            int64_t presetTime_msecs = ctx->GetInteger(this->inputPresetTime_msecs);
             auto now = ctx->GetMicroseconds();
-            if(lastInputValue==true && currentInputValue==false)
+            if(currentInputValue)
             {
-                inputNegativeEdge=now;
+                running=false;
+                elapsed=0;
             }
-            else if(currentInputValue==false)
+            else
             {
-                inputNegativeEdge=INT64_MIN;
+                if(lastInputValue)
+                {
+                    running=true;
+                    inputNegativeEdge=now;
+                }
+                if(running)
+                {
+                    elapsed=std::min((now-inputNegativeEdge)/1000, presetTime_msecs);
+                    if(elapsed>=presetTime_msecs) running=false;
+                }
             }
             lastInputValue=currentInputValue;
-            auto elapsed = (now-inputNegativeEdge)/1000;
-            elapsed=std::min(elapsed, (long long)presetTime_msecs);
-            ctx->SetBinary(output, currentInputValue || (elapsed<presetTime_msecs));
+            ctx->SetBinary(output, currentInputValue || running);
             ctx->SetInteger(outputElapsedTime_msecs, elapsed);
             return ErrorCode::OK;
         }
@@ -907,14 +917,17 @@ class FB_PIDSimple: public FunctionBlock{
         ErrorCode initPhase1(FBContext *ctx) override
         {
             pid = new PID_T1::Controller<float>(&feedbackValue, &outputValue, &setpointValue, minOutput, maxOutput, PID_T1::Mode::CLOSEDLOOP, PID_T1::AntiWindup::ON_SWICH_OFF_INTEGRATOR, directionInverse?PID_T1::Direction::REVERSE:PID_T1::Direction::DIRECT, 1000);
+            pid->SetWorkingPointOffset(0);
+            pid->Reset();
             pid->SetKpTnTv(kp, tn_msecs, tv_msecs, tv_msecs*0.2);
             return ErrorCode::OK;
         }
 
         ErrorCode execute(FBContext *ctx) override
         {
-            ctx->GetFloatAsPointer(inputSetpoint, &setpointValue);
-            ctx->GetFloatAsPointer(inputFeedback, &feedbackValue);
+            //PID_T1::Controller wertet Direction nicht aus: e = setpoint - feedback, fuer "Inverse" daher tauschen
+            ctx->GetFloatAsPointer(directionInverse?inputFeedback:inputSetpoint, &setpointValue);
+            ctx->GetFloatAsPointer(directionInverse?inputSetpoint:inputFeedback, &feedbackValue);
             pid->Compute(ctx->GetMicroseconds()/1000);
             ctx->SetFloat(output, outputValue);
             return ErrorCode::OK;
