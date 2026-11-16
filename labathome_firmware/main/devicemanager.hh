@@ -178,9 +178,9 @@ class DeviceManager:public FBContext
         
         DeviceManager(iHAL *hal);
         ErrorCode InitAndRun();
-        // Verarbeitet einen RequestHeater und schreibt die kodierte ResponseHeater-Nachricht (inkl. 4-Byte-Kopf) nach buf.
-        ErrorCode TriggerHeaterExperiment(const WsProtocol::heaterexperiment::RequestHeater::Payload &r, uint8_t *buf, size_t bufSize, size_t *outLen);
-        // Schreibt die kodierte ResponseDebugData-Nachricht (inkl. 4-Byte-Kopf) nach buf.
-        ErrorCode GetDebugInfo(uint16_t requestId, uint8_t *buf, size_t bufSize, size_t *outLen); 
+        // answers through 'reply' (ResponseHeater)
+        void TriggerHeaterExperiment(const WsProtocol::heaterexperiment::RequestHeater::Payload &r, WsProtocol::Responder &reply);
+        // answers through 'reply' (ResponseDebugData)
+        void GetDebugInfo(WsProtocol::Responder &reply);
 };
 

@@ -19,11 +19,11 @@ export class DevelopCFCController extends ScreenController implements IFlowchart
     public Template = () => html`<div ${ref(this.mainDiv)} class="develop-ui"></div>`
 
     RequestFbdRun(): void {
-        this.appManagement.SendFrame(functionblock.NAMESPACE_ID, functionblock.RequestFbdRun.encode({requestId:0}), 3000);
+        this.appManagement.SendFrame(functionblock.NAMESPACE_ID, functionblock.RequestFbdRun.encode({}, 0), 3000);
     }
 
     RequestDebugData(): void {
-        this.appManagement.SendFrame(functionblock.NAMESPACE_ID, functionblock.RequestDebugData.encode({requestId:0}));
+        this.appManagement.SendFrame(functionblock.NAMESPACE_ID, functionblock.RequestDebugData.encode({}, 0));
     }
 
     OnMessage(namespaceId: number, messageTypeId: number, view: DataView): void {

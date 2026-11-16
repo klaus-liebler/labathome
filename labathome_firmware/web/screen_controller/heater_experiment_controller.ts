@@ -343,9 +343,7 @@ public OnFirstStart(): void {
     }
 
     private sendAndReceive() {
-        const bytes = heaterexperiment.RequestHeater.encode({
-            requestId: 0,
-            mode: this.mode,
+        const bytes = heaterexperiment.RequestHeater.encode({ mode: this.mode,
             heaterPowerPercent: this.inputSetpointHeater.value!.valueAsNumber,
             setpointTemperatureDegrees: this.inputSetpointTemperature.value!.valueAsNumber,
             fanSpeedPercent: this.mode==Mode.OPEN_LOOP?this.inputFanOL.value!.valueAsNumber:this.inputFanCL.value!.valueAsNumber,
@@ -353,8 +351,7 @@ public OnFirstStart(): void {
             tn: this.inputTN.value!.valueAsNumber,
             tv: this.inputTV.value!.valueAsNumber,
             heaterPowerWorkingPointPercent: this.inputWP.value!.valueAsNumber,
-            regulatorReset: this.inputReset.value!.checked ? true : false,
-        });
+            regulatorReset: this.inputReset.value!.checked ? true : false, }, 0);
         this.appManagement.SendFrame(heaterexperiment.NAMESPACE_ID, bytes, 0);
     }
 

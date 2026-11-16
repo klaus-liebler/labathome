@@ -112,7 +112,6 @@ internal static class Program
 	[BuildStep]
 	public static void GenerateCertificates(IBuildContextEsp32 ctx) => BoardCertificateService.EnsureBoardCertificate(
 		ctx,
-		rootCaCommonName: BuilderOptions.Current.Certificates.RootCaCommonName,
 		hostname: ctx.Hostname,
 		outputFileBaseName: "esp32");
 

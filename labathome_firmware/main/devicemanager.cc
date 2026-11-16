@@ -426,7 +426,7 @@ Executable* DeviceManager::createDummyInitialExecutableAndEnqueue()
     return new Executable(hash, debugSizeBytes, functionBlocks, binaries, integers, floats, colors);
 }
 
-ErrorCode DeviceManager::GetDebugInfo(uint16_t requestId, uint8_t *buf, size_t bufSize, size_t *outLen){
+void DeviceManager::GetDebugInfo(WsProtocol::Responder &reply){
     // Das Schema begrenzt jedes Array auf 64 Elemente ([BinaryMaxItemCount(64)] in functionblock.cs)
     constexpr size_t MAX_ITEMS{64};
     const Executable *e = this->currentExecutable;
@@ -445,7 +445,6 @@ ErrorCode DeviceManager::GetDebugInfo(uint16_t requestId, uint8_t *buf, size_t b
 
     // Die Array-Elemente sind im Protokoll little-endian kodiert wie im ESP32-Speicher, also direkt kopierbar.
     WsProtocol::functionblock::ResponseDebugData::Payload resp{};
-    resp.requestId = requestId;
     resp.debugInfoHash = e->hash;
     resp.boolsData = bools;
     resp.boolsCount = nBools;
@@ -455,8 +454,7 @@ ErrorCode DeviceManager::GetDebugInfo(uint16_t requestId, uint8_t *buf, size_t b
     resp.floatsCount = nFloats;
     resp.colorsData = reinterpret_cast<const uint8_t *>(colors);
     resp.colorsCount = nColors;
-    *outLen = WsProtocol::functionblock::ResponseDebugData::Encode(resp, buf, bufSize);
-    return *outLen > 0 ? ErrorCode::OK : ErrorCode::GENERIC_ERROR;
+    reply.Send(WsProtocol::functionblock::ResponseDebugData::Encode, resp);
 }
 
 ErrorCode DeviceManager::CheckForNewExecutable()
@@ -619,7 +617,7 @@ ErrorCode DeviceManager::Loop()
 }
 
 
-ErrorCode DeviceManager::TriggerHeaterExperiment(const WsProtocol::heaterexperiment::RequestHeater::Payload &r, uint8_t *buf, size_t bufSize, size_t *outLen){
+void DeviceManager::TriggerHeaterExperiment(const WsProtocol::heaterexperiment::RequestHeater::Payload &r, WsProtocol::Responder &reply){
     using WsProtocol::heaterexperiment::Mode;
     if(r.mode!=Mode::FUNCTION_BLOCK){
         //Settings only if we are in the correct mode; otherwise, read out only!
@@ -643,12 +641,10 @@ ErrorCode DeviceManager::TriggerHeaterExperiment(const WsProtocol::heaterexperim
     hal->GetFanDuty(0, &fanDuty);
     hal->GetHeaterTemperature(&heaterTemp);
     WsProtocol::heaterexperiment::ResponseHeater::Payload resp{};
-    resp.requestId = r.requestId;
     resp.setpointTemperatureDegrees = this->setpointTemperature;
     resp.actualTemperatureDegrees = heaterTemp;
     resp.heaterPowerPercent = hal->GetHeaterState();
     resp.fanSpeedPercent = fanDuty;
-    *outLen = WsProtocol::heaterexperiment::ResponseHeater::Encode(resp, buf, bufSize);
-    return *outLen > 0 ? ErrorCode::OK : ErrorCode::GENERIC_ERROR;
+    reply.Send(WsProtocol::heaterexperiment::ResponseHeater::Encode, resp);
 }
 

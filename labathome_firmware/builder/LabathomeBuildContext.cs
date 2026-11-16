@@ -89,8 +89,8 @@ public sealed class LabathomeBuildContext : AbstractBuildContext, IBuildContextE
 
 	public LabathomeHardware Hardware => new(Board.BoardVersion ?? DefaultBoardVersion);
 
-	public override ChipId ChipId => ChipId.FromEsp32Mac48(BoardMac);
-	public override string BoardUid => BoardPaths.BoardDirectoryName(BoardMac);
+	public override ChipId ChipId => ChipIdEsp32.FromEsp32Mac48(BoardMac);
+	public override string BoardUid => ChipId.ToBoardUid();
 	public override string BoardArchiveDir => BoardArchiveContext.BoardArchiveDir(BuilderOptions.Current.BoardStorage, BoardUid);
 
 	public override string? WebAdminPassword => Board.WebAdminPassword;
