@@ -39,14 +39,20 @@ neue Interface-Signatur.
 - virtual eMessageReceiverResult ProvideWebsocketMessage(iWebmanagerCallback *callback,
 -     httpd_req_t *req, httpd_ws_frame_t *ws_pkt, uint32_t ns, uint8_t *buf) = 0;
 + virtual eMessageReceiverResult ProvideWebsocketMessage(iWebmanagerCallback *callback,
-+     httpd_req_t *req, httpd_ws_frame_t *ws_pkt, uint16_t namespaceId, uint16_t messageTypeId,
-+     const uint8_t *frame, size_t frameLen) = 0;
++     WsProtocol::Responder &reply, const uint8_t *frame, size_t frameLen) = 0;
 ```
 
-`frame` zeigt jetzt auf den **kompletten** Frame inkl. 4-Byte-Kopf (2x `uint16`:
-`namespaceId`, `messageTypeId`) -- kein Vorab-Slicing mehr durch den Dispatcher. Die
-generierten `WsProtocol::<namespace>::<Message>::Decode(frame, frameLen, out)`-
-Funktionen ueberspringen die ersten 4 Bytes selbst.
+`frame` zeigt auf den **kompletten** Frame inkl. 8-Byte-Kopf (4x `uint16`: `namespaceId`,
+`messageTypeId`, `correlationId`, `flags`) -- kein Vorab-Slicing durch den Dispatcher. Die
+generierten `WsProtocol::<namespace>::<Message>::Decode(frame, frameLen, out)`-Funktionen
+ueberspringen den Kopf selbst. Namespace und Typ stehen in `reply.Request()`.
+
+Geantwortet wird nur ueber `reply`: `reply.Send(X::Encode, payload)` traegt die
+`correlationId` der Anfrage ein, `reply.Error(code, text)` schickt eine Fehlerantwort
+(`FLAG_ERROR`). Kein Handler setzt eine Korrelation selbst; ein `requestId`-Feld in den
+Nutzdaten gibt es nicht mehr. `webmanager::Handle(reply, frame, len, X::Decode, handler)`
+dekodiert und antwortet bei einem kaputten Frame selbst mit `Malformed`. Nimmt kein Plugin
+eine Nachricht an, antwortet der Dispatcher mit `UnknownMessage`.
 
 ## Konkret zu aendernde Dateien in diesem Repo
 
