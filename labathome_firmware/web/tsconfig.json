@@ -9,6 +9,8 @@
       // zu findender Bug). Uebernommen aus factory_in_a_box/web/tsconfig.json, wo dieser Bug bereits
       // aufgetreten war.
       "useDefineForClassFields": false,
+      // Lit-Decorators der Anwendungs-Shell @klaus-liebler/ui-shell
+      "experimentalDecorators": true,
       "module": "ESNext",
       "lib": ["ES2020", "DOM", "DOM.Iterable"],
       "skipLibCheck": true,

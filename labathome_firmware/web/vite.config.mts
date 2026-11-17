@@ -23,7 +23,7 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
         "@generated/wsprotocol_ts": path.resolve(__dirname, "..", "generated", "wsprotocol_ts"),
         "@generated/runtimeconfig_ts": path.resolve(__dirname, "..", "generated", "runtimeconfig_ts"),
       },
-      dedupe: ["lit-html", "chart.js"],
+      dedupe: ["lit-html", "lit", "@lit/reactive-element", "chart.js"],
     },
     plugins: [
       isAnalyze && visualizer({

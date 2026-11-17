@@ -20,9 +20,11 @@
     "@generated/wsprotocol_ts": "file:../generated/wsprotocol_ts",
     "@klaus-liebler/commons": "file:../../../npm-packages/@klaus-liebler/commons",
     "@klaus-liebler/flowchart": "file:../../../npm-packages/@klaus-liebler/flowchart",
+    "@klaus-liebler/ui-shell": "file:../../../npm-packages/@klaus-liebler/ui-shell",
     "@klaus-liebler/web-components": "file:../../../npm-packages/@klaus-liebler/web-components",
     "@types/node": "^22.10.9",
     "chart.js": "^4.4.7",
+    "lit": "^3.3.2",
     "lit-html": "^3.2.1",
     "vite": "^6.0.11"
   },

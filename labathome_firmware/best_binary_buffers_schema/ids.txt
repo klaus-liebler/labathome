@@ -81,3 +81,9 @@ namespace systeminfo 8
 namespace usermanagement 9
 namespace usersettings 10
 namespace wifimanager 11
+message firmwarelog.NotifyLogMessage 1
+message firmwarelog.RequestLogHistory 2
+message firmwarelog.ResponseLogHistory 3
+message firmwarelog.RequestSetLogLevel 4
+message firmwarelog.ResponseSetLogLevel 5
+namespace firmwarelog 12
